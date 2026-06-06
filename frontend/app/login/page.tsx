@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useAuth } from '@/lib/auth-context'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,13 +23,12 @@ export default function LoginPage() {
     setError('')
     setIsLoading(true)
 
-    // Simulate login
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const result = await login(email, password)
 
-    if (email && password) {
+    if (result.ok) {
       router.push('/profiles')
     } else {
-      setError('Por favor ingresa tu correo y contraseña')
+      setError(result.error || 'Error al iniciar sesion')
     }
     setIsLoading(false)
   }

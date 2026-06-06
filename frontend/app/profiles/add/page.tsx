@@ -3,33 +3,48 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-const avatarColors = [
-  { id: '1', gradient: 'from-primary to-primary/70' },
-  { id: '2', gradient: 'from-blue-500 to-blue-700' },
-  { id: '3', gradient: 'from-green-500 to-green-700' },
-  { id: '4', gradient: 'from-yellow-500 to-yellow-700' },
-  { id: '5', gradient: 'from-purple-500 to-purple-700' },
-  { id: '6', gradient: 'from-pink-500 to-pink-700' },
-  { id: '7', gradient: 'from-orange-500 to-orange-700' },
-  { id: '8', gradient: 'from-teal-500 to-teal-700' },
-]
+import { useAuth } from '@/lib/auth-context'
 
 export default function AddProfilePage() {
   const router = useRouter()
-  const [name, setName] = useState('')
-  const [selectedAvatar, setSelectedAvatar] = useState('1')
-  const [isKid, setIsKid] = useState(false)
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const [nombre, setNombre] = useState('')
+  const [esInfantil, setEsInfantil] = useState(false)
+  const [idioma, setIdioma] = useState('es')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  if (!authLoading && !isAuthenticated) {
+    router.push('/login')
+    return null
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setIsLoading(true)
-    // Simulate save
-    await new Promise(resolve => setTimeout(resolve, 500))
-    router.push('/profiles')
+
+    try {
+      const res = await fetch('/api/profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, es_infantil: esInfantil, idioma }),
+      })
+
+      if (res.ok) {
+        router.push('/profiles')
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Error al crear el perfil')
+      }
+    } catch {
+      setError('Error de conexion')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -42,92 +57,89 @@ export default function AddProfilePage() {
         </Link>
       </header>
 
-      {/* Form */}
-      <main className="w-full max-w-lg">
-        <h1 className="mb-2 text-3xl font-medium text-foreground md:text-4xl">
-          Agregar perfil
-        </h1>
-        <p className="mb-8 text-muted-foreground">
+      <main className="w-full max-w-md">
+        <button
+          onClick={() => router.back()}
+          className="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Volver a perfiles
+        </button>
+
+        <h1 className="mb-8 text-3xl font-bold text-foreground">Agregar perfil</h1>
+
+        <p className="mb-6 text-muted-foreground">
           Agrega un perfil para otra persona que use Quetxal TV.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Avatar Selection */}
-          <div>
-            <label className="mb-4 block text-sm font-medium text-foreground">
-              Elige un avatar
-            </label>
-            <div className="flex flex-wrap gap-3">
-              {avatarColors.map(avatar => (
-                <button
-                  key={avatar.id}
-                  type="button"
-                  onClick={() => setSelectedAvatar(avatar.id)}
-                  className={`h-16 w-16 rounded bg-gradient-to-br ${avatar.gradient} transition-all ${
-                    selectedAvatar === avatar.id
-                      ? 'ring-4 ring-foreground ring-offset-2 ring-offset-background'
-                      : 'opacity-60 hover:opacity-100'
-                  }`}
-                >
-                  <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-white">
-                    {name ? name.charAt(0).toUpperCase() : '?'}
-                  </span>
-                </button>
-              ))}
-            </div>
+        {error && (
+          <div className="mb-6 rounded bg-destructive/20 p-3 text-sm text-destructive">
+            {error}
           </div>
+        )}
 
-          {/* Name Input */}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="mb-2 block text-sm font-medium text-foreground">
               Nombre del perfil
             </label>
             <Input
               type="text"
-              placeholder="Nombre"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              className="h-12 bg-input text-foreground placeholder:text-muted-foreground"
+              placeholder="Ej: Maria, Kids, etc."
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              className="h-14 bg-input text-foreground placeholder:text-muted-foreground"
               required
-              maxLength={20}
+              maxLength={30}
             />
           </div>
 
-          {/* Kids Profile Toggle */}
-          <div className="flex items-center gap-3">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-foreground">
+              Idioma
+            </label>
+            <select
+              value={idioma}
+              onChange={e => setIdioma(e.target.value)}
+              className="h-14 w-full rounded-md border border-border bg-input px-3 text-foreground"
+            >
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="pt">Português</option>
+              <option value="fr">Français</option>
+            </select>
+          </div>
+
+          <label className="flex cursor-pointer items-center gap-3">
             <input
               type="checkbox"
-              id="isKid"
-              checked={isKid}
-              onChange={e => setIsKid(e.target.checked)}
+              checked={esInfantil}
+              onChange={e => setEsInfantil(e.target.checked)}
               className="h-5 w-5 rounded border-muted-foreground bg-input"
             />
-            <label htmlFor="isKid" className="cursor-pointer text-foreground">
-              ¿Es un perfil infantil?
-            </label>
-          </div>
-          {isKid && (
-            <p className="text-sm text-muted-foreground">
-              Los perfiles infantiles solo muestran contenido clasificado para todas las edades.
-            </p>
-          )}
+            <div>
+              <span className="font-medium text-foreground">Perfil infantil</span>
+              <p className="text-sm text-muted-foreground">
+                Mostrara solo contenido apto para niños.
+              </p>
+            </div>
+          </label>
 
-          {/* Actions */}
-          <div className="flex gap-4 border-t border-border pt-6">
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={!name || isLoading}
-            >
-              {isLoading ? 'Guardando...' : 'Guardar'}
-            </Button>
+          <div className="flex gap-4 pt-4">
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
-              onClick={() => router.push('/profiles')}
+              className="h-12 flex-1"
+              onClick={() => router.back()}
             >
               Cancelar
+            </Button>
+            <Button
+              type="submit"
+              className="h-12 flex-1 font-semibold"
+              disabled={isLoading || !nombre.trim()}
+            >
+              {isLoading ? 'Creando...' : 'Crear perfil'}
             </Button>
           </div>
         </form>

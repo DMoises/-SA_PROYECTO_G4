@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useAuth } from '@/lib/auth-context'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { register } = useAuth()
   const [step, setStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -17,19 +19,27 @@ export default function RegisterPage() {
     name: '',
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+    setError('')
+
     if (step === 1) {
       setStep(2)
       return
     }
 
     setIsLoading(true)
-    // Simulate registration
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    router.push('/account/plans')
+
+    const result = await register(formData.email, formData.password, formData.name)
+
+    if (result.ok) {
+      router.push('/profiles')
+    } else {
+      setError(result.error || 'Error al crear la cuenta')
+    }
+    setIsLoading(false)
   }
 
   return (
@@ -68,6 +78,12 @@ export default function RegisterPage() {
           </div>
 
           <div className="rounded-lg bg-background/90 p-8 md:p-12">
+            {error && (
+              <div className="mb-6 rounded bg-destructive/20 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+
             {step === 1 ? (
               <>
                 <p className="mb-2 text-sm uppercase tracking-wider text-muted-foreground">
@@ -110,7 +126,7 @@ export default function RegisterPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <Input
                     type="text"
-                    placeholder="Nombre completo"
+                    placeholder="Nombre de perfil"
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                     className="h-14 bg-input text-foreground placeholder:text-muted-foreground"

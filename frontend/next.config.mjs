@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  serverExternalPackages: ['@grpc/grpc-js', '@grpc/proto-loader'],
 }
 
 export default nextConfig

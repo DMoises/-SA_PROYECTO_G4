@@ -1,0 +1,157 @@
+name: quetxal-tv-services
+
+services:
+
+  identity-ms:
+    build:
+      context: ./backend/services
+      dockerfile: Dockerfile.identity
+    container_name: quetxal-identity-ms
+    restart: always
+    environment:
+      SERVICE_NAME: identity-service
+      DB_HOST: ${DB_HOST:-10.128.0.3}
+      DB_PORT: ${DB_PORT:-5432}
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTH_DB_USER: ${AUTH_DB_USER}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      GRPC_PORT: 3001
+      SERVICE_PORT: 50051
+    expose:
+      - "50051"  # gRPC para API Gateway (via internal network)
+    networks: [quetxal-net]
+    depends_on:
+      - dummy-wait  # Placeholder, reemplazado por health checks reales
+
+  history-ms:
+    build:
+      context: ./backend/services
+      dockerfile: Dockerfile.history
+    container_name: quetxal-history-ms
+    restart: always
+    environment:
+      SERVICE_NAME: history-service
+      DB_HOST: ${DB_HOST:-10.128.0.3}
+      DB_PORT: ${DB_PORT:-5432}
+      HISTORY_DB_NAME: ${HISTORY_DB_NAME}
+      HISTORY_DB_USER: ${HISTORY_DB_USER}
+      HISTORY_DB_PASSWORD: ${HISTORY_DB_PASSWORD}
+      GRPC_PORT: 3002
+      SERVICE_PORT: 50052
+    expose:
+      - "50052"
+    networks: [quetxal-net]
+
+  catalog-ms:
+    build:
+      context: ./backend/services
+      dockerfile: Dockerfile.catalog
+    container_name: quetxal-catalog-ms
+    restart: always
+    environment:
+      SERVICE_NAME: catalog-service
+      DB_HOST: ${DB_HOST:-10.128.0.3}
+      DB_PORT: ${DB_PORT:-5432}
+      CATALOG_DB_NAME: ${CATALOG_DB_NAME}
+      CATALOG_DB_USER: ${CATALOG_DB_USER}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+      GRPC_PORT: 3003
+      SERVICE_PORT: 50053
+    expose:
+      - "50053"
+    networks: [quetxal-net]
+
+  rating-ms:
+    build:
+      context: ./backend/services
+      dockerfile: Dockerfile.rating
+    container_name: quetxal-rating-ms
+    restart: always
+    environment:
+      SERVICE_NAME: rating-service
+      DB_HOST: ${DB_HOST:-10.128.0.3}
+      DB_PORT: ${DB_PORT:-5432}
+      RATING_DB_NAME: ${RATING_DB_NAME}
+      RATING_DB_USER: ${RATING_DB_USER}
+      RATING_DB_PASSWORD: ${RATING_DB_PASSWORD}
+      GRPC_PORT: 3004
+      SERVICE_PORT: 50054
+    expose:
+      - "50054"
+    networks: [quetxal-net]
+
+  fx-ms:
+    build:
+      context: ./backend/services
+      dockerfile: Dockerfile.fx
+    container_name: quetxal-fx-ms
+    restart: always
+    environment:
+      SERVICE_NAME: fx-service
+      DB_HOST: ${DB_HOST:-10.128.0.3}
+      DB_PORT: ${DB_PORT:-5432}
+      FX_DB_NAME: ${FX_DB_NAME}
+      FX_DB_USER: ${FX_DB_USER}
+      FX_DB_PASSWORD: ${FX_DB_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST:-10.128.0.3}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      GRPC_PORT: 3005
+      SERVICE_PORT: 50055
+    expose:
+      - "50055"
+    networks: [quetxal-net]
+
+  billing-ms:
+    build:
+      context: ./backend/services
+      dockerfile: Dockerfile.billing
+    container_name: quetxal-billing-ms
+    restart: always
+    environment:
+      SERVICE_NAME: billing-service
+      DB_HOST: ${DB_HOST:-10.128.0.3}
+      DB_PORT: ${DB_PORT:-5432}
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
+      FX_SERVICE_HOST: fx-ms
+      FX_SERVICE_PORT: 50055
+      NOTIFICATION_SERVICE_HOST: notification-ms
+      NOTIFICATION_SERVICE_PORT: 50057
+      GRPC_PORT: 3006
+      SERVICE_PORT: 50056
+    expose:
+      - "50056"
+    networks: [quetxal-net]
+    depends_on:
+      - fx-ms
+
+  notification-ms:
+    build:
+      context: ./backend/services
+      dockerfile: Dockerfile.notification
+    container_name: quetxal-notification-ms
+    restart: always
+    environment:
+      SERVICE_NAME: notification-service
+      DB_HOST: ${DB_HOST:-10.128.0.3}
+      DB_PORT: ${DB_PORT:-5432}
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      GRPC_PORT: 3007
+      SERVICE_PORT: 50057
+    expose:
+      - "50057"
+    networks: [quetxal-net]
+
+  # Placeholder service for compose validation (remove after real services are added)
+  dummy-wait:
+    image: busybox
+    container_name: dummy-wait
+    command: sleep 3600
+
+networks:
+  quetxal-net:
+    driver: bridge

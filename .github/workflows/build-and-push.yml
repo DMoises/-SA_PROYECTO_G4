@@ -1,0 +1,138 @@
+name: Build and Push to GCR
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'backend/**'
+      - 'docker-compose.gateway.yml'
+      - 'docker-compose.services.yml'
+      - '.github/workflows/build-and-push.yml'
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCR_REGISTRY: gcr.io
+  IMAGE_PREFIX: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+
+      - name: Configure Docker authentication
+        run: |
+          gcloud auth configure-docker gcr.io
+
+      - name: Build Gateway image
+        id: build-gateway
+        if: hashFiles('backend/Dockerfile.gateway', 'docker-compose.gateway.yml') != ''
+        run: |
+          docker build -f backend/Dockerfile.gateway \
+            -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:latest \
+            -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:${{ github.sha }} \
+            ./backend
+          echo "gateway_built=true" >> $GITHUB_OUTPUT
+
+      - name: Push Gateway image
+        if: steps.build-gateway.outputs.gateway_built == 'true'
+        run: |
+          docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:latest
+          docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:${{ github.sha }}
+
+      - name: Build Microservices images
+        id: build-services
+        run: |
+          SERVICES=("identity" "history" "catalog" "rating" "fx" "billing" "notification")
+          BUILT_SERVICES=""
+
+          for service in "${SERVICES[@]}"; do
+            DOCKERFILE="backend/services/Dockerfile.${service}"
+            if [ -f "$DOCKERFILE" ]; then
+              echo "Building ${service} service..."
+              docker build -f "$DOCKERFILE" \
+                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:latest \
+                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:${{ github.sha }} \
+                ./backend
+              BUILT_SERVICES="${BUILT_SERVICES} ${service}"
+            else
+              echo "⚠️  Skipping ${service} - Dockerfile not found at ${DOCKERFILE}"
+            fi
+          done
+
+          echo "built_services=${BUILT_SERVICES}" >> $GITHUB_OUTPUT
+
+      - name: Push Microservices images
+        if: steps.build-services.outputs.built_services != ''
+        run: |
+          SERVICES=(${{ steps.build-services.outputs.built_services }})
+          for service in "${SERVICES[@]}"; do
+            echo "Pushing ${service} service..."
+            docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:latest
+            docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:${{ github.sha }}
+          done
+
+      - name: Build Database images
+        id: build-databases
+        run: |
+          DATABASES=("auth" "subscription" "catalog" "rating" "fx" "history" "notification")
+
+          for db in "${DATABASES[@]}"; do
+            DOCKERFILE="database/${db}/Dockerfile"
+            if [ -f "$DOCKERFILE" ]; then
+              echo "Building ${db} database image..."
+              docker build -f "$DOCKERFILE" \
+                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:latest \
+                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:${{ github.sha }} \
+                ./database/${db}
+            fi
+          done
+
+      - name: Push Database images
+        run: |
+          DATABASES=("auth" "subscription" "catalog" "rating" "fx" "history" "notification")
+          for db in "${DATABASES[@]}"; do
+            if [ -d "database/${db}" ]; then
+              echo "Pushing ${db} database image..."
+              docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:latest
+              docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:${{ github.sha }}
+            fi
+          done
+
+      - name: Build Redis image
+        id: build-redis
+        if: hashFiles('cache/Dockerfile') != ''
+        run: |
+          docker build -f cache/Dockerfile \
+            -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:latest \
+            -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:${{ github.sha }} \
+            ./cache
+
+      - name: Push Redis image
+        if: steps.build-redis.outputs.redis_built == 'true'
+        run: |
+          docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:latest
+          docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:${{ github.sha }}
+
+      - name: Summary
+        run: |
+          echo "✅ Build and Push Complete!"
+          echo ""
+          echo "Images pushed to:"
+          echo "  Registry: ${{ env.GCR_REGISTRY }}"
+          echo "  Project: ${{ env.IMAGE_PREFIX }}"
+          echo "  Tags: latest, ${{ github.sha }}"

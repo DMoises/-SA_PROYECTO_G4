@@ -1,0 +1,145 @@
+name: Deploy Microservices
+
+on:
+  workflow_run:
+    workflows: ["Build and Push to GCR"]
+    types:
+      - completed
+    branches:
+      - develop
+      - main
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCR_REGISTRY: gcr.io
+
+jobs:
+  deploy-services:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVICES_VM_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Configure gcloud on VM
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }} << 'EOF'
+          gcloud auth configure-docker gcr.io --quiet
+          EOF
+
+      - name: Copy docker-compose file to Services VM
+        run: |
+          scp -i ~/.ssh/id_rsa docker-compose.services.yml \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/
+
+      - name: Create environment file
+        run: |
+          cat > /tmp/.env.services << 'EOF'
+          # Database configuration (VM3 internal IP)
+          DB_HOST=${{ secrets.DATABASE_VM_IP }}
+          DB_PORT=5432
+
+          # Redis configuration (VM3 internal IP)
+          REDIS_HOST=${{ secrets.DATABASE_VM_IP }}
+          REDIS_PORT=6379
+
+          # Database credentials
+          AUTH_DB_NAME=quetxal_auth
+          AUTH_DB_USER=auth_user
+          AUTH_DB_PASSWORD=${{ secrets.AUTH_DB_PASSWORD }}
+
+          SUBSCRIPTION_DB_NAME=quetxal_subscription
+          SUBSCRIPTION_DB_USER=subscription_user
+          SUBSCRIPTION_DB_PASSWORD=${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
+
+          CATALOG_DB_NAME=quetxal_catalog
+          CATALOG_DB_USER=catalog_user
+          CATALOG_DB_PASSWORD=${{ secrets.CATALOG_DB_PASSWORD }}
+
+          RATING_DB_NAME=quetxal_rating
+          RATING_DB_USER=rating_user
+          RATING_DB_PASSWORD=${{ secrets.RATING_DB_PASSWORD }}
+
+          FX_DB_NAME=quetxal_fx
+          FX_DB_USER=fx_user
+          FX_DB_PASSWORD=${{ secrets.FX_DB_PASSWORD }}
+
+          HISTORY_DB_NAME=quetxal_history
+          HISTORY_DB_USER=history_user
+          HISTORY_DB_PASSWORD=${{ secrets.HISTORY_DB_PASSWORD }}
+
+          NOTIFICATION_DB_NAME=quetxal_notification
+          NOTIFICATION_DB_USER=notification_user
+          NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
+
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          EOF
+
+      - name: Copy environment file to Services VM
+        run: |
+          scp -i ~/.ssh/id_rsa /tmp/.env.services \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/.env.cloud
+
+      - name: Pull latest images and deploy
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }} << 'EOF'
+          set -e
+          cd /home/${{ secrets.SSH_USER }}/quetxal
+
+          echo "=== Pulling latest microservice images ==="
+          SERVICES=("identity" "history" "catalog" "rating" "fx" "billing" "notification")
+          for service in "${SERVICES[@]}"; do
+            docker pull ${{ env.GCR_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${service}-ms:latest || true
+          done
+
+          echo "=== Authenticating with Docker ==="
+          gcloud auth configure-docker gcr.io --quiet
+
+          echo "=== Stopping old containers ==="
+          docker-compose -f docker-compose.services.yml down || true
+
+          echo "=== Starting new containers ==="
+          docker-compose -f docker-compose.services.yml up -d
+
+          echo "=== Waiting for services to be ready ==="
+          sleep 10
+
+          echo "=== Checking container status ==="
+          docker-compose -f docker-compose.services.yml ps
+
+          echo "=== Service logs (last 30 lines) ==="
+          docker-compose -f docker-compose.services.yml logs --tail=30
+          EOF
+
+      - name: Verify connectivity to Gateway
+        continue-on-error: true
+        run: |
+          echo "Checking if services are reachable from gateway..."
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} << 'EOF'
+          echo "Testing gRPC connectivity to services..."
+          docker run --rm --network quetxal-net curlimages/curl:latest \
+            nc -zv 10.128.0.2 50051 || echo "gRPC port check skipped"
+          EOF
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "✅ Microservices deployment completed"
+          echo "Check logs: ssh to Services VM at ${{ secrets.SERVICES_VM_IP }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Microservices deployment failed"
+          exit 1

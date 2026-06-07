@@ -69,6 +69,22 @@ pgdata/
 *_data/
 
 
+# Terraform & Infrastructure
+
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
+terraform/terraform.tfstate*
+terraform/*.backup
+terraform/crash.log
+terraform/tfplan
+terraform/*.json
+!terraform/terraform.tfvars.example
+
+# Deployment
+.env.deployment
+/scripts/.env
+
 # Sistema Operativo y Editores
 
 .DS_Store

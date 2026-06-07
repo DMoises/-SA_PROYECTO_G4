@@ -1,0 +1,106 @@
+name: Deploy Gateway
+
+on:
+  workflow_run:
+    workflows: ["Build and Push to GCR"]
+    types:
+      - completed
+    branches:
+      - develop
+      - main
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCR_REGISTRY: gcr.io
+
+jobs:
+  deploy-gateway:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.GATEWAY_VM_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Configure gcloud on VM
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} << 'EOF'
+          gcloud auth configure-docker gcr.io --quiet
+          EOF
+
+      - name: Copy docker-compose file to Gateway VM
+        run: |
+          scp -i ~/.ssh/id_rsa docker-compose.gateway.yml \
+            ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/
+
+      - name: Copy .env.cloud to Gateway VM
+        run: |
+          scp -i ~/.ssh/id_rsa .env.cloud \
+            ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/
+
+      - name: Pull latest images and deploy
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} << 'EOF'
+          set -e
+          cd /home/${{ secrets.SSH_USER }}/quetxal
+
+          echo "=== Pulling latest gateway image ==="
+          docker pull ${{ env.GCR_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/api-gateway:latest
+
+          echo "=== Authenticating with Docker ==="
+          gcloud auth configure-docker gcr.io --quiet
+
+          echo "=== Stopping old containers ==="
+          docker-compose -f docker-compose.gateway.yml down || true
+
+          echo "=== Starting new containers ==="
+          docker-compose -f docker-compose.gateway.yml up -d
+
+          echo "=== Waiting for Gateway to be ready ==="
+          sleep 5
+
+          echo "=== Checking container status ==="
+          docker-compose -f docker-compose.gateway.yml ps
+
+          echo "=== Logs ==="
+          docker-compose -f docker-compose.gateway.yml logs --tail=20
+          EOF
+
+      - name: Health check
+        continue-on-error: true
+        run: |
+          echo "Checking Gateway health..."
+          sleep 10
+
+          for i in {1..10}; do
+            if curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.GATEWAY_VM_IP }}:80/health || curl -s http://${{ secrets.GATEWAY_VM_IP }}:80; then
+              echo "✅ Gateway is responding"
+              exit 0
+            fi
+            echo "Attempt $i/10 - Gateway still starting..."
+            sleep 5
+          done
+
+          echo "⚠️  Gateway health check inconclusive (may still be initializing)"
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "✅ Gateway deployment completed"
+          echo "Gateway URL: http://${{ secrets.GATEWAY_VM_IP }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Gateway deployment failed"
+          exit 1

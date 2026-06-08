@@ -39,13 +39,13 @@ jobs:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCR_REGISTRY: ${{ env.GCR_REGISTRY }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} << EOF
+          ssh -i ~/.ssh/id_ed25519 \${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \"GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }} GCR_REGISTRY=gcr.io SSH_USER=${{ secrets.SSH_USER }} bash -s" << 'EOF'
           set -euo pipefail
 
           # Variables
           PROJECT_ID="${GCP_PROJECT_ID}"
           IMAGE="${GCR_REGISTRY}/${PROJECT_ID}/api-gateway:latest"
-          WORKDIR="/home/${{ secrets.SSH_USER }}/quetxal"
+          WORKDIR="/home/${SSH_USER}/quetxal"
           COMPOSE_FILE="${WORKDIR}/docker-compose.gateway.yml"
 
           echo "=== Entrando a ${WORKDIR} ==="

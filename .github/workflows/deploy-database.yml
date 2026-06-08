@@ -60,15 +60,15 @@ jobs:
           ssh-keyscan -H "${{ secrets.GATEWAY_VM_IP }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
           # Ensure remote workdir exists (via Gateway)
-          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p ${REMOTE_WORKDIR} && chown ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} ${REMOTE_WORKDIR} || true"
 
           # Copy docker-compose.db.yml to remote via Gateway
-          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             docker-compose.db.yml ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_COMPOSE}
 
           # Copy .env.example to remote as base .env.cloud
-          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             .env.example ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_ENV}
 
 

@@ -41,10 +41,18 @@ func main() {
 		log.Fatalf("no hay conexion a auth_db: %v", err)
 	}
 
+	// Conexion al servicio de notificaciones
+	notifConn, err := grpc.Dial(cfg.NotificationURL, grpc.WithInsecure())
+	if err != nil {
+		log.Printf("advertencia: no se pudo conectar al servicio de notificaciones: %v", err)
+	}
+	defer notifConn.Close()
+	notifClient := pb.NewNotificationServiceClient(notifConn)
+
 	// Inyeccion de dependencias: repo -> service -> handler.
 	repo := repository.NewPostgresUsuarioRepo(pool)
 	jwtMgr := service.NewJWTManager(cfg.JWTSecret, cfg.JWTTTL)
-	authSvc := service.NewAuthService(repo, jwtMgr)
+	authSvc := service.NewAuthService(repo, jwtMgr, notifClient)
 	handler := grpcserver.NewAuthHandler(authSvc)
 
 	// Servidor gRPC.

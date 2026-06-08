@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/grupo4/quetxaltv-auth/internal/domain"
+	"github.com/grupo4/quetxaltv-auth/internal/pb"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,12 +24,13 @@ type UsuarioRepository interface {
 }
 
 type AuthService struct {
-	repo UsuarioRepository
-	jwt  *JWTManager
+	repo        UsuarioRepository
+	jwt         *JWTManager
+	notifClient pb.NotificationServiceClient
 }
 
-func NewAuthService(repo UsuarioRepository, jwt *JWTManager) *AuthService {
-	return &AuthService{repo: repo, jwt: jwt}
+func NewAuthService(repo UsuarioRepository, jwt *JWTManager, notifClient pb.NotificationServiceClient) *AuthService {
+	return &AuthService{repo: repo, jwt: jwt, notifClient: notifClient}
 }
 
 // Registrar crea una cuenta local (email + password) y su primer perfil.
@@ -49,7 +51,29 @@ func (s *AuthService) Registrar(ctx context.Context, email, password, nombrePerf
 		PasswordHash: &hashStr,
 		RolBase:      domain.RolUsuario,
 	}
-	return s.repo.CrearUsuarioConPerfilInicial(ctx, u, strings.TrimSpace(nombrePerfil))
+	id, profileId, err := s.repo.CrearUsuarioConPerfilInicial(ctx, u, strings.TrimSpace(nombrePerfil))
+	if err != nil {
+		return "", "", err
+	}
+
+	if s.notifClient != nil {
+		go func() {
+			_, notifErr := s.notifClient.EncolarCorreo(context.Background(), &pb.EncolarCorreoRequest{
+				UsuarioId:    id,
+				Tipo:         "registro",
+				Destinatario: email,
+				Datos: map[string]string{
+					"nombre": strings.TrimSpace(nombrePerfil),
+				},
+			})
+			if notifErr != nil {
+				// Solo loggeamos pero no hacemos fallar el registro
+				// En una app real usariamos un logger, aqui lo ignoramos silenciosamente
+			}
+		}()
+	}
+
+	return id, profileId, nil
 }
 
 // Login valida credenciales y devuelve un JWT.

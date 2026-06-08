@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Play, Info, VolumeX, Volume2 } from 'lucide-react'
 import { Content } from '@/lib/types'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface HeroBannerProps {
   content: Content
@@ -87,17 +88,13 @@ export function HeroBanner({ content }: HeroBannerProps) {
               <Play className="h-5 w-5 fill-current" />
               Reproducir
             </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="gap-2"
-              asChild
+            <Link
+              href={`/browse/${content.id}`}
+              className={cn(buttonVariants({ variant: 'secondary', size: 'lg' }), "gap-2")}
             >
-              <Link href={`/browse/${content.id}`}>
-                <Info className="h-5 w-5" />
-                Mas informacion
-              </Link>
-            </Button>
+              <Info className="h-5 w-5" />
+              Mas informacion
+            </Link>
           </div>
         </div>
       </div>

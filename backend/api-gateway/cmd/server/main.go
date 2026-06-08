@@ -28,9 +28,17 @@ func main() {
 	}
 	defer authClient.Close()
 
+	// Cliente gRPC al billing-service.
+	billingClient, err := clients.NewBillingClient(cfg.BillingServiceAddr)
+	if err != nil {
+		log.Fatalf("no se pudo conectar al billing-service: %v", err)
+	}
+	defer billingClient.Close()
+
+
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
-
+  billingH := handlers.NewBillingHandler(billingClient)
 	mux := http.NewServeMux()
 
 	// Salud (util para healthcheck de Docker / GCP).
@@ -48,6 +56,13 @@ func main() {
 	mux.Handle("GET /auth/me", authMW(http.HandlerFunc(h.Me)))
 	mux.Handle("POST /auth/profiles", authMW(http.HandlerFunc(h.CreateProfile)))
 	mux.Handle("GET /auth/profiles", authMW(http.HandlerFunc(h.ListProfiles)))
+
+	// Rutas de billing
+	mux.Handle("GET /billing/plans", authMW(http.HandlerFunc(billingH.GetPlans)))
+	mux.Handle("POST /billing/subscriptions", authMW(http.HandlerFunc(billingH.CreateSubscription)))
+	mux.Handle("GET /billing/subscriptions/me", authMW(http.HandlerFunc(billingH.GetUserSubscription)))
+	mux.Handle("PUT /billing/subscriptions/change", authMW(http.HandlerFunc(billingH.ChangeSubscription)))
+	mux.Handle("PUT /billing/subscriptions/cancel", authMW(http.HandlerFunc(billingH.CancelSubscription)))
 
 	// CORS envuelve todo el router.
 	handler := middleware.CORS(cfg.CORSOrigin)(mux)

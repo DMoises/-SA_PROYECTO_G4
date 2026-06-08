@@ -5,7 +5,7 @@ import { Pool } from 'pg';
 config({ path: join(process.cwd(), '../../.env') });
 
 export const db = new Pool({
-  host: 'localhost',
+  host: process.env.SUBSCRIPTION_DB_HOST || 'localhost',
   port: Number(process.env.SUBSCRIPTION_DB_PORT || 5434),
   user: process.env.SUBSCRIPTION_DB_USER || 'subscription',
   password: process.env.SUBSCRIPTION_DB_PASSWORD || 'admin',

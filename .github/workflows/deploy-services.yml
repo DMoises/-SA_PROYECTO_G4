@@ -16,9 +16,6 @@ on:
       - main
       - feature/despliegue
 
-  # Allow manual trigger
-  workflow_dispatch:
-
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCR_REGISTRY: gcr.io

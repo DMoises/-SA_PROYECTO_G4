@@ -8,10 +8,9 @@
 #   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 .PHONY: proto
 proto:
-	mkdir -p internal/pb
 	protoc --go_out=. --go_opt=module=github.com/grupo4/quetxaltv-auth \
 	       --go-grpc_out=. --go-grpc_opt=module=github.com/grupo4/quetxaltv-auth \
-	       proto/auth.proto
+	       proto/auth.proto proto/notification.proto
 
 .PHONY: deps
 deps:

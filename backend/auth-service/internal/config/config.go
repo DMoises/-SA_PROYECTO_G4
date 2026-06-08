@@ -10,10 +10,11 @@ import (
 )
 
 type Config struct {
-	GRPCPort  string
-	DSN       string // cadena de conexion a PostgreSQL
-	JWTSecret string
-	JWTTTL    time.Duration
+	GRPCPort        string
+	DSN             string // cadena de conexion a PostgreSQL
+	JWTSecret       string
+	JWTTTL          time.Duration
+	NotificationURL string
 }
 
 // Load construye la configuracion. Devuelve error si falta algo critico.
@@ -26,9 +27,10 @@ func Load() (*Config, error) {
 	ttlMin := getInt("JWT_TTL_MIN", 60) // 60 minutos por defecto
 
 	cfg := &Config{
-		GRPCPort:  getEnv("GRPC_PORT", "50051"),
-		JWTSecret: jwtSecret,
-		JWTTTL:    time.Duration(ttlMin) * time.Minute,
+		GRPCPort:        getEnv("GRPC_PORT", "50051"),
+		JWTSecret:       jwtSecret,
+		JWTTTL:          time.Duration(ttlMin) * time.Minute,
+		NotificationURL: getEnv("NOTIFICATION_SERVICE_URL", "notification-service:50054"),
 		DSN: fmt.Sprintf(
 			"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 			getEnv("AUTH_DB_USER", "auth_user"),

@@ -1,47 +1,18 @@
-name: quetxal-tv-gateway
+name: quetxal-gateway
 
 services:
-
   api-gateway:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.gateway
+    build: ./backend/api-gateway
     container_name: quetxal-api-gateway
     restart: always
-    ports:
-      - "80:3000"    # HTTP
-      - "443:3443"   # HTTPS (self-signed cert or real cert)
     environment:
-      SERVICE_NAME: api-gateway
-      NODE_ENV: production
-
-      # Microservices internal hosts (VM2 internal IP)
-      IDENTITY_SERVICE_HOST: ${SERVICES_HOST:-10.128.0.2}
-      IDENTITY_SERVICE_PORT: 50051
-
-      HISTORY_SERVICE_HOST: ${SERVICES_HOST:-10.128.0.2}
-      HISTORY_SERVICE_PORT: 50052
-
-      CATALOG_SERVICE_HOST: ${SERVICES_HOST:-10.128.0.2}
-      CATALOG_SERVICE_PORT: 50053
-
-      RATING_SERVICE_HOST: ${SERVICES_HOST:-10.128.0.2}
-      RATING_SERVICE_PORT: 50054
-
-      FX_SERVICE_HOST: ${SERVICES_HOST:-10.128.0.2}
-      FX_SERVICE_PORT: 50055
-
-      BILLING_SERVICE_HOST: ${SERVICES_HOST:-10.128.0.2}
-      BILLING_SERVICE_PORT: 50056
-
-      NOTIFICATION_SERVICE_HOST: ${SERVICES_HOST:-10.128.0.2}
-      NOTIFICATION_SERVICE_PORT: 50057
-
-      # Gateway config
-      GRPC_PORT: 3000
-      LOG_LEVEL: info
-    networks: [quetxal-net]
+      GATEWAY_PORT: 8080
+      AUTH_SERVICE_ADDR: ${AUTH_SERVICE_ADDR:-127.0.0.1:50051}
+      COOKIE_SECURE: "true" # true en cloud (HTTPS)
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    ports:
+      - "80:8080" # Mapeo estándar a puerto 80 para la web (o 8080 si el firewall hace el enrutamiento)
 
 networks:
-  quetxal-net:
+  default:
     driver: bridge

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package notification.v1;
+
+option go_package = "github.com/grupo4/quetxaltv-auth/internal/pb";
+
+// Servicio de Notificaciones. Lo invocan otros microservicios (auth,
+// billing, catalog) para ENCOLAR un correo. El envio real lo hace un
+// worker en segundo plano (patron Outbox), no esta llamada.
+service NotificationService {
+  rpc EncolarCorreo(EncolarCorreoRequest) returns (EncolarCorreoResponse);
+}
+
+message EncolarCorreoRequest {
+  string usuario_id = 1;
+  string tipo = 2;          // registro | recibo | nuevo_contenido
+  string destinatario = 3;  // email destino
+  map<string, string> datos = 4; // datos para renderizar la plantilla
+}
+
+message EncolarCorreoResponse {
+  string id = 1;
+  string estado = 2; // 'pendiente'
+}

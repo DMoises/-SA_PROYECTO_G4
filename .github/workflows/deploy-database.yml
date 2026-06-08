@@ -13,7 +13,6 @@ on:
       - '.env.cloud'
       - '.github/workflows/deploy-database.yml'
 
-  # Allow manual trigger
   workflow_dispatch:
 
 jobs:
@@ -24,17 +23,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.DATABASE_VM_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: Copy docker-compose file to Database VM
+      - name: Verify required secrets
         run: |
-          scp -i ~/.ssh/id_rsa docker-compose.database.yml \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/
+          : "${{ secrets.SSH_KEY }}" || { echo "SSH_KEY missing"; exit 1; }
+          : "${{ secrets.SSH_USER }}" || { echo "SSH_USER missing"; exit 1; }
+          : "${{ secrets.DATABASE_VM_IP }}" || { echo "DATABASE_VM_IP missing"; exit 1; }
+          : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "DOCKERHUB_USERNAME missing"; exit 1; }
+          : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "DOCKERHUB_TOKEN missing"; exit 1; }
+        shell: bash
+
+      - name: Ensure remote workdir and copy compose
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/quetxal"
+          scp -i ~/.ssh/id_ed25519 docker-compose.database.yml \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/docker-compose.database.yml
 
       - name: Create environment file with secrets
         run: |
@@ -80,52 +89,73 @@ jobs:
 
       - name: Copy environment file to Database VM
         run: |
-          scp -i ~/.ssh/id_rsa /tmp/.env.database \
+          scp -i ~/.ssh/id_ed25519 /tmp/.env.database \
             ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/.env.cloud
 
-      - name: Deploy or update databases
+      - name: Deploy or update databases on VM
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} << 'EOF'
-          set -e
-          cd /home/${{ secrets.SSH_USER }}/quetxal
+          ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} \
+            DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} \
+            DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} \
+            SSH_USER=${SSH_USER} bash -s << 'EOF'
+          set -euo pipefail
 
-          echo "=== Checking if databases are running ==="
-          RUNNING=$(docker ps -q | wc -l)
+          WORKDIR="/home/${SSH_USER}/quetxal"
+          COMPOSE_FILE="${WORKDIR}/docker-compose.database.yml"
 
-          if [ $RUNNING -eq 0 ]; then
-            echo "=== First time setup: Starting all databases ==="
-          else
-            echo "=== Databases already running: Updating configuration ==="
-            echo "=== Stopping old containers ==="
-            docker-compose -f docker-compose.database.yml down || true
-          fi
+          echo "=== Entrando a ${WORKDIR} ==="
+          cd "${WORKDIR}" || { echo "❌ Directorio no encontrado: ${WORKDIR}"; exit 2; }
 
-          echo "=== Building database images (if needed) ==="
-          docker-compose -f docker-compose.database.yml build --no-cache 2>/dev/null || true
+          echo "=== Validando docker compose file ==="
+          docker compose -f "${COMPOSE_FILE}" config || { echo "❌ docker compose config falló"; exit 3; }
 
-          echo "=== Starting all database containers ==="
-          docker-compose -f docker-compose.database.yml up -d
+          echo "=== Autenticando en Docker Hub desde la VM ==="
+          echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-          echo "=== Waiting for databases to initialize (30 seconds) ==="
+          echo "=== Pull de imágenes de bases de datos desde Docker Hub (si existen) ==="
+          docker compose -f "${COMPOSE_FILE}" pull || true
+
+          echo "=== Parando contenedores antiguos (si existen) ==="
+          docker compose -f "${COMPOSE_FILE}" down --remove-orphans || true
+
+          echo "=== Construyendo imágenes locales (si el compose las define) ==="
+          docker compose -f "${COMPOSE_FILE}" build --no-cache 2>/dev/null || true
+
+          echo "=== Levantando contenedores de bases de datos ==="
+          docker compose -f "${COMPOSE_FILE}" up -d
+
+          echo "=== Esperando inicialización (30s) ==="
           sleep 30
 
-          echo "=== Checking database container status ==="
-          docker-compose -f docker-compose.database.yml ps
+          echo "=== Estado de contenedores ==="
+          docker compose -f "${COMPOSE_FILE}" ps
 
-          echo "=== Database logs (last 50 lines) ==="
-          docker-compose -f docker-compose.database.yml logs --tail=50
+          echo "=== Últimos logs (limitados) ==="
+          docker compose -f "${COMPOSE_FILE}" logs --tail=50
+
           EOF
 
       - name: Health check - Validate database connectivity
         continue-on-error: true
         run: |
           echo "Running health checks on databases..."
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} << 'EOF'
+          set -euo pipefail
+          WORKDIR="/home/${{ secrets.SSH_USER }}/quetxal"
+          COMPOSE_FILE="${WORKDIR}/docker-compose.database.yml"
+          cd "${WORKDIR}" || { echo "❌ Directorio no encontrado: ${WORKDIR}"; exit 2; }
 
           echo "=== Checking PostgreSQL databases ==="
+          # Use the service container names defined in the compose file
           for db in auth subscription catalog rating fx history notification; do
             CONTAINER="quetxal-${db}-db"
-            if docker exec ${CONTAINER} pg_isready -U ${db}_user 2>/dev/null; then
+            echo "-> Checking ${CONTAINER}..."
+            if docker compose -f "${COMPOSE_FILE}" exec -T ${CONTAINER} pg_isready -U ${db}_user 2>/dev/null; then
               echo "✓ ${db} database is ready"
             else
               echo "✗ ${db} database is NOT ready"
@@ -133,7 +163,7 @@ jobs:
           done
 
           echo "=== Checking Redis ==="
-          if docker exec quetxal-redis redis-cli -a ${{ secrets.REDIS_PASSWORD }} ping 2>/dev/null | grep PONG; then
+          if docker compose -f "${COMPOSE_FILE}" exec -T quetxal-redis redis-cli -a ${REDIS_PASSWORD} ping 2>/dev/null | grep PONG; then
             echo "✓ Redis is ready"
           else
             echo "✗ Redis is NOT ready"
@@ -144,11 +174,14 @@ jobs:
         continue-on-error: true
         run: |
           echo "Creating initial database backup..."
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} << 'EOF'
+          set -euo pipefail
           if [ -f /home/${{ secrets.SSH_USER }}/quetxal/scripts/backup-databases.sh ]; then
             echo "Running backup script..."
             bash /home/${{ secrets.SSH_USER }}/quetxal/scripts/backup-databases.sh
             echo "Backup completed"
+          else
+            echo "No backup script found; skipping."
           fi
           EOF
 
@@ -157,12 +190,12 @@ jobs:
         run: |
           echo "✅ Database deployment completed"
           echo "Database VM: ${{ secrets.DATABASE_VM_IP }}"
-          echo "Check status: ssh to Database VM and run 'docker-compose ps'"
+          echo "Check status: ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} and run 'docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.database.yml ps'"
 
       - name: Notify failure
         if: failure()
         run: |
           echo "❌ Database deployment failed"
-          echo "SSH to Database VM: ssh ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}"
-          echo "Check logs: docker-compose logs"
+          echo "SSH to Database VM: ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}"
+          echo "Check logs: docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.database.yml logs"
           exit 1

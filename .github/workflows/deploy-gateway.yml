@@ -1,6 +1,7 @@
 name: Deploy Gateway
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Build and Push to GCR"]
     types:
@@ -9,7 +10,6 @@ on:
       - develop
       - main
       - feature/despliegue
-  workflow_dispatch:
 
 jobs:
   deploy-gateway:
@@ -43,7 +43,7 @@ jobs:
           
           # Copiamos el archivo compose desde el runner hacia la VM
           scp -i ~/.ssh/id_ed25519 docker-compose.gateway.yml ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/docker-compose.gateway.yml
-          
+
       - name: Deploy on Gateway VM via SSH
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

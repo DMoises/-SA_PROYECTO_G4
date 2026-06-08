@@ -8,8 +8,11 @@ on:
       - feature/despliegue
     paths:
       - 'backend/**'
+      - 'database/**'
+      - 'cache/**'
       - 'docker-compose.gateway.yml'
       - 'docker-compose.services.yml'
+      - 'docker-compose.db.yml'
       - '.github/workflows/build-and-push.yml'
 
 env:
@@ -25,115 +28,101 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout del Código Fuente
         uses: actions/checkout@v4
 
-      - name: Set up Cloud SDK
+      - name: Set up Cloud SDK de Google
         uses: google-github-actions/setup-gcloud@v1
         with:
           service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           export_default_credentials: true
 
-      - name: Configure Docker authentication
+      - name: Configurar Autenticación de Docker a GCR
         run: |
-          gcloud auth configure-docker gcr.io
+          gcloud auth configure-docker gcr.io --quiet
 
-      - name: Build Gateway image
+      # ---------------------------------------------------------
+      # 1. CAPA PERIMETRAL: API Gateway
+      # ---------------------------------------------------------
+      - name: Build y Push -> API Gateway
         id: build-gateway
-        if: hashFiles('backend/Dockerfile.gateway', 'docker-compose.gateway.yml') != ''
+        if: hashFiles('backend/api-gateway/Dockerfile') != ''
         run: |
-          docker build -f backend/Dockerfile.gateway \
+          echo "=== 🛡️ Compilando API Gateway ==="
+          docker build -f backend/api-gateway/Dockerfile \
             -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:latest \
             -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:${{ github.sha }} \
-            ./backend
-          echo "gateway_built=true" >> $GITHUB_OUTPUT
-
-      - name: Push Gateway image
-        if: steps.build-gateway.outputs.gateway_built == 'true'
-        run: |
+            ./backend/api-gateway
+          
+          echo "=== 🚀 Subiendo API Gateway a GCR ==="
           docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:latest
           docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/api-gateway:${{ github.sha }}
 
-      - name: Build Microservices images
-        id: build-services
+      # ---------------------------------------------------------
+      # 2. CAPA LÓGICA: Microservicios (Excepción: api-gateway)
+      # ---------------------------------------------------------
+      - name: Build y Push -> Microservicios Backend
         run: |
-          SERVICES=("identity" "history" "catalog" "rating" "fx" "billing" "notification")
-          BUILT_SERVICES=""
-
-          for service in "${SERVICES[@]}"; do
-            DOCKERFILE="backend/services/Dockerfile.${service}"
-            if [ -f "$DOCKERFILE" ]; then
-              echo "Building ${service} service..."
-              docker build -f "$DOCKERFILE" \
-                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:latest \
-                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:${{ github.sha }} \
-                ./backend
-              BUILT_SERVICES="${BUILT_SERVICES} ${service}"
-            else
-              echo "⚠️  Skipping ${service} - Dockerfile not found at ${DOCKERFILE}"
+          echo "=== ⚙️ Escaneando y Compilando Microservicios ==="
+          for service_dir in backend/*/; do
+            service_name=$(basename "$service_dir")
+            
+            # EXCEPCIÓN EXPLÍCITA: Ignorar api-gateway porque ya se compiló arriba
+            if [ "$service_name" != "api-gateway" ] && [ -f "${service_dir}Dockerfile" ]; then
+              echo "Construyendo: ${service_name}..."
+              docker build -f ${service_dir}Dockerfile \
+                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service_name}:latest \
+                -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service_name}:${{ github.sha }} \
+                ./${service_dir}
+                
+              echo "Subiendo: ${service_name}..."
+              docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service_name}:latest
+              docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service_name}:${{ github.sha }}
             fi
           done
 
-          echo "built_services=${BUILT_SERVICES}" >> $GITHUB_OUTPUT
-
-      - name: Push Microservices images
-        if: steps.build-services.outputs.built_services != ''
+      # ---------------------------------------------------------
+      # 3. CAPA DE PERSISTENCIA: Bases de Datos Políglotas
+      # ---------------------------------------------------------
+      - name: Build y Push -> Bases de Datos
         run: |
-          SERVICES=(${{ steps.build-services.outputs.built_services }})
-          for service in "${SERVICES[@]}"; do
-            echo "Pushing ${service} service..."
-            docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:latest
-            docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${service}-ms:${{ github.sha }}
-          done
-
-      - name: Build Database images
-        id: build-databases
-        run: |
+          echo "=== 💾 Compilando Capa de Persistencia Aislada ==="
           DATABASES=("auth" "subscription" "catalog" "rating" "fx" "history" "notification")
-
+          
           for db in "${DATABASES[@]}"; do
-            DOCKERFILE="database/${db}/Dockerfile"
-            if [ -f "$DOCKERFILE" ]; then
-              echo "Building ${db} database image..."
-              docker build -f "$DOCKERFILE" \
+            if [ -f "database/${db}/Dockerfile" ]; then
+              echo "Construyendo Base de Datos: ${db}..."
+              docker build -f database/${db}/Dockerfile \
                 -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:latest \
                 -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:${{ github.sha }} \
                 ./database/${db}
-            fi
-          done
-
-      - name: Push Database images
-        run: |
-          DATABASES=("auth" "subscription" "catalog" "rating" "fx" "history" "notification")
-          for db in "${DATABASES[@]}"; do
-            if [ -d "database/${db}" ]; then
-              echo "Pushing ${db} database image..."
+                
+              echo "Subiendo Base de Datos: ${db}..."
               docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:latest
               docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/${db}-db:${{ github.sha }}
+            else
+              echo "⚠️ Omitiendo ${db}: No se encontró Dockerfile en database/${db}"
             fi
           done
 
-      - name: Build Redis image
+      # ---------------------------------------------------------
+      # 4. CAPA DE OPTIMIZACIÓN: Redis Cache
+      # ---------------------------------------------------------
+      - name: Build y Push -> Redis Cache
         id: build-redis
         if: hashFiles('cache/Dockerfile') != ''
         run: |
+          echo "=== ⚡ Compilando Caché en Memoria ==="
           docker build -f cache/Dockerfile \
             -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:latest \
             -t ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:${{ github.sha }} \
             ./cache
-
-      - name: Push Redis image
-        if: steps.build-redis.outputs.redis_built == 'true'
-        run: |
+            
+          echo "=== 🚀 Subiendo Caché a GCR ==="
           docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:latest
           docker push ${{ env.GCR_REGISTRY }}/${{ env.IMAGE_PREFIX }}/redis-cache:${{ github.sha }}
 
-      - name: Summary
+      - name: Dictamen Final
         run: |
-          echo "✅ Build and Push Complete!"
-          echo ""
-          echo "Images pushed to:"
-          echo "  Registry: ${{ env.GCR_REGISTRY }}"
-          echo "  Project: ${{ env.IMAGE_PREFIX }}"
-          echo "  Tags: latest, ${{ github.sha }}"
+          echo "✅ ¡Pipeline de Construcción y Almacenamiento Finalizado Exitosamente!"

@@ -54,11 +54,13 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           SSH_USER: ${{ secrets.SSH_USER }}
+          GATEWAY_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/quetxal-api-gateway:latest
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} \
             DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} \
-            SSH_USER=${SSH_USER} bash -s << 'EOF'
+            SSH_USER=${SSH_USER} \
+            GATEWAY_IMAGE=${GATEWAY_IMAGE} bash -s << 'EOF'
           set -euo pipefail
 
           # Variables de Entorno Locales en la VM

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package auth.v1;
+
+// MISMO contrato que el auth-service. Solo cambia go_package para que el
+// codigo generado caiga en el modulo del gateway. El path del servicio
+// (auth.v1.AuthService) es identico, por eso ambos se entienden.
+option go_package = "github.com/grupo4/quetxaltv-gateway/internal/pb;pb";
+
+service AuthService {
+  rpc Registrar(RegistrarRequest) returns (RegistrarResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc ValidarToken(ValidarTokenRequest) returns (ValidarTokenResponse);
+  rpc CrearPerfil(CrearPerfilRequest) returns (PerfilResponse);
+  rpc ListarPerfiles(ListarPerfilesRequest) returns (ListarPerfilesResponse);
+}
+
+message RegistrarRequest {
+  string email = 1;
+  string password = 2;
+  string nombre_perfil = 3;
+}
+message RegistrarResponse {
+  string usuario_id = 1;
+  string perfil_id = 2;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+message LoginResponse {
+  string access_token = 1;
+  string usuario_id = 2;
+  int64 expira_en = 3;
+}
+
+message ValidarTokenRequest {
+  string token = 1;
+}
+message ValidarTokenResponse {
+  bool valido = 1;
+  string usuario_id = 2;
+  string rol = 3;
+}
+
+message CrearPerfilRequest {
+  string usuario_id = 1;
+  string nombre = 2;
+  bool es_infantil = 3;
+  string idioma = 4;
+}
+message PerfilResponse {
+  string id = 1;
+  string nombre = 2;
+  bool es_infantil = 3;
+  string idioma = 4;
+}
+
+message ListarPerfilesRequest {
+  string usuario_id = 1;
+}
+message ListarPerfilesResponse {
+  repeated PerfilResponse perfiles = 1;
+}

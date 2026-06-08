@@ -135,6 +135,42 @@ services:
       retries: 5
     networks: [quetxal-net]
 
+  auth-service:
+    build: ./backend/auth-service
+    container_name: quetxal-auth-service
+    environment:
+      GRPC_PORT: 50051
+      AUTH_DB_HOST: auth-db        
+      AUTH_DB_PORT_INTERNAL: 5432   
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTH_DB_USER: ${AUTH_DB_USER}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      DB_SSLMODE: disable
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TTL_MIN: ${JWT_TTL_MIN:-60}
+    ports:
+      - "50051:50051"   
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks: [quetxal-net]
+
+  # API Gateway 
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: quetxal-api-gateway
+    environment:
+      GATEWAY_PORT: 8080
+      AUTH_SERVICE_ADDR: auth-service:50051
+      COOKIE_SECURE: "false"       
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    ports:
+      - "8080:8080"   
+    depends_on:
+      - auth-service
+    networks: [quetxal-net]
+
+
 volumes:
   auth_data:
   subscription_data:

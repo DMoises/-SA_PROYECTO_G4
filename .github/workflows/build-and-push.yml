@@ -14,6 +14,8 @@ on:
       - 'docker-compose.services.yml'
       - 'docker-compose.db.yml'
       - '.github/workflows/build-and-push.yml'
+      
+  workflow_dispatch:
 
 jobs:
   build-and-push:

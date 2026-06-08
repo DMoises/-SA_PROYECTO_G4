@@ -7,6 +7,10 @@ on:
       - main
       - feature/despliegue
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Build and Push to Docker Hub"] # Debe coincidir EXACTAMENTE con el campo 'name:' de tu build-and-push.yml
+    types:
+      - completed
 
 jobs:
   deploy-gateway:

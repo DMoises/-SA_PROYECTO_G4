@@ -41,22 +41,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # =========================================================
-      # 1. CAPA PERIMETRAL: API Gateway (Punto de entrada único)
+      # 1. CAPA PERIMETRAL: API Gateway
       # =========================================================
       - name: Build y Push -> API Gateway
         if: hashFiles('backend/api-gateway/Dockerfile') != ''
         run: |
-          echo "=== 🛡️ Compilando Capa Perimetral: API Gateway ==="
+          echo "=== 🛡️ Compilando y Subiendo API Gateway a Docker Hub ==="
           REPO="${{ secrets.DOCKERHUB_USERNAME }}/quetxal-api-gateway"
           
-          docker build -f backend/api-gateway/Dockerfile \
+          # TÁCTICA: Transacción atómica utilizando buildx y la bandera --push
+          docker buildx build --push -f backend/api-gateway/Dockerfile \
             -t ${REPO}:latest \
             -t ${REPO}:${{ github.sha }} \
             ./backend/api-gateway
-          
-          echo "=== 🚀 Subiendo API Gateway a Docker Hub ==="
-          docker push ${REPO}:latest
-          docker push ${REPO}:${{ github.sha }}
 
       # =========================================================
       # 2. CAPA LÓGICA: Microservicios Backend Políglotas
@@ -69,46 +66,39 @@ jobs:
           for service_dir in backend/*/; do
             service_name=$(basename "$service_dir")
             
-            # Exclusión explícita del API Gateway (ya procesado de forma aislada)
             if [ "$service_name" != "api-gateway" ] && [ -f "${service_dir}Dockerfile" ]; then
               REPO="${USER}/quetxal-${service_name}"
-              echo "🛠️ Construyendo Componente: ${service_name} -> ${REPO}"
+              echo "🛠️ Procesando Componente con Buildx: ${service_name}"
               
-              docker build -f ${service_dir}Dockerfile \
+              # Corregido: Se unifica build y push en un solo paso por componente
+              docker buildx build --push -f ${service_dir}Dockerfile \
                 -t ${REPO}:latest \
                 -t ${REPO}:${{ github.sha }} \
                 ./${service_dir}
-                
-              echo "📤 Subiendo Componente: ${service_name}..."
-              docker push ${REPO}:latest
-              docker push ${REPO}:${{ github.sha }}
             fi
           done
 
       # =========================================================
-      # 3. CAPA DE PERSISTENCIA: Bases de Datos Políglotas Aisladas
+      # 3. CAPA DE PERSISTENCIA: Bases de Datos Políglotas
       # =========================================================
       - name: Build y Push -> Bases de Datos
         run: |
-          echo "=== 💾 Compilando Contenedores de Persistencia (Patrón Database-per-Microservice) ==="
+          echo "=== 💾 Compilando Engine de Persistencia ==="
           USER="${{ secrets.DOCKERHUB_USERNAME }}"
           DATABASES=("auth" "subscription" "catalog" "rating" "fx" "history" "notification")
           
           for db in "${DATABASES[@]}"; do
             if [ -f "database/${db}/Dockerfile" ]; then
               REPO="${USER}/quetxal-${db}-db"
-              echo "🛠️ Construyendo Engine de Persistencia: ${db} -> ${REPO}"
+              echo "🛠️ Procesando DB con Buildx: ${db}"
               
-              docker build -f database/${db}/Dockerfile \
+              # Corregido: Se añade buildx build --push al ciclo de bases de datos
+              docker buildx build --push -f database/${db}/Dockerfile \
                 -t ${REPO}:latest \
                 -t ${REPO}:${{ github.sha }} \
                 ./database/${db}
-                
-              echo "📤 Subiendo Engine de Persistencia: ${db}..."
-              docker push ${REPO}:latest
-              docker push ${REPO}:${{ github.sha }}
             else
-              echo "⚠️ Omitiendo ${db}: Dockerfile no encontrado en database/${db}"
+              echo "⚠️ Omitiendo ${db}: Dockerfile no encontrado"
             fi
           done
 
@@ -118,17 +108,14 @@ jobs:
       - name: Build y Push -> Redis Cache
         if: hashFiles('cache/Dockerfile') != ''
         run: |
-          echo "=== ⚡ Compilando Capa de Optimización: Redis Cache ==="
+          echo "=== ⚡ Compilando y Subiendo Capa de Optimización ==="
           REPO="${{ secrets.DOCKERHUB_USERNAME }}/quetxal-redis-cache"
           
-          docker build -f cache/Dockerfile \
+          # Corregido: Se unifica con buildx build --push
+          docker buildx build --push -f cache/Dockerfile \
             -t ${REPO}:latest \
             -t ${REPO}:${{ github.sha }} \
             ./cache
-            
-          echo "=== 🚀 Subiendo Capa de Optimización a Docker Hub ==="
-          docker push ${REPO}:latest
-          docker push ${REPO}:${{ github.sha }}
 
       - name: Dictamen Final del Auditor Técnico
         run: |

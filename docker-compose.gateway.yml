@@ -1,5 +1,3 @@
-name: quetxal-gateway
-
 services:
   api-gateway:
     image: ${GATEWAY_IMAGE}

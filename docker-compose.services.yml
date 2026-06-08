@@ -1,0 +1,45 @@
+name: quetxal-services
+
+services:
+  auth-service:
+    build: ./backend/auth-service
+    container_name: quetxal-auth-service
+    restart: always
+    environment:
+      GRPC_PORT: 50051
+      AUTH_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      AUTH_DB_PORT_INTERNAL: 5432
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTH_DB_USER: ${AUTH_DB_USER}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      DB_SSLMODE: disable
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TTL_MIN: ${JWT_TTL_MIN:-60}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_ADDR:-127.0.0.1:50054}
+    ports:
+      - "50051:50051" # Expuesto para que el API Gateway pueda conectarse
+    depends_on: []
+
+  notification-service:
+    build: ./backend/notification-service
+    container_name: quetxal-notification-service
+    restart: always
+    environment:
+      NODE_ENV: production
+      GRPC_PORT: 50054
+      NOTIFICATION_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      NOTIFICATION_DB_PORT_INTERNAL: 5438 # El mapeo externo de la VM de bases de datos
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM}
+    ports:
+      - "50054:50054" # Expuesto para que otros servicios puedan conectarse
+
+networks:
+  default:
+    driver: bridge

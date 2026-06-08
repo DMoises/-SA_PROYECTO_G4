@@ -74,3 +74,9 @@ variable "tags" {
   type        = list(string)
   default     = ["quetxal", "docker"]
 }
+
+variable "git_branch" {
+  description = "Rama de Git utilizada para el aprovisionamiento inicial de las VMs"
+  type        = string
+  default     = "develop"
+}

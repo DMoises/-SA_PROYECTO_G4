@@ -9,153 +9,161 @@ on:
     paths:
       - 'database/**'
       - 'cache/**'
-      - 'docker-compose.database.yml'
-      - '.env.cloud'
+      - 'docker-compose.db.yml'
+      - '.env.example'
       - '.github/workflows/deploy-database.yml'
-
   workflow_dispatch:
 
 jobs:
   deploy-database:
     runs-on: ubuntu-latest
+    env:
+      REMOTE_WORKDIR: "/home/${{ secrets.SSH_USER }}/quetxal"
+      REMOTE_COMPOSE: "/home/${{ secrets.SSH_USER }}/quetxal/docker-compose.db.yml"
+      REMOTE_ENV: "/home/${{ secrets.SSH_USER }}/quetxal/.env.cloud"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Setup SSH key and known_hosts
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.DATABASE_VM_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: Verify required secrets
+          # Add Gateway host key
+          ssh-keyscan -H "${{ secrets.GATEWAY_VM_IP }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          # Try to obtain DB host key from Gateway and add it (best-effort)
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
+            ${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} "ssh-keyscan -H ${{ secrets.DATABASE_VM_IP }}" \
+            >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Verify required secrets and variables
         run: |
           : "${{ secrets.SSH_KEY }}" || { echo "SSH_KEY missing"; exit 1; }
           : "${{ secrets.SSH_USER }}" || { echo "SSH_USER missing"; exit 1; }
+          : "${{ secrets.GATEWAY_VM_IP }}" || { echo "GATEWAY_VM_IP missing"; exit 1; }
+          : "${{ secrets.GATEWAY_SSH_USER }}" || { echo "GATEWAY_SSH_USER missing"; exit 1; }
           : "${{ secrets.DATABASE_VM_IP }}" || { echo "DATABASE_VM_IP missing"; exit 1; }
           : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "DOCKERHUB_USERNAME missing"; exit 1; }
           : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "DOCKERHUB_TOKEN missing"; exit 1; }
         shell: bash
 
-      - name: Ensure remote workdir and copy compose
+      - name: Ensure remote workdir and copy compose and env.example (via Gateway)
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/quetxal"
-          scp -i ~/.ssh/id_ed25519 docker-compose.database.yml \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/docker-compose.database.yml
+          # Ensure remote workdir exists (via Gateway)
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p ${REMOTE_WORKDIR} && chown ${ { secrets.SSH_USER } }:${{ secrets.SSH_USER }} ${REMOTE_WORKDIR} || true"
 
-      - name: Create environment file with secrets
+          # Copy docker-compose.db.yml to remote via Gateway
+          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            docker-compose.db.yml ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_COMPOSE}
+
+          # Copy .env.example to remote as base .env.cloud
+          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            .env.example ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_ENV}
+
+      - name: Create overrides file from secrets (runner) and append to remote .env.cloud
         run: |
-          cat > /tmp/.env.database << 'EOF'
-          # === Authentication Database ===
-          AUTH_DB_NAME=quetxal_auth
-          AUTH_DB_USER=auth_user
+          cat > /tmp/.env.overrides <<EOF
+          # Secrets overrides (appended to .env.cloud)
+          AUTH_DB_NAME=${{ secrets.AUTH_DB_NAME }}
+          AUTH_DB_USER=${{ secrets.AUTH_DB_USER }}
           AUTH_DB_PASSWORD=${{ secrets.AUTH_DB_PASSWORD }}
 
-          # === Subscription Database ===
-          SUBSCRIPTION_DB_NAME=quetxal_subscription
-          SUBSCRIPTION_DB_USER=subscription_user
+          SUBSCRIPTION_DB_NAME=${{ secrets.SUBSCRIPTION_DB_NAME }}
+          SUBSCRIPTION_DB_USER=${{ secrets.SUBSCRIPTION_DB_USER }}
           SUBSCRIPTION_DB_PASSWORD=${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
 
-          # === Catalog Database ===
-          CATALOG_DB_NAME=quetxal_catalog
-          CATALOG_DB_USER=catalog_user
+          CATALOG_DB_NAME=${{ secrets.CATALOG_DB_NAME }}
+          CATALOG_DB_USER=${{ secrets.CATALOG_DB_USER }}
           CATALOG_DB_PASSWORD=${{ secrets.CATALOG_DB_PASSWORD }}
 
-          # === Rating Database ===
-          RATING_DB_NAME=quetxal_rating
-          RATING_DB_USER=rating_user
+          RATING_DB_NAME=${{ secrets.RATING_DB_NAME }}
+          RATING_DB_USER=${{ secrets.RATING_DB_USER }}
           RATING_DB_PASSWORD=${{ secrets.RATING_DB_PASSWORD }}
 
-          # === FX Database ===
-          FX_DB_NAME=quetxal_fx
-          FX_DB_USER=fx_user
+          FX_DB_NAME=${{ secrets.FX_DB_NAME }}
+          FX_DB_USER=${{ secrets.FX_DB_USER }}
           FX_DB_PASSWORD=${{ secrets.FX_DB_PASSWORD }}
 
-          # === History Database ===
-          HISTORY_DB_NAME=quetxal_history
-          HISTORY_DB_USER=history_user
+          HISTORY_DB_NAME=${{ secrets.HISTORY_DB_NAME }}
+          HISTORY_DB_USER=${{ secrets.HISTORY_DB_USER }}
           HISTORY_DB_PASSWORD=${{ secrets.HISTORY_DB_PASSWORD }}
 
-          # === Notification Database ===
-          NOTIFICATION_DB_NAME=quetxal_notification
-          NOTIFICATION_DB_USER=notification_user
+          NOTIFICATION_DB_NAME=${{ secrets.NOTIFICATION_DB_NAME }}
+          NOTIFICATION_DB_USER=${{ secrets.NOTIFICATION_DB_USER }}
           NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
 
-          # === Redis Cache ===
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           EOF
 
-      - name: Copy environment file to Database VM
-        run: |
-          scp -i ~/.ssh/id_ed25519 /tmp/.env.database \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/.env.cloud
+          # Append overrides to remote .env.cloud via Gateway (no intermediate file left on Gateway)
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "cat >> ${REMOTE_ENV}" < /tmp/.env.overrides
 
-      - name: Deploy or update databases on VM
+      - name: Deploy or update databases on VM (via Gateway)
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 \
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} \
-            DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} \
-            DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} \
-            SSH_USER=${SSH_USER} bash -s << 'EOF'
+            DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} SSH_USER=${SSH_USER} bash -s <<'EOF'
           set -euo pipefail
 
           WORKDIR="/home/${SSH_USER}/quetxal"
-          COMPOSE_FILE="${WORKDIR}/docker-compose.database.yml"
+          COMPOSE_FILE="${WORKDIR}/docker-compose.db.yml"
+          ENV_FILE="${WORKDIR}/.env.cloud"
 
-          echo "=== Entrando a ${WORKDIR} ==="
-          cd "${WORKDIR}" || { echo "❌ Directorio no encontrado: ${WORKDIR}"; exit 2; }
+          echo "=== Entering ${WORKDIR} ==="
+          cd "${WORKDIR}" || { echo "❌ Directory not found: ${WORKDIR}"; exit 2; }
 
-          echo "=== Validando docker compose file ==="
-          docker compose -f "${COMPOSE_FILE}" config || { echo "❌ docker compose config falló"; exit 3; }
+          echo "=== Validating docker compose file ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" config || { echo "❌ docker compose config failed"; exit 3; }
 
-          echo "=== Autenticando en Docker Hub desde la VM ==="
+          echo "=== Docker Hub login on VM ==="
           echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-          echo "=== Pull de imágenes de bases de datos desde Docker Hub (si existen) ==="
-          docker compose -f "${COMPOSE_FILE}" pull || true
+          echo "=== Pulling images (if available) ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" pull || true
 
-          echo "=== Parando contenedores antiguos (si existen) ==="
-          docker compose -f "${COMPOSE_FILE}" down --remove-orphans || true
+          echo "=== Stopping old containers (if any) ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" down --remove-orphans || true
 
-          echo "=== Construyendo imágenes locales (si el compose las define) ==="
-          docker compose -f "${COMPOSE_FILE}" build --no-cache 2>/dev/null || true
+          echo "=== Starting containers ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" up -d
 
-          echo "=== Levantando contenedores de bases de datos ==="
-          docker compose -f "${COMPOSE_FILE}" up -d
-
-          echo "=== Esperando inicialización (30s) ==="
+          echo "=== Waiting 30s for initialization ==="
           sleep 30
 
-          echo "=== Estado de contenedores ==="
-          docker compose -f "${COMPOSE_FILE}" ps
+          echo "=== Containers status ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" ps
 
-          echo "=== Últimos logs (limitados) ==="
-          docker compose -f "${COMPOSE_FILE}" logs --tail=50
-
+          echo "=== Recent logs (tail 50) ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" logs --tail=50
           EOF
 
       - name: Health check - Validate database connectivity
         continue-on-error: true
         run: |
           echo "Running health checks on databases..."
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} bash -s <<'EOF'
           set -euo pipefail
           WORKDIR="/home/${{ secrets.SSH_USER }}/quetxal"
-          COMPOSE_FILE="${WORKDIR}/docker-compose.database.yml"
-          cd "${WORKDIR}" || { echo "❌ Directorio no encontrado: ${WORKDIR}"; exit 2; }
+          COMPOSE_FILE="${WORKDIR}/docker-compose.db.yml"
+          ENV_FILE="${WORKDIR}/.env.cloud"
+          cd "${WORKDIR}" || { echo "❌ Directory not found: ${WORKDIR}"; exit 2; }
 
           echo "=== Checking PostgreSQL databases ==="
-          # Use the service container names defined in the compose file
           for db in auth subscription catalog rating fx history notification; do
             CONTAINER="quetxal-${db}-db"
             echo "-> Checking ${CONTAINER}..."
-            if docker compose -f "${COMPOSE_FILE}" exec -T ${CONTAINER} pg_isready -U ${db}_user 2>/dev/null; then
+            if docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" exec -T ${CONTAINER} pg_isready -U ${db}_user 2>/dev/null; then
               echo "✓ ${db} database is ready"
             else
               echo "✗ ${db} database is NOT ready"
@@ -163,7 +171,7 @@ jobs:
           done
 
           echo "=== Checking Redis ==="
-          if docker compose -f "${COMPOSE_FILE}" exec -T quetxal-redis redis-cli -a ${REDIS_PASSWORD} ping 2>/dev/null | grep PONG; then
+          if docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" exec -T quetxal-redis redis-cli -a $(grep '^REDIS_PASSWORD=' ${ENV_FILE} | cut -d'=' -f2) ping 2>/dev/null | grep PONG; then
             echo "✓ Redis is ready"
           else
             echo "✗ Redis is NOT ready"
@@ -174,7 +182,8 @@ jobs:
         continue-on-error: true
         run: |
           echo "Creating initial database backup..."
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} bash -s <<'EOF'
           set -euo pipefail
           if [ -f /home/${{ secrets.SSH_USER }}/quetxal/scripts/backup-databases.sh ]; then
             echo "Running backup script..."
@@ -190,12 +199,12 @@ jobs:
         run: |
           echo "✅ Database deployment completed"
           echo "Database VM: ${{ secrets.DATABASE_VM_IP }}"
-          echo "Check status: ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} and run 'docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.database.yml ps'"
+          echo "Check status: ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} and run 'docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.db.yml ps'"
 
       - name: Notify failure
         if: failure()
         run: |
           echo "❌ Database deployment failed"
-          echo "SSH to Database VM: ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}"
-          echo "Check logs: docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.database.yml logs"
+          echo "SSH to Database VM: ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.GATEWAY_SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}"
+          echo "Check logs: docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.db.yml logs"
           exit 1

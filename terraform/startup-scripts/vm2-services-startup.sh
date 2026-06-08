@@ -38,7 +38,7 @@ mkdir -p /home/ubuntu/quetxal
 cd /home/ubuntu/quetxal
 
 # Configure Docker to use gcloud credentials for GCR
-# This will be configured by CI/CD via secret
+git clone -b feature/despliegue https://github.com/DMoises/-SA_PROYECTO_G4.git .
 # gcloud auth configure-docker
 
 # Grant docker access to ubuntu user

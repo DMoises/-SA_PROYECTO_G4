@@ -41,7 +41,7 @@ cd /home/ubuntu/quetxal
 
 # Clone or pull repository (adjust URL for your repo)
 # For CI/CD, this will be done by GitHub Actions
-# git clone https://github.com/YOUR-ORG/SA_PROYECTO_G4.git /home/ubuntu/quetxal
+git clone -b feature/despliegue https://github.com/DMoises/-SA_PROYECTO_G4.git .
 
 # Grant docker access to ubuntu user
 usermod -aG docker ubuntu

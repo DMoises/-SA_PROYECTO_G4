@@ -38,6 +38,8 @@ chmod 755 /var/lib/docker/volumes/quetxal
 mkdir -p /home/ubuntu/quetxal
 cd /home/ubuntu/quetxal
 
+git clone -b feature/despliegue https://github.com/DMoises/-SA_PROYECTO_G4.git .
+
 # Grant docker access to ubuntu user
 usermod -aG docker ubuntu
 

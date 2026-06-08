@@ -1,0 +1,135 @@
+name: Build and Push to Docker Hub
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - feature/despliegue
+    paths:
+      - 'backend/**'
+      - 'database/**'
+      - 'cache/**'
+      - 'docker-compose.gateway.yml'
+      - 'docker-compose.services.yml'
+      - 'docker-compose.db.yml'
+      - '.github/workflows/build-and-push.yml'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Validar Secretos de Docker Hub
+        run: |
+          : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "❌ ERROR: DOCKERHUB_USERNAME no configurado en los secretos de GitHub"; exit 1; }
+          : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "❌ ERROR: DOCKERHUB_TOKEN no configurado en los secretos de GitHub"; exit 1; }
+        shell: bash
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Autenticación en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # =========================================================
+      # 1. CAPA PERIMETRAL: API Gateway (Punto de entrada único)
+      # =========================================================
+      - name: Build y Push -> API Gateway
+        if: hashFiles('backend/api-gateway/Dockerfile') != ''
+        run: |
+          echo "=== 🛡️ Compilando Capa Perimetral: API Gateway ==="
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}/quetxal-api-gateway"
+          
+          docker build -f backend/api-gateway/Dockerfile \
+            -t ${REPO}:latest \
+            -t ${REPO}:${{ github.sha }} \
+            ./backend/api-gateway
+          
+          echo "=== 🚀 Subiendo API Gateway a Docker Hub ==="
+          docker push ${REPO}:latest
+          docker push ${REPO}:${{ github.sha }}
+
+      # =========================================================
+      # 2. CAPA LÓGICA: Microservicios Backend Políglotas
+      # =========================================================
+      - name: Build y Push -> Microservicios Backend
+        run: |
+          echo "=== ⚙️ Escaneando y Compilando Microservicios de la Capa Lógica ==="
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          
+          for service_dir in backend/*/; do
+            service_name=$(basename "$service_dir")
+            
+            # Exclusión explícita del API Gateway (ya procesado de forma aislada)
+            if [ "$service_name" != "api-gateway" ] && [ -f "${service_dir}Dockerfile" ]; then
+              REPO="${USER}/quetxal-${service_name}"
+              echo "🛠️ Construyendo Componente: ${service_name} -> ${REPO}"
+              
+              docker build -f ${service_dir}Dockerfile \
+                -t ${REPO}:latest \
+                -t ${REPO}:${{ github.sha }} \
+                ./${service_dir}
+                
+              echo "📤 Subiendo Componente: ${service_name}..."
+              docker push ${REPO}:latest
+              docker push ${REPO}:${{ github.sha }}
+            fi
+          done
+
+      # =========================================================
+      # 3. CAPA DE PERSISTENCIA: Bases de Datos Políglotas Aisladas
+      # =========================================================
+      - name: Build y Push -> Bases de Datos
+        run: |
+          echo "=== 💾 Compilando Contenedores de Persistencia (Patrón Database-per-Microservice) ==="
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          DATABASES=("auth" "subscription" "catalog" "rating" "fx" "history" "notification")
+          
+          for db in "${DATABASES[@]}"; do
+            if [ -f "database/${db}/Dockerfile" ]; then
+              REPO="${USER}/quetxal-${db}-db"
+              echo "🛠️ Construyendo Engine de Persistencia: ${db} -> ${REPO}"
+              
+              docker build -f database/${db}/Dockerfile \
+                -t ${REPO}:latest \
+                -t ${REPO}:${{ github.sha }} \
+                ./database/${db}
+                
+              echo "📤 Subiendo Engine de Persistencia: ${db}..."
+              docker push ${REPO}:latest
+              docker push ${REPO}:${{ github.sha }}
+            else
+              echo "⚠️ Omitiendo ${db}: Dockerfile no encontrado en database/${db}"
+            fi
+          done
+
+      # =========================================================
+      # 4. CAPA DE OPTIMIZACIÓN: Redis Cache
+      # =========================================================
+      - name: Build y Push -> Redis Cache
+        if: hashFiles('cache/Dockerfile') != ''
+        run: |
+          echo "=== ⚡ Compilando Capa de Optimización: Redis Cache ==="
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}/quetxal-redis-cache"
+          
+          docker build -f cache/Dockerfile \
+            -t ${REPO}:latest \
+            -t ${REPO}:${{ github.sha }} \
+            ./cache
+            
+          echo "=== 🚀 Subiendo Capa de Optimización a Docker Hub ==="
+          docker push ${REPO}:latest
+          docker push ${REPO}:${{ github.sha }}
+
+      - name: Dictamen Final del Auditor Técnico
+        run: |
+          echo "✅ ¡Pipeline de Construcción y Almacenamiento en Docker Hub Finalizado Exitosamente!"

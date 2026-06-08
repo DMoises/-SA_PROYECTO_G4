@@ -8,9 +8,6 @@ on:
       - feature/despliegue
   workflow_dispatch:
 
-env:
-  GCR_REGISTRY: gcr.io
-
 jobs:
   deploy-gateway:
     runs-on: ubuntu-latest
@@ -30,94 +27,72 @@ jobs:
         run: |
           : "${{ secrets.SSH_KEY }}" || { echo "SSH_KEY missing"; exit 1; }
           : "${{ secrets.SSH_USER }}" || { echo "SSH_USER missing"; exit 1; }
-          : "${{ secrets.GCP_PROJECT_ID }}" || { echo "GCP_PROJECT_ID missing"; exit 1; }
           : "${{ secrets.GATEWAY_VM_IP }}" || { echo "GATEWAY_VM_IP missing"; exit 1; }
+          : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "DOCKERHUB_USERNAME missing"; exit 1; }
+          : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "DOCKERHUB_TOKEN missing"; exit 1; }
         shell: bash
 
-      - name: Deploy on Gateway VM
+      - name: Deploy on Gateway VM via SSH
         env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          GCR_REGISTRY: ${{ env.GCR_REGISTRY }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 \${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }} GCR_REGISTRY=gcr.io SSH_USER=${{ secrets.SSH_USER }} bash -s << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} \
+            DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} \
+            SSH_USER=${SSH_USER} bash -s << 'EOF'
           set -euo pipefail
 
-          # Variables
-          PROJECT_ID="${GCP_PROJECT_ID}"
-          IMAGE="${GCR_REGISTRY}/${PROJECT_ID}/api-gateway:latest"
+          # Variables de Entorno Locales en la VM
+          IMAGE="${DOCKERHUB_USERNAME}/quetxal-api-gateway:latest"
           WORKDIR="/home/${SSH_USER}/quetxal"
           COMPOSE_FILE="${WORKDIR}/docker-compose.gateway.yml"
 
-          echo "=== Entrando a ${WORKDIR} ==="
-          cd "${WORKDIR}" || { echo "Directorio no encontrado: ${WORKDIR}"; exit 2; }
+          echo "=== Entrando a ${WORKDIR} ==?"
+          cd "${WORKDIR}" || { echo "❌ Directorio no encontrado: ${WORKDIR}"; exit 2; }
 
-          # Si gcloud está instalado, autenticar docker para GCR (silencioso si ya autenticado)
-          if command -v gcloud >/dev/null 2>&1; then
-            echo "=== gcloud detectado: configurando docker para GCR ==="
-            gcloud auth configure-docker gcr.io --quiet || true
-          else
-            echo "=== gcloud no instalado en la VM: se intentará pull directo (si está permitido) ==="
-          fi
+          echo "=== Autenticando en Docker Hub desde la VM ==="
+          echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-          echo "=== Intentando descargar la imagen: ${IMAGE} ==="
-          # Intentar pull; si falla, mostrar tags disponibles (si gcloud está presente)
+          echo "=== Descargando la imagen actualizada: ${IMAGE} ==="
           if docker pull "${IMAGE}"; then
-            echo "✅ Imagen descargada: ${IMAGE}"
+            echo "✅ Imagen descargada con éxito de Docker Hub"
           else
-            echo "⚠️ Falló docker pull ${IMAGE}"
-            if command -v gcloud >/dev/null 2>&1; then
-              echo "Listando tags en GCR para diagnóstico..."
-              gcloud container images list-tags "${GCR_REGISTRY}/${PROJECT_ID}/api-gateway" --limit=5 --format='get(tags,digest,timestamp)'
-            fi
+            echo "❌ Falló docker pull de ${IMAGE}"
             exit 3
           fi
 
-          # Mostrar digest de la imagen descargada para verificación
-          echo "=== Digest de la imagen descargada ==="
-          docker inspect --format='{{index .RepoDigests 0}}' "${GCR_REGISTRY}/${PROJECT_ID}/api-gateway:latest" || true
+          echo "=== Re-desplegando el contenedor del API Gateway ==="
+          # Inyectamos dinámicamente el tag o el nombre de la imagen si tu docker-compose usa la variable
+          export GATEWAY_IMAGE="${IMAGE}"
+          
+          docker-compose -f "${COMPOSE_FILE}" down --remove-orphans || true
+          docker-compose -f "${COMPOSE_FILE}" up -d
 
-          # Parar y arrancar con docker-compose de forma segura
-          echo "=== Parando contenedores antiguos (si existen) ==="
-          docker-compose -f "${COMPOSE_FILE}" down || true
-
-          echo "=== Actualizando servicios con pull y up ==="
-          docker-compose -f "${COMPOSE_FILE}" pull || true
-          docker-compose -f "${COMPOSE_FILE}" up -d --remove-orphans
-
-          echo "=== Esperando arranque ==="
+          echo "=== Esperando estabilización del proceso (5s) ==="
           sleep 5
 
-          echo "=== Estado de contenedores ==="
+          echo "=== Estado de los contenedores desplegados ==="
           docker-compose -f "${COMPOSE_FILE}" ps
 
-          echo "=== Últimos logs (limitados) ==="
-          docker-compose -f "${COMPOSE_FILE}" logs --tail=50
-
+          echo "=== Limpieza de imágenes huérfanas para optimizar almacenamiento ==="
+          docker image prune -f || true
+          
           EOF
 
       - name: Health check
         continue-on-error: true
         run: |
-          echo "Comprobando salud del Gateway..."
+          echo "Comprobando salud del Gateway en el puerto expuesto..."
           for i in {1..12}; do
             status=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.GATEWAY_VM_IP }}:80/health || true)
             if [ "$status" = "200" ]; then
-              echo "✅ Gateway responde con 200"
+              echo "✅ El API Gateway responde con HTTP 200 OK"
               exit 0
             fi
-            echo "Intento $i/12 - estado HTTP: ${status}"
+            echo "Intento $i/12 - estado HTTP obtenido: ${status}"
             sleep 5
           done
-          echo "⚠️ Health check no obtuvo 200 tras varios intentos"
-
-      - name: Notify deployment
-        if: always()
-        run: |
-          echo "✅ Gateway deployment finished"
-          echo "Gateway URL: http://${{ secrets.GATEWAY_VM_IP }}"
-
-      - name: Notify failure
-        if: failure()
-        run: |
-          echo "❌ Gateway deployment failed"
+          echo "⚠️ El Health check falló. El contenedor no está respondiendo en el puerto 80."
           exit 1

@@ -2,7 +2,7 @@ name: quetxal-services
 
 services:
   auth-service:
-    build: ./backend/auth-service
+    image: ${DOCKERHUB_USERNAME}/quetxal-auth-service:latest
     container_name: quetxal-auth-service
     restart: always
     environment:
@@ -21,7 +21,7 @@ services:
     depends_on: []
 
   notification-service:
-    build: ./backend/notification-service
+    image: ${DOCKERHUB_USERNAME}/quetxal-notification-service:latest
     container_name: quetxal-notification-service
     restart: always
     environment:

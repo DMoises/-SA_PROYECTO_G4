@@ -2,7 +2,7 @@ name: quetxal-gateway
 
 services:
   api-gateway:
-    build: ./backend/api-gateway
+    image: ${GATEWAY_IMAGE:-tu_usuario_dockerhub/quetxal-api-gateway:latest}
     container_name: quetxal-api-gateway
     restart: always
     environment:

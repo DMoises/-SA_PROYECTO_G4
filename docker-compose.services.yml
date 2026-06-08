@@ -1,4 +1,4 @@
-name: quetxal-services
+version: '3.8'
 
 services:
   auth-service:
@@ -6,19 +6,112 @@ services:
     container_name: quetxal-auth-service
     restart: always
     environment:
+      NODE_ENV: production
       GRPC_PORT: 50051
       AUTH_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
-      AUTH_DB_PORT_INTERNAL: 5432
+      AUTH_DB_PORT: ${AUTH_DB_PORT:-5432}
       AUTH_DB_NAME: ${AUTH_DB_NAME}
       AUTH_DB_USER: ${AUTH_DB_USER}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
       DB_SSLMODE: disable
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-me}
       JWT_TTL_MIN: ${JWT_TTL_MIN:-60}
-      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_ADDR:-127.0.0.1:50054}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_ADDR:-notification-service:50054}
     ports:
-      - "50051:50051" # Expuesto para que el API Gateway pueda conectarse
-    depends_on: []
+      - "50051:50051"
+    networks:
+      - quetxal-net
+
+  history-service:
+    image: ${DOCKERHUB_USERNAME}/quetxal-history-service:latest
+    container_name: quetxal-history-service
+    restart: always
+    environment:
+      GRPC_PORT: 50052
+      HISTORY_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      HISTORY_DB_PORT: ${HISTORY_DB_PORT:-5437}
+      HISTORY_DB_NAME: ${HISTORY_DB_NAME}
+      HISTORY_DB_USER: ${HISTORY_DB_USER}
+      HISTORY_DB_PASSWORD: ${HISTORY_DB_PASSWORD}
+      DB_SSLMODE: disable
+    ports:
+      - "50052:50052"
+    networks:
+      - quetxal-net
+
+  catalog-service:
+    image: ${DOCKERHUB_USERNAME}/quetxal-catalog-service:latest
+    container_name: quetxal-catalog-service
+    restart: always
+    environment:
+      GRPC_PORT: 50053
+      CATALOG_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      CATALOG_DB_PORT: ${CATALOG_DB_PORT:-5434}
+      CATALOG_DB_NAME: ${CATALOG_DB_NAME}
+      CATALOG_DB_USER: ${CATALOG_DB_USER}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+      DB_SSLMODE: disable
+    ports:
+      - "50053:50053"
+    networks:
+      - quetxal-net
+
+  rating-service:
+    image: ${DOCKERHUB_USERNAME}/quetxal-rating-service:latest
+    container_name: quetxal-rating-service
+    restart: always
+    environment:
+      GRPC_PORT: 50055
+      RATING_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      RATING_DB_PORT: ${RATING_DB_PORT:-5435}
+      RATING_DB_NAME: ${RATING_DB_NAME}
+      RATING_DB_USER: ${RATING_DB_USER}
+      RATING_DB_PASSWORD: ${RATING_DB_PASSWORD}
+      DB_SSLMODE: disable
+    ports:
+      - "50055:50055"
+    networks:
+      - quetxal-net
+
+  fx-service:
+    image: ${DOCKERHUB_USERNAME}/quetxal-fx-service:latest
+    container_name: quetxal-fx-service
+    restart: always
+    environment:
+      GRPC_PORT: 50056
+      FX_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      FX_DB_PORT: ${FX_DB_PORT:-5436}
+      FX_DB_NAME: ${FX_DB_NAME}
+      FX_DB_USER: ${FX_DB_USER}
+      FX_DB_PASSWORD: ${FX_DB_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST:-127.0.0.1}
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      DB_SSLMODE: disable
+    ports:
+      - "50056:50056"
+    networks:
+      - quetxal-net
+
+  billing-service:
+    image: ${DOCKERHUB_USERNAME}/quetxal-billing-service:latest
+    container_name: quetxal-billing-service
+    restart: always
+    environment:
+      NODE_ENV: production
+      GRPC_PORT: 50057
+      SUBSCRIPTION_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      SUBSCRIPTION_DB_PORT: ${SUBSCRIPTION_DB_PORT:-5433}
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
+      FX_SERVICE_URL: ${FX_SERVICE_ADDR:-fx-service:50056}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_ADDR:-notification-service:50054}
+      DB_SSLMODE: disable
+    ports:
+      - "50057:50057"
+    networks:
+      - quetxal-net
 
   notification-service:
     image: ${DOCKERHUB_USERNAME}/quetxal-notification-service:latest
@@ -28,18 +121,21 @@ services:
       NODE_ENV: production
       GRPC_PORT: 50054
       NOTIFICATION_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
-      NOTIFICATION_DB_PORT_INTERNAL: 5438 # El mapeo externo de la VM de bases de datos
+      NOTIFICATION_DB_PORT: ${NOTIFICATION_DB_PORT:-5438}
       NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
       NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER}
       NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       SMTP_FROM: ${SMTP_FROM}
+      DB_SSLMODE: disable
     ports:
-      - "50054:50054" # Expuesto para que otros servicios puedan conectarse
+      - "50054:50054"
+    networks:
+      - quetxal-net
 
 networks:
-  default:
+  quetxal-net:
     driver: bridge

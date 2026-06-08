@@ -1,6 +1,6 @@
 services:
   auth-db:
-    image: postgres:16-alpine
+    image: ${DOCKERHUB_USERNAME}/quetxal-auth-db:latest
     container_name: quetxal-auth-db
     restart: always
     environment:
@@ -18,7 +18,7 @@ services:
       retries: 5
 
   subscription-db:
-    image: postgres:16-alpine
+    image: ${DOCKERHUB_USERNAME}/quetxal-subscription-db:latest
     container_name: quetxal-subscription-db
     restart: always
     environment:
@@ -36,7 +36,7 @@ services:
       retries: 5
 
   catalog-db:
-    image: postgres:16-alpine
+    image: ${DOCKERHUB_USERNAME}/quetxal-catalog-db:latest
     container_name: quetxal-catalog-db
     restart: always
     environment:
@@ -54,7 +54,7 @@ services:
       retries: 5
 
   rating-db:
-    image: postgres:16-alpine
+    image: ${DOCKERHUB_USERNAME}/quetxal-rating-db:latest
     container_name: quetxal-rating-db
     restart: always
     environment:
@@ -72,7 +72,7 @@ services:
       retries: 5
 
   fx-db:
-    image: postgres:16-alpine
+    image: ${DOCKERHUB_USERNAME}/quetxal-fx-db:latest
     container_name: quetxal-fx-db
     restart: always
     environment:
@@ -90,7 +90,7 @@ services:
       retries: 5
 
   history-db:
-    image: postgres:16-alpine
+    image: ${DOCKERHUB_USERNAME}/quetxal-history-db:latest
     container_name: quetxal-history-db
     restart: always
     environment:
@@ -108,7 +108,7 @@ services:
       retries: 5
 
   notification-db:
-    image: postgres:16-alpine
+    image: ${DOCKERHUB_USERNAME}/quetxal-notification-db:latest
     container_name: quetxal-notification-db
     restart: always
     environment:

@@ -1,0 +1,157 @@
+name: quetxal-databases
+
+services:
+  auth-db:
+    build: ./db/auth
+    container_name: quetxal-auth-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME}
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+    ports:
+      - "5432:5432" # Puerto estándar PG
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  subscription-db:
+    build: ./db/subscription
+    container_name: quetxal-subscription-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${SUBSCRIPTION_DB_NAME}
+      POSTGRES_USER: ${SUBSCRIPTION_DB_USER}
+      POSTGRES_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
+    ports:
+      - "5433:5432" # Expuesto en el puerto 5433
+    volumes:
+      - subscription_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  catalog-db:
+    build: ./db/catalog
+    container_name: quetxal-catalog-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${CATALOG_DB_NAME}
+      POSTGRES_USER: ${CATALOG_DB_USER}
+      POSTGRES_PASSWORD: ${CATALOG_DB_PASSWORD}
+    ports:
+      - "5434:5432" # Expuesto en el puerto 5434
+    volumes:
+      - catalog_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rating-db:
+    build: ./db/rating
+    container_name: quetxal-rating-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${RATING_DB_NAME}
+      POSTGRES_USER: ${RATING_DB_USER}
+      POSTGRES_PASSWORD: ${RATING_DB_PASSWORD}
+    ports:
+      - "5435:5432" # Expuesto en el puerto 5435
+    volumes:
+      - rating_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  fx-db:
+    build: ./db/fx
+    container_name: quetxal-fx-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${FX_DB_NAME}
+      POSTGRES_USER: ${FX_DB_USER}
+      POSTGRES_PASSWORD: ${FX_DB_PASSWORD}
+    ports:
+      - "5436:5432" # Expuesto en el puerto 5436
+    volumes:
+      - fx_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  history-db:
+    build: ./db/history
+    container_name: quetxal-history-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${HISTORY_DB_NAME}
+      POSTGRES_USER: ${HISTORY_DB_USER}
+      POSTGRES_PASSWORD: ${HISTORY_DB_PASSWORD}
+    ports:
+      - "5437:5432" # Expuesto en el puerto 5437
+    volumes:
+      - history_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  notification-db:
+    build: ./db/notification
+    container_name: quetxal-notification-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME}
+      POSTGRES_USER: ${NOTIFICATION_DB_USER}
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+    ports:
+      - "5438:5432" # Expuesto en el puerto 5438
+    volumes:
+      - notification_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    build: ./cache
+    container_name: quetxal-redis
+    restart: always
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth_data:
+  subscription_data:
+  catalog_data:
+  rating_data:
+  fx_data:
+  history_data:
+  notification_data:
+  redis_data:
+
+networks:
+  default:
+    driver: bridge

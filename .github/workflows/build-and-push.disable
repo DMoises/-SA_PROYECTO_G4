@@ -40,7 +40,7 @@ jobs:
 
       - name: Configurar Autenticación de Docker a GCR
         run: |
-          gcloud auth configure-docker gcr.io --quiet
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | docker login -u _json_key --password-stdin https://gcr.io
 
       # ---------------------------------------------------------
       # 1. CAPA PERIMETRAL: API Gateway

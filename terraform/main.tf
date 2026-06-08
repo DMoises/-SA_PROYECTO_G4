@@ -225,10 +225,10 @@ resource "google_service_account" "vm_sa" {
   display_name = "Quetxal TV VM Service Account"
 }
 
-# Grant roles for accessing GCR (Container Registry)
-resource "google_project_iam_member" "vm_storage_admin" {
+# main.tf - Asignación formal del rol de Escritura en Artifact Registry
+resource "google_project_iam_member" "vm_artifact_writer" {
   project = var.gcp_project_id
-  role    = "roles/storage.admin"
+  role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.vm_sa.email}"
 }
 

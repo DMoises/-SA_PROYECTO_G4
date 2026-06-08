@@ -67,37 +67,37 @@ jobs:
       - name: Create overrides file from secrets and append to remote .env.cloud
         run: |
           cat > /tmp/.env.overrides <<EOF
-# Secrets overrides (appended to .env.cloud)
-AUTH_DB_NAME=${{ secrets.AUTH_DB_NAME }}
-AUTH_DB_USER=${{ secrets.AUTH_DB_USER }}
-AUTH_DB_PASSWORD=${{ secrets.AUTH_DB_PASSWORD }}
+          # Secrets overrides (appended to .env.cloud)
+          AUTH_DB_NAME=${{ secrets.AUTH_DB_NAME }}
+          AUTH_DB_USER=${{ secrets.AUTH_DB_USER }}
+          AUTH_DB_PASSWORD=${{ secrets.AUTH_DB_PASSWORD }}
 
-SUBSCRIPTION_DB_NAME=${{ secrets.SUBSCRIPTION_DB_NAME }}
-SUBSCRIPTION_DB_USER=${{ secrets.SUBSCRIPTION_DB_USER }}
-SUBSCRIPTION_DB_PASSWORD=${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
+          SUBSCRIPTION_DB_NAME=${{ secrets.SUBSCRIPTION_DB_NAME }}
+          SUBSCRIPTION_DB_USER=${{ secrets.SUBSCRIPTION_DB_USER }}
+          SUBSCRIPTION_DB_PASSWORD=${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
 
-CATALOG_DB_NAME=${{ secrets.CATALOG_DB_NAME }}
-CATALOG_DB_USER=${{ secrets.CATALOG_DB_USER }}
-CATALOG_DB_PASSWORD=${{ secrets.CATALOG_DB_PASSWORD }}
+          CATALOG_DB_NAME=${{ secrets.CATALOG_DB_NAME }}
+          CATALOG_DB_USER=${{ secrets.CATALOG_DB_USER }}
+          CATALOG_DB_PASSWORD=${{ secrets.CATALOG_DB_PASSWORD }}
 
-RATING_DB_NAME=${{ secrets.RATING_DB_NAME }}
-RATING_DB_USER=${{ secrets.RATING_DB_USER }}
-RATING_DB_PASSWORD=${{ secrets.RATING_DB_PASSWORD }}
+          RATING_DB_NAME=${{ secrets.RATING_DB_NAME }}
+          RATING_DB_USER=${{ secrets.RATING_DB_USER }}
+          RATING_DB_PASSWORD=${{ secrets.RATING_DB_PASSWORD }}
 
-FX_DB_NAME=${{ secrets.FX_DB_NAME }}
-FX_DB_USER=${{ secrets.FX_DB_USER }}
-FX_DB_PASSWORD=${{ secrets.FX_DB_PASSWORD }}
+          FX_DB_NAME=${{ secrets.FX_DB_NAME }}
+          FX_DB_USER=${{ secrets.FX_DB_USER }}
+          FX_DB_PASSWORD=${{ secrets.FX_DB_PASSWORD }}
 
-HISTORY_DB_NAME=${{ secrets.HISTORY_DB_NAME }}
-HISTORY_DB_USER=${{ secrets.HISTORY_DB_USER }}
-HISTORY_DB_PASSWORD=${{ secrets.HISTORY_DB_PASSWORD }}
+          HISTORY_DB_NAME=${{ secrets.HISTORY_DB_NAME }}
+          HISTORY_DB_USER=${{ secrets.HISTORY_DB_USER }}
+          HISTORY_DB_PASSWORD=${{ secrets.HISTORY_DB_PASSWORD }}
 
-NOTIFICATION_DB_NAME=${{ secrets.NOTIFICATION_DB_NAME }}
-NOTIFICATION_DB_USER=${{ secrets.NOTIFICATION_DB_USER }}
-NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
+          NOTIFICATION_DB_NAME=${{ secrets.NOTIFICATION_DB_NAME }}
+          NOTIFICATION_DB_USER=${{ secrets.NOTIFICATION_DB_USER }}
+          NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
 
-REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-EOF
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          EOF
 
           # Append overrides to remote .env.cloud via Gateway (no intermediate file left on Gateway)
           ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \

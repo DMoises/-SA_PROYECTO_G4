@@ -238,7 +238,7 @@ export const mockPlans: Plan[] = [
   {
     id: 'premium',
     name: 'Premium',
-    price: 139,
+    price: 1390,
     currency: 'GTQ',
     features: ['4 pantallas a la vez', 'Calidad 4K + HDR', 'Ver en cualquier dispositivo', 'Descargas disponibles', 'Audio espacial'],
     quality: '4K + HDR',

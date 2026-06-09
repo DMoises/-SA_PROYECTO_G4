@@ -1,31 +1,58 @@
 import { Navbar } from '@/components/navbar'
 import { HeroBanner } from '@/components/hero-banner'
 import { ContentCarousel } from '@/components/content-carousel'
-import { mockContent, getTrendingContent, getNewContent, getMovies, getSeries } from '@/lib/mock-data'
+import { fetchCartelera, buscarContenido } from '@/lib/catalog-gateway'
+import { Content } from '@/lib/types'
 
-export default function BrowsePage() {
-  const featuredContent = mockContent[0]
-  const trending = getTrendingContent()
-  const newReleases = getNewContent()
-  const movies = getMovies()
-  const series = getSeries()
+// El inicio muestra la CARTELERA REAL del catalogo (no mock). Server component
+// que consulta el catalog-service a traves del gateway. Dinamico = datos frescos.
+export const dynamic = 'force-dynamic'
+
+export default async function BrowsePage() {
+  // Cartelera completa + carruseles por categoria del catalogo.
+  // ("Mi lista" y "Continuar viendo" NO se muestran: son lista/historial (RFS-06),
+  //  otro dominio, sin backend en catalogo.)
+  const [cartelera, tendencias, destacados] = await Promise.all([
+    fetchCartelera().catch(() => [] as Content[]),
+    buscarContenido(new URLSearchParams({ categoria: 'Tendencias' })).catch(() => [] as Content[]),
+    buscarContenido(new URLSearchParams({ categoria: 'Destacados' })).catch(() => [] as Content[]),
+  ])
+
+  const movies = cartelera.filter(c => c.type === 'movie')
+  const series = cartelera.filter(c => c.type === 'series')
+  // "Nuevos lanzamientos" = estrenos del ultimo anio segun el ANIO del catalogo
+  // (sin tocar la BD): anio >= anio_actual - 1.
+  const anioActual = new Date().getFullYear()
+  const nuevos = cartelera
+    .filter(c => (c.year || 0) >= anioActual - 1)
+    .sort((a, b) => (b.year || 0) - (a.year || 0))
+  const featured = destacados[0] ?? cartelera[0] ?? null
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      {/* Hero Section */}
-      <HeroBanner content={featuredContent} />
 
-      {/* Content Carousels */}
-      <div className="-mt-32 relative z-10 space-y-8 pb-16">
-        <ContentCarousel title="Tendencias" contents={trending} />
-        <ContentCarousel title="Nuevos lanzamientos" contents={newReleases} />
-        <ContentCarousel title="Peliculas populares" contents={movies} />
-        <ContentCarousel title="Series populares" contents={series} />
-        <ContentCarousel title="Mi lista" contents={mockContent.slice(0, 6)} />
-        <ContentCarousel title="Continuar viendo" contents={mockContent.slice(3, 8)} />
-      </div>
+      {featured ? (
+        <>
+          {/* Hero Section (destacado del catalogo) */}
+          <HeroBanner content={featured} />
+
+          {/* Carruseles de la cartelera real */}
+          <div className="-mt-32 relative z-10 space-y-8 pb-16">
+            {tendencias.length > 0 && <ContentCarousel title="Tendencias" contents={tendencias} />}
+            {nuevos.length > 0 && <ContentCarousel title="Nuevos lanzamientos" contents={nuevos} />}
+            {movies.length > 0 && <ContentCarousel title="Peliculas" contents={movies} />}
+            {series.length > 0 && <ContentCarousel title="Series" contents={series} />}
+          </div>
+        </>
+      ) : (
+        <div className="px-4 pt-32 pb-16 text-center md:px-8 lg:px-16">
+          <h1 className="mb-2 text-2xl font-semibold text-foreground">Catalogo no disponible</h1>
+          <p className="text-muted-foreground">
+            No se pudo cargar la cartelera en este momento. Intenta de nuevo mas tarde.
+          </p>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-border/30 bg-background px-4 py-12 md:px-8 lg:px-16">

@@ -22,6 +22,10 @@ const nextConfig = {
         source: '/api/profiles/:path*',
         destination: `${apiUrl}/auth/profiles/:path*`,
       },
+      {
+        source: '/api/billing/:path*',
+        destination: `${apiUrl}/billing/:path*`,
+      },
     ];
   },
 }

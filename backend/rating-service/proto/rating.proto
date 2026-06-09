@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package rating.v1;
+
+// Servicio de Calificaciones. Lo consume el API Gateway (unico punto de
+// entrada). Un perfil emite una calificacion (estrella 1-5 o pulgar 0/1) sobre
+// un contenido, y el % de recomendacion se calcula con una Funcion SQL nativa
+// en la base (sin ORM).
+service RatingService {
+  // Emite/actualiza la calificacion de un perfil para un contenido (RFS-04.1).
+  rpc Calificar(CalificarRequest) returns (RecomendacionResponse);
+  // % de recomendacion de un contenido, via fn_RecalcularPorcentaje (RFS-04.2).
+  rpc ObtenerRecomendacion(ObtenerRecomendacionRequest) returns (RecomendacionResponse);
+  // Calificacion actual de un perfil sobre un contenido (para resaltar en la UI).
+  rpc ObtenerCalificacionUsuario(ObtenerCalificacionUsuarioRequest) returns (CalificacionUsuarioResponse);
+}
+
+message CalificarRequest {
+  string perfil_id    = 1;
+  string contenido_id = 2;
+  string tipo         = 3; // 'estrella' | 'pulgar'
+  int32  valor        = 4; // estrella: 1-5 | pulgar: 0|1
+}
+
+message RecomendacionResponse {
+  string contenido_id    = 1;
+  int32  total_votos     = 2;
+  int32  votos_positivos = 3;
+  double porcentaje      = 4;
+}
+
+message ObtenerRecomendacionRequest {
+  string contenido_id = 1;
+}
+
+message ObtenerCalificacionUsuarioRequest {
+  string perfil_id    = 1;
+  string contenido_id = 2;
+}
+
+message CalificacionUsuarioResponse {
+  bool   existe = 1;
+  string tipo   = 2; // 'estrella' | 'pulgar' (vacio si no existe)
+  int32  valor  = 3;
+}

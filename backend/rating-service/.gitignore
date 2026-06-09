@@ -1,0 +1,4 @@
+# Stubs gRPC generados (se generan en build/generate, no se versionan).
+app/pb/rating_pb2.py
+app/pb/rating_pb2_grpc.py
+app/pb/rating_pb2.pyi

@@ -2,7 +2,9 @@ name: Deploy Gateway
 
 on:
   workflow_run:
-    workflows: ["Build and Push to Docker Hub - Gateway"]
+    workflows: 
+      - "Build and Push to Docker Hub - Gateway"
+      - "Build and Push to Docker Hub - Frontend"
     types:
       - completed
     branches:

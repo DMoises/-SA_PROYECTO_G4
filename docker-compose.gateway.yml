@@ -17,8 +17,6 @@ services:
       BILLING_SERVICE_ADDR: ${BILLING_SERVICE_ADDR:-billing-service:50057}
       COOKIE_SECURE: "true"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
-    ports:
-      - "80:8080"
     networks:
       - quetxal-net
 
@@ -30,7 +28,7 @@ services:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: http://api-gateway:8080
     ports:
-      - "3000:3000"
+      - "80:3000"
     networks:
       - quetxal-net
 

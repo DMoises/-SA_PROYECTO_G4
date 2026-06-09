@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package billing.v1;
+
+service BillingService {
+  rpc GetPlans (Empty) returns (GetPlansResponse);
+  rpc CreateSubscription (CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
+  rpc GetUserSubscription (GetUserSubscriptionRequest) returns (GetUserSubscriptionResponse);
+  rpc CancelSubscription (CancelSubscriptionRequest) returns (CancelSubscriptionResponse);
+  rpc ChangeSubscription (ChangeSubscriptionRequest) returns (ChangeSubscriptionResponse);
+
+  rpc GetPlanPrice (GetPlanPriceRequest) returns (GetPlanPriceResponse);
+}
+
+message Empty {}
+
+message Plan {
+  string id = 1;
+  string nombre_plan = 2;
+  double precio_base = 3;
+  string moneda_base = 4;
+}
+
+message GetPlansResponse {
+  repeated Plan planes = 1;
+}
+
+message CreateSubscriptionRequest {
+  string usuario_id = 1;
+  string plan_id = 2;
+  double monto = 3;
+  string moneda = 4;
+  int32 meses = 5;
+}
+
+message CreateSubscriptionResponse {
+  string suscripcion_id = 1;
+  string pago_id = 2;
+  string mensaje = 3;
+}
+
+
+message GetUserSubscriptionRequest {
+  string usuario_id = 1;
+}
+
+message GetUserSubscriptionResponse {
+  string suscripcion_id = 1;
+  string usuario_id = 2;
+  string plan_id = 3;
+  string nombre_plan = 4;
+  string estado_suscripcion = 5;
+  string fecha_inicio = 6;
+  string fecha_fin = 7;
+}
+
+message CancelSubscriptionRequest {
+  string usuario_id = 1;
+}
+
+message CancelSubscriptionResponse {
+  string suscripcion_id = 1;
+  string mensaje = 2;
+}
+
+message ChangeSubscriptionRequest {
+  string usuario_id = 1;
+  string nuevo_plan_id = 2;
+  double monto = 3;
+  string moneda = 4;
+  int32 meses = 5;
+}
+
+message ChangeSubscriptionResponse {
+  string suscripcion_id = 1;
+  string pago_id = 2;
+  string mensaje = 3;
+}
+
+message GetPlanPriceRequest {
+  string plan_id = 1;
+  string moneda_destino = 2;
+}
+
+message GetPlanPriceResponse {
+  string plan_id = 1;
+  string nombre_plan = 2;
+  double precio_base = 3;
+  string moneda_base = 4;
+  double precio_convertido = 5;
+  string moneda_destino = 6;
+}

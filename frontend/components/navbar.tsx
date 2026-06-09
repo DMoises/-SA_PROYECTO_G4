@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Search, Bell, ChevronDown, Menu, X } from 'lucide-react'
@@ -25,6 +25,19 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profileInitial, setProfileInitial] = useState('?')
+
+  useEffect(() => {
+    const stored = localStorage.getItem('selectedProfile')
+    if (stored) {
+      try {
+        const { nombre } = JSON.parse(stored)
+        setProfileInitial(nombre.charAt(0).toUpperCase())
+      } catch {
+        // ignore malformed data
+      }
+    }
+  }, [])
 
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-background/90 to-transparent">
@@ -86,7 +99,7 @@ export function Navbar() {
             <DropdownMenuTrigger className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), "gap-2 p-0")}>
               <div className="h-8 w-8 overflow-hidden rounded bg-gradient-to-br from-primary to-primary/60">
                 <div className="flex h-full w-full items-center justify-center text-sm font-bold text-primary-foreground">
-                  R
+                  {profileInitial}
                 </div>
               </div>
               <ChevronDown className="h-4 w-4 text-foreground" />

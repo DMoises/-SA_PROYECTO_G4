@@ -150,8 +150,7 @@ services:
     networks: [quetxal-net]
 
 
-  # redis (cache del fx-service)
-
+# redis (cache del fx-service)
   redis:
     image: redis:7-alpine
     container_name: quetxal-redis
@@ -161,13 +160,29 @@ services:
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
       - redis_data:/data
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks: [quetxal-net]
 
+  # fx-service
+  fx-service:
+    build: ./backend/fx-service
+    container_name: quetxal-fx-service
+    environment:
+      FX_DB_HOST: fx-db
+      FX_DB_PORT: 5432
+      FX_DB_NAME: ${FX_DB_NAME}
+      FX_DB_USER: ${FX_DB_USER}
+      FX_DB_PASSWORD: ${FX_DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "50053:50053"
+    depends_on:
+      fx-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks: [quetxal-net]
 
 # auth-service
   auth-service:
@@ -197,12 +212,14 @@ services:
     environment:
       GATEWAY_PORT: 8080
       AUTH_SERVICE_ADDR: auth-service:50051
+      BILLING_SERVICE_ADDR: billing-service:50052
       COOKIE_SECURE: "false"        # true en cloud (HTTPS)
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
     ports:
       - "8080:8080"   # este SI es publico: el frontend entra por aqui
     depends_on:
       - auth-service
+      - billing-service
     networks: [quetxal-net]
 
   # notification-service
@@ -229,7 +246,25 @@ services:
         condition: service_healthy
     networks: [quetxal-net]
 
-
+  # billing-service
+  billing-service:
+    build: ./backend/billing-service
+    container_name: quetxal-billing-service
+    environment:
+      SUBSCRIPTION_DB_HOST: subscription-db
+      SUBSCRIPTION_DB_PORT: 5432
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
+      FX_SERVICE_ADDR: fx-service:50053
+    ports:
+      - "50052:50052"
+    depends_on:
+      subscription-db:
+        condition: service_healthy
+      fx-service:
+        condition: service_started
+    networks: [quetxal-net]
 
 volumes:
   auth_data:

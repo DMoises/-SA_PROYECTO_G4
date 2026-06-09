@@ -10,6 +10,7 @@ type Config struct {
 	CookieSecure    bool   // true en produccion (HTTPS)
 	BillingServiceAddr string // direccion gRPC del billing-service
 	CatalogServiceAddr string // direccion gRPC del catalog-service
+	RatingServiceAddr string // direccion gRPC del rating-service
 	CORSOrigin      string // origen permitido (el frontend)
 }
 
@@ -22,6 +23,7 @@ func Load() *Config {
 		CookieSecure:    getEnv("COOKIE_SECURE", "false") == "true",
 		BillingServiceAddr: getEnv("BILLING_SERVICE_ADDR", "localhost:50052"),
 		CatalogServiceAddr: getEnv("CATALOG_SERVICE_ADDR", "catalog-service:50055"),
+		RatingServiceAddr: getEnv("RATING_SERVICE_ADDR", "rating-service:50056"),
 		CORSOrigin:      getEnv("CORS_ORIGIN", "http://localhost:3000"),
 	}
 }

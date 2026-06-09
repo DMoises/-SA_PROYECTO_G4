@@ -42,10 +42,18 @@ func main() {
 	}
 	defer catalogClient.Close()
 
+	// Cliente gRPC al rating-service.
+	ratingClient, err := clients.NewRatingClient(cfg.RatingServiceAddr)
+	if err != nil {
+		log.Fatalf("no se pudo conectar al rating-service: %v", err)
+	}
+	defer ratingClient.Close()
+
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
   billingH := handlers.NewBillingHandler(billingClient)
 	catalogH := handlers.NewCatalogHandler(catalogClient)
+	ratingH := handlers.NewRatingHandler(ratingClient)
 	mux := http.NewServeMux()
 
 	// Salud (util para healthcheck de Docker / GCP).
@@ -77,6 +85,12 @@ func main() {
 	mux.HandleFunc("GET /catalog/cartelera", catalogH.ExplorarCartelera)
 	mux.HandleFunc("GET /catalog/buscar", catalogH.BuscarContenido)
 	mux.HandleFunc("GET /catalog/contenido/{id}", catalogH.ObtenerFichaTecnica)
+
+	// Rutas de calificaciones (rating). Calificar requiere sesion (RFS-04.1);
+	// el % de recomendacion es publico.
+	mux.Handle("POST /ratings", authMW(http.HandlerFunc(ratingH.Calificar)))
+	mux.HandleFunc("GET /ratings/{contenido_id}", ratingH.ObtenerRecomendacion)
+	mux.Handle("GET /ratings/{contenido_id}/usuario", authMW(http.HandlerFunc(ratingH.ObtenerCalificacionUsuario)))
 
 	// CORS envuelve todo el router.
 	handler := middleware.CORS(cfg.CORSOrigin)(mux)

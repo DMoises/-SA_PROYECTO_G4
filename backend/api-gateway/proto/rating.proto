@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package rating.v1;
+
+option go_package = "github.com/grupo4/quetxaltv-gateway/internal/pb;pb";
+
+// Contrato del rating-service consumido por el API Gateway. Debe coincidir con
+// backend/rating-service/proto/rating.proto.
+service RatingService {
+  rpc Calificar(CalificarRequest) returns (RecomendacionResponse);
+  rpc ObtenerRecomendacion(ObtenerRecomendacionRequest) returns (RecomendacionResponse);
+  rpc ObtenerCalificacionUsuario(ObtenerCalificacionUsuarioRequest) returns (CalificacionUsuarioResponse);
+}
+
+message CalificarRequest {
+  string perfil_id    = 1;
+  string contenido_id = 2;
+  string tipo         = 3;
+  int32  valor        = 4;
+}
+
+message RecomendacionResponse {
+  string contenido_id    = 1;
+  int32  total_votos     = 2;
+  int32  votos_positivos = 3;
+  double porcentaje      = 4;
+}
+
+message ObtenerRecomendacionRequest {
+  string contenido_id = 1;
+}
+
+message ObtenerCalificacionUsuarioRequest {
+  string perfil_id    = 1;
+  string contenido_id = 2;
+}
+
+message CalificacionUsuarioResponse {
+  bool   existe = 1;
+  string tipo   = 2;
+  int32  valor  = 3;
+}

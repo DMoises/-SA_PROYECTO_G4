@@ -22,6 +22,18 @@ services:
     networks:
       - quetxal-net
 
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/quetxal-frontend:latest
+    container_name: quetxal-frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://api-gateway:8080
+    ports:
+      - "3000:3000"
+    networks:
+      - quetxal-net
+
 networks:
   quetxal-net:
     driver: bridge

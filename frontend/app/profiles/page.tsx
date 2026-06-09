@@ -36,7 +36,7 @@ export default function ProfilesPage() {
       const res = await fetch('/api/profiles')
       if (res.ok) {
         const data = await res.json()
-        setPerfiles(data.perfiles || [])
+        setPerfiles(Array.isArray(data) ? data : data.perfiles || [])
       }
     } catch (err) {
       console.error('Error cargando perfiles:', err)

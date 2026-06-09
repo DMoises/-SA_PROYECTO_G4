@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch('/api/auth/me')
       if (res.ok) {
         const data = await res.json()
-        if (data.valido) {
+        if (data.usuario_id) {
           setUser({ usuario_id: data.usuario_id, rol: data.rol })
           return
         }

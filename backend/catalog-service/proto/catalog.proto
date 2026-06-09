@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package catalog.v1;
+
+// Servicio de Catalogo. Lo consume el API Gateway (unico punto de entrada).
+// Es de SOLO LECTURA: explorar la cartelera, buscar con filtros y ver la
+// ficha tecnica. Lee de catalog_db con SQL crudo (sin ORM) apoyandose en la
+// vista vw_cartelera y las tablas base del esquema.
+service CatalogService {
+  // Explorar la cartelera completa (contenido activo). Usa la vista vw_cartelera.
+  rpc ExplorarCartelera(ExplorarCarteleraRequest) returns (CarteleraResponse);
+  // Buscar contenido aplicando filtros multicriterio simultaneos (RFS-03.1):
+  // titulo, categoria, genero y/o actor. Todos los filtros son opcionales.
+  rpc BuscarContenido(BuscarContenidoRequest) returns (CarteleraResponse);
+  // Ficha tecnica de un contenido (RFS-03.2): titulo, sinopsis, reparto y,
+  // si es serie, sus temporadas con episodios.
+  rpc ObtenerFichaTecnica(FichaTecnicaRequest) returns (FichaTecnicaResponse);
+}
+
+message ExplorarCarteleraRequest {}
+
+message BuscarContenidoRequest {
+  string titulo    = 1; // coincidencia parcial, opcional
+  string categoria = 2; // nombre de categoria, opcional
+  string genero    = 3; // nombre de genero, opcional
+  string actor     = 4; // nombre de actor, opcional
+}
+
+// Fila de la cartelera: proyeccion de la vista vw_cartelera.
+message ItemCartelera {
+  string contenido_id  = 1;
+  string titulo        = 2;
+  string tipo          = 3; // pelicula | serie
+  int32  anio          = 4;
+  string clasificacion = 5; // TP | +7 | +13 | +16 | +18
+  string generos       = 6; // lista separada por coma
+  string categorias    = 7; // lista separada por coma
+}
+
+message CarteleraResponse {
+  repeated ItemCartelera items = 1;
+}
+
+message FichaTecnicaRequest {
+  string contenido_id = 1;
+}
+
+message MiembroReparto {
+  string actor     = 1;
+  string personaje = 2;
+  string rol       = 3; // protagonista | secundario
+}
+
+message Episodio {
+  int32  numero       = 1;
+  string titulo       = 2;
+  int32  duracion_min = 3;
+}
+
+message Temporada {
+  int32             numero    = 1;
+  repeated Episodio episodios = 2;
+}
+
+message FichaTecnicaResponse {
+  string                  contenido_id  = 1;
+  string                  titulo        = 2;
+  string                  tipo          = 3; // pelicula | serie
+  string                  sinopsis      = 4;
+  int32                   anio          = 5;
+  string                  clasificacion = 6;
+  int32                   duracion_min  = 7;
+  string                  generos       = 8; // lista separada por coma
+  string                  categorias    = 9; // lista separada por coma
+  repeated MiembroReparto reparto       = 10;
+  repeated Temporada      temporadas    = 11; // solo si tipo = serie
+}

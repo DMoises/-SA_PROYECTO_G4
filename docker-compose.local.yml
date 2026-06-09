@@ -213,6 +213,7 @@ services:
       GATEWAY_PORT: 8080
       AUTH_SERVICE_ADDR: auth-service:50051
       BILLING_SERVICE_ADDR: billing-service:50052
+      CATALOG_SERVICE_ADDR: catalog-service:50055
       COOKIE_SECURE: "false"        # true en cloud (HTTPS)
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
     ports:
@@ -220,6 +221,7 @@ services:
     depends_on:
       - auth-service
       - billing-service
+      - catalog-service
     networks: [quetxal-net]
 
   # notification-service
@@ -264,6 +266,24 @@ services:
         condition: service_healthy
       fx-service:
         condition: service_started
+    networks: [quetxal-net]
+
+  # catalog-service (Python + gRPC)
+  catalog-service:
+    build: ./backend/catalog-service
+    container_name: quetxal-catalog-service
+    environment:
+      GRPC_PORT: 50055              # 50053 lo usa fx-service; catalog usa 50055
+      CATALOG_DB_HOST: catalog-db          # nombre del servicio de la base
+      CATALOG_DB_PORT_INTERNAL: 5432       # puerto INTERNO de postgres (no el de host)
+      CATALOG_DB_NAME: ${CATALOG_DB_NAME}
+      CATALOG_DB_USER: ${CATALOG_DB_USER}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+    ports:
+      - "50055:50055"   # solo para probar con grpcurl/Postman en LOCAL; quitar en cloud
+    depends_on:
+      catalog-db:
+        condition: service_healthy
     networks: [quetxal-net]
 
 volumes:

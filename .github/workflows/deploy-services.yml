@@ -73,32 +73,32 @@ jobs:
           DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
           # Database credentials
-          AUTH_DB_NAME=quetxal_auth
-          AUTH_DB_USER=auth_user
+          AUTH_DB_NAME=${{ secrets.AUTH_DB_NAME || 'auth_db' }}
+          AUTH_DB_USER=${{ secrets.AUTH_DB_USER || 'auth_user' }}
           AUTH_DB_PASSWORD=${{ secrets.AUTH_DB_PASSWORD }}
 
-          SUBSCRIPTION_DB_NAME=quetxal_subscription
-          SUBSCRIPTION_DB_USER=subscription_user
+          SUBSCRIPTION_DB_NAME=${{ secrets.SUBSCRIPTION_DB_NAME || 'subscription_db' }}
+          SUBSCRIPTION_DB_USER=${{ secrets.SUBSCRIPTION_DB_USER || 'subscription_user' }}
           SUBSCRIPTION_DB_PASSWORD=${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
 
-          CATALOG_DB_NAME=quetxal_catalog
-          CATALOG_DB_USER=catalog_user
+          CATALOG_DB_NAME=${{ secrets.CATALOG_DB_NAME || 'catalog_db' }}
+          CATALOG_DB_USER=${{ secrets.CATALOG_DB_USER || 'catalog_user' }}
           CATALOG_DB_PASSWORD=${{ secrets.CATALOG_DB_PASSWORD }}
 
-          RATING_DB_NAME=quetxal_rating
-          RATING_DB_USER=rating_user
+          RATING_DB_NAME=${{ secrets.RATING_DB_NAME || 'rating_db' }}
+          RATING_DB_USER=${{ secrets.RATING_DB_USER || 'rating_user' }}
           RATING_DB_PASSWORD=${{ secrets.RATING_DB_PASSWORD }}
 
-          FX_DB_NAME=quetxal_fx
-          FX_DB_USER=fx_user
+          FX_DB_NAME=${{ secrets.FX_DB_NAME || 'fx_db' }}
+          FX_DB_USER=${{ secrets.FX_DB_USER || 'fx_user' }}
           FX_DB_PASSWORD=${{ secrets.FX_DB_PASSWORD }}
 
-          HISTORY_DB_NAME=quetxal_history
-          HISTORY_DB_USER=history_user
+          HISTORY_DB_NAME=${{ secrets.HISTORY_DB_NAME || 'history_db' }}
+          HISTORY_DB_USER=${{ secrets.HISTORY_DB_USER || 'history_user' }}
           HISTORY_DB_PASSWORD=${{ secrets.HISTORY_DB_PASSWORD }}
 
-          NOTIFICATION_DB_NAME=quetxal_notification
-          NOTIFICATION_DB_USER=notification_user
+          NOTIFICATION_DB_NAME=${{ secrets.NOTIFICATION_DB_NAME || 'notification_db' }}
+          NOTIFICATION_DB_USER=${{ secrets.NOTIFICATION_DB_USER || 'notification_user' }}
           NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
 
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}

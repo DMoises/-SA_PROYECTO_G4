@@ -18,6 +18,12 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
   const [userRating, setUserRating] = useState<'up' | 'down' | null>(null)
   const [inMyList, setInMyList] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState(1)
+  // Campos opcionales: proto3-JSON omite los que valen 0 (p. ej. porcentaje 0%).
+  const [recomendacion, setRecomendacion] = useState<{
+    total_votos?: number
+    votos_positivos?: number
+    porcentaje?: number
+  } | null>(null)
 
   // Ficha tecnica real (via gateway: /api/catalog/{id} -> /catalog/contenido/{id}).
   useEffect(() => {
@@ -43,6 +49,37 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
       )
       .catch(() => {})
   }, [content])
+
+  // % de recomendacion (rating-service via gateway) + voto actual del usuario.
+  useEffect(() => {
+    fetch(`/api/ratings/${id}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (!data) return
+        setRecomendacion(data.recomendacion ?? null)
+        if (data.miVoto?.existe && data.miVoto.tipo === 'pulgar') {
+          setUserRating(data.miVoto.valor === 1 ? 'up' : 'down')
+        }
+      })
+      .catch(() => {})
+  }, [id])
+
+  // Emite un pulgar (1 = arriba, 0 = abajo) por el gateway y actualiza el %.
+  async function emitirVoto(valor: number) {
+    const res = await fetch('/api/ratings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contenido_id: id, tipo: 'pulgar', valor }),
+    })
+    if (res.status === 401) {
+      window.location.href = '/login'
+      return
+    }
+    if (res.ok) {
+      setRecomendacion(await res.json())
+      setUserRating(valor === 1 ? 'up' : 'down')
+    }
+  }
 
   if (loading) {
     return (
@@ -109,8 +146,10 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Meta Info */}
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
-              {content.matchPercentage > 0 && (
-                <span className="font-semibold text-green-500">{content.matchPercentage}% para ti</span>
+              {recomendacion && (recomendacion.total_votos ?? 0) > 0 && (
+                <span className="font-semibold text-green-500">
+                  {Math.round(recomendacion.porcentaje ?? 0)}% recomendado ({recomendacion.total_votos ?? 0})
+                </span>
               )}
               <span className="text-foreground">{content.year}</span>
               <span className="rounded border border-muted-foreground/50 px-1.5 py-0.5 text-xs text-foreground">
@@ -149,7 +188,7 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
                 size="lg"
                 variant="secondary"
                 className={`h-12 w-12 rounded-full p-0 ${userRating === 'up' ? 'bg-green-500/20 text-green-500' : ''}`}
-                onClick={() => setUserRating(userRating === 'up' ? null : 'up')}
+                onClick={() => emitirVoto(1)}
               >
                 <ThumbsUp className="h-5 w-5" />
               </Button>
@@ -157,7 +196,7 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
                 size="lg"
                 variant="secondary"
                 className={`h-12 w-12 rounded-full p-0 ${userRating === 'down' ? 'bg-red-500/20 text-red-500' : ''}`}
-                onClick={() => setUserRating(userRating === 'down' ? null : 'down')}
+                onClick={() => emitirVoto(0)}
               >
                 <ThumbsDown className="h-5 w-5" />
               </Button>

@@ -24,6 +24,7 @@ const (
 	BillingService_GetUserSubscription_FullMethodName = "/billing.v1.BillingService/GetUserSubscription"
 	BillingService_CancelSubscription_FullMethodName  = "/billing.v1.BillingService/CancelSubscription"
 	BillingService_ChangeSubscription_FullMethodName  = "/billing.v1.BillingService/ChangeSubscription"
+	BillingService_GetPlanPrice_FullMethodName        = "/billing.v1.BillingService/GetPlanPrice"
 )
 
 // BillingServiceClient is the client API for BillingService service.
@@ -35,6 +36,7 @@ type BillingServiceClient interface {
 	GetUserSubscription(ctx context.Context, in *GetUserSubscriptionRequest, opts ...grpc.CallOption) (*GetUserSubscriptionResponse, error)
 	CancelSubscription(ctx context.Context, in *CancelSubscriptionRequest, opts ...grpc.CallOption) (*CancelSubscriptionResponse, error)
 	ChangeSubscription(ctx context.Context, in *ChangeSubscriptionRequest, opts ...grpc.CallOption) (*ChangeSubscriptionResponse, error)
+	GetPlanPrice(ctx context.Context, in *GetPlanPriceRequest, opts ...grpc.CallOption) (*GetPlanPriceResponse, error)
 }
 
 type billingServiceClient struct {
@@ -95,6 +97,16 @@ func (c *billingServiceClient) ChangeSubscription(ctx context.Context, in *Chang
 	return out, nil
 }
 
+func (c *billingServiceClient) GetPlanPrice(ctx context.Context, in *GetPlanPriceRequest, opts ...grpc.CallOption) (*GetPlanPriceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPlanPriceResponse)
+	err := c.cc.Invoke(ctx, BillingService_GetPlanPrice_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BillingServiceServer is the server API for BillingService service.
 // All implementations must embed UnimplementedBillingServiceServer
 // for forward compatibility.
@@ -104,6 +116,7 @@ type BillingServiceServer interface {
 	GetUserSubscription(context.Context, *GetUserSubscriptionRequest) (*GetUserSubscriptionResponse, error)
 	CancelSubscription(context.Context, *CancelSubscriptionRequest) (*CancelSubscriptionResponse, error)
 	ChangeSubscription(context.Context, *ChangeSubscriptionRequest) (*ChangeSubscriptionResponse, error)
+	GetPlanPrice(context.Context, *GetPlanPriceRequest) (*GetPlanPriceResponse, error)
 	mustEmbedUnimplementedBillingServiceServer()
 }
 
@@ -128,6 +141,9 @@ func (UnimplementedBillingServiceServer) CancelSubscription(context.Context, *Ca
 }
 func (UnimplementedBillingServiceServer) ChangeSubscription(context.Context, *ChangeSubscriptionRequest) (*ChangeSubscriptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ChangeSubscription not implemented")
+}
+func (UnimplementedBillingServiceServer) GetPlanPrice(context.Context, *GetPlanPriceRequest) (*GetPlanPriceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPlanPrice not implemented")
 }
 func (UnimplementedBillingServiceServer) mustEmbedUnimplementedBillingServiceServer() {}
 func (UnimplementedBillingServiceServer) testEmbeddedByValue()                        {}
@@ -240,6 +256,24 @@ func _BillingService_ChangeSubscription_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BillingService_GetPlanPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPlanPriceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BillingServiceServer).GetPlanPrice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BillingService_GetPlanPrice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BillingServiceServer).GetPlanPrice(ctx, req.(*GetPlanPriceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BillingService_ServiceDesc is the grpc.ServiceDesc for BillingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +300,10 @@ var BillingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeSubscription",
 			Handler:    _BillingService_ChangeSubscription_Handler,
+		},
+		{
+			MethodName: "GetPlanPrice",
+			Handler:    _BillingService_GetPlanPrice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

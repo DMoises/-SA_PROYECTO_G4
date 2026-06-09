@@ -60,3 +60,10 @@ func (c *BillingClient) CancelSubscription(ctx context.Context, usuarioID string
 		UsuarioId: usuarioID,
 	})
 }
+
+func (c *BillingClient) GetPlanPrice(ctx context.Context, planID, monedaDestino string) (*pb.GetPlanPriceResponse, error) {
+	return c.cli.GetPlanPrice(ctx, &pb.GetPlanPriceRequest{
+		PlanId:         planID,
+		MonedaDestino: monedaDestino,
+	})
+}

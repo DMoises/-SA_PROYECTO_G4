@@ -97,3 +97,22 @@ func (h *BillingHandler) CancelSubscription(w http.ResponseWriter, r *http.Reque
 func _evitarImportNoUsado() {
 	_ = middleware.CtxUsuarioID
 }
+
+func (h *BillingHandler) GetPlanPrice(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		PlanID         string `json:"plan_id"`
+		MonedaDestino string `json:"moneda_destino"`
+	}
+
+	if !decode(w, r, &body) {
+		return
+	}
+
+	resp, err := h.billing.GetPlanPrice(r.Context(), body.PlanID, body.MonedaDestino)
+	if err != nil {
+		writeGRPCError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, resp)
+}

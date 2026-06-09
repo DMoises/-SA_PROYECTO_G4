@@ -1,13 +1,17 @@
 syntax = "proto3";
 
 package billing.v1;
+
 option go_package = "github.com/grupo4/quetxaltv-gateway/internal/pb;pb";
+
 service BillingService {
   rpc GetPlans (Empty) returns (GetPlansResponse);
   rpc CreateSubscription (CreateSubscriptionRequest) returns (CreateSubscriptionResponse);
   rpc GetUserSubscription (GetUserSubscriptionRequest) returns (GetUserSubscriptionResponse);
   rpc CancelSubscription (CancelSubscriptionRequest) returns (CancelSubscriptionResponse);
   rpc ChangeSubscription (ChangeSubscriptionRequest) returns (ChangeSubscriptionResponse);
+
+  rpc GetPlanPrice (GetPlanPriceRequest) returns (GetPlanPriceResponse);
 }
 
 message Empty {}
@@ -36,7 +40,6 @@ message CreateSubscriptionResponse {
   string pago_id = 2;
   string mensaje = 3;
 }
-
 
 message GetUserSubscriptionRequest {
   string usuario_id = 1;
@@ -73,4 +76,19 @@ message ChangeSubscriptionResponse {
   string suscripcion_id = 1;
   string pago_id = 2;
   string mensaje = 3;
+}
+
+// NUEVOS: Mensajes para la consulta de precios convertidos
+message GetPlanPriceRequest {
+  string plan_id = 1;
+  string moneda_destino = 2;
+}
+
+message GetPlanPriceResponse {
+  string plan_id = 1;
+  string nombre_plan = 2;
+  double precio_base = 3;
+  string moneda_base = 4;
+  double precio_convertido = 5;
+  string moneda_destino = 6;
 }

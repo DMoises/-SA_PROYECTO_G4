@@ -42,4 +42,9 @@ export class BillingController {
   }) {
     return this.billingService.changeSubscription(data);
   }
+
+  @GrpcMethod('BillingService', 'GetPlanPrice')
+  getPlanPrice(data: { planId: string; monedaDestino: string }) {
+    return this.billingService.getPlanPrice(data);
+  }
 }

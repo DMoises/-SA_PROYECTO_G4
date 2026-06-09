@@ -673,6 +673,143 @@ func (x *ChangeSubscriptionResponse) GetMensaje() string {
 	return ""
 }
 
+// NUEVOS: Mensajes para la consulta de precios convertidos
+type GetPlanPriceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PlanId        string                 `protobuf:"bytes,1,opt,name=plan_id,json=planId,proto3" json:"plan_id,omitempty"`
+	MonedaDestino string                 `protobuf:"bytes,2,opt,name=moneda_destino,json=monedaDestino,proto3" json:"moneda_destino,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPlanPriceRequest) Reset() {
+	*x = GetPlanPriceRequest{}
+	mi := &file_proto_billing_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPlanPriceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPlanPriceRequest) ProtoMessage() {}
+
+func (x *GetPlanPriceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_billing_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPlanPriceRequest.ProtoReflect.Descriptor instead.
+func (*GetPlanPriceRequest) Descriptor() ([]byte, []int) {
+	return file_proto_billing_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetPlanPriceRequest) GetPlanId() string {
+	if x != nil {
+		return x.PlanId
+	}
+	return ""
+}
+
+func (x *GetPlanPriceRequest) GetMonedaDestino() string {
+	if x != nil {
+		return x.MonedaDestino
+	}
+	return ""
+}
+
+type GetPlanPriceResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	PlanId           string                 `protobuf:"bytes,1,opt,name=plan_id,json=planId,proto3" json:"plan_id,omitempty"`
+	NombrePlan       string                 `protobuf:"bytes,2,opt,name=nombre_plan,json=nombrePlan,proto3" json:"nombre_plan,omitempty"`
+	PrecioBase       float64                `protobuf:"fixed64,3,opt,name=precio_base,json=precioBase,proto3" json:"precio_base,omitempty"`
+	MonedaBase       string                 `protobuf:"bytes,4,opt,name=moneda_base,json=monedaBase,proto3" json:"moneda_base,omitempty"`
+	PrecioConvertido float64                `protobuf:"fixed64,5,opt,name=precio_convertido,json=precioConvertido,proto3" json:"precio_convertido,omitempty"`
+	MonedaDestino    string                 `protobuf:"bytes,6,opt,name=moneda_destino,json=monedaDestino,proto3" json:"moneda_destino,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *GetPlanPriceResponse) Reset() {
+	*x = GetPlanPriceResponse{}
+	mi := &file_proto_billing_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPlanPriceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPlanPriceResponse) ProtoMessage() {}
+
+func (x *GetPlanPriceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_billing_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPlanPriceResponse.ProtoReflect.Descriptor instead.
+func (*GetPlanPriceResponse) Descriptor() ([]byte, []int) {
+	return file_proto_billing_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetPlanPriceResponse) GetPlanId() string {
+	if x != nil {
+		return x.PlanId
+	}
+	return ""
+}
+
+func (x *GetPlanPriceResponse) GetNombrePlan() string {
+	if x != nil {
+		return x.NombrePlan
+	}
+	return ""
+}
+
+func (x *GetPlanPriceResponse) GetPrecioBase() float64 {
+	if x != nil {
+		return x.PrecioBase
+	}
+	return 0
+}
+
+func (x *GetPlanPriceResponse) GetMonedaBase() string {
+	if x != nil {
+		return x.MonedaBase
+	}
+	return ""
+}
+
+func (x *GetPlanPriceResponse) GetPrecioConvertido() float64 {
+	if x != nil {
+		return x.PrecioConvertido
+	}
+	return 0
+}
+
+func (x *GetPlanPriceResponse) GetMonedaDestino() string {
+	if x != nil {
+		return x.MonedaDestino
+	}
+	return ""
+}
+
 var File_proto_billing_proto protoreflect.FileDescriptor
 
 const file_proto_billing_proto_rawDesc = "" +
@@ -730,13 +867,27 @@ const file_proto_billing_proto_rawDesc = "" +
 	"\x1aChangeSubscriptionResponse\x12%\n" +
 	"\x0esuscripcion_id\x18\x01 \x01(\tR\rsuscripcionId\x12\x17\n" +
 	"\apago_id\x18\x02 \x01(\tR\x06pagoId\x12\x18\n" +
-	"\amensaje\x18\x03 \x01(\tR\amensaje2\xe4\x03\n" +
+	"\amensaje\x18\x03 \x01(\tR\amensaje\"U\n" +
+	"\x13GetPlanPriceRequest\x12\x17\n" +
+	"\aplan_id\x18\x01 \x01(\tR\x06planId\x12%\n" +
+	"\x0emoneda_destino\x18\x02 \x01(\tR\rmonedaDestino\"\xe6\x01\n" +
+	"\x14GetPlanPriceResponse\x12\x17\n" +
+	"\aplan_id\x18\x01 \x01(\tR\x06planId\x12\x1f\n" +
+	"\vnombre_plan\x18\x02 \x01(\tR\n" +
+	"nombrePlan\x12\x1f\n" +
+	"\vprecio_base\x18\x03 \x01(\x01R\n" +
+	"precioBase\x12\x1f\n" +
+	"\vmoneda_base\x18\x04 \x01(\tR\n" +
+	"monedaBase\x12+\n" +
+	"\x11precio_convertido\x18\x05 \x01(\x01R\x10precioConvertido\x12%\n" +
+	"\x0emoneda_destino\x18\x06 \x01(\tR\rmonedaDestino2\xb7\x04\n" +
 	"\x0eBillingService\x12;\n" +
 	"\bGetPlans\x12\x11.billing.v1.Empty\x1a\x1c.billing.v1.GetPlansResponse\x12c\n" +
 	"\x12CreateSubscription\x12%.billing.v1.CreateSubscriptionRequest\x1a&.billing.v1.CreateSubscriptionResponse\x12f\n" +
 	"\x13GetUserSubscription\x12&.billing.v1.GetUserSubscriptionRequest\x1a'.billing.v1.GetUserSubscriptionResponse\x12c\n" +
 	"\x12CancelSubscription\x12%.billing.v1.CancelSubscriptionRequest\x1a&.billing.v1.CancelSubscriptionResponse\x12c\n" +
-	"\x12ChangeSubscription\x12%.billing.v1.ChangeSubscriptionRequest\x1a&.billing.v1.ChangeSubscriptionResponseB4Z2github.com/grupo4/quetxaltv-gateway/internal/pb;pbb\x06proto3"
+	"\x12ChangeSubscription\x12%.billing.v1.ChangeSubscriptionRequest\x1a&.billing.v1.ChangeSubscriptionResponse\x12Q\n" +
+	"\fGetPlanPrice\x12\x1f.billing.v1.GetPlanPriceRequest\x1a .billing.v1.GetPlanPriceResponseB4Z2github.com/grupo4/quetxaltv-gateway/internal/pb;pbb\x06proto3"
 
 var (
 	file_proto_billing_proto_rawDescOnce sync.Once
@@ -750,7 +901,7 @@ func file_proto_billing_proto_rawDescGZIP() []byte {
 	return file_proto_billing_proto_rawDescData
 }
 
-var file_proto_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_proto_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_proto_billing_proto_goTypes = []any{
 	(*Empty)(nil),                       // 0: billing.v1.Empty
 	(*Plan)(nil),                        // 1: billing.v1.Plan
@@ -763,6 +914,8 @@ var file_proto_billing_proto_goTypes = []any{
 	(*CancelSubscriptionResponse)(nil),  // 8: billing.v1.CancelSubscriptionResponse
 	(*ChangeSubscriptionRequest)(nil),   // 9: billing.v1.ChangeSubscriptionRequest
 	(*ChangeSubscriptionResponse)(nil),  // 10: billing.v1.ChangeSubscriptionResponse
+	(*GetPlanPriceRequest)(nil),         // 11: billing.v1.GetPlanPriceRequest
+	(*GetPlanPriceResponse)(nil),        // 12: billing.v1.GetPlanPriceResponse
 }
 var file_proto_billing_proto_depIdxs = []int32{
 	1,  // 0: billing.v1.GetPlansResponse.planes:type_name -> billing.v1.Plan
@@ -771,13 +924,15 @@ var file_proto_billing_proto_depIdxs = []int32{
 	5,  // 3: billing.v1.BillingService.GetUserSubscription:input_type -> billing.v1.GetUserSubscriptionRequest
 	7,  // 4: billing.v1.BillingService.CancelSubscription:input_type -> billing.v1.CancelSubscriptionRequest
 	9,  // 5: billing.v1.BillingService.ChangeSubscription:input_type -> billing.v1.ChangeSubscriptionRequest
-	2,  // 6: billing.v1.BillingService.GetPlans:output_type -> billing.v1.GetPlansResponse
-	4,  // 7: billing.v1.BillingService.CreateSubscription:output_type -> billing.v1.CreateSubscriptionResponse
-	6,  // 8: billing.v1.BillingService.GetUserSubscription:output_type -> billing.v1.GetUserSubscriptionResponse
-	8,  // 9: billing.v1.BillingService.CancelSubscription:output_type -> billing.v1.CancelSubscriptionResponse
-	10, // 10: billing.v1.BillingService.ChangeSubscription:output_type -> billing.v1.ChangeSubscriptionResponse
-	6,  // [6:11] is the sub-list for method output_type
-	1,  // [1:6] is the sub-list for method input_type
+	11, // 6: billing.v1.BillingService.GetPlanPrice:input_type -> billing.v1.GetPlanPriceRequest
+	2,  // 7: billing.v1.BillingService.GetPlans:output_type -> billing.v1.GetPlansResponse
+	4,  // 8: billing.v1.BillingService.CreateSubscription:output_type -> billing.v1.CreateSubscriptionResponse
+	6,  // 9: billing.v1.BillingService.GetUserSubscription:output_type -> billing.v1.GetUserSubscriptionResponse
+	8,  // 10: billing.v1.BillingService.CancelSubscription:output_type -> billing.v1.CancelSubscriptionResponse
+	10, // 11: billing.v1.BillingService.ChangeSubscription:output_type -> billing.v1.ChangeSubscriptionResponse
+	12, // 12: billing.v1.BillingService.GetPlanPrice:output_type -> billing.v1.GetPlanPriceResponse
+	7,  // [7:13] is the sub-list for method output_type
+	1,  // [1:7] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
 	1,  // [1:1] is the sub-list for extension extendee
 	0,  // [0:1] is the sub-list for field type_name
@@ -794,7 +949,7 @@ func file_proto_billing_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_billing_proto_rawDesc), len(file_proto_billing_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

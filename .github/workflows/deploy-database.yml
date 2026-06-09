@@ -1,7 +1,6 @@
 name: Deploy Database
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["Build and Push to Docker Hub - Database"]
     types:
@@ -10,6 +9,7 @@ on:
       - develop
       - main
       - feature/despliegue
+  workflow_dispatch:
 
 jobs:
   deploy-database:

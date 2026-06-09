@@ -1,7 +1,6 @@
 name: Deploy Gateway
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["Build and Push to Docker Hub - Gateway"]
     types:
@@ -10,6 +9,7 @@ on:
       - develop
       - main
       - feature/despliegue
+  workflow_dispatch:
 
 jobs:
   deploy-gateway:
@@ -31,6 +31,7 @@ jobs:
           : "${{ secrets.SSH_KEY }}" || { echo "SSH_KEY missing"; exit 1; }
           : "${{ secrets.SSH_USER }}" || { echo "SSH_USER missing"; exit 1; }
           : "${{ secrets.GATEWAY_VM_IP }}" || { echo "GATEWAY_VM_IP missing"; exit 1; }
+          : "${{ secrets.SERVICES_VM_IP }}" || { echo "SERVICES_VM_IP missing"; exit 1; }
           : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "DOCKERHUB_USERNAME missing"; exit 1; }
           : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "DOCKERHUB_TOKEN missing"; exit 1; }
         shell: bash
@@ -49,12 +50,16 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           SSH_USER: ${{ secrets.SSH_USER }}
+          SERVICES_VM_IP: ${{ secrets.SERVICES_VM_IP }}
+          GATEWAY_VM_IP: ${{ secrets.GATEWAY_VM_IP }}
           GATEWAY_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/quetxal-api-gateway:latest
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} \
             DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} \
             SSH_USER=${SSH_USER} \
+            SERVICES_VM_IP=${SERVICES_VM_IP} \
+            GATEWAY_VM_IP=${GATEWAY_VM_IP} \
             GATEWAY_IMAGE=${GATEWAY_IMAGE} bash -s << 'EOF'
           set -euo pipefail
 
@@ -77,9 +82,24 @@ jobs:
             exit 3
           fi
 
-          echo "=== Re-desplegando el contenedor del API Gateway ==="
-          # Inyectamos dinámicamente el tag o el nombre de la imagen si tu docker-compose usa la variable
+          FRONTEND_IMAGE="${DOCKERHUB_USERNAME}/quetxal-frontend:latest"
+          echo "=== Descargando la imagen del frontend: ${FRONTEND_IMAGE} ==="
+          if docker pull "${FRONTEND_IMAGE}"; then
+            echo "✅ Imagen del frontend descargada con éxito"
+          else
+            echo "⚠️ No se pudo descargar la imagen del frontend o no existe todavía."
+          fi
+
+          echo "=== Re-desplegando el contenedor del API Gateway y Frontend ==="
+          export GATEWAY_VM_IP="${GATEWAY_VM_IP}"
           export GATEWAY_IMAGE="${IMAGE}"
+          export AUTH_SERVICE_ADDR="${SERVICES_VM_IP}:50051"
+          export HISTORY_SERVICE_ADDR="${SERVICES_VM_IP}:50052"
+          export CATALOG_SERVICE_ADDR="${SERVICES_VM_IP}:50053"
+          export NOTIFICATION_SERVICE_ADDR="${SERVICES_VM_IP}:50054"
+          export RATING_SERVICE_ADDR="${SERVICES_VM_IP}:50055"
+          export FX_SERVICE_ADDR="${SERVICES_VM_IP}:50056"
+          export BILLING_SERVICE_ADDR="${SERVICES_VM_IP}:50057"
           
           docker-compose -f "${COMPOSE_FILE}" down --remove-orphans || true
           docker-compose -f "${COMPOSE_FILE}" up -d

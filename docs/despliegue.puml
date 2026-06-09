@@ -1,0 +1,113 @@
+@startuml
+left to right direction
+skinparam node {
+    BackgroundColor<<GCP>> #ECEFF1
+    BackgroundColor<<VM>> #E8EAF6
+    BackgroundColor<<Docker>> #E3F2FD
+    BorderColor #1565C0
+}
+skinparam component {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+    ArrowColor #1B5E20
+}
+skinparam database {
+    BackgroundColor<<PostgreSQL>> #FFF9C4
+    BackgroundColor<<Redis>> #FCE4EC
+    BorderColor #F57F17
+}
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #FBC02D
+    FontName Arial
+}
+
+title Vista Física: Estructura de Asignación PSM (Topología 3 VMs - Quetxal TV)
+
+actor "Cliente\n<<Web/Mobile>>" as user
+
+node "Google Cloud Platform (GCP) - Red Virtual Privada (VPC)" <<GCP>> {
+
+    node "VM 1: Zona Desmilitarizada (DMZ)" <<VM>> {
+        node "Contenedor: API Gateway\n<<Docker / TypeScript>>" <<Docker>> as gw_node {
+            component "Enrutador de Borde" as comp_gw
+        }
+    }
+
+    node "VM 2: Red Privada de Servicios" <<VM>> {
+        
+        node "Identity_MS\n<<Docker / Go - Gin>>" <<Docker>> as ms_id {
+            component "Módulo Identidad" as comp_id
+        }
+        node "History_MS\n<<Docker / Go - Gin>>" <<Docker>> as ms_hist {
+            component "Módulo Historial" as comp_hist
+        }
+        node "Catalog_MS\n<<Docker / Python>>" <<Docker>> as ms_cat {
+            component "Módulo Catálogo" as comp_cat
+        }
+        node "Rating_MS\n<<Docker / Python>>" <<Docker>> as ms_rate {
+            component "Módulo Calificaciones" as comp_rate
+        }
+        node "FX_MS\n<<Docker / Python>>" <<Docker>> as ms_fx {
+            component "Módulo Servicio FX" as comp_fx
+        }
+        node "Billing_MS\n<<Docker / TypeScript>>" <<Docker>> as ms_bill {
+            component "Módulo Suscripciones" as comp_bill
+        }
+        node "Notification_MS\n<<Docker / TypeScript>>" <<Docker>> as ms_notif {
+            component "Módulo Notificaciones" as comp_notif
+        }
+    }
+
+    node "VM 3: Red Privada de Persistencia" <<VM>> {
+        database "IdentityDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_id
+        database "HistoryDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_hist
+        database "CatalogDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_cat
+        database "RatingsDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_rate
+        database "BillingDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_bill
+        database "NotificationDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_notif
+        
+        database "FX_Cache\n<<Redis In-Memory>>" <<Redis>> as db_fx
+    }
+}
+
+' Tráfico Público
+user ===> comp_gw : "<<HTTPS>>\nREST/GraphQL (Puerto 443)"
+
+' Tráfico Interno: Gateway -> Microservicios (API Composition)
+comp_gw ===> comp_id : "<<gRPC>>"
+comp_gw ===> comp_hist : "<<gRPC>>"
+comp_gw ===> comp_cat : "<<gRPC>>"
+comp_gw ===> comp_rate : "<<gRPC>>"
+comp_gw ===> comp_bill : "<<gRPC>>"
+comp_gw ===> comp_fx : "<<gRPC>>"
+comp_gw ===> comp_notif : "<<gRPC>>"
+
+' Conexiones de Comunicación Inter-Servicios (Coreógrafo/Síncrono)
+comp_bill ---> comp_fx : "<<gRPC>>\nConsulta Tasa"
+comp_bill ---> comp_notif : "<<gRPC>>\nEncola Recibo"
+comp_cat ---> comp_notif : "<<gRPC>>\nAlerta Estreno"
+comp_rate ---> comp_cat : "<<gRPC>>\nNotifica Voto"
+
+' Tráfico de Persistencia: Microservicios -> Bases de Datos
+comp_id ...> db_id : "TCP 5432"
+comp_hist ...> db_hist : "TCP 5432"
+comp_cat ...> db_cat : "TCP 5432"
+comp_rate ...> db_rate : "TCP 5432"
+comp_bill ...> db_bill : "TCP 5432"
+comp_notif ...> db_notif : "TCP 5432"
+comp_fx ...> db_fx : "TCP 6379"
+
+note bottom of gw_node
+  <b>Táctica de Seguridad (Borde):</b>
+  Solo la VM 1 tiene IPs públicas. 
+  Protege la red interna aislando el ecosistema políglota.
+end note
+
+note bottom of db_hist
+  <b>Restricción de Ecosistema (RES-02):</b>
+  Estrictamente una base de datos aislada por microservicio. 
+  La estandarización en PostgreSQL no anula esta regla.
+end note
+
+@enduml

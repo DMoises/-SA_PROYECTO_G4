@@ -1,14 +1,20 @@
 import { Navbar } from '@/components/navbar'
 import { ContentCarousel } from '@/components/content-carousel'
-import { getSeries, getContentByGenre } from '@/lib/mock-data'
+import { fetchCartelera } from '@/lib/catalog-gateway'
+import { Content } from '@/lib/types'
 
-export default function SeriesPage() {
-  const series = getSeries()
+// Series reales del catalogo (tipo = series), agrupadas por genero real.
+export const dynamic = 'force-dynamic'
+
+export default async function SeriesPage() {
+  const cartelera = await fetchCartelera().catch(() => [] as Content[])
+  const series = cartelera.filter(c => c.type === 'series')
+  const generos = Array.from(new Set(series.flatMap(s => s.genres))).sort()
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       {/* Hero */}
       <div className="relative h-[50vh] min-h-[400px] w-full pt-16">
         <div className="absolute inset-0">
@@ -30,11 +36,18 @@ export default function SeriesPage() {
 
       {/* Content */}
       <div className="-mt-20 relative z-10 space-y-8 pb-16">
-        <ContentCarousel title="Todas las series" contents={series} />
-        <ContentCarousel title="Ciencia Ficcion" contents={getContentByGenre('Ciencia Ficcion').filter(c => c.type === 'series')} />
-        <ContentCarousel title="Crimen" contents={getContentByGenre('Crimen').filter(c => c.type === 'series')} />
-        <ContentCarousel title="Documental" contents={getContentByGenre('Documental').filter(c => c.type === 'series')} />
-        <ContentCarousel title="Reality" contents={getContentByGenre('Reality').filter(c => c.type === 'series')} />
+        {series.length > 0 ? (
+          <>
+            <ContentCarousel title="Todas las series" contents={series} />
+            {generos.map(g => (
+              <ContentCarousel key={g} title={g} contents={series.filter(s => s.genres.includes(g))} />
+            ))}
+          </>
+        ) : (
+          <p className="px-4 text-muted-foreground md:px-8 lg:px-16">
+            No hay series en el catalogo por el momento.
+          </p>
+        )}
       </div>
     </div>
   )

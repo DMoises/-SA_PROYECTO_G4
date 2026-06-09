@@ -1,26 +1,21 @@
 import { NextResponse } from 'next/server'
-
-const TOKEN_COOKIE = 'qt_token'
-const USERID_COOKIE = 'qt_user_id'
+import { GATEWAY_URL, SESSION_COOKIE } from '@/lib/gateway'
 
 export async function POST() {
+  try {
+    await fetch(`${GATEWAY_URL}/auth/logout`, { method: 'POST' })
+  } catch {
+  }
+
   const response = NextResponse.json({ ok: true })
-
-  response.cookies.set(TOKEN_COOKIE, '', {
+  const expired = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'lax' as const,
     path: '/',
     maxAge: 0,
-  })
-
-  response.cookies.set(USERID_COOKIE, '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 0,
-  })
-
+  }
+  response.cookies.set(SESSION_COOKIE, '', expired)
+  response.cookies.set('qt_user_id', '', expired) 
   return response
 }

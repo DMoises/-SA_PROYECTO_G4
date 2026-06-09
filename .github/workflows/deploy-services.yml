@@ -19,7 +19,10 @@ on:
 jobs:
   deploy-services:
     runs-on: ubuntu-latest
-    #if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+
+    env:
+      REMOTE_WORKDIR: "/home/${{ secrets.SSH_USER }}/quetxal"
 
     steps:
       - name: Checkout code
@@ -29,23 +32,36 @@ jobs:
         run: |
           : "${{ secrets.SSH_KEY }}" || { echo "❌ ERROR: SSH_KEY no configurado"; exit 1; }
           : "${{ secrets.SSH_USER }}" || { echo "❌ ERROR: SSH_USER no configurado"; exit 1; }
+          : "${{ secrets.GATEWAY_VM_IP }}" || { echo "❌ ERROR: GATEWAY_VM_IP no configurado"; exit 1; }
           : "${{ secrets.SERVICES_VM_IP }}" || { echo "❌ ERROR: SERVICES_VM_IP no configurado"; exit 1; }
           : "${{ secrets.DATABASE_VM_IP }}" || { echo "❌ ERROR: DATABASE_VM_IP no configurado"; exit 1; }
           : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "❌ ERROR: DOCKERHUB_USERNAME no configurado"; exit 1; }
           : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "❌ ERROR: DOCKERHUB_TOKEN no configurado"; exit 1; }
         shell: bash
 
-      - name: Setup SSH
+      - name: Setup SSH key and known_hosts
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVICES_VM_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          
+          # Add gateway host key to runner known_hosts
+          ssh-keyscan -H "${{ secrets.GATEWAY_VM_IP }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: Copy docker-compose file to Services VM
+          # Best-effort: obtain Services host key from gateway and add it (avoids interactive prompt)
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} "ssh-keyscan -H ${{ secrets.SERVICES_VM_IP }}" \
+            >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Ensure remote workdir and copy compose (via Gateway)
         run: |
-          scp -i ~/.ssh/id_rsa docker-compose.services.yml \
-            ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/
+          # Ensure remote workdir exists (via Gateway)
+          ssh -i ~/.ssh/id_rsa -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }} "mkdir -p ${REMOTE_WORKDIR} && chown ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} ${REMOTE_WORKDIR} || true"
+
+          # Copy docker-compose.services.yml to remote via Gateway
+          scp -i ~/.ssh/id_rsa -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            docker-compose.services.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }}:${REMOTE_WORKDIR}/docker-compose.services.yml
 
       - name: Create environment file
         run: |
@@ -93,17 +109,18 @@ jobs:
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           EOF
 
-      - name: Copy environment file to Services VM
+      - name: Copy environment file to Services VM (via Gateway)
         run: |
-          scp -i ~/.ssh/id_rsa /tmp/.env.services \
-            ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/.env.cloud
+          scp -i ~/.ssh/id_rsa -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            /tmp/.env.services ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }}:${REMOTE_WORKDIR}/.env.cloud
 
       - name: Pull latest images and deploy
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }} \
+          ssh -i ~/.ssh/id_rsa -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }} \
             DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} \
             DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} bash -s << 'EOF'
           set -e
@@ -148,7 +165,7 @@ jobs:
         if: always()
         run: |
           echo "✅ Microservices deployment completed"
-          echo "Check logs: ssh to Services VM at ${{ secrets.SERVICES_VM_IP }}"
+          echo "Check logs: ssh -i ~/.ssh/id_rsa -J ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} ${{ secrets.SSH_USER }}@${{ secrets.SERVICES_VM_IP }}"
 
       - name: Notify failure
         if: failure()

@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package catalog.v1;
+
+option go_package = "github.com/grupo4/quetxaltv-gateway/internal/pb;pb";
+
+// Contrato del catalog-service consumido por el API Gateway. Debe coincidir
+// con backend/catalog-service/proto/catalog.proto (solo lectura).
+service CatalogService {
+  rpc ExplorarCartelera(ExplorarCarteleraRequest) returns (CarteleraResponse);
+  rpc BuscarContenido(BuscarContenidoRequest) returns (CarteleraResponse);
+  rpc ObtenerFichaTecnica(FichaTecnicaRequest) returns (FichaTecnicaResponse);
+}
+
+message ExplorarCarteleraRequest {}
+
+message BuscarContenidoRequest {
+  string titulo    = 1;
+  string categoria = 2;
+  string genero    = 3;
+  string actor     = 4;
+}
+
+message ItemCartelera {
+  string contenido_id  = 1;
+  string titulo        = 2;
+  string tipo          = 3;
+  int32  anio          = 4;
+  string clasificacion = 5;
+  string generos       = 6;
+  string categorias    = 7;
+}
+
+message CarteleraResponse {
+  repeated ItemCartelera items = 1;
+}
+
+message FichaTecnicaRequest {
+  string contenido_id = 1;
+}
+
+message MiembroReparto {
+  string actor     = 1;
+  string personaje = 2;
+  string rol       = 3;
+}
+
+message Episodio {
+  int32  numero       = 1;
+  string titulo       = 2;
+  int32  duracion_min = 3;
+}
+
+message Temporada {
+  int32             numero    = 1;
+  repeated Episodio episodios = 2;
+}
+
+message FichaTecnicaResponse {
+  string                  contenido_id  = 1;
+  string                  titulo        = 2;
+  string                  tipo          = 3;
+  string                  sinopsis      = 4;
+  int32                   anio          = 5;
+  string                  clasificacion = 6;
+  int32                   duracion_min  = 7;
+  string                  generos       = 8;
+  string                  categorias    = 9;
+  repeated MiembroReparto reparto       = 10;
+  repeated Temporada      temporadas    = 11;
+}

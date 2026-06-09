@@ -213,6 +213,7 @@ services:
       GATEWAY_PORT: 8080
       AUTH_SERVICE_ADDR: auth-service:50051
       BILLING_SERVICE_ADDR: billing-service:50052
+      CATALOG_SERVICE_ADDR: catalog-service:50055
       COOKIE_SECURE: "false"        # true en cloud (HTTPS)
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
     ports:
@@ -220,6 +221,7 @@ services:
     depends_on:
       - auth-service
       - billing-service
+      - catalog-service
     networks: [quetxal-net]
 
   # notification-service

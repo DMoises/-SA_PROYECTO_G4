@@ -8,7 +8,7 @@ on:
       - feature/despliegue
   workflow_dispatch:
   workflow_run:
-    workflows: ["Build and Push to Docker Hub"]
+    workflows: ["Build and Push to Docker Hub - Gateway"]
     types:
       - completed
     branches:

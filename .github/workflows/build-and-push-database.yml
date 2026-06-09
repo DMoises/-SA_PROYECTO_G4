@@ -1,4 +1,4 @@
-name: Build and Push to Docker Hub
+name: Build and Push to Docker Hub - Database
 
 on:
   push:
@@ -7,14 +7,10 @@ on:
       - main
       - feature/despliegue
     paths:
-      - 'backend/**'
       - 'database/**'
       - 'cache/**'
-      - 'docker-compose.gateway.yml'
-      - 'docker-compose.services.yml'
       - 'docker-compose.db.yml'
-      - '.github/workflows/build-and-push.yml'
-      
+      - '.github/workflows/build-and-push-database.yml'
   workflow_dispatch:
 
 jobs:
@@ -43,44 +39,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # =========================================================
-      # 1. CAPA PERIMETRAL: API Gateway
-      # =========================================================
-      - name: Build y Push -> API Gateway
-        if: hashFiles('backend/api-gateway/Dockerfile') != ''
-        run: |
-          echo "=== 🛡️ Compilando y Subiendo API Gateway a Docker Hub ==="
-          REPO="${{ secrets.DOCKERHUB_USERNAME }}/quetxal-api-gateway"
-          
-          # TÁCTICA: Transacción atómica utilizando buildx y la bandera --push
-          docker buildx build --push -f backend/api-gateway/Dockerfile \
-            -t ${REPO}:latest \
-            -t ${REPO}:${{ github.sha }} \
-            ./backend/api-gateway
-
-      # =========================================================
-      # 2. CAPA LÓGICA: Microservicios Backend Políglotas
-      # =========================================================
-      - name: Build y Push -> Microservicios Backend
-        run: |
-          echo "=== ⚙️ Escaneando y Compilando Microservicios de la Capa Lógica ==="
-          USER="${{ secrets.DOCKERHUB_USERNAME }}"
-          
-          for service_dir in backend/*/; do
-            service_name=$(basename "$service_dir")
-            
-            if [ "$service_name" != "api-gateway" ] && [ -f "${service_dir}Dockerfile" ]; then
-              REPO="${USER}/quetxal-${service_name}"
-              echo "🛠️ Procesando Componente con Buildx: ${service_name}"
-              
-              # Corregido: Se unifica build y push en un solo paso por componente
-              docker buildx build --push -f ${service_dir}Dockerfile \
-                -t ${REPO}:latest \
-                -t ${REPO}:${{ github.sha }} \
-                ./${service_dir}
-            fi
-          done
-
-      # =========================================================
       # 3. CAPA DE PERSISTENCIA: Bases de Datos Políglotas
       # =========================================================
       - name: Build y Push -> Bases de Datos
@@ -94,7 +52,6 @@ jobs:
               REPO="${USER}/quetxal-${db}-db"
               echo "🛠️ Procesando DB con Buildx: ${db}"
               
-              # Corregido: Se añade buildx build --push al ciclo de bases de datos
               docker buildx build --push -f database/${db}/Dockerfile \
                 -t ${REPO}:latest \
                 -t ${REPO}:${{ github.sha }} \
@@ -113,7 +70,6 @@ jobs:
           echo "=== ⚡ Compilando y Subiendo Capa de Optimización ==="
           REPO="${{ secrets.DOCKERHUB_USERNAME }}/quetxal-redis-cache"
           
-          # Corregido: Se unifica con buildx build --push
           docker buildx build --push -f cache/Dockerfile \
             -t ${REPO}:latest \
             -t ${REPO}:${{ github.sha }} \
@@ -121,4 +77,4 @@ jobs:
 
       - name: Dictamen Final del Auditor Técnico
         run: |
-          echo "✅ ¡Pipeline de Construcción y Almacenamiento en Docker Hub Finalizado Exitosamente!"
+          echo "✅ ¡Pipeline de Construcción de Bases de Datos Finalizado Exitosamente!"

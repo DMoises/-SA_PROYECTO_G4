@@ -6,13 +6,15 @@ on:
       - develop
       - main
       - feature/despliegue
-    paths:
-      - 'database/**'
-      - 'cache/**'
-      - 'docker-compose.db.yml'
-      - '.env.example'
-      - '.github/workflows/deploy-database.yml'
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Build and Push to Docker Hub - Database"]
+    types:
+      - completed
+    branches:
+      - develop
+      - main
+      - feature/despliegue
 
 jobs:
   deploy-database:

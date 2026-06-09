@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package history;
+
+option go_package = "github.com/grupo4/quetxaltv-gateway/internal/pb";
+
+service HistoryService {
+  rpc SaveProgress(SaveProgressRequest) returns (SaveProgressResponse);
+  rpc GetHistory(GetHistoryRequest) returns (GetHistoryResponse);
+  rpc GetResume(GetResumeRequest) returns (HistoryItem);
+}
+
+message SaveProgressRequest {
+  string perfil_id = 1;
+  string contenido_id = 2;
+  string tipo = 3;
+  int32 temporada = 4;
+  int32 episodio = 5;
+  int32 segundo_exacto = 6;
+  int32 duracion_total = 7;
+}
+
+message SaveProgressResponse {
+  string mensaje = 1;
+}
+
+message GetHistoryRequest {
+  string perfil_id = 1;
+}
+
+message GetResumeRequest {
+  string perfil_id = 1;
+  string contenido_id = 2;
+}
+
+message GetHistoryResponse {
+  repeated HistoryItem historial = 1;
+}
+
+message HistoryItem {
+  string id = 1;
+  string perfil_id = 2;
+  string contenido_id = 3;
+  string tipo = 4;
+  int32 temporada = 5;
+  int32 episodio = 6;
+  int32 segundo_exacto = 7;
+  int32 duracion_total = 8;
+  double porcentaje_visto = 9;
+  string actualizado_en = 10;
+}

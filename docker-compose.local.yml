@@ -217,13 +217,15 @@ services:
       RATING_SERVICE_ADDR: rating-service:50056
       COOKIE_SECURE: "false"        # true en cloud (HTTPS)
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      HISTORY_SERVICE_ADDR: history-service:50056
     ports:
-      - "8080:8080"   # este SI es publico: el frontend entra por aqui
+      - "8080:8080"   
     depends_on:
       - auth-service
       - billing-service
       - catalog-service
       - rating-service
+      - history-service
     networks: [quetxal-net]
 
   # notification-service
@@ -306,6 +308,22 @@ services:
         condition: service_healthy
     networks: [quetxal-net]
 
+
+  history-service:
+    build:
+      context: ./backend
+      dockerfile: history-service/Dockerfile
+    container_name: quetxal-history-service
+    environment:
+      PORT: 50056
+      DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@history-db:5432/${HISTORY_DB_NAME}?sslmode=disable
+    ports:
+      - "50056:50056"
+    depends_on:
+      history-db:
+        condition: service_healthy
+    networks: [quetxal-net]
+              
 volumes:
   auth_data:
   subscription_data:

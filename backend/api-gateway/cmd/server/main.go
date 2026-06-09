@@ -35,6 +35,11 @@ func main() {
 	}
 	defer billingClient.Close()
 
+	historyClient, err := clients.NewHistoryClient(cfg.HistoryServiceAddr)
+	if err != nil {
+		log.Fatalf("no se pudo conectar al history-service: %v", err)
+	}
+	defer historyClient.Close()
 	// Cliente gRPC al catalog-service.
 	catalogClient, err := clients.NewCatalogClient(cfg.CatalogServiceAddr)
 	if err != nil {
@@ -51,9 +56,10 @@ func main() {
 
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
-  billingH := handlers.NewBillingHandler(billingClient)
+    billingH := handlers.NewBillingHandler(billingClient)
 	catalogH := handlers.NewCatalogHandler(catalogClient)
 	ratingH := handlers.NewRatingHandler(ratingClient)
+	historyH := handlers.NewHistoryHandler(historyClient)
 	mux := http.NewServeMux()
 
 	// Salud (util para healthcheck de Docker / GCP).
@@ -91,6 +97,11 @@ func main() {
 	mux.Handle("POST /ratings", authMW(http.HandlerFunc(ratingH.Calificar)))
 	mux.HandleFunc("GET /ratings/{contenido_id}", ratingH.ObtenerRecomendacion)
 	mux.Handle("GET /ratings/{contenido_id}/usuario", authMW(http.HandlerFunc(ratingH.ObtenerCalificacionUsuario)))
+
+
+	mux.Handle("POST /history/progress", authMW(http.HandlerFunc(historyH.SaveProgress)))
+	mux.Handle("GET /history/{perfilId}", authMW(http.HandlerFunc(historyH.GetHistory)))
+	mux.Handle("GET /history/{perfilId}/resume/{contenidoId}", authMW(http.HandlerFunc(historyH.GetResume)))
 
 	// CORS envuelve todo el router.
 	handler := middleware.CORS(cfg.CORSOrigin)(mux)

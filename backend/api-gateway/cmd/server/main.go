@@ -65,7 +65,7 @@ func main() {
 	mux.Handle("GET /auth/profiles", authMW(http.HandlerFunc(h.ListProfiles)))
 
 	// Rutas de billing
-	mux.Handle("GET /billing/plans", authMW(http.HandlerFunc(billingH.GetPlans)))
+  mux.HandleFunc("GET /billing/plans", billingH.GetPlans) 
 	mux.Handle("POST /billing/subscriptions", authMW(http.HandlerFunc(billingH.CreateSubscription)))
 	mux.Handle("GET /billing/subscriptions/me", authMW(http.HandlerFunc(billingH.GetUserSubscription)))
 	mux.Handle("PUT /billing/subscriptions/change", authMW(http.HandlerFunc(billingH.ChangeSubscription)))

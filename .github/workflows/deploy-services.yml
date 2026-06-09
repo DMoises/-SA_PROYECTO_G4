@@ -102,6 +102,7 @@ jobs:
           NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
 
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
           EOF
 
       - name: Copy environment file to Services VM (via Gateway)
@@ -125,7 +126,7 @@ jobs:
           echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
           echo "=== Pulling latest microservice images ==="
-          SERVICES=("auth-service" "notification-service")
+          SERVICES=("auth-service" "notification-service" "billing-service" "catalog-service" "fx-service")
           for service in "${SERVICES[@]}"; do
             docker pull ${DOCKERHUB_USERNAME}/quetxal-${service}:latest || true
           done

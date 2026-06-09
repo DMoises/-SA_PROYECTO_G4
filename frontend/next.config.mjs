@@ -7,7 +7,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ['@grpc/grpc-js', '@grpc/proto-loader'],
   async rewrites() {
     return [
       {

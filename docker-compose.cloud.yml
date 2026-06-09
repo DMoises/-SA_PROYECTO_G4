@@ -1,9 +1,8 @@
 name: quetxal-tv
 
 services:
-
   auth-db:
-    build: ./db/auth
+    build: ./database/auth
     container_name: quetxal-auth-db
     restart: always
     environment:
@@ -20,7 +19,7 @@ services:
     networks: [quetxal-net]
 
   subscription-db:
-    build: ./db/subscription
+    build: ./database/subscription
     container_name: quetxal-subscription-db
     restart: always
     environment:
@@ -37,7 +36,7 @@ services:
     networks: [quetxal-net]
 
   catalog-db:
-    build: ./db/catalog
+    build: ./database/catalog
     container_name: quetxal-catalog-db
     restart: always
     environment:
@@ -54,7 +53,7 @@ services:
     networks: [quetxal-net]
 
   rating-db:
-    build: ./db/rating
+    build: ./database/rating
     container_name: quetxal-rating-db
     restart: always
     environment:
@@ -71,7 +70,7 @@ services:
     networks: [quetxal-net]
 
   fx-db:
-    build: ./db/fx
+    build: ./database/fx
     container_name: quetxal-fx-db
     restart: always
     environment:
@@ -88,7 +87,7 @@ services:
     networks: [quetxal-net]
 
   history-db:
-    build: ./db/history
+    build: ./database/history
     container_name: quetxal-history-db
     restart: always
     environment:
@@ -105,7 +104,7 @@ services:
     networks: [quetxal-net]
 
   notification-db:
-    build: ./db/notification
+    build: ./database/notification
     container_name: quetxal-notification-db
     restart: always
     environment:
@@ -122,54 +121,151 @@ services:
     networks: [quetxal-net]
 
   redis:
-    build: ./cache
+    image: redis:7-alpine
     container_name: quetxal-redis
     restart: always
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep PONG"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks: [quetxal-net]
-
+    
   auth-service:
     build: ./backend/auth-service
     container_name: quetxal-auth-service
+    restart: always
     environment:
       GRPC_PORT: 50051
-      AUTH_DB_HOST: auth-db        
-      AUTH_DB_PORT_INTERNAL: 5432   
+      AUTH_DB_HOST: auth-db
+      AUTH_DB_PORT_INTERNAL: 5432
       AUTH_DB_NAME: ${AUTH_DB_NAME}
       AUTH_DB_USER: ${AUTH_DB_USER}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
       DB_SSLMODE: disable
       JWT_SECRET: ${JWT_SECRET}
       JWT_TTL_MIN: ${JWT_TTL_MIN:-60}
-    ports:
-      - "50051:50051"   
     depends_on:
       auth-db:
         condition: service_healthy
     networks: [quetxal-net]
 
-  # API Gateway 
+  fx-service:
+    build: ./backend/fx-service
+    container_name: quetxal-fx-service
+    restart: always
+    environment:
+      FX_DB_HOST: fx-db
+      FX_DB_PORT: 5432
+      FX_DB_NAME: ${FX_DB_NAME}
+      FX_DB_USER: ${FX_DB_USER}
+      FX_DB_PASSWORD: ${FX_DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      fx-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [quetxal-net]
+
+  billing-service:
+    build: ./backend/billing-service
+    container_name: quetxal-billing-service
+    restart: always
+    environment:
+      SUBSCRIPTION_DB_HOST: subscription-db
+      SUBSCRIPTION_DB_PORT: 5432
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
+      FX_SERVICE_ADDR: fx-service:50053
+    depends_on:
+      subscription-db:
+        condition: service_healthy
+      fx-service:
+        condition: service_started
+    networks: [quetxal-net]
+
+  catalog-service:
+    build: ./backend/catalog-service
+    container_name: quetxal-catalog-service
+    restart: always
+    environment:
+      GRPC_PORT: 50055
+      CATALOG_DB_HOST: catalog-db
+      CATALOG_DB_PORT_INTERNAL: 5432
+      CATALOG_DB_NAME: ${CATALOG_DB_NAME}
+      CATALOG_DB_USER: ${CATALOG_DB_USER}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+    networks: [quetxal-net]
+
+  notification-service:
+    build: ./backend/notification-service
+    container_name: quetxal-notification-service
+    restart: always
+    environment:
+      GRPC_URL: 0.0.0.0:50054
+      NOTIFICATION_DB_HOST: notification-db
+      NOTIFICATION_DB_PORT_INTERNAL: 5432
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM:-Quetxal TV <no-reply@quetxal.tv>}
+    depends_on:
+      notification-db:
+        condition: service_healthy
+    networks: [quetxal-net]
+
   api-gateway:
     build: ./backend/api-gateway
     container_name: quetxal-api-gateway
+    restart: always
     environment:
       GATEWAY_PORT: 8080
       AUTH_SERVICE_ADDR: auth-service:50051
-      COOKIE_SECURE: "false"       
+      BILLING_SERVICE_ADDR: billing-service:50052
+      CATALOG_SERVICE_ADDR: catalog-service:50055
+      COOKIE_SECURE: "false"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      HISTORY_SERVICE_ADDR: history-service:50056
     ports:
-      - "8080:8080"   
+      - "8080:8080"
     depends_on:
       - auth-service
+      - billing-service
+      - catalog-service
+      - history-service
     networks: [quetxal-net]
 
+
+  history-service:
+    build:
+      context: ./backend
+      dockerfile: history-service/Dockerfile
+    container_name: quetxal-history-service
+    restart: always
+    environment:
+      PORT: 50056
+      DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@history-db:5432/${HISTORY_DB_NAME}?sslmode=disable
+    depends_on:
+      history-db:
+        condition: service_healthy
+    networks: [quetxal-net]
 
 volumes:
   auth_data:

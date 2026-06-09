@@ -35,10 +35,17 @@ func main() {
 	}
 	defer billingClient.Close()
 
+	// Cliente gRPC al catalog-service.
+	catalogClient, err := clients.NewCatalogClient(cfg.CatalogServiceAddr)
+	if err != nil {
+		log.Fatalf("no se pudo conectar al catalog-service: %v", err)
+	}
+	defer catalogClient.Close()
 
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
   billingH := handlers.NewBillingHandler(billingClient)
+	catalogH := handlers.NewCatalogHandler(catalogClient)
 	mux := http.NewServeMux()
 
 	// Salud (util para healthcheck de Docker / GCP).
@@ -64,7 +71,13 @@ func main() {
 	mux.Handle("PUT /billing/subscriptions/change", authMW(http.HandlerFunc(billingH.ChangeSubscription)))
 	mux.Handle("PUT /billing/subscriptions/cancel", authMW(http.HandlerFunc(billingH.CancelSubscription)))
 	mux.Handle("POST /billing/plans/price", authMW(http.HandlerFunc(billingH.GetPlanPrice)))
-	
+
+	// Rutas de catalogo (solo lectura, publicas: navegar el catalogo).
+	// Para exigir sesion (actor Suscriptor), envolver con authMW(...) como billing.
+	mux.HandleFunc("GET /catalog/cartelera", catalogH.ExplorarCartelera)
+	mux.HandleFunc("GET /catalog/buscar", catalogH.BuscarContenido)
+	mux.HandleFunc("GET /catalog/contenido/{id}", catalogH.ObtenerFichaTecnica)
+
 	// CORS envuelve todo el router.
 	handler := middleware.CORS(cfg.CORSOrigin)(mux)
 

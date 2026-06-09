@@ -10,7 +10,7 @@ services:
       GATEWAY_PORT: 8080
       AUTH_SERVICE_ADDR: ${AUTH_SERVICE_ADDR:-auth-service:50051}
       HISTORY_SERVICE_ADDR: ${HISTORY_SERVICE_ADDR:-history-service:50052}
-      CATALOG_SERVICE_ADDR: ${CATALOG_SERVICE_ADDR:-catalog-service:50053}
+      CATALOG_SERVICE_ADDR: ${CATALOG_SERVICE_ADDR:-catalog-service:50055}
       NOTIFICATION_SERVICE_ADDR: ${NOTIFICATION_SERVICE_ADDR:-notification-service:50054}
       RATING_SERVICE_ADDR: ${RATING_SERVICE_ADDR:-rating-service:50055}
       FX_SERVICE_ADDR: ${FX_SERVICE_ADDR:-fx-service:50056}
@@ -27,6 +27,10 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: http://api-gateway:8080
+      # GATEWAY_URL lo usan las rutas server-side (app/api/catalog/*) para
+      # alcanzar el gateway DENTRO de la red docker. Sin esto cae a
+      # localhost:8080 (el propio contenedor del front) -> 502.
+      GATEWAY_URL: http://api-gateway:8080
     ports:
       - "80:3000"
     networks:

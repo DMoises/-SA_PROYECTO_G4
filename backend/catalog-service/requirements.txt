@@ -1,0 +1,6 @@
+# Dependencias de runtime del catalog-service.
+# grpcio-tools (generador de stubs) NO va aqui: solo se usa en build/generate.
+grpcio==1.68.1
+grpcio-reflection==1.68.1
+psycopg[binary]==3.2.3
+psycopg-pool==3.2.4

@@ -1,0 +1,4 @@
+# Stubs gRPC generados (se generan en build/generate, no se versionan).
+app/pb/catalog_pb2.py
+app/pb/catalog_pb2_grpc.py
+app/pb/catalog_pb2.pyi

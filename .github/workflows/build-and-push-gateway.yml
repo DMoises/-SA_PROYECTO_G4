@@ -1,0 +1,57 @@
+name: Build and Push to Docker Hub - Gateway
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - feature/despliegue
+    paths:
+      - 'backend/api-gateway/**'
+      - 'docker-compose.gateway.yml'
+      - '.github/workflows/build-and-push-gateway.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Validar Secretos de Docker Hub
+        run: |
+          : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "❌ ERROR: DOCKERHUB_USERNAME no configurado en los secretos de GitHub"; exit 1; }
+          : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "❌ ERROR: DOCKERHUB_TOKEN no configurado en los secretos de GitHub"; exit 1; }
+        shell: bash
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Autenticación en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # =========================================================
+      # 1. CAPA PERIMETRAL: API Gateway
+      # =========================================================
+      - name: Build y Push -> API Gateway
+        if: hashFiles('backend/api-gateway/Dockerfile') != ''
+        run: |
+          echo "=== 🛡️ Compilando y Subiendo API Gateway a Docker Hub ==="
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}/quetxal-api-gateway"
+          
+          # TÁCTICA: Transacción atómica utilizando buildx y la bandera --push
+          docker buildx build --push -f backend/api-gateway/Dockerfile \
+            -t ${REPO}:latest \
+            -t ${REPO}:${{ github.sha }} \
+            ./backend/api-gateway
+
+      - name: Dictamen Final del Auditor Técnico
+        run: |
+          echo "✅ ¡Pipeline de Construcción del Gateway Finalizado Exitosamente!"

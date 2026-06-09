@@ -15,7 +15,7 @@ services:
       RATING_SERVICE_ADDR: ${RATING_SERVICE_ADDR:-rating-service:50055}
       FX_SERVICE_ADDR: ${FX_SERVICE_ADDR:-fx-service:50056}
       BILLING_SERVICE_ADDR: ${BILLING_SERVICE_ADDR:-billing-service:50057}
-      COOKIE_SECURE: "true"
+      COOKIE_SECURE: "false"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
     networks:
       - quetxal-net

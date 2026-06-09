@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package fx.v1;
+
+service FXService {
+  rpc ConvertirMonto (ConvertirMontoRequest) returns (ConvertirMontoResponse);
+  rpc ConsultarTasa (ConsultarTasaRequest) returns (ConsultarTasaResponse);
+}
+
+message ConvertirMontoRequest {
+  double monto = 1;
+  string moneda_origen = 2;
+  string moneda_destino = 3;
+}
+
+message ConvertirMontoResponse {
+  double monto_original = 1;
+  double monto_convertido = 2;
+  string moneda_origen = 3;
+  string moneda_destino = 4;
+}
+
+message ConsultarTasaRequest {
+  string moneda_origen = 1;
+  string moneda_destino = 2;
+}
+
+message ConsultarTasaResponse {
+  double tasa = 1;
+  string moneda_origen = 2;
+  string moneda_destino = 3;
+  bool desde_cache = 4;
+}

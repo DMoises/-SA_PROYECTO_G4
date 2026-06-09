@@ -63,7 +63,8 @@ func main() {
 	mux.Handle("GET /billing/subscriptions/me", authMW(http.HandlerFunc(billingH.GetUserSubscription)))
 	mux.Handle("PUT /billing/subscriptions/change", authMW(http.HandlerFunc(billingH.ChangeSubscription)))
 	mux.Handle("PUT /billing/subscriptions/cancel", authMW(http.HandlerFunc(billingH.CancelSubscription)))
-
+	mux.Handle("POST /billing/plans/price", authMW(http.HandlerFunc(billingH.GetPlanPrice)))
+	
 	// CORS envuelve todo el router.
 	handler := middleware.CORS(cfg.CORSOrigin)(mux)
 

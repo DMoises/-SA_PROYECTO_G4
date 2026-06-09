@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../database/db';
+import { FxClient } from '../fx/fx.client';
 
 @Injectable()
 export class BillingService {
+  constructor(private readonly fxClient: FxClient) {}
+
   async getPlans() {
     const result = await db.query(`
       SELECT id, nombre_plan, precio_base, moneda_base
@@ -158,6 +161,45 @@ export class BillingService {
       suscripcionId: result.rows[0]?.p_suscripcion_id ?? '',
       pagoId: result.rows[0]?.p_pago_id ?? '',
       mensaje: 'Suscripcion cambiada correctamente',
+    };
+  }
+
+  async getPlanPrice(data: { planId: string; monedaDestino: string }) {
+    const result = await db.query(
+      `
+      SELECT id, nombre_plan, precio_base, moneda_base
+      FROM planes
+      WHERE id = $1
+      `,
+      [data.planId],
+    );
+
+    if (result.rows.length === 0) {
+      return {
+        planId: '',
+        nombrePlan: '',
+        precioBase: 0,
+        monedaBase: '',
+        precioConvertido: 0,
+        monedaDestino: data.monedaDestino,
+      };
+    }
+
+    const plan = result.rows[0];
+
+    const fx = await this.fxClient.convertirMonto(
+      Number(plan.precio_base),
+      plan.moneda_base,
+      data.monedaDestino,
+    );
+
+    return {
+      planId: plan.id,
+      nombrePlan: plan.nombre_plan,
+      precioBase: Number(plan.precio_base),
+      monedaBase: plan.moneda_base,
+      precioConvertido: Number(fx.montoConvertido),
+      monedaDestino: data.monedaDestino,
     };
   }
 }

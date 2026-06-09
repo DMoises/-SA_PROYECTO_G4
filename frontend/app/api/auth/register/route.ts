@@ -1,34 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { registrar } from '@/lib/grpc/auth-client'
+import { GATEWAY_URL } from '@/lib/gateway'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { email, password, nombre_perfil } = body
+    const { email, password, nombre_perfil } = await request.json()
 
     if (!email || !password || !nombre_perfil) {
       return NextResponse.json(
         { error: 'Email, contraseña y nombre de perfil son obligatorios' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
-    const result = await registrar({ email, password, nombrePerfil: nombre_perfil })
+    const gwRes = await fetch(`${GATEWAY_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, nombre_perfil }),
+    })
+    const data = await gwRes.json().catch(() => ({} as any))
 
-    return NextResponse.json({
-      usuario_id: result.usuarioId,
-      perfil_id: result.perfilId,
-    }, { status: 201 })
-  } catch (err: any) {
-    const code = err?.code
-    // gRPC code 6 = AlreadyExists
-    if (code === 6) {
-      return NextResponse.json({ error: 'Este correo ya esta registrado' }, { status: 409 })
+    if (!gwRes.ok) {
+      return NextResponse.json(
+        { error: data.error || 'No se pudo registrar' },
+        { status: gwRes.status },
+      )
     }
-    // gRPC code 3 = InvalidArgument
-    if (code === 3) {
-      return NextResponse.json({ error: err.details || 'Datos invalidos' }, { status: 400 })
-    }
+
+    return NextResponse.json(
+      { usuario_id: data.usuario_id, perfil_id: data.perfil_id },
+      { status: 201 },
+    )
+  } catch (err) {
     console.error('Error en registro:', err)
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }

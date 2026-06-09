@@ -1,72 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { listarPerfiles, crearPerfil } from '@/lib/grpc/auth-client'
-import { validarToken } from '@/lib/grpc/auth-client'
+import { GATEWAY_URL, SESSION_COOKIE } from '@/lib/gateway'
 
-const TOKEN_COOKIE = 'qt_token'
 
-async function getUsuarioId(request: NextRequest): Promise<string | null> {
-  const token = request.cookies.get(TOKEN_COOKIE)?.value
-  if (!token) return null
-
-  try {
-    const result = await validarToken(token)
-    if (!result.valido) return null
-    return result.usuarioId
-  } catch {
-    return null
+function aPerfilUI(p: any) {
+  return {
+    id: p.id,
+    nombre: p.nombre,
+    esInfantil: p.es_infantil ?? p.esInfantil ?? false,
+    idioma: p.idioma,
   }
 }
 
 export async function GET(request: NextRequest) {
+  const token = request.cookies.get(SESSION_COOKIE)?.value
+  if (!token) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  }
+
   try {
-    const usuarioId = await getUsuarioId(request)
-    if (!usuarioId) {
-      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    const gwRes = await fetch(`${GATEWAY_URL}/auth/profiles`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!gwRes.ok) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: gwRes.status })
     }
 
-    const result = await listarPerfiles(usuarioId)
-
-    return NextResponse.json({ perfiles: result.perfiles || [] })
-  } catch (err: any) {
+    const data = await gwRes.json().catch(() => [])
+    const perfiles = (Array.isArray(data) ? data : []).map(aPerfilUI)
+    return NextResponse.json({ perfiles })
+  } catch (err) {
     console.error('Error listando perfiles:', err)
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
+  const token = request.cookies.get(SESSION_COOKIE)?.value
+  if (!token) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  }
+
   try {
-    const usuarioId = await getUsuarioId(request)
-    if (!usuarioId) {
-      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const { nombre, es_infantil = false, idioma = 'es' } = body
-
+    const { nombre, es_infantil = false, idioma = 'es' } = await request.json()
     if (!nombre) {
       return NextResponse.json(
         { error: 'El nombre del perfil es obligatorio' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
-    const perfil = await crearPerfil({
-      usuarioId,
-      nombre,
-      esInfantil: es_infantil,
-      idioma,
+    const gwRes = await fetch(`${GATEWAY_URL}/auth/profiles`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ nombre, es_infantil, idioma }),
     })
+    const data = await gwRes.json().catch(() => ({} as any))
 
-    return NextResponse.json(perfil, { status: 201 })
-  } catch (err: any) {
-    const code = err?.code
-    // gRPC code 9 = FailedPrecondition (limite de perfiles)
-    if (code === 9) {
+    if (!gwRes.ok) {
       return NextResponse.json(
-        { error: 'Has alcanzado el limite maximo de 5 perfiles' },
-        { status: 400 }
+        { error: data.error || 'No se pudo crear el perfil' },
+        { status: gwRes.status },
       )
     }
+
+    return NextResponse.json(aPerfilUI(data), { status: 201 })
+  } catch (err) {
     console.error('Error creando perfil:', err)
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }

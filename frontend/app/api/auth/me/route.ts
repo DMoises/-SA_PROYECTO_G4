@@ -1,29 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validarToken } from '@/lib/grpc/auth-client'
-
-const TOKEN_COOKIE = 'qt_token'
+import { GATEWAY_URL, SESSION_COOKIE } from '@/lib/gateway'
 
 export async function GET(request: NextRequest) {
+  const token = request.cookies.get(SESSION_COOKIE)?.value
+  if (!token) {
+    return NextResponse.json({ valido: false }, { status: 401 })
+  }
+
   try {
-    const token = request.cookies.get(TOKEN_COOKIE)?.value
+    const gwRes = await fetch(`${GATEWAY_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
 
-    if (!token) {
+    if (!gwRes.ok) {
       return NextResponse.json({ valido: false }, { status: 401 })
     }
 
-    const result = await validarToken(token)
-
-    if (!result.valido) {
-      return NextResponse.json({ valido: false }, { status: 401 })
-    }
-
+    const data = await gwRes.json().catch(() => ({} as any))
     return NextResponse.json({
       valido: true,
-      usuario_id: result.usuarioId,
-      rol: result.rol,
+      usuario_id: data.usuario_id,
+      rol: data.rol,
     })
-  } catch (err: any) {
-    console.error('Error validando token:', err)
+  } catch (err) {
+    console.error('Error validando sesion:', err)
     return NextResponse.json({ valido: false }, { status: 401 })
   }
 }

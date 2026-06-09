@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+const API_URL = '/api'
 
 async function request(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API_URL}${path}`, {

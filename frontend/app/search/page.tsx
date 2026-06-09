@@ -6,23 +6,39 @@ import { Search, X, Play, Plus, ThumbsUp } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { searchContent, genres, mockContent } from '@/lib/mock-data'
 import { Content } from '@/lib/types'
 
 export default function SearchPage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Content[]>([])
   const [selectedGenre, setSelectedGenre] = useState('Todos')
+  const [genres, setGenres] = useState<string[]>(['Todos'])
 
+  // Generos disponibles, derivados de la cartelera real (via gateway).
   useEffect(() => {
-    if (query.trim()) {
-      const searchResults = searchContent(query)
-      setResults(searchResults)
-    } else if (selectedGenre !== 'Todos') {
-      setResults(mockContent.filter(c => c.genres.includes(selectedGenre)))
-    } else {
+    fetch('/api/catalog')
+      .then(r => r.json())
+      .then((items: Content[]) => {
+        const all = Array.from(new Set((items || []).flatMap(c => c.genres))).sort()
+        setGenres(['Todos', ...all])
+      })
+      .catch(() => {})
+  }, [])
+
+  // Busqueda/filtrado contra el catalogo real (via gateway: /api/catalog -> /catalog/buscar).
+  useEffect(() => {
+    const q = query.trim()
+    if (!q && selectedGenre === 'Todos') {
       setResults([])
+      return
     }
+    const params = new URLSearchParams()
+    if (q) params.set('q', q)
+    if (selectedGenre !== 'Todos') params.set('genero', selectedGenre)
+    fetch(`/api/catalog?${params.toString()}`)
+      .then(r => r.json())
+      .then((items: Content[]) => setResults(Array.isArray(items) ? items : []))
+      .catch(() => setResults([]))
   }, [query, selectedGenre])
 
   return (
@@ -151,7 +167,9 @@ function SearchResultCard({ content }: { content: Content }) {
             {content.title}
           </h3>
           <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="font-medium text-green-500">{content.matchPercentage}%</span>
+            {content.matchPercentage > 0 && (
+              <span className="font-medium text-green-500">{content.matchPercentage}%</span>
+            )}
             <span>{content.year}</span>
             <span>{content.type === 'movie' ? 'Pelicula' : 'Serie'}</span>
           </div>

@@ -1,32 +1,74 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { Play, Plus, ThumbsUp, ThumbsDown, Share2, Download, Check, ChevronDown } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { ContentCarousel } from '@/components/content-carousel'
 import { Button } from '@/components/ui/button'
-import { getContentById, mockContent, mockEpisodes } from '@/lib/mock-data'
-import { notFound } from 'next/navigation'
+import { Content, Episode } from '@/lib/types'
+
+type ContentDetalle = Content & { episodesList?: Episode[] }
 
 export default function ContentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const content = getContentById(id)
+  const [content, setContent] = useState<ContentDetalle | null>(null)
+  const [related, setRelated] = useState<Content[]>([])
+  const [loading, setLoading] = useState(true)
   const [userRating, setUserRating] = useState<'up' | 'down' | null>(null)
   const [inMyList, setInMyList] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState(1)
 
-  if (!content) {
-    notFound()
+  // Ficha tecnica real (via gateway: /api/catalog/{id} -> /catalog/contenido/{id}).
+  useEffect(() => {
+    setLoading(true)
+    fetch(`/api/catalog/${id}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then((c: ContentDetalle | null) => setContent(c))
+      .catch(() => setContent(null))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  // Relacionados: de la cartelera, los que comparten algun genero.
+  useEffect(() => {
+    if (!content) return
+    fetch('/api/catalog')
+      .then(r => r.json())
+      .then((items: Content[]) =>
+        setRelated(
+          (items || [])
+            .filter(c => c.id !== content.id && c.genres.some(g => content.genres.includes(g)))
+            .slice(0, 10),
+        ),
+      )
+      .catch(() => {})
+  }, [content])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="px-4 pt-24 text-muted-foreground md:px-8 lg:px-16">Cargando...</div>
+      </div>
+    )
   }
 
-  const relatedContent = mockContent.filter(
-    c => c.id !== content.id && c.genres.some(g => content.genres.includes(g))
-  ).slice(0, 10)
+  if (!content) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="px-4 pt-24 md:px-8 lg:px-16">
+          <h1 className="mb-2 text-2xl font-semibold text-foreground">Contenido no encontrado</h1>
+          <p className="text-muted-foreground">El contenido que buscas no existe en el catalogo.</p>
+        </div>
+      </div>
+    )
+  }
 
-  const episodes = content.type === 'series' 
-    ? mockEpisodes.filter(e => e.seasonNumber === selectedSeason)
-    : []
+  const episodes =
+    content.type === 'series'
+      ? (content.episodesList || []).filter(e => e.seasonNumber === selectedSeason)
+      : []
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,7 +109,9 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Meta Info */}
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
-              <span className="font-semibold text-green-500">{content.matchPercentage}% para ti</span>
+              {content.matchPercentage > 0 && (
+                <span className="font-semibold text-green-500">{content.matchPercentage}% para ti</span>
+              )}
               <span className="text-foreground">{content.year}</span>
               <span className="rounded border border-muted-foreground/50 px-1.5 py-0.5 text-xs text-foreground">
                 {content.rating}
@@ -278,9 +322,11 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Related Content */}
-      <div className="pb-16">
-        <ContentCarousel title="Titulos similares" contents={relatedContent} />
-      </div>
+      {related.length > 0 && (
+        <div className="pb-16">
+          <ContentCarousel title="Titulos similares" contents={related} />
+        </div>
+      )}
     </div>
   )
 }

@@ -117,6 +117,19 @@ services:
     networks:
       - quetxal-net
 
+  history-service:
+    image: ${DOCKERHUB_USERNAME}/quetxal-history-service:latest
+    container_name: quetxal-history-service
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 50057
+      DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@${DB_VM_HOST:-127.0.0.1}:5437/${HISTORY_DB_NAME}?sslmode=disable
+    ports:
+      - "50057:50057"
+    networks:
+      - quetxal-net
+
 networks:
   quetxal-net:
     driver: bridge

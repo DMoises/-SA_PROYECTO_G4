@@ -84,10 +84,13 @@ export function HeroBanner({ content }: HeroBannerProps) {
 
           {/* Buttons */}
           <div className="flex flex-wrap items-center gap-3">
-            <Button size="lg" className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+            <Link
+              href={`/watch/${content.id}`}
+              className={cn(buttonVariants({ size: 'lg' }), 'gap-2 bg-foreground text-background hover:bg-foreground/90')}
+            >
               <Play className="h-5 w-5 fill-current" />
               Reproducir
-            </Button>
+            </Link>
             <Link
               href={`/browse/${content.id}`}
               className={cn(buttonVariants({ variant: 'secondary', size: 'lg' }), "gap-2")}

@@ -6,6 +6,7 @@ Platform de streaming distribuida con microservicios, desplegada en Google Cloud
 
 - **[📖 Guía de Despliegue Completa](./docs/DEPLOYMENT_GUIDE.md)** - Instrucciones paso a paso
 - **[🔐 Configuración de GitHub Secrets](./docs/.github/SECRETS.md)** - Variables necesarias para CI/CD
+- **[📐 Documentación SOLID](./docs/SOLID.md)** - Evidencia de principios SOLID por servicio (RNF-06)
 - **[🏗️ Arquitectura](#arquitectura)** - Visión general de la infraestructura
 
 ---

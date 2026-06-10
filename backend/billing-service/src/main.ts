@@ -1,7 +1,12 @@
+import { config } from 'dotenv';
+import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { join } from 'path';
 import { AppModule } from './app.module';
+
+// Carga el .env de la raiz del repo antes de instanciar el DatabaseService
+// (la inyeccion lee process.env). Antes esta carga vivia en database/db.ts.
+config({ path: join(process.cwd(), '../../.env') });
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(

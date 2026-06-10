@@ -1,20 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { db } from '../database/db';
+import { BillingRepository } from './billing.repository';
 import { FxClient } from '../fx/fx.client';
 
+// Logica de negocio de suscripciones. Depende del repositorio y del FxClient
+// (ambos inyectados): no conoce SQL ni el pool de conexiones. Su unica
+// responsabilidad es orquestar el repositorio + la conversion de moneda y
+// mapear el resultado al contrato gRPC.
 @Injectable()
 export class BillingService {
-  constructor(private readonly fxClient: FxClient) {}
+  constructor(
+    private readonly repo: BillingRepository,
+    private readonly fxClient: FxClient,
+  ) {}
 
   async getPlans() {
-    const result = await db.query(`
-      SELECT id, nombre_plan, precio_base, moneda_base
-      FROM planes
-      ORDER BY precio_base ASC
-    `);
-
+    const planes = await this.repo.listPlanes();
     return {
-      planes: result.rows.map((plan) => ({
+      planes: planes.map((plan) => ({
         id: plan.id,
         nombrePlan: plan.nombre_plan,
         precioBase: Number(plan.precio_base),
@@ -30,55 +32,25 @@ export class BillingService {
     moneda: string;
     meses: number;
   }) {
-    const result = await db.query(
-      `
-      CALL sp_ProcesarRenovacion(
-        $1::uuid,
-        $2::uuid,
-        $3::numeric,
-        $4::char(3),
-        $5::integer,
-        NULL,
-        NULL
-      )
-      `,
-      [
-        data.usuarioId,
-        data.planId,
-        data.monto,
-        data.moneda,
-        data.meses || 1,
-      ],
+    const row = await this.repo.procesarRenovacion(
+      data.usuarioId,
+      data.planId,
+      data.monto,
+      data.moneda,
+      data.meses || 1,
     );
 
     return {
-      suscripcionId: result.rows[0]?.p_suscripcion_id ?? '',
-      pagoId: result.rows[0]?.p_pago_id ?? '',
+      suscripcionId: row?.p_suscripcion_id ?? '',
+      pagoId: row?.p_pago_id ?? '',
       mensaje: 'Suscripcion creada correctamente',
     };
   }
 
   async getUserSubscription(data: { usuarioId: string }) {
-    const result = await db.query(
-      `
-      SELECT
-        s.id AS suscripcion_id,
-        s.usuario_id,
-        s.plan_id,
-        p.nombre_plan,
-        s.estado_suscripcion,
-        s.fecha_inicio,
-        s.fecha_fin
-      FROM suscripciones s
-      INNER JOIN planes p ON p.id = s.plan_id
-      WHERE s.usuario_id = $1
-        AND s.estado_suscripcion = 'activa'
-      LIMIT 1
-      `,
-      [data.usuarioId],
-    );
+    const row = await this.repo.getActiveSubscription(data.usuarioId);
 
-    if (result.rows.length === 0) {
+    if (!row) {
       return {
         suscripcionId: '',
         usuarioId: data.usuarioId,
@@ -90,33 +62,21 @@ export class BillingService {
       };
     }
 
-    const row = result.rows[0];
-
     return {
       suscripcionId: row.suscripcion_id,
       usuarioId: row.usuario_id,
       planId: row.plan_id,
       nombrePlan: row.nombre_plan,
       estadoSuscripcion: row.estado_suscripcion,
-      fechaInicio: row.fecha_inicio?.toISOString?.().split('T')[0] ?? '',
-      fechaFin: row.fecha_fin?.toISOString?.().split('T')[0] ?? '',
+      fechaInicio: formatDate(row.fecha_inicio),
+      fechaFin: formatDate(row.fecha_fin),
     };
   }
 
   async cancelSubscription(data: { usuarioId: string }) {
-    const result = await db.query(
-      `
-      UPDATE suscripciones
-      SET estado_suscripcion = 'cancelada',
-          fecha_fin = CURRENT_DATE
-      WHERE usuario_id = $1
-        AND estado_suscripcion = 'activa'
-      RETURNING id
-      `,
-      [data.usuarioId],
-    );
+    const id = await this.repo.cancelActiveSubscription(data.usuarioId);
 
-    if (result.rows.length === 0) {
+    if (!id) {
       return {
         suscripcionId: '',
         mensaje: 'El usuario no tiene una suscripcion activa',
@@ -124,7 +84,7 @@ export class BillingService {
     }
 
     return {
-      suscripcionId: result.rows[0].id,
+      suscripcionId: id,
       mensaje: 'Suscripcion cancelada correctamente',
     };
   }
@@ -136,45 +96,25 @@ export class BillingService {
     moneda: string;
     meses: number;
   }) {
-    const result = await db.query(
-      `
-      CALL sp_ProcesarRenovacion(
-        $1::uuid,
-        $2::uuid,
-        $3::numeric,
-        $4::char(3),
-        $5::integer,
-        NULL,
-        NULL
-      )
-      `,
-      [
-        data.usuarioId,
-        data.nuevoPlanId,
-        data.monto,
-        data.moneda,
-        data.meses || 1,
-      ],
+    const row = await this.repo.procesarRenovacion(
+      data.usuarioId,
+      data.nuevoPlanId,
+      data.monto,
+      data.moneda,
+      data.meses || 1,
     );
 
     return {
-      suscripcionId: result.rows[0]?.p_suscripcion_id ?? '',
-      pagoId: result.rows[0]?.p_pago_id ?? '',
+      suscripcionId: row?.p_suscripcion_id ?? '',
+      pagoId: row?.p_pago_id ?? '',
       mensaje: 'Suscripcion cambiada correctamente',
     };
   }
 
   async getPlanPrice(data: { planId: string; monedaDestino: string }) {
-    const result = await db.query(
-      `
-      SELECT id, nombre_plan, precio_base, moneda_base
-      FROM planes
-      WHERE id = $1
-      `,
-      [data.planId],
-    );
+    const plan = await this.repo.getPlan(data.planId);
 
-    if (result.rows.length === 0) {
+    if (!plan) {
       return {
         planId: '',
         nombrePlan: '',
@@ -184,8 +124,6 @@ export class BillingService {
         monedaDestino: data.monedaDestino,
       };
     }
-
-    const plan = result.rows[0];
 
     const fx = await this.fxClient.convertirMonto(
       Number(plan.precio_base),
@@ -202,4 +140,9 @@ export class BillingService {
       monedaDestino: data.monedaDestino,
     };
   }
+}
+
+// Las columnas DATE de Postgres se devuelven como 'YYYY-MM-DD' (o '' si NULL).
+function formatDate(value: Date | null): string {
+  return value?.toISOString?.().split('T')[0] ?? '';
 }

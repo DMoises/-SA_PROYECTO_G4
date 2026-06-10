@@ -30,3 +30,6 @@ BEGIN
         (v_serie, a2, 'Balam', 'protagonista');
 END; $$;
 
+-- Poblar la vista materializada con los datos del seed
+CALL sp_RefrescarCartelera();
+

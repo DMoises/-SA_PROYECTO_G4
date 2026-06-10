@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW vw_cartelera AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS vw_cartelera AS
 SELECT
     c.id           AS contenido_id,
     c.titulo,
@@ -13,3 +13,6 @@ SELECT
               WHERE cc.contenido_id = c.id), '') AS categorias
 FROM contenido c
 WHERE c.activo = TRUE;
+
+-- Indice unico requerido para REFRESH CONCURRENTLY (no bloquea lecturas durante el refresco)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_vw_cartelera_id ON vw_cartelera (contenido_id);

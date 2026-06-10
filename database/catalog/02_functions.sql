@@ -1,3 +1,11 @@
+-- Refresca la vista materializada vw_cartelera de forma concurrente (sin bloquear lecturas).
+-- Llamar despues de cualquier cambio masivo en contenido, generos o categorias.
+CREATE OR REPLACE PROCEDURE sp_RefrescarCartelera()
+LANGUAGE plpgsql AS $$
+BEGIN
+    REFRESH MATERIALIZED VIEW CONCURRENTLY vw_cartelera;
+END; $$;
+
 CREATE OR REPLACE FUNCTION trg_fn_validar_temporada()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE v_tipo tipo_contenido;

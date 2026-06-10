@@ -242,7 +242,7 @@ services:
       CATALOG_SERVICE_ADDR: catalog-service:50055
       COOKIE_SECURE: "false"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
-      HISTORY_SERVICE_ADDR: history-service:50056
+      HISTORY_SERVICE_ADDR: history-service:50057
     ports:
       - "8080:8080"
     depends_on:
@@ -260,7 +260,7 @@ services:
     container_name: quetxal-history-service
     restart: always
     environment:
-      PORT: 50056
+      PORT: 50057
       DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@history-db:5432/${HISTORY_DB_NAME}?sslmode=disable
     depends_on:
       history-db:

@@ -51,3 +51,9 @@ func (c *AuthClient) CrearPerfil(ctx context.Context, usuarioID, nombre, idioma 
 func (c *AuthClient) ListarPerfiles(ctx context.Context, usuarioID string) (*pb.ListarPerfilesResponse, error) {
 	return c.cli.ListarPerfiles(ctx, &pb.ListarPerfilesRequest{UsuarioId: usuarioID})
 }
+
+func (c *AuthClient) EditarPerfil(ctx context.Context, usuarioID, perfilID, nombre, idioma string, esInfantil bool) (*pb.PerfilResponse, error) {
+	return c.cli.EditarPerfil(ctx, &pb.EditarPerfilRequest{
+		UsuarioId: usuarioID, PerfilId: perfilID, Nombre: nombre, Idioma: idioma, EsInfantil: esInfantil,
+	})
+}

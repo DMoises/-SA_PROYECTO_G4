@@ -16,6 +16,7 @@ service AuthService {
   rpc ValidarToken(ValidarTokenRequest) returns (ValidarTokenResponse);
   // Gestion de multiperfil (maximo 5 por cuenta).
   rpc CrearPerfil(CrearPerfilRequest) returns (PerfilResponse);
+  rpc EditarPerfil(EditarPerfilRequest) returns (PerfilResponse);
   rpc ListarPerfiles(ListarPerfilesRequest) returns (ListarPerfilesResponse);
 }
 
@@ -59,6 +60,14 @@ message PerfilResponse {
   string nombre = 2;
   bool es_infantil = 3;
   string idioma = 4;
+}
+
+message EditarPerfilRequest {
+  string usuario_id = 1;
+  string perfil_id = 2;
+  string nombre = 3;
+  bool es_infantil = 4;
+  string idioma = 5;
 }
 
 message ListarPerfilesRequest {

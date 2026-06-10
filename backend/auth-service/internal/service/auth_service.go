@@ -20,6 +20,7 @@ type UsuarioRepository interface {
 	CrearUsuarioConPerfilInicial(ctx context.Context, u *domain.Usuario, nombrePerfil string) (string, string, error)
 	ObtenerPorEmail(ctx context.Context, email string) (*domain.Usuario, error)
 	CrearPerfil(ctx context.Context, p *domain.Perfil) (string, error)
+	EditarPerfil(ctx context.Context, p *domain.Perfil) error
 	ListarPerfiles(ctx context.Context, usuarioID string) ([]domain.Perfil, error)
 }
 
@@ -137,4 +138,26 @@ func (s *AuthService) CrearPerfil(ctx context.Context, usuarioID, nombre, idioma
 // ListarPerfiles devuelve los perfiles de la cuenta.
 func (s *AuthService) ListarPerfiles(ctx context.Context, usuarioID string) ([]domain.Perfil, error) {
 	return s.repo.ListarPerfiles(ctx, usuarioID)
+}
+
+// EditarPerfil actualiza un perfil de la cuenta.
+func (s *AuthService) EditarPerfil(ctx context.Context, usuarioID, perfilID, nombre, idioma string, esInfantil bool) (*domain.Perfil, error) {
+	if strings.TrimSpace(nombre) == "" {
+		return nil, domain.ErrDatosInvalidos
+	}
+	if idioma == "" {
+		idioma = "es"
+	}
+	p := &domain.Perfil{
+		ID:         perfilID,
+		UsuarioID:  usuarioID,
+		Nombre:     strings.TrimSpace(nombre),
+		EsInfantil: esInfantil,
+		Idioma:     idioma,
+	}
+	err := s.repo.EditarPerfil(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
 }

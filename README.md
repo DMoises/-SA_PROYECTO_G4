@@ -186,13 +186,13 @@ Justificacion del Modulo 1: Se detalla el flujo de ingreso a la plataforma. Al p
 * **Actores / Stakeholders:** Usuario Invitado, Usuario Registrado.
 * **Propósito / Descripción Breve:** Permitir a un usuario acceder a su cuenta registrada en la plataforma para posteriormente seleccionar su perfil y acceder al catálogo.
 * **Secuencia Normal (Flujo Básico):**
-  1. El usuario solicita ingresar al sistema.
-  2. El sistema presenta el formulario de inicio de sesión.
-  3. El usuario ingresa sus credenciales.
-  4. El sistema valida las credenciales y autentica al usuario.
-  5. El sistema presenta la lista de perfiles disponibles (CDU-N1-08).
+  1. El cliente envía las credenciales del usuario al sistema (`POST /auth/login`).
+  2. El sistema valida las credenciales y devuelve un token de sesión firmado.
+  3. El cliente solicita la lista de perfiles disponibles para la cuenta (`GET /auth/profiles`).
+  4. El sistema recupera y presenta los perfiles asociados a la sesión activa.
+  5. El usuario selecciona su perfil de visualización.
 * **Excepciones / Cursos Alternos:**
-  * Paso 4: Si las credenciales son inválidas, el sistema muestra un mensaje de error y permite reintentar o ir al flujo de registro (CDU-N1-01).
+  * Paso 2: Si las credenciales son inválidas, el sistema devuelve HTTP 401 y el cliente muestra un mensaje de error.
 * **Precondiciones:** El usuario debe estar previamente registrado en el sistema.
 * **Postcondiciones:** El usuario se encuentra autenticado con un token válido, en espera de seleccionar perfil.
 * **Reglas de Negocio:** Límite máximo de 5 perfiles por cuenta para la gestión de múltiples usuarios en una suscripción.
@@ -205,14 +205,13 @@ Justificacion del Modulo 2: Representa el nucleo financiero del negocio. La inte
 * **Actores / Stakeholders:** Usuario Suscriptor, Pasarela de Pagos (Sistema Externo).
 * **Propósito / Descripción Breve:** Procesar la compra de un plan de suscripción que permita al usuario acceder al catálogo de contenido, gestionando el pago a través de un proveedor externo.
 * **Secuencia Normal (Flujo Básico):**
-  1. El usuario solicita ver los planes de suscripción.
-  2. El sistema despliega las opciones de planes (Básico, Estándar, Premium).
-  3. El usuario selecciona un plan e ingresa su información de pago.
-  4. El sistema solicita el cobro recurrente a la Pasarela de Pagos (CDU-N2-02).
-  5. La Pasarela de Pagos procesa la transacción y responde con éxito.
-  6. El sistema actualiza las credenciales y el estado de la suscripción (CDU-N2-03).
+  1. El cliente solicita el catálogo de planes disponibles (`GET /billing/plans`).
+  2. El sistema devuelve las opciones de planes (Básico, Estándar, Premium).
+  3. El usuario selecciona un plan y el cliente envía la petición de suscripción (`POST /billing/subscriptions`).
+  4. El sistema ejecuta el cobro de la membresía en la base de datos (Ej. mediante Procedimiento Almacenado transaccional).
+  5. El sistema actualiza el estado de la suscripción y otorga los permisos en la cuenta.
 * **Excepciones / Cursos Alternos:**
-  * Paso 5: Si la pasarela de pagos rechaza el cobro (fondos insuficientes o error), el sistema aborta la transacción y notifica al usuario del fallo para que intente con otro método.
+  * Paso 4: Si ocurre un error en el pago o fondos insuficientes, se realiza un rollback transaccional (HTTP 400/500) y se notifica al usuario.
 * **Precondiciones:** El usuario debe tener una sesión activa y no contar con un plan de suscripción idéntico vigente.
 * **Postcondiciones:** La suscripción queda activa en la base de datos y se otorgan los permisos de visualización.
 * **Reglas de Negocio:** Todas las transacciones financieras deben cumplir con la garantía ACID para evitar inconsistencias de cobro.
@@ -225,14 +224,14 @@ Justificacion del Modulo 3: Enfocado en la experiencia del usuario para encontra
 * **Actores / Stakeholders:** Usuario Suscriptor.
 * **Propósito / Descripción Breve:** Proveer al usuario herramientas para navegar, descubrir y filtrar contenido multimedia en la plataforma de manera fluida.
 * **Secuencia Normal (Flujo Básico):**
-  1. El usuario ingresa al módulo del catálogo.
-  2. El sistema recupera y muestra la cartelera general recomendada.
-  3. El usuario decide aplicar filtros multicriterio (CDU-N3-04).
-  4. El sistema procesa los filtros y despliega los resultados correspondientes.
-  5. El usuario selecciona un contenido específico.
-  6. El sistema muestra la ficha técnica y reparto del contenido seleccionado (CDU-N3-03).
+  1. El cliente solicita la proyección de la cartelera principal (`GET /catalog/cartelera`).
+  2. El sistema recupera y muestra el contenido (apoyándose en una vista materializada).
+  3. El usuario aplica filtros multicriterio y el cliente solicita la búsqueda (`GET /catalog/buscar`).
+  4. El sistema procesa los filtros y retorna los resultados filtrados.
+  5. El usuario selecciona un contenido y solicita los detalles (`GET /catalog/contenido/{id}`).
+  6. El sistema devuelve la ficha técnica y el reparto del contenido.
 * **Excepciones / Cursos Alternos:**
-  * Paso 4: Si no existe contenido que coincida con los filtros, el sistema muestra un mensaje amigable indicando la falta de resultados y sugiere limpiar la búsqueda.
+  * Paso 4: Si no existe contenido que coincida con los filtros, el sistema devuelve un arreglo vacío y el cliente muestra que no hay resultados.
 * **Precondiciones:** El usuario debe estar autenticado y contar con un plan de suscripción vigente.
 * **Postcondiciones:** El usuario se encuentra en la pantalla de detalle de un contenido, listo para iniciar la reproducción.
 * **Reglas de Negocio:** Las consultas de la cartelera deben realizarse obligatoriamente consumiendo vistas materializadas de la base de datos para garantizar tiempos de respuesta rápidos.
@@ -245,14 +244,13 @@ Justificacion del Modulo 4: Abstrae la interaccion comunitaria. El usuario puede
 * **Actores / Stakeholders:** Usuario Suscriptor.
 * **Propósito / Descripción Breve:** Permitir al usuario calificar un contenido multimedia para alimentar de forma dinámica el porcentaje global de recomendación del sistema.
 * **Secuencia Normal (Flujo Básico):**
-  1. El usuario visualiza un contenido o accede a su ficha.
-  2. El sistema habilita la interfaz de valoración.
-  3. El usuario ingresa una puntuación y la envía.
-  4. El sistema guarda la valoración del usuario en el registro.
-  5. El sistema recalcula el porcentaje global de recomendación (CDU-N4-03).
+  1. El usuario selecciona una puntuación discreta para un contenido en específico.
+  2. El cliente envía la valoración al sistema (`POST /ratings`).
+  3. El sistema registra o actualiza la valoración individual del usuario en la base de datos.
+  4. El sistema delega a la base de datos el recálculo matemático del porcentaje global de recomendación.
+  5. El cliente consulta la calificación global y personal actualizada (`GET /ratings/{contenido_id}` y `GET /ratings/{contenido_id}/usuario`).
 * **Excepciones / Cursos Alternos:**
-  * Paso 4: Si la base de datos de valoraciones presenta alta latencia o no está disponible, el sistema aísla la falla y guarda el voto temporalmente, notificando al usuario que su calificación se procesará en breve.
-  * Paso 3: Si el usuario ya había emitido una valoración, se ejecuta el flujo alterno para modificar la valoración previa (CDU-N4-02).
+  * Paso 3: Si la base de datos presenta alta latencia, el sistema aísla la falla y no bloquea el flujo principal del usuario, manejando el error internamente.
 * **Precondiciones:** El usuario debe estar autenticado.
 * **Postcondiciones:** La puntuación del usuario es almacenada y el promedio global del contenido es actualizado.
 * **Reglas de Negocio:** La calificación debe ser un valor discreto (de 1 a 5 estrellas) y el recálculo matemático de la recomendación global debe ejecutarse mediante una Función SQL nativa en la base de datos.
@@ -265,14 +263,14 @@ Justificacion del Modulo 5: Modela la integracion con la API de divisas. El calc
 * **Actores / Stakeholders:** Usuario Suscriptor, API de Divisas (FX) (Sistema Externo).
 * **Propósito / Descripción Breve:** Convertir dinámicamente el precio en dólares de una suscripción a la moneda local del usuario para facilitar la transparencia financiera.
 * **Secuencia Normal (Flujo Básico):**
-  1. El usuario ingresa a la vista de selección de planes.
-  2. El sistema detecta la ubicación o configuración del usuario para definir su moneda.
-  3. El sistema realiza la consulta de la tasa de cambio actual a la API (CDU-N5-02).
-  4. La API (o caché en memoria) devuelve la tasa de cambio vigente.
-  5. El sistema procesa matemáticamente la conversión del precio base.
-  6. El sistema muestra la tarifa convertida en la interfaz del usuario.
+  1. El usuario se encuentra en la vista de selección y solicita ver el precio en moneda local.
+  2. El cliente envía la petición con la moneda destino (`POST /billing/plans/price`).
+  3. El sistema consulta la tasa de cambio actual (interceptando primero en la Caché de Redis).
+  4. Si la tasa no está en caché, el sistema consulta la API de Divisas externa y la persiste.
+  5. El sistema aplica la conversión al precio del plan y devuelve la tarifa final.
+  6. El cliente muestra la tarifa convertida en la interfaz.
 * **Excepciones / Cursos Alternos:**
-  * Paso 4: Si la API de Divisas falla o no responde a tiempo, el sistema procede a utilizar una Tasa de Cambio de Respaldo estática preconfigurada (CDU-N5-03) para no bloquear la visualización de planes.
+  * Paso 4: Si la API de Divisas falla o no responde a tiempo, el sistema procede a utilizar una tasa de cambio estática preconfigurada (de respaldo) o los datos obsoletos en caché para no bloquear el servicio.
 * **Precondiciones:** El sistema debe identificar la región o preferencia de moneda del usuario.
 * **Postcondiciones:** El usuario visualiza de manera clara el monto que se le cobrará en su respectiva moneda local.
 * **Reglas de Negocio:** La tasa de cambio debe almacenarse temporalmente en una caché (Redis) con un TTL corto para reducir latencias, protegiendo el SLA (EAC-01).
@@ -285,13 +283,13 @@ Justificacion del Modulo 6: Operacion en segundo plano detonada por las acciones
 * **Actores / Stakeholders:** Usuario Suscriptor.
 * **Propósito / Descripción Breve:** Almacenar de forma precisa y constante el minuto de reproducción en el que un usuario abandona un contenido para permitir retomarlo posteriormente.
 * **Secuencia Normal (Flujo Básico):**
-  1. El usuario está reproduciendo un contenido en la plataforma.
-  2. El usuario pausa, detiene o cierra abruptamente el reproductor de video.
-  3. El cliente (frontend) envía el registro con la marca de tiempo (temporada, episodio, segundo exacto) al backend.
-  4. El sistema procesa la solicitud y la asocia al perfil del usuario.
-  5. El sistema guarda la actualización en la base de datos de historial.
+  1. El usuario avanza, pausa o detiene la reproducción de un contenido multimedia.
+  2. El cliente envía de forma asíncrona la marca de tiempo exacta al sistema (`POST /history/progress`).
+  3. El sistema valida la sesión y el perfil activo a través del middleware.
+  4. El sistema persiste (inserta o actualiza) el progreso de visualización en la base de datos.
+  5. Cuando el usuario lo solicita, el cliente obtiene el progreso para reanudar el video (`GET /history/{perfilId}/resume/{contenidoId}`).
 * **Excepciones / Cursos Alternos:**
-  * Paso 3: Si se pierde la conexión de red momentáneamente, el cliente retiene la marca de tiempo en memoria local y reintenta el envío cuando se recupera la conectividad.
+  * Paso 2: Si el sistema recibe la petición sin autorización, se rechaza la inserción con HTTP 401 Unauthorized sin corromper el historial.
 * **Precondiciones:** El usuario debe estar autenticado y tener una reproducción multimedia activa en curso.
 * **Postcondiciones:** El registro de tiempo queda sincronizado y almacenado, disponible para cuando el usuario desee reanudar (CDU-N6-03).
 * **Reglas de Negocio:** El progreso debe guardarse estrictamente aislado por perfil, asegurando que un usuario no altere el historial de otros miembros de la misma cuenta.
@@ -304,14 +302,13 @@ Justificacion del Modulo 7: Representa el canal de comunicacion transaccional. T
 * **Actores / Stakeholders:** Usuario Suscriptor, Servidor SMTP (Sistema Externo).
 * **Propósito / Descripción Breve:** Informar al usuario sobre eventos clave en su cuenta (como cobros o actualizaciones) delegando el envío de correos electrónicos a un sistema externo.
 * **Secuencia Normal (Flujo Básico):**
-  1. Ocurre un evento disparador en la plataforma (ej. un registro nuevo o la confirmación de un cobro).
-  2. El sistema central genera la notificación y la encola de forma asíncrona.
-  3. El microservicio de notificaciones procesa el evento y estructura el cuerpo del mensaje.
-  4. El sistema se conecta y le ordena al Servidor SMTP enviar el correo electrónico (CDU-N7-02).
-  5. El Servidor SMTP procesa y acepta el mensaje.
-  6. El sistema registra el evento como completado exitosamente.
+  1. Un microservicio primario (Ej. auth-service o billing-service) completa un evento crítico (como registro o cobro).
+  2. El microservicio primario realiza una invocación interna (Ej. gRPC) hacia el Notification Service.
+  3. El Notification Service recibe el payload y estructura la plantilla del correo electrónico.
+  4. El Notification Service establece conexión con el Servidor SMTP configurado en el entorno.
+  5. El sistema despacha el correo transaccional, liberando el hilo de ejecución primario.
 * **Excepciones / Cursos Alternos:**
-  * Paso 5: Si el servidor SMTP no está disponible o rechaza el envío, el sistema mantiene el evento en la cola y aplica reintentos exponenciales para garantizar la entrega posterior.
+  * Paso 4: Si el servidor SMTP no está disponible o rechaza el envío por timeout, el sistema maneja el error internamente sin afectar al microservicio origen que invocó la notificación.
 * **Precondiciones:** El evento de origen debe haberse concretado con éxito y la cuenta debe poseer una dirección de correo válida.
 * **Postcondiciones:** El usuario recibe el correo transaccional en su bandeja de entrada personal.
 * **Reglas de Negocio:** El flujo de mensajería debe estar totalmente desacoplado mediante un patrón Outbox o encolamiento asíncrono para no retrasar la ejecución de cobros u otras transacciones críticas.
@@ -363,6 +360,8 @@ Justificacion del Modulo 7: Representa el canal de comunicacion transaccional. T
 
 *Casos de uso críticos que validan la arquitectura.*
 
+![Vista de Escenarios](assets/Vista%204+1.drawio.png)
+
 ### **4.2 Vista Lógica y Estilos Arquitectónicos** {#4.2-vista-lógica-y-estilos-arquitectónicos}
 
 #### 4.2.1 Diagrama de Bloques de Alto Nivel {#4.2.1-diagrama-de-bloques-de-alto-nivel}
@@ -373,15 +372,23 @@ Representación gerencial que "grita el negocio".
 
 *Obligatorio: Un esquema por cada microservicio, sin llaves foráneas cruzadas y con Triggers/SPs modelados visualmente.*
 
+![Diagrama ER](assets/Proyecto%201-Diagrama%20ER.svg)
+
 ### **4.3 Vista de Procesos** {#4.3-vista-de-procesos}
 
 #### **4.3.1 Diagramas de Actividades:**  {#4.3.1-diagramas-de-actividades:}
 
 Flujos de trabajo de los procesos de negocio.
 
+![Vista de Procesos - Comportamiento Dinamico](assets/Vista%20de%20Procesos_%20Comportamiento%20Dinamico.png)
+
 #### **4.3.2 Diagramas de Secuencia:**  {#4.3.2-diagramas-de-secuencia:}
 
 Intercambio dinámico de mensajes y sincronización.
+
+![Vista de procesos consumo video](assets/Vis%20de%20procesos%20consumo%20video.png)
+
+![Vista proceso pago y notificacion](assets/Vista%20proceso%20pago%20y%20notificacion.png)
 
 ### **4.4 Vista de Desarrollo (Componentes)** {#4.4-vista-de-desarrollo-(componentes)}
 

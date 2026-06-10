@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { User, CreditCard, Bell, Shield, HelpCircle, LogOut, ChevronRight } from 'lucide-react'
+import { User, CreditCard, Shield, LogOut, ChevronRight } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { Button } from '@/components/ui/button'
 import { getMySubscription, getPlans } from '@/lib/api/billing'
+import { useAuth } from '@/lib/auth-context'
 
 type Plan = {
   id: string
@@ -23,6 +24,10 @@ export default function AccountPage() {
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [perfiles, setPerfiles] = useState<{id: string, nombre: string}[]>([])
+  const [isMainProfile, setIsMainProfile] = useState(false)
+  const [mainProfileId, setMainProfileId] = useState<string | null>(null)
+  const { user } = useAuth()
 
   useEffect(() => {
     async function loadAccount() {
@@ -38,6 +43,27 @@ export default function AccountPage() {
         }
       } catch {
         setError('No se pudo cargar tu membresía.')
+      }
+
+      try {
+        const res = await fetch('/api/profiles')
+        if (res.ok) {
+          const data = await res.json()
+          const allProfiles = Array.isArray(data) ? data : data.perfiles || []
+          setPerfiles(allProfiles)
+          
+          const stored = localStorage.getItem('selectedProfile')
+          let currentId: string | null = null;
+          if (stored) {
+            try { currentId = JSON.parse(stored).id } catch {}
+          }
+          if (currentId && allProfiles.length > 0 && currentId === allProfiles[0].id) {
+            setIsMainProfile(true)
+            setMainProfileId(allProfiles[0].id)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching profiles', err)
       } finally {
         setIsLoading(false)
       }
@@ -60,11 +86,13 @@ export default function AccountPage() {
                 Membresía y facturación
               </h2>
 
-              <Link href="/account/plans">
-                <Button variant="outline" size="sm">
-                  Cambiar plan
-                </Button>
-              </Link>
+              {isMainProfile && (
+                <Link href="/account/plans">
+                  <Button variant="outline" size="sm">
+                    Cambiar plan
+                  </Button>
+                </Link>
+              )}
             </div>
 
             {error && (
@@ -76,13 +104,17 @@ export default function AccountPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-4">
                 <div>
-                  <p className="text-foreground">usuario@ejemplo.com</p>
+                  <p className="text-foreground">
+                    Correo: {user?.email || 'Cargando...'}
+                  </p>
                   <p className="text-sm text-muted-foreground">Contraseña: ********</p>
                 </div>
 
-                <Link href="#" className="text-sm text-primary hover:underline">
-                  Cambiar email
-                </Link>
+                {isMainProfile && (
+                  <Link href="#" className="text-sm text-primary hover:underline">
+                    Cambiar email
+                  </Link>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
@@ -118,116 +150,92 @@ export default function AccountPage() {
                   )}
                 </div>
 
-                <Link href="/account/plans" className="text-sm text-primary hover:underline">
-                  {subscription ? 'Cambiar plan' : 'Elegir plan'}
-                </Link>
+                {isMainProfile && (
+                  <Link href="/account/plans" className="text-sm text-primary hover:underline">
+                    {subscription ? 'Cambiar plan' : 'Elegir plan'}
+                  </Link>
+                )}
               </div>
             </div>
           </section>
 
-          <section className="rounded-lg bg-card">
-            <Link
-              href="#"
-              className="flex items-center justify-between border-b border-border p-4 transition-colors hover:bg-accent"
-            >
-              <div className="flex items-center gap-4">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-foreground">Información personal</p>
-                  <p className="text-sm text-muted-foreground">
-                    Nombre, teléfono, fecha de nacimiento
-                  </p>
+          {isMainProfile && (
+            <section className="rounded-lg bg-card">
+              <Link
+                href={`/account/personal${mainProfileId ? `?profileId=${mainProfileId}` : ''}`}
+                className="flex items-center justify-between border-b border-border p-4 transition-colors hover:bg-accent"
+              >
+                <div className="flex items-center gap-4">
+                  <User className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-foreground">Información personal</p>
+                    <p className="text-sm text-muted-foreground">
+                      Nombre del perfil
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </Link>
 
-            <Link
-              href="#"
-              className="flex items-center justify-between border-b border-border p-4 transition-colors hover:bg-accent"
-            >
-              <div className="flex items-center gap-4">
-                <CreditCard className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-foreground">Métodos de pago</p>
-                  <p className="text-sm text-muted-foreground">Actualiza tu información de pago</p>
+              <Link
+                href="/account/payment"
+                className="flex items-center justify-between border-b border-border p-4 transition-colors hover:bg-accent"
+              >
+                <div className="flex items-center gap-4">
+                  <CreditCard className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-foreground">Métodos de pago</p>
+                    <p className="text-sm text-muted-foreground">Actualiza tu información de pago</p>
+                  </div>
                 </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </Link>
 
-            <Link
-              href="#"
-              className="flex items-center justify-between border-b border-border p-4 transition-colors hover:bg-accent"
-            >
-              <div className="flex items-center gap-4">
-                <Bell className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-foreground">Notificaciones</p>
-                  <p className="text-sm text-muted-foreground">
-                    Configura tus preferencias de comunicación
-                  </p>
+              <Link
+                href="/account/security"
+                className="flex items-center justify-between p-4 transition-colors hover:bg-accent"
+              >
+                <div className="flex items-center gap-4">
+                  <Shield className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-foreground">Seguridad y privacidad</p>
+                    <p className="text-sm text-muted-foreground">
+                      Contraseña, sesiones activas, datos
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-
-            <Link
-              href="#"
-              className="flex items-center justify-between border-b border-border p-4 transition-colors hover:bg-accent"
-            >
-              <div className="flex items-center gap-4">
-                <Shield className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-foreground">Seguridad y privacidad</p>
-                  <p className="text-sm text-muted-foreground">
-                    Contraseña, sesiones activas, datos
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-
-            <Link
-              href="#"
-              className="flex items-center justify-between p-4 transition-colors hover:bg-accent"
-            >
-              <div className="flex items-center gap-4">
-                <HelpCircle className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-foreground">Centro de ayuda</p>
-                  <p className="text-sm text-muted-foreground">Preguntas frecuentes y soporte</p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-          </section>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </Link>
+            </section>
+          )}
 
           <section className="rounded-lg bg-card p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-foreground">Perfiles</h2>
-              <Link href="/profiles" className="text-sm text-primary hover:underline">
-                Administrar perfiles
-              </Link>
+              {isMainProfile && (
+                <Link href="/profiles/manage" className="text-sm text-primary hover:underline">
+                  Administrar perfiles
+                </Link>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-4">
-              {['Ricardo', 'Maria', 'Kids'].map((name, i) => (
-                <div key={name} className="flex flex-col items-center">
+              {perfiles.map((perfil, i) => (
+                <div key={perfil.id} className="flex flex-col items-center">
                   <div
                     className={`h-16 w-16 rounded bg-gradient-to-br ${
-                      i === 0
+                      i % 3 === 0
                         ? 'from-primary to-primary/70'
-                        : i === 1
+                        : i % 3 === 1
                           ? 'from-blue-500 to-blue-700'
                           : 'from-green-500 to-green-700'
                     }`}
                   >
                     <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white">
-                      {name.charAt(0)}
+                      {perfil.nombre.charAt(0).toUpperCase()}
                     </div>
                   </div>
-                  <span className="mt-2 text-sm text-muted-foreground">{name}</span>
+                  <span className="mt-2 text-sm text-muted-foreground">{perfil.nombre}</span>
                 </div>
               ))}
             </div>

@@ -25,6 +25,7 @@ export interface Content {
   seasons?: number
   episodes?: number
   genres: string[]
+  categories?: string[]
   description: string
   cast: CastMember[]
   director?: string

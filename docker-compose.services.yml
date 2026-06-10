@@ -17,6 +17,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-me}
       JWT_TTL_MIN: ${JWT_TTL_MIN:-60}
       NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_ADDR:-notification-service:50054}
+    depends_on:
+      - notification-service
     ports:
       - "50051:50051"
     networks:
@@ -58,7 +60,11 @@ services:
       SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
       SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
       SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
-      FX_SERVICE_ADDR: fx-service:50053
+      FX_SERVICE_ADDR: ${FX_SERVICE_ADDR:-fx-service:50053}
+      NOTIFICATION_SERVICE_ADDR: ${NOTIFICATION_SERVICE_ADDR:-notification-service:50054}
+    depends_on:
+      - fx-service
+      - notification-service
     ports:
       - "50052:50052"
     networks:

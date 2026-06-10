@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  ArrowColor #0D47A1
+}
+title CDU Expandido: 7. Notificaciones por Correo (Nivel CIM)
+
+actor "Usuario Registrado" as registrado
+actor "Usuario Suscriptor" as suscriptor
+actor "Servidor SMTP\n<<Sistema Externo>>" as smtp
+
+package "Módulo 7: Alertas y Comunicación" {
+  usecase "CDU-N7-01: Generar Notificación" as generar
+  usecase "CDU-N7-02: Servir Correo Electrónico" as enviar
+}
+
+registrado --> generar
+suscriptor --> generar
+generar ..> enviar : <<include>>
+enviar --> smtp
+@enduml

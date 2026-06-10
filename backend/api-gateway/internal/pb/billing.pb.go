@@ -176,6 +176,7 @@ type CreateSubscriptionRequest struct {
 	Monto         float64                `protobuf:"fixed64,3,opt,name=monto,proto3" json:"monto,omitempty"`
 	Moneda        string                 `protobuf:"bytes,4,opt,name=moneda,proto3" json:"moneda,omitempty"`
 	Meses         int32                  `protobuf:"varint,5,opt,name=meses,proto3" json:"meses,omitempty"`
+	Correo        string                 `protobuf:"bytes,6,opt,name=correo,proto3" json:"correo,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -243,6 +244,13 @@ func (x *CreateSubscriptionRequest) GetMeses() int32 {
 		return x.Meses
 	}
 	return 0
+}
+
+func (x *CreateSubscriptionRequest) GetCorreo() string {
+	if x != nil {
+		return x.Correo
+	}
+	return ""
 }
 
 type CreateSubscriptionResponse struct {
@@ -826,14 +834,15 @@ const file_proto_billing_proto_rawDesc = "" +
 	"\vmoneda_base\x18\x04 \x01(\tR\n" +
 	"monedaBase\"<\n" +
 	"\x10GetPlansResponse\x12(\n" +
-	"\x06planes\x18\x01 \x03(\v2\x10.billing.v1.PlanR\x06planes\"\x97\x01\n" +
+	"\x06planes\x18\x01 \x03(\v2\x10.billing.v1.PlanR\x06planes\"\xaf\x01\n" +
 	"\x19CreateSubscriptionRequest\x12\x1d\n" +
 	"\n" +
 	"usuario_id\x18\x01 \x01(\tR\tusuarioId\x12\x17\n" +
 	"\aplan_id\x18\x02 \x01(\tR\x06planId\x12\x14\n" +
 	"\x05monto\x18\x03 \x01(\x01R\x05monto\x12\x16\n" +
 	"\x06moneda\x18\x04 \x01(\tR\x06moneda\x12\x14\n" +
-	"\x05meses\x18\x05 \x01(\x05R\x05meses\"v\n" +
+	"\x05meses\x18\x05 \x01(\x05R\x05meses\x12\x16\n" +
+	"\x06correo\x18\x06 \x01(\tR\x06correo\"v\n" +
 	"\x1aCreateSubscriptionResponse\x12%\n" +
 	"\x0esuscripcion_id\x18\x01 \x01(\tR\rsuscripcionId\x12\x17\n" +
 	"\apago_id\x18\x02 \x01(\tR\x06pagoId\x12\x18\n" +

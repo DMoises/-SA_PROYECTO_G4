@@ -3,8 +3,10 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/grupo4/quetxaltv-gateway/internal/clients"
@@ -91,6 +93,7 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{
 		"usuario_id": usuarioID(r),
 		"rol":        rol(r),
+		"email":      correoUsuario(r),
 	})
 }
 
@@ -121,6 +124,84 @@ func (h *AuthHandler) ListProfiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, resp.GetPerfiles())
+}
+
+// ---- PUT /auth/profiles/{id} ---- (protegida)
+func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	profileID := r.PathValue("id")
+	if profileID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Falta el ID del perfil"})
+		return
+	}
+	var body struct {
+		Nombre string `json:"nombre"`
+	}
+	if !decode(w, r, &body) {
+		return
+	}
+	resp, err := h.auth.ActualizarPerfil(r.Context(), profileID, usuarioID(r), body.Nombre)
+	if err != nil {
+		writeGRPCError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, resp)
+}
+
+// ---- PUT /auth/me/password ---- (protegida)
+func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		PasswordActual string `json:"currentPassword"`
+		PasswordNuevo  string `json:"newPassword"`
+	}
+	if !decode(w, r, &body) {
+		return
+	}
+	if body.PasswordActual == "" || body.PasswordNuevo == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Faltan campos requeridos"})
+		return
+	}
+
+	payload := map[string]string{
+		"usuario_id":      usuarioID(r),
+		"password_actual": body.PasswordActual,
+		"password_nuevo":  body.PasswordNuevo,
+	}
+	payloadBytes, _ := json.Marshal(payload)
+
+	authHTTP := strings.TrimRight(h.cfg.AuthServiceHTTPAddr, "/")
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodPut,
+		authHTTP+"/change-password", bytes.NewReader(payloadBytes))
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error interno"})
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "No se pudo contactar al servicio de autenticacion"})
+		return
+	}
+	defer resp.Body.Close()
+
+	var result map[string]string
+	_ = json.NewDecoder(resp.Body).Decode(&result)
+	writeJSON(w, resp.StatusCode, result)
+}
+
+// ---- DELETE /auth/profiles/{id} ---- (protegida)
+func (h *AuthHandler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
+	profileID := r.PathValue("id")
+	if profileID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Falta el ID del perfil"})
+		return
+	}
+	_, err := h.auth.EliminarPerfil(r.Context(), profileID, usuarioID(r))
+	if err != nil {
+		writeGRPCError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // ------------------------- helpers -------------------------

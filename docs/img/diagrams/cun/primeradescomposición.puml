@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor #FFF9C4
+    BorderColor #F57F17
+    ArrowColor #E65100
+}
+title Primera Descomposición: Procesos de Negocio (Nivel CIM)
+
+actor "Usuario Suscriptor" as user
+actor "API de Divisas FX\n<<Sistema Externo>>" as fx
+actor "Servidor SMTP\n<<Sistema Externo>>" as smtp
+
+package "Quetxal TV - Procesos de Negocio" {
+    usecase "CDU-P01: Gestión de Autenticación, Sesiones y Perfiles" as p1
+    usecase "CDU-P02: Gestión de Suscripciones y Pagos" as p2
+    usecase "CDU-P03: Exploración de Catálogo" as p3
+    usecase "CDU-P04: Interacción y Calificaciones" as p4
+    usecase "CDU-P05: Servicio Financiero FX" as p5
+    usecase "CDU-P06: Historial de Reproducción" as p6
+    usecase "CDU-P07: Emisión de Notificaciones" as p7
+}
+
+user --> p1
+user --> p2
+user --> p3
+user --> p4
+user --> p6
+
+p2 ..> p5 : <<include>>
+p5 --> fx
+p1 ..> p7 : <<include>>
+p2 ..> p7 : <<include>>
+p7 --> smtp
+@enduml

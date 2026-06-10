@@ -32,13 +32,16 @@ class CatalogRepository:
         categoria: Optional[str],
         genero: Optional[str],
         actor: Optional[str],
+        tipo: Optional[str],
     ) -> list[dict[str, Any]]:
         # Los parametros se castean a ::text para que Postgres pueda inferir su
         # tipo (psycopg los envia como 'unknown' y '$1 IS NULL' fallaria sin el cast).
+        # tipo compara contra el ENUM tipo_contenido (se castea a text en ambos lados).
         sql = f"""
             SELECT {_COLS_CARTELERA}
             FROM vw_cartelera v
             WHERE (%(titulo)s::text IS NULL OR v.titulo ILIKE '%%' || %(titulo)s::text || '%%')
+              AND (%(tipo)s::text IS NULL OR LOWER(v.tipo::text) = LOWER(%(tipo)s::text))
               AND (%(genero)s::text IS NULL OR EXISTS (
                     SELECT 1 FROM contenido_genero cg
                     JOIN generos g ON g.id = cg.genero_id
@@ -56,7 +59,8 @@ class CatalogRepository:
         """
         return self.db.fetch_all(
             sql,
-            {"titulo": titulo, "categoria": categoria, "genero": genero, "actor": actor},
+            {"titulo": titulo, "categoria": categoria, "genero": genero,
+             "actor": actor, "tipo": tipo},
         )
 
     # ---- Ficha tecnica: cabecera (RFS-03.2) ----

@@ -85,8 +85,8 @@ export function HeroBanner({ content }: HeroBannerProps) {
           <div className="flex flex-wrap items-center gap-3">
             <Button size="lg" className="gap-2 bg-foreground text-background hover:bg-foreground/90">
               <Play className="h-5 w-5 fill-current" />
-              Reproducir
-            </Button>
+              
+            </ButReproducirton>
             <Button
               size="lg"
               variant="secondary"

@@ -91,6 +91,47 @@ func (r *PostgresUsuarioRepo) ObtenerPorEmail(
 	return &u, nil
 }
 
+// ObtenerPorID devuelve el usuario por su UUID o ErrUsuarioNoEncontrado.
+func (r *PostgresUsuarioRepo) ObtenerPorID(
+	ctx context.Context, id string,
+) (*domain.Usuario, error) {
+	var u domain.Usuario
+	var rol, estado string
+	err := r.db.QueryRow(ctx,
+		`SELECT id, email, password_hash, oauth_proveedor, rol_base, estado,
+		        creado_en, actualizado_en
+		 FROM usuarios WHERE id = $1`,
+		id,
+	).Scan(&u.ID, &u.Email, &u.PasswordHash, &u.OAuthProveedor,
+		&rol, &estado, &u.CreadoEn, &u.ActualizadoEn)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.ErrUsuarioNoEncontrado
+		}
+		return nil, err
+	}
+	u.RolBase = domain.RolBase(rol)
+	u.Estado = domain.EstadoUsuario(estado)
+	return &u, nil
+}
+
+// CambiarPassword actualiza el hash de contraseña del usuario.
+func (r *PostgresUsuarioRepo) CambiarPassword(
+	ctx context.Context, usuarioID, nuevoHash string,
+) error {
+	cmdTag, err := r.db.Exec(ctx,
+		`UPDATE usuarios SET password_hash = $1, actualizado_en = now() WHERE id = $2`,
+		nuevoHash, usuarioID,
+	)
+	if err != nil {
+		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return domain.ErrUsuarioNoEncontrado
+	}
+	return nil
+}
+
 // CrearPerfil inserta un perfil adicional. El trigger trg_limite_perfiles
 // aborta si la cuenta ya tiene 5; ese error se mapea a ErrLimitePerfiles.
 func (r *PostgresUsuarioRepo) CrearPerfil(
@@ -136,6 +177,43 @@ func (r *PostgresUsuarioRepo) ListarPerfiles(
 		perfiles = append(perfiles, p)
 	}
 	return perfiles, rows.Err()
+}
+
+// ActualizarPerfil cambia el nombre de un perfil, si pertenece al usuario.
+func (r *PostgresUsuarioRepo) ActualizarPerfil(
+	ctx context.Context, id, usuarioID, nuevoNombre string,
+) error {
+	cmdTag, err := r.db.Exec(ctx,
+		`UPDATE perfiles SET nombre = $1 WHERE id = $2 AND usuario_id = $3`,
+		nuevoNombre, id, usuarioID,
+	)
+	if err != nil {
+		if esCodigo(err, "23505") {
+			return domain.ErrNombrePerfilExiste
+		}
+		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return domain.ErrPerfilNoEncontrado
+	}
+	return nil
+}
+
+// EliminarPerfil elimina un perfil de un usuario.
+func (r *PostgresUsuarioRepo) EliminarPerfil(
+	ctx context.Context, id, usuarioID string,
+) error {
+	cmdTag, err := r.db.Exec(ctx,
+		`DELETE FROM perfiles WHERE id = $1 AND usuario_id = $2`,
+		id, usuarioID,
+	)
+	if err != nil {
+		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return domain.ErrPerfilNoEncontrado
+	}
+	return nil
 }
 
 // esCodigo indica si el error de pgx corresponde a un SQLSTATE dado.

@@ -27,7 +27,7 @@ func (c *CatalogClient) ExplorarCartelera(ctx context.Context) (*pb.CarteleraRes
 	return c.cli.ExplorarCartelera(ctx, &pb.ExplorarCarteleraRequest{})
 }
 
-func (c *CatalogClient) BuscarContenido(ctx context.Context, titulo, categoria, genero, actor string) (*pb.CarteleraResponse, error) {
+func (c *CatalogClient) BuscarContenido(ctx context.Context, titulo, categoria, genero, actor, tipo string) (*pb.CarteleraResponse, error) {
 	return c.cli.BuscarContenido(ctx, &pb.BuscarContenidoRequest{
 		Titulo:    titulo,
 		Categoria: categoria,

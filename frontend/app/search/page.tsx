@@ -13,6 +13,9 @@ export default function SearchPage() {
   const [results, setResults] = useState<Content[]>([])
   const [selectedGenre, setSelectedGenre] = useState('Todos')
   const [genres, setGenres] = useState<string[]>(['Todos'])
+  const [selectedType, setSelectedType] = useState('Todos')
+  const [categories, setCategories] = useState<string[]>(['Todos'])
+  const [selectedCategory, setSelectedCategory] = useState('Todos')
 
   // Generos disponibles, derivados de la cartelera real (via gateway).
   useEffect(() => {
@@ -21,6 +24,8 @@ export default function SearchPage() {
       .then((items: Content[]) => {
         const all = Array.from(new Set((items || []).flatMap(c => c.genres))).sort()
         setGenres(['Todos', ...all])
+        const allCats = Array.from(new Set((items || []).flatMap(c => c.categories ?? []))).sort()
+        setCategories(['Todos', ...allCats])
       })
       .catch(() => {})
   }, [])
@@ -28,18 +33,22 @@ export default function SearchPage() {
   // Busqueda/filtrado contra el catalogo real (via gateway: /api/catalog -> /catalog/buscar).
   useEffect(() => {
     const q = query.trim()
-    if (!q && selectedGenre === 'Todos') {
+    if (!q && selectedGenre === 'Todos' && selectedType === 'Todos' && selectedCategory === 'Todos') {
       setResults([])
       return
     }
     const params = new URLSearchParams()
     if (q) params.set('q', q)
     if (selectedGenre !== 'Todos') params.set('genero', selectedGenre)
+    if (selectedCategory !== 'Todos') params.set('categoria', selectedCategory)
+    if (selectedType !== 'Todos') {
+      params.set('tipo', selectedType === 'Peliculas' ? 'pelicula' : 'serie')
+    }
     fetch(`/api/catalog?${params.toString()}`)
       .then(r => r.json())
       .then((items: Content[]) => setResults(Array.isArray(items) ? items : []))
       .catch(() => setResults([]))
-  }, [query, selectedGenre])
+  }, [query, selectedGenre, selectedType, selectedCategory])
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,8 +76,45 @@ export default function SearchPage() {
           )}
         </div>
 
-        {/* Genre Filters */}
-        <div className="mb-8 flex flex-wrap gap-2">
+        {/* Type Filter (serie / pelicula) */}
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="mr-1 w-24 text-sm font-medium text-muted-foreground">Tipo</span>
+          {['Todos', 'Peliculas', 'Series'].map(t => (
+            <button
+              key={t}
+              onClick={() => setSelectedType(t)}
+              className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                selectedType === t
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* Category Filter (categoria editorial: Destacados, Tendencias...) */}
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="mr-1 w-24 text-sm font-medium text-muted-foreground">Categoría</span>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                selectedCategory === cat
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Genre Filters (genero artistico: Accion, Drama...) */}
+        <div className="mb-8 flex flex-wrap items-center gap-2">
+          <span className="mr-1 w-24 text-sm font-medium text-muted-foreground">Género</span>
           {genres.map(genre => (
             <button
               key={genre}
@@ -88,7 +134,7 @@ export default function SearchPage() {
         </div>
 
         {/* Results */}
-        {query || selectedGenre !== 'Todos' ? (
+        {query || selectedGenre !== 'Todos' || selectedType !== 'Todos' || selectedCategory !== 'Todos' ? (
           <>
             <h2 className="mb-6 text-xl font-semibold text-foreground">
               {query

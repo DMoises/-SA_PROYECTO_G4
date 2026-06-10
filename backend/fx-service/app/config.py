@@ -1,9 +1,5 @@
-"""Configuracion del fx-service desde variables de entorno.
+"""Configuracion del fx-service desde variables de entorno."""
 
-Centraliza lo que antes se leia disperso en db.py y fx_service.py (datos de
-PostgreSQL, Redis y puerto gRPC). Mismo enfoque que el config.py del
-catalog-service.
-"""
 import os
 
 from dotenv import load_dotenv
@@ -26,12 +22,21 @@ class Config:
         self.redis_password = os.getenv("REDIS_PASSWORD")
         self.cache_ttl = int(_env("FX_CACHE_TTL", "300"))
 
+        self.fx_api_url = _env(
+            "FX_API_URL",
+            "https://api.frankfurter.dev",
+        )
+        self.fx_api_timeout = float(
+            _env("FX_API_TIMEOUT", "5")
+        )
+
     @property
     def dsn(self) -> str:
-        # Trafico interno en la red de Docker: sin TLS (sslmode disable).
         return (
-            f"host={self.db_host} port={self.db_port} dbname={self.db_name} "
-            f"user={self.db_user} password={self.db_password} sslmode=disable"
+            f"host={self.db_host} port={self.db_port} "
+            f"dbname={self.db_name} "
+            f"user={self.db_user} password={self.db_password} "
+            f"sslmode=disable"
         )
 
 

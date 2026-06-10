@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	GRPCPort        string
+	HTTPPort        string
 	DSN             string // cadena de conexion a PostgreSQL
 	JWTSecret       string
 	JWTTTL          time.Duration
@@ -28,6 +29,7 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		GRPCPort:        getEnv("GRPC_PORT", "50051"),
+		HTTPPort:        getEnv("HTTP_PORT", "8081"),
 		JWTSecret:       jwtSecret,
 		JWTTTL:          time.Duration(ttlMin) * time.Minute,
 		NotificationURL: getEnv("NOTIFICATION_SERVICE_URL", "notification-service:50054"),

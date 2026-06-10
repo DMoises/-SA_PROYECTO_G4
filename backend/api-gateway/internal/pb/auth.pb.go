@@ -294,6 +294,7 @@ type ValidarTokenResponse struct {
 	Valido        bool                   `protobuf:"varint,1,opt,name=valido,proto3" json:"valido,omitempty"`
 	UsuarioId     string                 `protobuf:"bytes,2,opt,name=usuario_id,json=usuarioId,proto3" json:"usuario_id,omitempty"`
 	Rol           string                 `protobuf:"bytes,3,opt,name=rol,proto3" json:"rol,omitempty"`
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -345,6 +346,13 @@ func (x *ValidarTokenResponse) GetUsuarioId() string {
 func (x *ValidarTokenResponse) GetRol() string {
 	if x != nil {
 		return x.Rol
+	}
+	return ""
+}
+
+func (x *ValidarTokenResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
 	}
 	return ""
 }
@@ -573,6 +581,162 @@ func (x *ListarPerfilesResponse) GetPerfiles() []*PerfilResponse {
 	return nil
 }
 
+type ActualizarPerfilRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UsuarioId     string                 `protobuf:"bytes,2,opt,name=usuario_id,json=usuarioId,proto3" json:"usuario_id,omitempty"`
+	Nombre        string                 `protobuf:"bytes,3,opt,name=nombre,proto3" json:"nombre,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActualizarPerfilRequest) Reset() {
+	*x = ActualizarPerfilRequest{}
+	mi := &file_proto_auth_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActualizarPerfilRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActualizarPerfilRequest) ProtoMessage() {}
+
+func (x *ActualizarPerfilRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auth_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActualizarPerfilRequest.ProtoReflect.Descriptor instead.
+func (*ActualizarPerfilRequest) Descriptor() ([]byte, []int) {
+	return file_proto_auth_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ActualizarPerfilRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ActualizarPerfilRequest) GetUsuarioId() string {
+	if x != nil {
+		return x.UsuarioId
+	}
+	return ""
+}
+
+func (x *ActualizarPerfilRequest) GetNombre() string {
+	if x != nil {
+		return x.Nombre
+	}
+	return ""
+}
+
+type EliminarPerfilRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UsuarioId     string                 `protobuf:"bytes,2,opt,name=usuario_id,json=usuarioId,proto3" json:"usuario_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EliminarPerfilRequest) Reset() {
+	*x = EliminarPerfilRequest{}
+	mi := &file_proto_auth_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EliminarPerfilRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EliminarPerfilRequest) ProtoMessage() {}
+
+func (x *EliminarPerfilRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auth_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EliminarPerfilRequest.ProtoReflect.Descriptor instead.
+func (*EliminarPerfilRequest) Descriptor() ([]byte, []int) {
+	return file_proto_auth_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *EliminarPerfilRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *EliminarPerfilRequest) GetUsuarioId() string {
+	if x != nil {
+		return x.UsuarioId
+	}
+	return ""
+}
+
+type EliminarPerfilResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EliminarPerfilResponse) Reset() {
+	*x = EliminarPerfilResponse{}
+	mi := &file_proto_auth_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EliminarPerfilResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EliminarPerfilResponse) ProtoMessage() {}
+
+func (x *EliminarPerfilResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auth_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EliminarPerfilResponse.ProtoReflect.Descriptor instead.
+func (*EliminarPerfilResponse) Descriptor() ([]byte, []int) {
+	return file_proto_auth_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *EliminarPerfilResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_proto_auth_proto protoreflect.FileDescriptor
 
 const file_proto_auth_proto_rawDesc = "" +
@@ -595,12 +759,13 @@ const file_proto_auth_proto_rawDesc = "" +
 	"usuario_id\x18\x02 \x01(\tR\tusuarioId\x12\x1b\n" +
 	"\texpira_en\x18\x03 \x01(\x03R\bexpiraEn\"+\n" +
 	"\x13ValidarTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"_\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"u\n" +
 	"\x14ValidarTokenResponse\x12\x16\n" +
 	"\x06valido\x18\x01 \x01(\bR\x06valido\x12\x1d\n" +
 	"\n" +
 	"usuario_id\x18\x02 \x01(\tR\tusuarioId\x12\x10\n" +
-	"\x03rol\x18\x03 \x01(\tR\x03rol\"\x84\x01\n" +
+	"\x03rol\x18\x03 \x01(\tR\x03rol\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\"\x84\x01\n" +
 	"\x12CrearPerfilRequest\x12\x1d\n" +
 	"\n" +
 	"usuario_id\x18\x01 \x01(\tR\tusuarioId\x12\x16\n" +
@@ -618,13 +783,26 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\n" +
 	"usuario_id\x18\x01 \x01(\tR\tusuarioId\"M\n" +
 	"\x16ListarPerfilesResponse\x123\n" +
-	"\bperfiles\x18\x01 \x03(\v2\x17.auth.v1.PerfilResponseR\bperfiles2\xee\x02\n" +
+	"\bperfiles\x18\x01 \x03(\v2\x17.auth.v1.PerfilResponseR\bperfiles\"`\n" +
+	"\x17ActualizarPerfilRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"usuario_id\x18\x02 \x01(\tR\tusuarioId\x12\x16\n" +
+	"\x06nombre\x18\x03 \x01(\tR\x06nombre\"F\n" +
+	"\x15EliminarPerfilRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"usuario_id\x18\x02 \x01(\tR\tusuarioId\"2\n" +
+	"\x16EliminarPerfilResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\x90\x04\n" +
 	"\vAuthService\x12B\n" +
 	"\tRegistrar\x12\x19.auth.v1.RegistrarRequest\x1a\x1a.auth.v1.RegistrarResponse\x126\n" +
 	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x16.auth.v1.LoginResponse\x12K\n" +
 	"\fValidarToken\x12\x1c.auth.v1.ValidarTokenRequest\x1a\x1d.auth.v1.ValidarTokenResponse\x12C\n" +
 	"\vCrearPerfil\x12\x1b.auth.v1.CrearPerfilRequest\x1a\x17.auth.v1.PerfilResponse\x12Q\n" +
-	"\x0eListarPerfiles\x12\x1e.auth.v1.ListarPerfilesRequest\x1a\x1f.auth.v1.ListarPerfilesResponseB4Z2github.com/grupo4/quetxaltv-gateway/internal/pb;pbb\x06proto3"
+	"\x0eListarPerfiles\x12\x1e.auth.v1.ListarPerfilesRequest\x1a\x1f.auth.v1.ListarPerfilesResponse\x12M\n" +
+	"\x10ActualizarPerfil\x12 .auth.v1.ActualizarPerfilRequest\x1a\x17.auth.v1.PerfilResponse\x12Q\n" +
+	"\x0eEliminarPerfil\x12\x1e.auth.v1.EliminarPerfilRequest\x1a\x1f.auth.v1.EliminarPerfilResponseB4Z2github.com/grupo4/quetxaltv-gateway/internal/pb;pbb\x06proto3"
 
 var (
 	file_proto_auth_proto_rawDescOnce sync.Once
@@ -638,36 +816,43 @@ func file_proto_auth_proto_rawDescGZIP() []byte {
 	return file_proto_auth_proto_rawDescData
 }
 
-var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_proto_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_proto_auth_proto_goTypes = []any{
-	(*RegistrarRequest)(nil),       // 0: auth.v1.RegistrarRequest
-	(*RegistrarResponse)(nil),      // 1: auth.v1.RegistrarResponse
-	(*LoginRequest)(nil),           // 2: auth.v1.LoginRequest
-	(*LoginResponse)(nil),          // 3: auth.v1.LoginResponse
-	(*ValidarTokenRequest)(nil),    // 4: auth.v1.ValidarTokenRequest
-	(*ValidarTokenResponse)(nil),   // 5: auth.v1.ValidarTokenResponse
-	(*CrearPerfilRequest)(nil),     // 6: auth.v1.CrearPerfilRequest
-	(*PerfilResponse)(nil),         // 7: auth.v1.PerfilResponse
-	(*ListarPerfilesRequest)(nil),  // 8: auth.v1.ListarPerfilesRequest
-	(*ListarPerfilesResponse)(nil), // 9: auth.v1.ListarPerfilesResponse
+	(*RegistrarRequest)(nil),        // 0: auth.v1.RegistrarRequest
+	(*RegistrarResponse)(nil),       // 1: auth.v1.RegistrarResponse
+	(*LoginRequest)(nil),            // 2: auth.v1.LoginRequest
+	(*LoginResponse)(nil),           // 3: auth.v1.LoginResponse
+	(*ValidarTokenRequest)(nil),     // 4: auth.v1.ValidarTokenRequest
+	(*ValidarTokenResponse)(nil),    // 5: auth.v1.ValidarTokenResponse
+	(*CrearPerfilRequest)(nil),      // 6: auth.v1.CrearPerfilRequest
+	(*PerfilResponse)(nil),          // 7: auth.v1.PerfilResponse
+	(*ListarPerfilesRequest)(nil),   // 8: auth.v1.ListarPerfilesRequest
+	(*ListarPerfilesResponse)(nil),  // 9: auth.v1.ListarPerfilesResponse
+	(*ActualizarPerfilRequest)(nil), // 10: auth.v1.ActualizarPerfilRequest
+	(*EliminarPerfilRequest)(nil),   // 11: auth.v1.EliminarPerfilRequest
+	(*EliminarPerfilResponse)(nil),  // 12: auth.v1.EliminarPerfilResponse
 }
 var file_proto_auth_proto_depIdxs = []int32{
-	7, // 0: auth.v1.ListarPerfilesResponse.perfiles:type_name -> auth.v1.PerfilResponse
-	0, // 1: auth.v1.AuthService.Registrar:input_type -> auth.v1.RegistrarRequest
-	2, // 2: auth.v1.AuthService.Login:input_type -> auth.v1.LoginRequest
-	4, // 3: auth.v1.AuthService.ValidarToken:input_type -> auth.v1.ValidarTokenRequest
-	6, // 4: auth.v1.AuthService.CrearPerfil:input_type -> auth.v1.CrearPerfilRequest
-	8, // 5: auth.v1.AuthService.ListarPerfiles:input_type -> auth.v1.ListarPerfilesRequest
-	1, // 6: auth.v1.AuthService.Registrar:output_type -> auth.v1.RegistrarResponse
-	3, // 7: auth.v1.AuthService.Login:output_type -> auth.v1.LoginResponse
-	5, // 8: auth.v1.AuthService.ValidarToken:output_type -> auth.v1.ValidarTokenResponse
-	7, // 9: auth.v1.AuthService.CrearPerfil:output_type -> auth.v1.PerfilResponse
-	9, // 10: auth.v1.AuthService.ListarPerfiles:output_type -> auth.v1.ListarPerfilesResponse
-	6, // [6:11] is the sub-list for method output_type
-	1, // [1:6] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	7,  // 0: auth.v1.ListarPerfilesResponse.perfiles:type_name -> auth.v1.PerfilResponse
+	0,  // 1: auth.v1.AuthService.Registrar:input_type -> auth.v1.RegistrarRequest
+	2,  // 2: auth.v1.AuthService.Login:input_type -> auth.v1.LoginRequest
+	4,  // 3: auth.v1.AuthService.ValidarToken:input_type -> auth.v1.ValidarTokenRequest
+	6,  // 4: auth.v1.AuthService.CrearPerfil:input_type -> auth.v1.CrearPerfilRequest
+	8,  // 5: auth.v1.AuthService.ListarPerfiles:input_type -> auth.v1.ListarPerfilesRequest
+	10, // 6: auth.v1.AuthService.ActualizarPerfil:input_type -> auth.v1.ActualizarPerfilRequest
+	11, // 7: auth.v1.AuthService.EliminarPerfil:input_type -> auth.v1.EliminarPerfilRequest
+	1,  // 8: auth.v1.AuthService.Registrar:output_type -> auth.v1.RegistrarResponse
+	3,  // 9: auth.v1.AuthService.Login:output_type -> auth.v1.LoginResponse
+	5,  // 10: auth.v1.AuthService.ValidarToken:output_type -> auth.v1.ValidarTokenResponse
+	7,  // 11: auth.v1.AuthService.CrearPerfil:output_type -> auth.v1.PerfilResponse
+	9,  // 12: auth.v1.AuthService.ListarPerfiles:output_type -> auth.v1.ListarPerfilesResponse
+	7,  // 13: auth.v1.AuthService.ActualizarPerfil:output_type -> auth.v1.PerfilResponse
+	12, // 14: auth.v1.AuthService.EliminarPerfil:output_type -> auth.v1.EliminarPerfilResponse
+	8,  // [8:15] is the sub-list for method output_type
+	1,  // [1:8] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_proto_auth_proto_init() }
@@ -681,7 +866,7 @@ func file_proto_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_auth_proto_rawDesc), len(file_proto_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

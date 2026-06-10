@@ -11,7 +11,10 @@ async function request(path: string, options: RequestInit = {}) {
   })
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: 'Error desconocido' }))
+    const error = await res.json().catch(() => ({
+      error: 'Error desconocido',
+    }))
+
     throw new Error(error.error || 'Error en la petición')
   }
 
@@ -32,7 +35,12 @@ export function getPlanPrice(planId: string, monedaDestino = 'GTQ') {
   })
 }
 
-export function createSubscription(planId: string, monto: number, moneda = 'USD', meses = 1) {
+export function createSubscription(
+  planId: string,
+  monto: number,
+  moneda = 'USD',
+  meses = 1
+) {
   return request('/billing/subscriptions', {
     method: 'POST',
     body: JSON.stringify({

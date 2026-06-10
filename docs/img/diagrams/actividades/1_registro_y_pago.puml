@@ -1,0 +1,99 @@
+@startuml Diagrama_Actividades_Auth_Pago
+title Diagrama de Actividades - Registro/Login, JWT, Suscripción y Pago Asíncrono
+
+skinparam activity {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+    ArrowColor #1B5E20
+}
+skinparam swimlane {
+    BorderColor #9E9E9E
+    BorderThickness 2
+    TitleFontColor #1565C0
+}
+
+|Cliente (Frontend)|
+start
+if (¿Tiene cuenta registrada?) then (No)
+  :Ingresa datos de registro;
+  :Envía solicitud de registro;
+  |API Gateway|
+  :Redirige a Auth/User Service;
+  |Auth Service|
+  :Registra usuario en la base de datos;
+  |Users DB|
+  :Crea registro de usuario;
+  |Auth Service|
+  :Generar JWT inicial (Rol: Free);
+  :Retorna JWT al cliente;
+else (Sí)
+  |Cliente (Frontend)|
+  :Ingresa correo y contraseña;
+  :Envía solicitud de login;
+  |API Gateway|
+  :Redirige a Auth Service;
+  |Auth Service|
+  :Busca usuario en la base de datos;
+  |Users DB|
+  :Retorna datos y hash de contraseña;
+  |Auth Service|
+  :Valida credenciales;
+  if (¿Credenciales correctas?) then (No)
+    :Retorna HTTP 401;
+    |Cliente (Frontend)|
+    :Muestra mensaje de error;
+    end
+  else (Sí)
+    :Genera JWT (Con claims de rol y suscripción);
+    :Retorna JWT al cliente;
+  endif
+endif
+
+|Cliente (Frontend)|
+:Almacena JWT en localStorage;
+:Selecciona Plan de Suscripción y envía solicitud de pago con JWT;
+
+|API Gateway|
+:Intercepta petición y valida firma de JWT;
+if (¿Token es válido?) then (No)
+  :Retorna HTTP 401 Unauthorized;
+  |Cliente (Frontend)|
+  :Redirecciona a login;
+  end
+else (Sí)
+  :Enruta a Billing Service vía gRPC;
+endif
+
+|Billing Service|
+:Inicia Transacción Local (ACID);
+:Procesa suscripción y facturación interna;
+:Cambia estado de suscripción a 'Activa';
+
+|Billing DB|
+:Guarda estado de suscripción y transacción;
+
+|Billing Service|
+:Publica evento 'subscription.purchased' en Message Broker;
+
+fork
+    |Billing Service|
+    :Confirma Transacción y retorna HTTP 200;
+    |API Gateway|
+    :Redirige respuesta al cliente;
+    |Cliente (Frontend)|
+    :Muestra confirmación de suscripción activa;
+    :Renueva JWT para incluir estado 'Premium';
+    detach
+fork again
+    |Message Broker|
+    :Encola evento de suscripción;
+    
+    |Notification Service|
+    :Consume evento 'subscription.purchased';
+    :Genera plantilla de correo de bienvenida/recibo;
+    
+    |Servidor SMTP|
+    :Envía correo al usuario;
+    detach
+end merge
+@enduml

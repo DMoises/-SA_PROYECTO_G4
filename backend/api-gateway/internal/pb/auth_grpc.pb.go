@@ -19,11 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Registrar_FullMethodName      = "/auth.v1.AuthService/Registrar"
-	AuthService_Login_FullMethodName          = "/auth.v1.AuthService/Login"
-	AuthService_ValidarToken_FullMethodName   = "/auth.v1.AuthService/ValidarToken"
-	AuthService_CrearPerfil_FullMethodName    = "/auth.v1.AuthService/CrearPerfil"
-	AuthService_ListarPerfiles_FullMethodName = "/auth.v1.AuthService/ListarPerfiles"
+	AuthService_Registrar_FullMethodName        = "/auth.v1.AuthService/Registrar"
+	AuthService_Login_FullMethodName            = "/auth.v1.AuthService/Login"
+	AuthService_ValidarToken_FullMethodName     = "/auth.v1.AuthService/ValidarToken"
+	AuthService_CrearPerfil_FullMethodName      = "/auth.v1.AuthService/CrearPerfil"
+	AuthService_ListarPerfiles_FullMethodName   = "/auth.v1.AuthService/ListarPerfiles"
+	AuthService_ActualizarPerfil_FullMethodName = "/auth.v1.AuthService/ActualizarPerfil"
+	AuthService_EliminarPerfil_FullMethodName   = "/auth.v1.AuthService/EliminarPerfil"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -35,6 +37,8 @@ type AuthServiceClient interface {
 	ValidarToken(ctx context.Context, in *ValidarTokenRequest, opts ...grpc.CallOption) (*ValidarTokenResponse, error)
 	CrearPerfil(ctx context.Context, in *CrearPerfilRequest, opts ...grpc.CallOption) (*PerfilResponse, error)
 	ListarPerfiles(ctx context.Context, in *ListarPerfilesRequest, opts ...grpc.CallOption) (*ListarPerfilesResponse, error)
+	ActualizarPerfil(ctx context.Context, in *ActualizarPerfilRequest, opts ...grpc.CallOption) (*PerfilResponse, error)
+	EliminarPerfil(ctx context.Context, in *EliminarPerfilRequest, opts ...grpc.CallOption) (*EliminarPerfilResponse, error)
 }
 
 type authServiceClient struct {
@@ -95,6 +99,26 @@ func (c *authServiceClient) ListarPerfiles(ctx context.Context, in *ListarPerfil
 	return out, nil
 }
 
+func (c *authServiceClient) ActualizarPerfil(ctx context.Context, in *ActualizarPerfilRequest, opts ...grpc.CallOption) (*PerfilResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PerfilResponse)
+	err := c.cc.Invoke(ctx, AuthService_ActualizarPerfil_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) EliminarPerfil(ctx context.Context, in *EliminarPerfilRequest, opts ...grpc.CallOption) (*EliminarPerfilResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EliminarPerfilResponse)
+	err := c.cc.Invoke(ctx, AuthService_EliminarPerfil_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -104,6 +128,8 @@ type AuthServiceServer interface {
 	ValidarToken(context.Context, *ValidarTokenRequest) (*ValidarTokenResponse, error)
 	CrearPerfil(context.Context, *CrearPerfilRequest) (*PerfilResponse, error)
 	ListarPerfiles(context.Context, *ListarPerfilesRequest) (*ListarPerfilesResponse, error)
+	ActualizarPerfil(context.Context, *ActualizarPerfilRequest) (*PerfilResponse, error)
+	EliminarPerfil(context.Context, *EliminarPerfilRequest) (*EliminarPerfilResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -128,6 +154,12 @@ func (UnimplementedAuthServiceServer) CrearPerfil(context.Context, *CrearPerfilR
 }
 func (UnimplementedAuthServiceServer) ListarPerfiles(context.Context, *ListarPerfilesRequest) (*ListarPerfilesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListarPerfiles not implemented")
+}
+func (UnimplementedAuthServiceServer) ActualizarPerfil(context.Context, *ActualizarPerfilRequest) (*PerfilResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ActualizarPerfil not implemented")
+}
+func (UnimplementedAuthServiceServer) EliminarPerfil(context.Context, *EliminarPerfilRequest) (*EliminarPerfilResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method EliminarPerfil not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -240,6 +272,42 @@ func _AuthService_ListarPerfiles_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_ActualizarPerfil_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActualizarPerfilRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).ActualizarPerfil(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_ActualizarPerfil_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).ActualizarPerfil(ctx, req.(*ActualizarPerfilRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_EliminarPerfil_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EliminarPerfilRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).EliminarPerfil(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_EliminarPerfil_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).EliminarPerfil(ctx, req.(*EliminarPerfilRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +334,14 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListarPerfiles",
 			Handler:    _AuthService_ListarPerfiles_Handler,
+		},
+		{
+			MethodName: "ActualizarPerfil",
+			Handler:    _AuthService_ActualizarPerfil_Handler,
+		},
+		{
+			MethodName: "EliminarPerfil",
+			Handler:    _AuthService_EliminarPerfil_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

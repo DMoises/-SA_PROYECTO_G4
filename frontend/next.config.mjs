@@ -26,6 +26,10 @@ const nextConfig = {
         source: '/api/billing/:path*',
         destination: `${apiUrl}/billing/:path*`,
       },
+      {
+        source: '/api/history/:path*',
+        destination: `${apiUrl}/history/:path*`,
+      },
     ];
   },
 }

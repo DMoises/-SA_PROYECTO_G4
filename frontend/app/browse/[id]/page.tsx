@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { Play, Plus, ThumbsUp, ThumbsDown, Share2, Download, Check, ChevronDown } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { ContentCarousel } from '@/components/content-carousel'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Content, Episode } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 type ContentDetalle = Content & { episodesList?: Episode[] }
 
@@ -172,10 +173,13 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Actions */}
             <div className="mb-6 flex flex-wrap items-center gap-3">
-              <Button size="lg" className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+              <Link
+                href={`/watch/${content.id}`}
+                className={cn(buttonVariants({ size: 'lg' }), 'gap-2 bg-foreground text-background hover:bg-foreground/90')}
+              >
                 <Play className="h-5 w-5 fill-current" />
                 Reproducir
-              </Button>
+              </Link>
               <Button
                 size="lg"
                 variant="secondary"

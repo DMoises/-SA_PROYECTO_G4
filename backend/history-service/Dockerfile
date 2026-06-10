@@ -2,18 +2,19 @@ FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
-COPY history-service ./history-service
-
-WORKDIR /app/history-service
+COPY go.mod go.sum ./
 
 RUN go mod download
-RUN go build -o history-service .
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o history-service .
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/history-service/history-service .
+COPY --from=builder /app/history-service ./history-service
 
 EXPOSE 50056
 

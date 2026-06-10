@@ -77,6 +77,7 @@ func main() {
 	mux.Handle("GET /auth/me", authMW(http.HandlerFunc(h.Me)))
 	mux.Handle("POST /auth/profiles", authMW(http.HandlerFunc(h.CreateProfile)))
 	mux.Handle("GET /auth/profiles", authMW(http.HandlerFunc(h.ListProfiles)))
+	mux.Handle("PUT /auth/profiles/{id}", authMW(http.HandlerFunc(h.EditProfile)))
 
 	// Rutas de billing
 	mux.Handle("GET /billing/plans", authMW(http.HandlerFunc(billingH.GetPlans)))

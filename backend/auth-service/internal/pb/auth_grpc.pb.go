@@ -23,6 +23,7 @@ const (
 	AuthService_Login_FullMethodName          = "/auth.v1.AuthService/Login"
 	AuthService_ValidarToken_FullMethodName   = "/auth.v1.AuthService/ValidarToken"
 	AuthService_CrearPerfil_FullMethodName    = "/auth.v1.AuthService/CrearPerfil"
+	AuthService_EditarPerfil_FullMethodName   = "/auth.v1.AuthService/EditarPerfil"
 	AuthService_ListarPerfiles_FullMethodName = "/auth.v1.AuthService/ListarPerfiles"
 )
 
@@ -38,6 +39,7 @@ type AuthServiceClient interface {
 	ValidarToken(ctx context.Context, in *ValidarTokenRequest, opts ...grpc.CallOption) (*ValidarTokenResponse, error)
 	// Gestion de multiperfil (maximo 5 por cuenta).
 	CrearPerfil(ctx context.Context, in *CrearPerfilRequest, opts ...grpc.CallOption) (*PerfilResponse, error)
+	EditarPerfil(ctx context.Context, in *EditarPerfilRequest, opts ...grpc.CallOption) (*PerfilResponse, error)
 	ListarPerfiles(ctx context.Context, in *ListarPerfilesRequest, opts ...grpc.CallOption) (*ListarPerfilesResponse, error)
 }
 
@@ -85,6 +87,15 @@ func (c *authServiceClient) CrearPerfil(ctx context.Context, in *CrearPerfilRequ
 	return out, nil
 }
 
+func (c *authServiceClient) EditarPerfil(ctx context.Context, in *EditarPerfilRequest, opts ...grpc.CallOption) (*PerfilResponse, error) {
+	out := new(PerfilResponse)
+	err := c.cc.Invoke(ctx, AuthService_EditarPerfil_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authServiceClient) ListarPerfiles(ctx context.Context, in *ListarPerfilesRequest, opts ...grpc.CallOption) (*ListarPerfilesResponse, error) {
 	out := new(ListarPerfilesResponse)
 	err := c.cc.Invoke(ctx, AuthService_ListarPerfiles_FullMethodName, in, out, opts...)
@@ -106,6 +117,7 @@ type AuthServiceServer interface {
 	ValidarToken(context.Context, *ValidarTokenRequest) (*ValidarTokenResponse, error)
 	// Gestion de multiperfil (maximo 5 por cuenta).
 	CrearPerfil(context.Context, *CrearPerfilRequest) (*PerfilResponse, error)
+	EditarPerfil(context.Context, *EditarPerfilRequest) (*PerfilResponse, error)
 	ListarPerfiles(context.Context, *ListarPerfilesRequest) (*ListarPerfilesResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
@@ -125,6 +137,9 @@ func (UnimplementedAuthServiceServer) ValidarToken(context.Context, *ValidarToke
 }
 func (UnimplementedAuthServiceServer) CrearPerfil(context.Context, *CrearPerfilRequest) (*PerfilResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CrearPerfil not implemented")
+}
+func (UnimplementedAuthServiceServer) EditarPerfil(context.Context, *EditarPerfilRequest) (*PerfilResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditarPerfil not implemented")
 }
 func (UnimplementedAuthServiceServer) ListarPerfiles(context.Context, *ListarPerfilesRequest) (*ListarPerfilesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListarPerfiles not implemented")
@@ -214,6 +229,24 @@ func _AuthService_CrearPerfil_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_EditarPerfil_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditarPerfilRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).EditarPerfil(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_EditarPerfil_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).EditarPerfil(ctx, req.(*EditarPerfilRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthService_ListarPerfiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListarPerfilesRequest)
 	if err := dec(in); err != nil {
@@ -254,6 +287,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CrearPerfil",
 			Handler:    _AuthService_CrearPerfil_Handler,
+		},
+		{
+			MethodName: "EditarPerfil",
+			Handler:    _AuthService_EditarPerfil_Handler,
 		},
 		{
 			MethodName: "ListarPerfiles",

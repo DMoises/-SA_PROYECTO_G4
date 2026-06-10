@@ -46,7 +46,10 @@ export default function ProfilesPage() {
   }
 
   const handleProfileSelect = (profileId: string) => {
-    if (isManaging) return
+    if (isManaging) {
+      router.push(`/profiles/${profileId}/edit`)
+      return
+    }
     const perfil = perfiles.find(p => p.id === profileId)
     if (perfil) {
       localStorage.setItem('selectedProfile', JSON.stringify({ id: perfil.id, nombre: perfil.nombre }))

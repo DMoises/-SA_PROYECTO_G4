@@ -138,6 +138,23 @@ func (r *PostgresUsuarioRepo) ListarPerfiles(
 	return perfiles, rows.Err()
 }
 
+// EditarPerfil actualiza un perfil existente
+func (r *PostgresUsuarioRepo) EditarPerfil(
+	ctx context.Context, p *domain.Perfil,
+) error {
+	cmd, err := r.db.Exec(ctx,
+		`UPDATE perfiles SET nombre = $1, es_infantil = $2, idioma = $3 WHERE id = $4 AND usuario_id = $5`,
+		p.Nombre, p.EsInfantil, p.Idioma, p.ID, p.UsuarioID,
+	)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
 // esCodigo indica si el error de pgx corresponde a un SQLSTATE dado.
 func esCodigo(err error, code string) bool {
 	var pgErr *pgconn.PgError

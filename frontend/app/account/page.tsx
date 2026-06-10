@@ -6,6 +6,7 @@ import { User, CreditCard, Bell, Shield, HelpCircle, LogOut, ChevronRight } from
 import { Navbar } from '@/components/navbar'
 import { Button } from '@/components/ui/button'
 import { getMySubscription, getPlans } from '@/lib/api/billing'
+import { useAuth } from '@/lib/auth-context'
 
 type Plan = {
   id: string
@@ -23,6 +24,8 @@ export default function AccountPage() {
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [perfiles, setPerfiles] = useState<{id: string, nombre: string}[]>([])
+  const { user } = useAuth()
 
   useEffect(() => {
     async function loadAccount() {
@@ -38,6 +41,16 @@ export default function AccountPage() {
         }
       } catch {
         setError('No se pudo cargar tu membresía.')
+      }
+
+      try {
+        const res = await fetch('/api/profiles')
+        if (res.ok) {
+          const data = await res.json()
+          setPerfiles(Array.isArray(data) ? data : data.perfiles || [])
+        }
+      } catch (err) {
+        console.error('Error fetching profiles', err)
       } finally {
         setIsLoading(false)
       }
@@ -76,7 +89,9 @@ export default function AccountPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-4">
                 <div>
-                  <p className="text-foreground">usuario@ejemplo.com</p>
+                  <p className="text-foreground">
+                    Usuario ID: {user?.usuario_id || 'Cargando...'}
+                  </p>
                   <p className="text-sm text-muted-foreground">Contraseña: ********</p>
                 </div>
 
@@ -212,22 +227,22 @@ export default function AccountPage() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              {['Ricardo', 'Maria', 'Kids'].map((name, i) => (
-                <div key={name} className="flex flex-col items-center">
+              {perfiles.map((perfil, i) => (
+                <div key={perfil.id} className="flex flex-col items-center">
                   <div
                     className={`h-16 w-16 rounded bg-gradient-to-br ${
-                      i === 0
+                      i % 3 === 0
                         ? 'from-primary to-primary/70'
-                        : i === 1
+                        : i % 3 === 1
                           ? 'from-blue-500 to-blue-700'
                           : 'from-green-500 to-green-700'
                     }`}
                   >
                     <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white">
-                      {name.charAt(0)}
+                      {perfil.nombre.charAt(0).toUpperCase()}
                     </div>
                   </div>
-                  <span className="mt-2 text-sm text-muted-foreground">{name}</span>
+                  <span className="mt-2 text-sm text-muted-foreground">{perfil.nombre}</span>
                 </div>
               ))}
             </div>

@@ -69,6 +69,19 @@ func (h *AuthHandler) CrearPerfil(ctx context.Context, req *pb.CrearPerfilReques
 	}, nil
 }
 
+func (h *AuthHandler) EditarPerfil(ctx context.Context, req *pb.EditarPerfilRequest) (*pb.PerfilResponse, error) {
+	p, err := h.svc.EditarPerfil(ctx, req.GetUsuarioId(), req.GetPerfilId(), req.GetNombre(), req.GetIdioma(), req.GetEsInfantil())
+	if err != nil {
+		return nil, aGRPC(err)
+	}
+	return &pb.PerfilResponse{
+		Id:         p.ID,
+		Nombre:     p.Nombre,
+		EsInfantil: p.EsInfantil,
+		Idioma:     p.Idioma,
+	}, nil
+}
+
 func (h *AuthHandler) ListarPerfiles(ctx context.Context, req *pb.ListarPerfilesRequest) (*pb.ListarPerfilesResponse, error) {
 	perfiles, err := h.svc.ListarPerfiles(ctx, req.GetUsuarioId())
 	if err != nil {

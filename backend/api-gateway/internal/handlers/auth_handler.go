@@ -123,6 +123,31 @@ func (h *AuthHandler) ListProfiles(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, resp.GetPerfiles())
 }
 
+// ---- PUT /auth/profiles/{id} ---- (protegida)
+func (h *AuthHandler) EditProfile(w http.ResponseWriter, r *http.Request) {
+	perfilID := r.PathValue("id")
+	if perfilID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "ID de perfil requerido"})
+		return
+	}
+
+	var body struct {
+		Nombre     string `json:"nombre"`
+		EsInfantil bool   `json:"es_infantil"`
+		Idioma     string `json:"idioma"`
+	}
+	if !decode(w, r, &body) {
+		return
+	}
+
+	resp, err := h.auth.EditarPerfil(r.Context(), usuarioID(r), perfilID, body.Nombre, body.Idioma, body.EsInfantil)
+	if err != nil {
+		writeGRPCError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, resp)
+}
+
 // ------------------------- helpers -------------------------
 
 func usuarioID(r *http.Request) string {

@@ -10,7 +10,6 @@ on:
     branches:
       - develop
       - main
-      - feature/despliegue
   workflow_dispatch:
 
 jobs:
@@ -102,7 +101,7 @@ jobs:
           export RATING_SERVICE_ADDR="${SERVICES_VM_IP}:50056"
           export FX_SERVICE_ADDR="${SERVICES_VM_IP}:50053"
           export BILLING_SERVICE_ADDR="${SERVICES_VM_IP}:50052"
-          
+          export CORS_ORIGIN="http://${GATEWAY_VM_IP}"          
           docker-compose -f "${COMPOSE_FILE}" down --remove-orphans || true
           docker-compose -f "${COMPOSE_FILE}" up -d
 

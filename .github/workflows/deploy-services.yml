@@ -8,7 +8,6 @@ on:
     branches:
       - develop
       - main
-      - feature/despliegue
   workflow_dispatch:
 
 jobs:
@@ -103,6 +102,14 @@ jobs:
 
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
+          
+          # SMTP Configuration
+          SMTP_HOST=${{ secrets.SMTP_HOST || 'smtp.gmail.com' }}
+          SMTP_PORT=${{ secrets.SMTP_PORT || '587' }}
+          SMTP_SECURE=${{ secrets.SMTP_SECURE || 'false' }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          SMTP_FROM=${{ secrets.SMTP_FROM }}
           EOF
 
       - name: Copy environment file to Services VM (via Gateway)

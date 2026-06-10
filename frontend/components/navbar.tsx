@@ -13,6 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useAuth } from '@/lib/auth-context'
+import { useRouter } from 'next/navigation'
 
 const navLinks = [
   { href: '/browse', label: 'Inicio' },
@@ -23,19 +25,58 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { logout, user } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileInitial, setProfileInitial] = useState('?')
+  const [otherProfiles, setOtherProfiles] = useState<any[]>([])
+  const [profileColor, setProfileColor] = useState('from-primary to-primary/70')
+  const [isMainProfile, setIsMainProfile] = useState(false)
+
+  const profileColors = [
+    'from-primary to-primary/70',
+    'from-blue-500 to-blue-700',
+    'from-green-500 to-green-700',
+    'from-yellow-500 to-yellow-700',
+    'from-purple-500 to-purple-700',
+  ]
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/login')
+  }
 
   useEffect(() => {
+    let currentId: string | null = null;
     const stored = localStorage.getItem('selectedProfile')
     if (stored) {
       try {
-        const { nombre } = JSON.parse(stored)
+        const { nombre, id } = JSON.parse(stored)
         setProfileInitial(nombre.charAt(0).toUpperCase())
+        currentId = id;
       } catch {
         // ignore malformed data
       }
     }
+
+    fetch('/api/profiles')
+      .then(res => res.json())
+      .then(data => {
+        const allProfiles = Array.isArray(data) ? data : (data.perfiles || []);
+        if (allProfiles.length > 0 && currentId === allProfiles[0].id) {
+          setIsMainProfile(true);
+        }
+        if (currentId) {
+          const currentIndex = allProfiles.findIndex((p: any) => p.id === currentId)
+          if (currentIndex !== -1) {
+            setProfileColor(profileColors[currentIndex % profileColors.length])
+          }
+          setOtherProfiles(allProfiles.map((p: any, index: number) => ({...p, originalIndex: index})).filter((p: any) => p.id !== currentId));
+        } else {
+          setOtherProfiles(allProfiles.map((p: any, index: number) => ({...p, originalIndex: index})));
+        }
+      })
+      .catch(console.error);
   }, [])
 
   return (
@@ -96,38 +137,44 @@ export function Navbar() {
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), "gap-2 p-0")}>
-              <div className="h-8 w-8 overflow-hidden rounded bg-gradient-to-br from-primary to-primary/60">
-                <div className="flex h-full w-full items-center justify-center text-sm font-bold text-primary-foreground">
+              <div className={`h-8 w-8 overflow-hidden rounded bg-gradient-to-br ${profileColor}`}>
+                <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
                   {profileInitial}
                 </div>
               </div>
               <ChevronDown className="h-4 w-4 text-foreground" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-card">
-              <DropdownMenuItem render={<Link href="/profiles" />}>
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded bg-gradient-to-br from-blue-500 to-blue-700" />
-                  <span>Maria</span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/profiles" />}>
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded bg-gradient-to-br from-green-500 to-green-700" />
-                  <span>Kids</span>
-                </div>
-              </DropdownMenuItem>
+              {otherProfiles.map((profile, i) => (
+                <DropdownMenuItem key={profile.id} render={<Link href="/profiles" />}>
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br ${
+                      profileColors[profile.originalIndex % profileColors.length]
+                    } text-sm font-bold text-white`}>
+                      {profile.nombre.charAt(0).toUpperCase()}
+                    </div>
+                    <span>{profile.nombre}</span>
+                  </div>
+                </DropdownMenuItem>
+              ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem render={<Link href="/profiles/manage" />}>
-                Administrar perfiles
-              </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/account" />}>
-                Cuenta
-              </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/account/plans" />}>
-                Mi suscripcion
-              </DropdownMenuItem>
+              {isMainProfile && (
+                <DropdownMenuItem render={<Link href="/profiles/manage" />}>
+                  Administrar perfiles
+                </DropdownMenuItem>
+              )}
+              {isMainProfile && (
+                <DropdownMenuItem render={<Link href="/account" />}>
+                  Cuenta
+                </DropdownMenuItem>
+              )}
+              {isMainProfile && (
+                <DropdownMenuItem render={<Link href="/account/plans" />}>
+                  Mi suscripcion
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem render={<Link href="/login" />}>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
                 Cerrar sesion
               </DropdownMenuItem>
             </DropdownMenuContent>

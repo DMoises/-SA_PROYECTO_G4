@@ -69,6 +69,19 @@ func (h *AuthHandler) CrearPerfil(ctx context.Context, req *pb.CrearPerfilReques
 	}, nil
 }
 
+func (h *AuthHandler) EditarPerfil(ctx context.Context, req *pb.EditarPerfilRequest) (*pb.PerfilResponse, error) {
+	p, err := h.svc.EditarPerfil(ctx, req.GetUsuarioId(), req.GetPerfilId(), req.GetNombre(), req.GetIdioma(), req.GetEsInfantil())
+	if err != nil {
+		return nil, aGRPC(err)
+	}
+	return &pb.PerfilResponse{
+		Id:         p.ID,
+		Nombre:     p.Nombre,
+		EsInfantil: p.EsInfantil,
+		Idioma:     p.Idioma,
+	}, nil
+}
+
 func (h *AuthHandler) ListarPerfiles(ctx context.Context, req *pb.ListarPerfilesRequest) (*pb.ListarPerfilesResponse, error) {
 	perfiles, err := h.svc.ListarPerfiles(ctx, req.GetUsuarioId())
 	if err != nil {
@@ -86,16 +99,38 @@ func (h *AuthHandler) ListarPerfiles(ctx context.Context, req *pb.ListarPerfiles
 	return resp, nil
 }
 
+func (h *AuthHandler) ActualizarPerfil(ctx context.Context, req *pb.ActualizarPerfilRequest) (*pb.PerfilResponse, error) {
+	err := h.svc.ActualizarPerfil(ctx, req.GetId(), req.GetUsuarioId(), req.GetNombre())
+	if err != nil {
+		return nil, aGRPC(err)
+	}
+	// Simplificado: solo devolvemos el ID y nombre actualizado.
+	return &pb.PerfilResponse{
+		Id:     req.GetId(),
+		Nombre: req.GetNombre(),
+	}, nil
+}
+
+func (h *AuthHandler) EliminarPerfil(ctx context.Context, req *pb.EliminarPerfilRequest) (*pb.EliminarPerfilResponse, error) {
+	err := h.svc.EliminarPerfil(ctx, req.GetId(), req.GetUsuarioId())
+	if err != nil {
+		return nil, aGRPC(err)
+	}
+	return &pb.EliminarPerfilResponse{Success: true}, nil
+}
+
 // aGRPC traduce errores de dominio a codigos gRPC estandar.
 func aGRPC(err error) error {
 	switch {
-	case errors.Is(err, domain.ErrEmailYaRegistrado):
+	case errors.Is(err, domain.ErrEmailYaRegistrado),
+		errors.Is(err, domain.ErrNombrePerfilExiste):
 		return status.Error(codes.AlreadyExists, err.Error())
 	case errors.Is(err, domain.ErrCredencialesInvalidas),
 		errors.Is(err, domain.ErrCuentaInactiva),
 		errors.Is(err, domain.ErrCuentaSoloOAuth):
 		return status.Error(codes.Unauthenticated, err.Error())
-	case errors.Is(err, domain.ErrUsuarioNoEncontrado):
+	case errors.Is(err, domain.ErrUsuarioNoEncontrado),
+		errors.Is(err, domain.ErrPerfilNoEncontrado):
 		return status.Error(codes.NotFound, err.Error())
 	case errors.Is(err, domain.ErrLimitePerfiles):
 		return status.Error(codes.FailedPrecondition, err.Error())

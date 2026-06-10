@@ -26,6 +26,8 @@ services:
       POSTGRES_DB: ${SUBSCRIPTION_DB_NAME}
       POSTGRES_USER: ${SUBSCRIPTION_DB_USER}
       POSTGRES_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
+    ports:
+      - "5433:5432"
     volumes:
       - subscription_data:/var/lib/postgresql/data
     healthcheck:
@@ -150,9 +152,12 @@ services:
       DB_SSLMODE: disable
       JWT_SECRET: ${JWT_SECRET}
       JWT_TTL_MIN: ${JWT_TTL_MIN:-60}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL:-notification-service:50054}
     depends_on:
       auth-db:
         condition: service_healthy
+      notification-service:
+        condition: service_started
     networks: [quetxal-net]
 
   fx-service:
@@ -180,16 +185,20 @@ services:
     container_name: quetxal-billing-service
     restart: always
     environment:
+      GRPC_PORT: 50052
       SUBSCRIPTION_DB_HOST: subscription-db
       SUBSCRIPTION_DB_PORT: 5432
       SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
       SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
       SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
-      FX_SERVICE_ADDR: fx-service:50053
+      FX_SERVICE_ADDR: ${FX_SERVICE_ADDR:-fx-service:50053}
+      NOTIFICATION_SERVICE_ADDR: ${NOTIFICATION_SERVICE_ADDR:-notification-service:50054}
     depends_on:
       subscription-db:
         condition: service_healthy
       fx-service:
+        condition: service_started
+      notification-service:
         condition: service_started
     networks: [quetxal-net]
 
@@ -254,18 +263,17 @@ services:
 
 
   history-service:
-    build:
-      context: ./backend
-      dockerfile: history-service/Dockerfile
-    container_name: quetxal-history-service
-    restart: always
-    environment:
-      PORT: 50057
-      DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@history-db:5432/${HISTORY_DB_NAME}?sslmode=disable
-    depends_on:
-      history-db:
-        condition: service_healthy
-    networks: [quetxal-net]
+      build: ./backend/history-service  
+      container_name: quetxal-history-service
+      restart: always
+      environment:
+        PORT: 50057
+        DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@history-db:5432/${HISTORY_DB_NAME}?sslmode=disable
+      depends_on:
+        history-db:
+          condition: service_healthy
+      networks: [quetxal-net]
+
 
 volumes:
   auth_data:

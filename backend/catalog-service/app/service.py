@@ -17,10 +17,13 @@ class CatalogService:
     def explorar_cartelera(self) -> list[dict[str, Any]]:
         return self.repo.explorar_cartelera()
 
-    def buscar(self, titulo: str, categoria: str, genero: str, actor: str) -> list[dict[str, Any]]:
+    def buscar(
+        self, titulo: str, categoria: str, genero: str, actor: str, tipo: str
+    ) -> list[dict[str, Any]]:
         # Los strings vacios del request se normalizan a None (sin filtro).
         return self.repo.buscar(
-            _limpiar(titulo), _limpiar(categoria), _limpiar(genero), _limpiar(actor)
+            _limpiar(titulo), _limpiar(categoria), _limpiar(genero),
+            _limpiar(actor), _limpiar(tipo)
         )
 
     def obtener_ficha(self, contenido_id: str) -> dict[str, Any]:

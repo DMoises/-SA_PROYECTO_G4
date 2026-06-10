@@ -64,6 +64,7 @@ export function itemToContent(i: ItemCartelera): Content {
     year: i.anio,
     rating: i.clasificacion,
     genres: splitGeneros(i.generos),
+    categories: splitGeneros(i.categorias),
     description: '',
     cast: [],
     // El porcentaje de recomendacion lo provee el rating-service, no el catalogo.
@@ -110,6 +111,7 @@ export function fichaToContent(f: FichaApi): ContentDetalle {
     seasons: temporadas.length || undefined,
     episodes: totalEpisodios || undefined,
     genres: splitGeneros(f.generos),
+    categories: splitGeneros(f.categorias),
     description: f.sinopsis || '',
     cast,
     matchPercentage: 0,

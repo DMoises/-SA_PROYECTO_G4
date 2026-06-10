@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E1F5FE
+  BorderColor #0277BD
+  ArrowColor #01579B
+}
+
+title CDU Expandido: 3. Catálogo y Consumo (Nivel CIM)
+
+actor "Usuario Registrado" as registrado
+actor "Usuario Suscriptor" as suscriptor
+
+package "Módulo 3: Catálogo y Cartelera" {
+  usecase "CDU-N3-01: Explorar Cartelera de Contenido" as explorar
+  usecase "CDU-N3-02: Reproducir Contenido Multimedia" as reproducir
+  usecase "CDU-N3-03: Consultar Ficha Técnica y Reparto" as ficha
+  usecase "CDU-N3-04: Gestionar Filtros" as filtros
+}
+
+registrado --> explorar
+suscriptor --> explorar
+suscriptor --> reproducir
+
+ficha ..> explorar : <<extend>>
+filtros ..> explorar : <<extend>>
+@enduml

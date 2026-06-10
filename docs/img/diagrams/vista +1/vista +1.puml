@@ -1,0 +1,48 @@
+@startuml Vista_Mas_Uno_Escenarios
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor #E1F5FE
+    BorderColor #0277BD
+    ArrowColor #01579B
+}
+
+title Vista de Escenarios (+1): Casos de Uso Críticos Arquitectónicos (Quetxal TV)
+
+actor "Usuario Suscriptor" as user
+actor "Servidor SMTP\n<<Sistema Externo>>" as smtp
+
+rectangle "Ecosistema Quetxal TV (Core Scenarios)" {
+    
+    usecase "Registro / Login y\nGeneración de JWT" as auth
+    usecase "Gestión de Perfiles" as profiles
+    usecase "Explorar Catálogo\n(Películas y Series)" as catalog
+    
+    usecase "Comprar / Renovar Suscripción" as buy_sub
+    usecase "Procesar Pago Seguro" as process_pay
+    usecase "Envío de Recibo y Bienvenida" as send_email
+    
+    usecase "Seleccionar Contenido" as select_content
+    usecase "Validar JWT y\nSuscripción Activa" as validate_jwt
+    usecase "Consumo de Video\n(Streaming CDN)" as streaming
+    usecase "Actualizar Historial\ny Progreso" as history
+}
+
+' Relaciones del Usuario
+user --> auth
+user --> profiles
+user --> catalog
+user --> buy_sub
+
+' Flujo de Suscripción
+buy_sub ..> process_pay : <<include>>
+process_pay ..> send_email : <<include>>
+send_email --> smtp
+
+' Flujo de Consumo de Video
+catalog ..> select_content : <<include>>
+select_content ..> validate_jwt : <<include>>
+validate_jwt ..> streaming : <<include>>
+streaming ..> history : <<include>>
+
+@enduml

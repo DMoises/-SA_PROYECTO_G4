@@ -10,7 +10,7 @@ service CatalogService {
   // Explorar la cartelera completa (contenido activo). Usa la vista vw_cartelera.
   rpc ExplorarCartelera(ExplorarCarteleraRequest) returns (CarteleraResponse);
   // Buscar contenido aplicando filtros multicriterio simultaneos (RFS-03.1):
-  // titulo, categoria, genero y/o actor. Todos los filtros son opcionales.
+  // titulo, categoria, genero, actor y/o tipo. Todos los filtros son opcionales.
   rpc BuscarContenido(BuscarContenidoRequest) returns (CarteleraResponse);
   // Ficha tecnica de un contenido (RFS-03.2): titulo, sinopsis, reparto y,
   // si es serie, sus temporadas con episodios.
@@ -24,6 +24,7 @@ message BuscarContenidoRequest {
   string categoria = 2; // nombre de categoria, opcional
   string genero    = 3; // nombre de genero, opcional
   string actor     = 4; // nombre de actor, opcional
+  string tipo      = 5; // 'pelicula' | 'serie', opcional
 }
 
 // Fila de la cartelera: proyeccion de la vista vw_cartelera.

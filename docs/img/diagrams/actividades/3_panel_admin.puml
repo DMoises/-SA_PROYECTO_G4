@@ -1,0 +1,72 @@
+@startuml Diagrama_Actividades_Admin
+title Diagrama de Actividades - Panel de Administración (Gestión de Contenido y Usuarios)
+
+skinparam activity {
+    BackgroundColor #FFF3E0
+    BorderColor #E65100
+    ArrowColor #BF360C
+}
+skinparam swimlane {
+    BorderColor #9E9E9E
+    BorderThickness 2
+    TitleFontColor #1565C0
+}
+
+|Administrador (Frontend)|
+start
+:Ingresa email y password;
+:Envía solicitud de login al Backend;
+
+|API Gateway|
+:Redirige a Auth Service;
+|Auth Service|
+:Valida credenciales;
+:Verifica Rol;
+if (¿Rol es ADMIN?) then (No)
+    :Retorna HTTP 403 Forbidden;
+    |Administrador (Frontend)|
+    :Muestra mensaje "Acceso Denegado";
+    stop
+else (Sí)
+    :Genera JWT con claims de Admin (y permisos extendidos);
+    :Retorna JWT al Frontend;
+endif
+
+|Administrador (Frontend)|
+:Almacena JWT en localStorage/sessionStorage;
+:Accede al Panel de Administración;
+
+|API Gateway|
+:Valida JWT y permisos de Admin en cada petición;
+if (Token o Rol inválido?) then (Sí)
+    :Retorna HTTP 401/403;
+    stop
+endif
+
+:Selecciona módulo a administrar;
+
+partition "Gestión de Contenido (Catálogo)" {
+    :Subir metadatos de nueva Película/Serie;
+    :Asignar categorías y etiquetas;
+    |Content Service|
+    :Guarda en Content DB e invalida caché (Redis);
+}
+
+partition "Gestión de Usuarios y Planes" {
+    :Buscar usuario por email;
+    :Modificar estado (Ban, Activar) o cambiar plan de suscripción;
+    |Auth/User Service|
+    :Actualiza registro en Users DB;
+}
+
+partition "Dashboard de Analíticas" {
+    :Solicitar métricas (Visualizaciones, Ingresos);
+    |Analytics Service|
+    :Consulta datos agregados y retorna reporte;
+    |Administrador (Frontend)|
+    :Visualiza gráficas de rendimiento;
+}
+
+:Fin del flujo de administración;
+stop
+@enduml

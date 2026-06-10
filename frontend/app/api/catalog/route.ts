@@ -10,13 +10,15 @@ export async function GET(request: NextRequest) {
     const genero = sp.get('genero') || ''
     const categoria = sp.get('categoria') || ''
     const actor = sp.get('actor') || ''
+    const tipo = sp.get('tipo') || ''
 
-    if (titulo || genero || categoria || actor) {
+    if (titulo || genero || categoria || actor || tipo) {
       const params = new URLSearchParams()
       if (titulo) params.set('titulo', titulo)
       if (genero) params.set('genero', genero)
       if (categoria) params.set('categoria', categoria)
       if (actor) params.set('actor', actor)
+      if (tipo) params.set('tipo', tipo)
       return NextResponse.json(await buscarContenido(params))
     }
 

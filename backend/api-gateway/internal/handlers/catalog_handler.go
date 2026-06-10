@@ -24,11 +24,11 @@ func (h *CatalogHandler) ExplorarCartelera(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, resp.GetItems())
 }
 
-// GET /catalog/buscar?titulo=&categoria=&genero=&actor= -> filtros opcionales.
+// GET /catalog/buscar?titulo=&categoria=&genero=&actor=&tipo= -> filtros opcionales.
 func (h *CatalogHandler) BuscarContenido(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	resp, err := h.catalog.BuscarContenido(r.Context(),
-		q.Get("titulo"), q.Get("categoria"), q.Get("genero"), q.Get("actor"))
+		q.Get("titulo"), q.Get("categoria"), q.Get("genero"), q.Get("actor"), q.Get("tipo"))
 	if err != nil {
 		writeGRPCError(w, err)
 		return

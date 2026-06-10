@@ -9,11 +9,9 @@
 | Daniel Moisés Chan Pelico | 201906099 |
 | Joshua Estuardo Franco Equité | 201708845 |
 
-# Índice {#índice}
+# Índice
 
 [Documento de Definición de Arquitectura (DDA) \- Quetxal TV](#documento-de-definición-de-arquitectura-\(dda\)---quetxal-tv)
-
-[Indice](#índice)
 
 [1\. Introducción y Objetivos](#1.-introducción-y-objetivos)
 
@@ -32,6 +30,8 @@
 [2.4.2 Drivers de Atributos de Calidad (Escenarios EAC):](#2.4.2-drivers-de-atributos-de-calidad-\(escenarios-eac\):)
 
 [2.4.3 Drivers de Restricción:](#2.4.3-drivers-de-restricción:)
+
+[2.5 Modelado de Casos de Uso Expandidos (Nivel CIM)](#2.5-modelado-de-casos-de-uso-expandidos-\(nivel-cim\))
 
 [3\. Gobernanza y Entrelazamiento (Matrices de Trazabilidad)](#3.-gobernanza-y-entrelazamiento-\(matrices-de-trazabilidad\))
 
@@ -75,9 +75,9 @@
 
 [5.3 Aplicación de Principios SOLID (Nivel ISM)](#5.3-aplicación-de-principios-solid-\(nivel-ism\))
 
-[5.4 Guía de Orquestación y Despliegue (CI/CD)](#heading=h.pwj69e2uvd4v)
-
 [6\. Conclusiones](#6.-conclusiones)
+
+[7\. Archivos Crudos](#7.-archivos-crudos)
 
 ## **1\. Introducción y Objetivos** {#1.-introducción-y-objetivos}
 
@@ -174,23 +174,147 @@ Estas son las limitantes impuestas por el entorno, el cliente o la dirección t�
 | **RES-04** | Persistencia y Lógica | Es mandatorio delegar lógica pesada y de auditoría a los motores de bases de datos. | Implementación obligatoria en código SQL nativo de Procedimientos Almacenados, Vistas Materializadas, Funciones y Triggers. |
 | **RES-05** | Infraestructura y Despliegue | La arquitectura física debe ser contenerizada mediante Docker y orquestada con docker-compose. El despliegue a producción debe realizarse obligatoriamente en GCP. | Uso de Máquinas Virtuales (Compute Engine) para segmentar el ecosistema, prohibiendo despliegues manuales fuera de contenedores. |
 
-### 2.5 Modelado de Casos de Uso Expandidos (Nivel CIM)
+### 2.5 Modelado de Casos de Uso Expandidos (Nivel CIM) {#2.5-modelado-de-casos-de-uso-expandidos-(nivel-cim)}
 
 Esta seccion documenta graficamente la expansion de los procesos de negocio definidos en la primera descomposicion. Cada diagrama representa un Modulo del sistema y establece la base visual de donde se extrajeron matematicamente los Drivers de Requerimientos Funcionales (RF). Las imagenes a continuacion demuestran la interaccion directa de los actores externos con el sistema, eliminando cualquier ambiguedad operativa.  
 ![][image3]  
 Justificacion del Modulo 1: Se detalla el flujo de ingreso a la plataforma. Al priorizar la flexibilidad de acceso, se ha modelado la autenticacion local como flujo base y la delegacion de identidad (OAuth) como un flujo extendido, garantizando que el usuario mantenga el control sobre sus perfiles de visualizacion.  
+
+**Plantilla Textual: CDU-N1-02**
+* **Identificador (ID):** CDU-N1-02
+* **Nombre del Caso de Uso:** Iniciar sesión
+* **Actores / Stakeholders:** Usuario Invitado, Usuario Registrado.
+* **Propósito / Descripción Breve:** Permitir a un usuario acceder a su cuenta registrada en la plataforma para posteriormente seleccionar su perfil y acceder al catálogo.
+* **Secuencia Normal (Flujo Básico):**
+  1. El usuario solicita ingresar al sistema.
+  2. El sistema presenta el formulario de inicio de sesión.
+  3. El usuario ingresa sus credenciales.
+  4. El sistema valida las credenciales y autentica al usuario.
+  5. El sistema presenta la lista de perfiles disponibles (CDU-N1-08).
+* **Excepciones / Cursos Alternos:**
+  * Paso 4: Si las credenciales son inválidas, el sistema muestra un mensaje de error y permite reintentar o ir al flujo de registro (CDU-N1-01).
+* **Precondiciones:** El usuario debe estar previamente registrado en el sistema.
+* **Postcondiciones:** El usuario se encuentra autenticado con un token válido, en espera de seleccionar perfil.
+* **Reglas de Negocio:** Límite máximo de 5 perfiles por cuenta para la gestión de múltiples usuarios en una suscripción.
 ![][image4]  
 Justificacion del Modulo 2: Representa el nucleo financiero del negocio. La interaccion con la pasarela de pagos externa es obligatoria (include) para concretar la adquisicion y el cobro recurrente. Toda actualizacion de planes se subordina al flujo principal de adquisicion para mantener la trazabilidad transaccional.  
+
+**Plantilla Textual: CDU-N2-01**
+* **Identificador (ID):** CDU-N2-01
+* **Nombre del Caso de Uso:** Adquirir Plan de Suscripción
+* **Actores / Stakeholders:** Usuario Suscriptor, Pasarela de Pagos (Sistema Externo).
+* **Propósito / Descripción Breve:** Procesar la compra de un plan de suscripción que permita al usuario acceder al catálogo de contenido, gestionando el pago a través de un proveedor externo.
+* **Secuencia Normal (Flujo Básico):**
+  1. El usuario solicita ver los planes de suscripción.
+  2. El sistema despliega las opciones de planes (Básico, Estándar, Premium).
+  3. El usuario selecciona un plan e ingresa su información de pago.
+  4. El sistema solicita el cobro recurrente a la Pasarela de Pagos (CDU-N2-02).
+  5. La Pasarela de Pagos procesa la transacción y responde con éxito.
+  6. El sistema actualiza las credenciales y el estado de la suscripción (CDU-N2-03).
+* **Excepciones / Cursos Alternos:**
+  * Paso 5: Si la pasarela de pagos rechaza el cobro (fondos insuficientes o error), el sistema aborta la transacción y notifica al usuario del fallo para que intente con otro método.
+* **Precondiciones:** El usuario debe tener una sesión activa y no contar con un plan de suscripción idéntico vigente.
+* **Postcondiciones:** La suscripción queda activa en la base de datos y se otorgan los permisos de visualización.
+* **Reglas de Negocio:** Todas las transacciones financieras deben cumplir con la garantía ACID para evitar inconsistencias de cobro.
 ![][image5]  
 Justificacion del Modulo 3: Enfocado en la experiencia del usuario para encontrar contenido de valor. La exploracion del catalogo actua como el caso de uso raiz, del cual se desprenden opcionalmente (extend) las acciones de filtrado multicriterio y la consulta detallada de la ficha tecnica, asegurando una busqueda sin friccion.  
+
+**Plantilla Textual: CDU-N3-01**
+* **Identificador (ID):** CDU-N3-01
+* **Nombre del Caso de Uso:** Explorar Cartelera de Contenido
+* **Actores / Stakeholders:** Usuario Suscriptor.
+* **Propósito / Descripción Breve:** Proveer al usuario herramientas para navegar, descubrir y filtrar contenido multimedia en la plataforma de manera fluida.
+* **Secuencia Normal (Flujo Básico):**
+  1. El usuario ingresa al módulo del catálogo.
+  2. El sistema recupera y muestra la cartelera general recomendada.
+  3. El usuario decide aplicar filtros multicriterio (CDU-N3-04).
+  4. El sistema procesa los filtros y despliega los resultados correspondientes.
+  5. El usuario selecciona un contenido específico.
+  6. El sistema muestra la ficha técnica y reparto del contenido seleccionado (CDU-N3-03).
+* **Excepciones / Cursos Alternos:**
+  * Paso 4: Si no existe contenido que coincida con los filtros, el sistema muestra un mensaje amigable indicando la falta de resultados y sugiere limpiar la búsqueda.
+* **Precondiciones:** El usuario debe estar autenticado y contar con un plan de suscripción vigente.
+* **Postcondiciones:** El usuario se encuentra en la pantalla de detalle de un contenido, listo para iniciar la reproducción.
+* **Reglas de Negocio:** Las consultas de la cartelera deben realizarse obligatoriamente consumiendo vistas materializadas de la base de datos para garantizar tiempos de respuesta rápidos.
 ![][image6]  
 Justificacion del Modulo 4: Abstrae la interaccion comunitaria. El usuario puede emitir una valoracion y, como flujo alterno para garantizar la flexibilidad, modificar su voto previo. La consulta del porcentaje global se mantiene como una accion independiente para facilitar el consumo de analiticas de la cartelera.  
+
+**Plantilla Textual: CDU-N4-01**
+* **Identificador (ID):** CDU-N4-01
+* **Nombre del Caso de Uso:** Emitir Valoración
+* **Actores / Stakeholders:** Usuario Suscriptor.
+* **Propósito / Descripción Breve:** Permitir al usuario calificar un contenido multimedia para alimentar de forma dinámica el porcentaje global de recomendación del sistema.
+* **Secuencia Normal (Flujo Básico):**
+  1. El usuario visualiza un contenido o accede a su ficha.
+  2. El sistema habilita la interfaz de valoración.
+  3. El usuario ingresa una puntuación y la envía.
+  4. El sistema guarda la valoración del usuario en el registro.
+  5. El sistema recalcula el porcentaje global de recomendación (CDU-N4-03).
+* **Excepciones / Cursos Alternos:**
+  * Paso 4: Si la base de datos de valoraciones presenta alta latencia o no está disponible, el sistema aísla la falla y guarda el voto temporalmente, notificando al usuario que su calificación se procesará en breve.
+  * Paso 3: Si el usuario ya había emitido una valoración, se ejecuta el flujo alterno para modificar la valoración previa (CDU-N4-02).
+* **Precondiciones:** El usuario debe estar autenticado.
+* **Postcondiciones:** La puntuación del usuario es almacenada y el promedio global del contenido es actualizado.
+* **Reglas de Negocio:** La calificación debe ser un valor discreto (de 1 a 5 estrellas) y el recálculo matemático de la recomendación global debe ejecutarse mediante una Función SQL nativa en la base de datos.
 ![][image7]  
 Justificacion del Modulo 5: Modela la integracion con la API de divisas. El calculo de tarifas depende intrinsecamente de la consulta de la tasa actual (include), demostrando la necesidad de un actor secundario externo para proveer informacion financiera en tiempo real.  
+
+**Plantilla Textual: CDU-N5-01**
+* **Identificador (ID):** CDU-N5-01
+* **Nombre del Caso de Uso:** Calcular Tarifa en Moneda Local
+* **Actores / Stakeholders:** Usuario Suscriptor, API de Divisas (FX) (Sistema Externo).
+* **Propósito / Descripción Breve:** Convertir dinámicamente el precio en dólares de una suscripción a la moneda local del usuario para facilitar la transparencia financiera.
+* **Secuencia Normal (Flujo Básico):**
+  1. El usuario ingresa a la vista de selección de planes.
+  2. El sistema detecta la ubicación o configuración del usuario para definir su moneda.
+  3. El sistema realiza la consulta de la tasa de cambio actual a la API (CDU-N5-02).
+  4. La API (o caché en memoria) devuelve la tasa de cambio vigente.
+  5. El sistema procesa matemáticamente la conversión del precio base.
+  6. El sistema muestra la tarifa convertida en la interfaz del usuario.
+* **Excepciones / Cursos Alternos:**
+  * Paso 4: Si la API de Divisas falla o no responde a tiempo, el sistema procede a utilizar una Tasa de Cambio de Respaldo estática preconfigurada (CDU-N5-03) para no bloquear la visualización de planes.
+* **Precondiciones:** El sistema debe identificar la región o preferencia de moneda del usuario.
+* **Postcondiciones:** El usuario visualiza de manera clara el monto que se le cobrará en su respectiva moneda local.
+* **Reglas de Negocio:** La tasa de cambio debe almacenarse temporalmente en una caché (Redis) con un TTL corto para reducir latencias, protegiendo el SLA (EAC-01).
 ![][image8]  
 Justificacion del Modulo 6: Operacion en segundo plano detonada por las acciones del usuario al visualizar contenido. El registro del minuto exacto es el flujo base que posteriormente permitira extender la funcionalidad para reanudar el contenido de forma precisa.  
+
+**Plantilla Textual: CDU-N6-01**
+* **Identificador (ID):** CDU-N6-01
+* **Nombre del Caso de Uso:** Registrar progreso de visualización
+* **Actores / Stakeholders:** Usuario Suscriptor.
+* **Propósito / Descripción Breve:** Almacenar de forma precisa y constante el minuto de reproducción en el que un usuario abandona un contenido para permitir retomarlo posteriormente.
+* **Secuencia Normal (Flujo Básico):**
+  1. El usuario está reproduciendo un contenido en la plataforma.
+  2. El usuario pausa, detiene o cierra abruptamente el reproductor de video.
+  3. El cliente (frontend) envía el registro con la marca de tiempo (temporada, episodio, segundo exacto) al backend.
+  4. El sistema procesa la solicitud y la asocia al perfil del usuario.
+  5. El sistema guarda la actualización en la base de datos de historial.
+* **Excepciones / Cursos Alternos:**
+  * Paso 3: Si se pierde la conexión de red momentáneamente, el cliente retiene la marca de tiempo en memoria local y reintenta el envío cuando se recupera la conectividad.
+* **Precondiciones:** El usuario debe estar autenticado y tener una reproducción multimedia activa en curso.
+* **Postcondiciones:** El registro de tiempo queda sincronizado y almacenado, disponible para cuando el usuario desee reanudar (CDU-N6-03).
+* **Reglas de Negocio:** El progreso debe guardarse estrictamente aislado por perfil, asegurando que un usuario no altere el historial de otros miembros de la misma cuenta.
 ![][image9]  
 Justificacion del Modulo 7: Representa el canal de comunicacion transaccional. Todo evento de generacion de notificacion exige la delegacion de la entrega hacia el Servidor SMTP externo, aislando el comportamiento de comunicacion de los procesos primarios.
+
+**Plantilla Textual: CDU-N7-01**
+* **Identificador (ID):** CDU-N7-01
+* **Nombre del Caso de Uso:** Generar Notificación
+* **Actores / Stakeholders:** Usuario Suscriptor, Servidor SMTP (Sistema Externo).
+* **Propósito / Descripción Breve:** Informar al usuario sobre eventos clave en su cuenta (como cobros o actualizaciones) delegando el envío de correos electrónicos a un sistema externo.
+* **Secuencia Normal (Flujo Básico):**
+  1. Ocurre un evento disparador en la plataforma (ej. un registro nuevo o la confirmación de un cobro).
+  2. El sistema central genera la notificación y la encola de forma asíncrona.
+  3. El microservicio de notificaciones procesa el evento y estructura el cuerpo del mensaje.
+  4. El sistema se conecta y le ordena al Servidor SMTP enviar el correo electrónico (CDU-N7-02).
+  5. El Servidor SMTP procesa y acepta el mensaje.
+  6. El sistema registra el evento como completado exitosamente.
+* **Excepciones / Cursos Alternos:**
+  * Paso 5: Si el servidor SMTP no está disponible o rechaza el envío, el sistema mantiene el evento en la cola y aplica reintentos exponenciales para garantizar la entrega posterior.
+* **Precondiciones:** El evento de origen debe haberse concretado con éxito y la cuenta debe poseer una dirección de correo válida.
+* **Postcondiciones:** El usuario recibe el correo transaccional en su bandeja de entrada personal.
+* **Reglas de Negocio:** El flujo de mensajería debe estar totalmente desacoplado mediante un patrón Outbox o encolamiento asíncrono para no retrasar la ejecución de cobros u otras transacciones críticas.
 
 ## **3\. Gobernanza y Entrelazamiento (Matrices de Trazabilidad)** {#3.-gobernanza-y-entrelazamiento-(matrices-de-trazabilidad)}
 
@@ -310,7 +434,7 @@ Al aplicar el analisis del Triangulo de la Triple Restriccion, el equipo arquite
 
 Este Documento de Decision Arquitectonica (DDA) se constituye como la Linea Base oficial del proyecto. A partir de este momento, cualquier desarrollo a nivel de codigo, modificacion de base de datos o integracion futura debera subordinarse a los lineamientos aqui establecidos, demostrando que en la Ingenieria de Software, la tecnologia es unicamente el medio para alcanzar los objetivos estrategicos del negocio.
 
-## 7\. Archivos Crudos
+## 7\. Archivos Crudos {#7.-archivos-crudos}
 
 [https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing](https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing)   
 

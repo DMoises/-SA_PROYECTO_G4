@@ -1,8 +1,4 @@
-"""Errores de dominio del fx-service.
-
-El handler gRPC los traduce a codigos gRPC, manteniendo el dominio
-independiente del transporte (igual que el errors.py del catalog-service).
-"""
+"""Errores de dominio del fx-service."""
 
 
 class FXError(Exception):
@@ -10,8 +6,12 @@ class FXError(Exception):
 
 
 class DatosInvalidos(FXError):
-    """Argumento de entrada invalido (-> INVALID_ARGUMENT)."""
+    """Los datos proporcionados no son validos."""
 
 
 class TasaNoEncontrada(FXError):
-    """No existe una tasa vigente para el par de monedas (-> NOT_FOUND)."""
+    """No existe una tasa para el par de monedas solicitado."""
+
+
+class ProveedorFXNoDisponible(FXError):
+    """El proveedor externo de tipos de cambio no esta disponible."""

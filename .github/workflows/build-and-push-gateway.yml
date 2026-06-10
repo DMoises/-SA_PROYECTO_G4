@@ -5,7 +5,6 @@ on:
     branches:
       - develop
       - main
-      - feature/despliegue
     paths:
       - 'backend/api-gateway/**'
       - 'docker-compose.gateway.yml'

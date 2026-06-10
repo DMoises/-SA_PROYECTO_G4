@@ -13,4 +13,6 @@ var (
 	ErrLimitePerfiles        = errors.New("la cuenta ya alcanzo el maximo de 5 perfiles")
 	ErrTokenInvalido         = errors.New("token invalido o expirado")
 	ErrDatosInvalidos        = errors.New("datos de entrada invalidos")
+	ErrPerfilNoEncontrado    = errors.New("perfil no encontrado o no pertenece al usuario")
+	ErrNombrePerfilExiste    = errors.New("ya existe un perfil con ese nombre en tu cuenta")
 )

@@ -19,6 +19,7 @@ message BuscarContenidoRequest {
   string categoria = 2;
   string genero    = 3;
   string actor     = 4;
+  string tipo      = 5; // 'pelicula' | 'serie', opcional
 }
 
 message ItemCartelera {

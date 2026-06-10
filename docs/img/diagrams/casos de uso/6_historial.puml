@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  ArrowColor #1B5E20
+}
+title CDU Expandido: 6. Historial de Reproducción (Nivel CIM)
+
+actor "Usuario Suscriptor" as suscriptor
+
+package "Módulo 6: Progreso e Historial" {
+  usecase "CDU-N6-01: Registrar progreso de visualización" as registrar
+}
+
+suscriptor --> registrar
+@enduml

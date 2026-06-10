@@ -22,7 +22,8 @@ class CatalogHandler(pb_grpc.CatalogServiceServicer):
 
     def BuscarContenido(self, request, context):
         items = self.service.buscar(
-            request.titulo, request.categoria, request.genero, request.actor
+            request.titulo, request.categoria, request.genero,
+            request.actor, request.tipo
         )
         return pb.CarteleraResponse(items=[_item(i) for i in items])
 

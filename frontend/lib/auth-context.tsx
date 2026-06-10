@@ -5,6 +5,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 interface AuthUser {
   usuario_id: string
   rol: string
+  email: string
 }
 
 interface AuthContextType {
@@ -29,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json()
         if (data.usuario_id) {
-          setUser({ usuario_id: data.usuario_id, rol: data.rol })
+          setUser({ usuario_id: data.usuario_id, rol: data.rol, email: data.email || '' })
           return
         }
       }

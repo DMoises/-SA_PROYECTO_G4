@@ -1,28 +1,32 @@
-import { Injectable } from '@nestjs/common';
-import { BillingRepository } from './billing.repository';
-import { FxClient } from '../fx/fx.client';
+import {
+  Injectable,
+  Logger,
+} from '@nestjs/common'
+import { BillingRepository } from './billing.repository'
+import { FxClient } from '../fx/fx.client'
+import { NotificationClient } from '../notifications/notification.client'
 
-// Logica de negocio de suscripciones. Depende del repositorio y del FxClient
-// (ambos inyectados): no conoce SQL ni el pool de conexiones. Su unica
-// responsabilidad es orquestar el repositorio + la conversion de moneda y
-// mapear el resultado al contrato gRPC.
 @Injectable()
 export class BillingService {
+  private readonly logger = new Logger(BillingService.name)
+
   constructor(
     private readonly repo: BillingRepository,
     private readonly fxClient: FxClient,
+    private readonly notificationClient: NotificationClient
   ) {}
 
   async getPlans() {
-    const planes = await this.repo.listPlanes();
+    const planes = await this.repo.listPlanes()
+
     return {
-      planes: planes.map((plan) => ({
+      planes: planes.map(plan => ({
         id: plan.id,
         nombrePlan: plan.nombre_plan,
         precioBase: Number(plan.precio_base),
         monedaBase: plan.moneda_base,
       })),
-    };
+    }
   }
 
   async createSubscription(data: {
@@ -31,7 +35,18 @@ export class BillingService {
     monto: number;
     moneda: string;
     meses: number;
+    correo: string;
   }) {
+    const plan = await this.repo.getPlan(data.planId);
+
+    if (!plan) {
+      return {
+        suscripcionId: '',
+        pagoId: '',
+        mensaje: 'El plan seleccionado no existe',
+      };
+    }
+
     const row = await this.repo.procesarRenovacion(
       data.usuarioId,
       data.planId,
@@ -40,15 +55,46 @@ export class BillingService {
       data.meses || 1,
     );
 
+    if (!row?.p_suscripcion_id) {
+      return {
+        suscripcionId: '',
+        pagoId: '',
+        mensaje: 'No se pudo crear la suscripcion',
+      };
+    }
+
+    try {
+      await this.notificationClient.encolarRecibo({
+        usuarioId: data.usuarioId,
+        correo: data.correo,
+        plan: plan.nombre_plan,
+        monto: data.monto,
+        moneda: data.moneda,
+      });
+
+      console.log(
+        `Recibo encolado para ${data.correo}`,
+      );
+    } catch (error) {
+      console.error(
+        'La suscripcion fue creada, pero no se pudo encolar el correo:',
+        error,
+      );
+    }
+
     return {
-      suscripcionId: row?.p_suscripcion_id ?? '',
-      pagoId: row?.p_pago_id ?? '',
+      suscripcionId: row.p_suscripcion_id,
+      pagoId: row.p_pago_id,
       mensaje: 'Suscripcion creada correctamente',
     };
   }
 
-  async getUserSubscription(data: { usuarioId: string }) {
-    const row = await this.repo.getActiveSubscription(data.usuarioId);
+  async getUserSubscription(data: {
+    usuarioId: string
+  }) {
+    const row = await this.repo.getActiveSubscription(
+      data.usuarioId
+    )
 
     if (!row) {
       return {
@@ -59,7 +105,7 @@ export class BillingService {
         estadoSuscripcion: '',
         fechaInicio: '',
         fechaFin: '',
-      };
+      }
     }
 
     return {
@@ -70,49 +116,56 @@ export class BillingService {
       estadoSuscripcion: row.estado_suscripcion,
       fechaInicio: formatDate(row.fecha_inicio),
       fechaFin: formatDate(row.fecha_fin),
-    };
+    }
   }
 
-  async cancelSubscription(data: { usuarioId: string }) {
-    const id = await this.repo.cancelActiveSubscription(data.usuarioId);
+  async cancelSubscription(data: {
+    usuarioId: string
+  }) {
+    const id = await this.repo.cancelActiveSubscription(
+      data.usuarioId
+    )
 
     if (!id) {
       return {
         suscripcionId: '',
         mensaje: 'El usuario no tiene una suscripcion activa',
-      };
+      }
     }
 
     return {
       suscripcionId: id,
       mensaje: 'Suscripcion cancelada correctamente',
-    };
+    }
   }
 
   async changeSubscription(data: {
-    usuarioId: string;
-    nuevoPlanId: string;
-    monto: number;
-    moneda: string;
-    meses: number;
+    usuarioId: string
+    nuevoPlanId: string
+    monto: number
+    moneda: string
+    meses: number
   }) {
     const row = await this.repo.procesarRenovacion(
       data.usuarioId,
       data.nuevoPlanId,
       data.monto,
       data.moneda,
-      data.meses || 1,
-    );
+      data.meses || 1
+    )
 
     return {
       suscripcionId: row?.p_suscripcion_id ?? '',
       pagoId: row?.p_pago_id ?? '',
       mensaje: 'Suscripcion cambiada correctamente',
-    };
+    }
   }
 
-  async getPlanPrice(data: { planId: string; monedaDestino: string }) {
-    const plan = await this.repo.getPlan(data.planId);
+  async getPlanPrice(data: {
+    planId: string
+    monedaDestino: string
+  }) {
+    const plan = await this.repo.getPlan(data.planId)
 
     if (!plan) {
       return {
@@ -122,14 +175,14 @@ export class BillingService {
         monedaBase: '',
         precioConvertido: 0,
         monedaDestino: data.monedaDestino,
-      };
+      }
     }
 
     const fx = await this.fxClient.convertirMonto(
       Number(plan.precio_base),
       plan.moneda_base,
-      data.monedaDestino,
-    );
+      data.monedaDestino
+    )
 
     return {
       planId: plan.id,
@@ -138,11 +191,10 @@ export class BillingService {
       monedaBase: plan.moneda_base,
       precioConvertido: Number(fx.montoConvertido),
       monedaDestino: data.monedaDestino,
-    };
+    }
   }
 }
 
-// Las columnas DATE de Postgres se devuelven como 'YYYY-MM-DD' (o '' si NULL).
 function formatDate(value: Date | null): string {
-  return value?.toISOString?.().split('T')[0] ?? '';
+  return value?.toISOString?.().split('T')[0] ?? ''
 }

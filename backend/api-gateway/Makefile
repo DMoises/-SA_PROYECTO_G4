@@ -2,14 +2,19 @@
 # api-gateway | Makefile
 # =====================================================================
 
-# Genera el cliente gRPC desde el contrato proto.
-# Requiere protoc, protoc-gen-go y protoc-gen-go-grpc.
+MODULE := github.com/grupo4/quetxaltv-gateway
+PROTO_FILES := $(wildcard proto/*.proto)
+
 .PHONY: proto
 proto:
 	mkdir -p internal/pb
-	protoc --go_out=. --go_opt=module=github.com/grupo4/quetxaltv-gateway \
-	       --go-grpc_out=. --go-grpc_opt=module=github.com/grupo4/quetxaltv-gateway \
-	       proto/auth.proto
+	rm -f internal/pb/*.pb.go
+	protoc -I=. \
+		--go_out=. \
+		--go_opt=module=$(MODULE) \
+		--go-grpc_out=. \
+		--go-grpc_opt=module=$(MODULE) \
+		$(PROTO_FILES)
 
 .PHONY: deps
 deps:

@@ -16,7 +16,6 @@ interface Perfil {
 export default function ProfilesPage() {
   const router = useRouter()
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
-  const [isManaging, setIsManaging] = useState(false)
   const [perfiles, setPerfiles] = useState<Perfil[]>([])
   const [isLoadingPerfiles, setIsLoadingPerfiles] = useState(true)
 
@@ -46,10 +45,6 @@ export default function ProfilesPage() {
   }
 
   const handleProfileSelect = (profileId: string) => {
-    if (isManaging) {
-      router.push(`/profiles/${profileId}/edit`)
-      return
-    }
     const perfil = perfiles.find(p => p.id === profileId)
     if (perfil) {
       localStorage.setItem('selectedProfile', JSON.stringify({ id: perfil.id, nombre: perfil.nombre }))
@@ -98,7 +93,7 @@ export default function ProfilesPage() {
       {/* Profile Selection */}
       <main className="flex flex-col items-center">
         <h1 className="mb-8 text-3xl font-medium text-foreground md:text-4xl lg:text-5xl">
-          {isManaging ? 'Administrar perfiles' : '¿Quien esta viendo?'}
+          ¿Quien esta viendo?
         </h1>
 
         <div className="mb-8 flex flex-wrap justify-center gap-4 md:gap-6">
@@ -110,21 +105,12 @@ export default function ProfilesPage() {
             >
               <div className="relative">
                 <div
-                  className={`h-24 w-24 overflow-hidden rounded bg-gradient-to-br ${profileColors[index % profileColors.length]} transition-all duration-200 md:h-32 md:w-32 lg:h-36 lg:w-36 ${
-                    !isManaging && 'group-hover:ring-4 group-hover:ring-foreground'
-                  }`}
+                  className={`h-24 w-24 overflow-hidden rounded bg-gradient-to-br ${profileColors[index % profileColors.length]} transition-all duration-200 md:h-32 md:w-32 lg:h-36 lg:w-36 group-hover:ring-4 group-hover:ring-foreground`}
                 >
                   <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-white md:text-5xl">
                     {perfil.nombre.charAt(0).toUpperCase()}
                   </div>
                 </div>
-
-                {/* Edit Overlay */}
-                {isManaging && (
-                  <div className="absolute inset-0 flex items-center justify-center rounded bg-background/60">
-                    <Pencil className="h-8 w-8 text-foreground" />
-                  </div>
-                )}
 
                 {/* Kids Badge */}
                 {perfil.esInfantil && (
@@ -138,30 +124,7 @@ export default function ProfilesPage() {
               </span>
             </button>
           ))}
-
-          {/* Add Profile Button */}
-          {perfiles.length < 5 && (
-            <Link
-              href="/profiles/add"
-              className="group flex flex-col items-center"
-            >
-              <div className="flex h-24 w-24 items-center justify-center rounded border-2 border-muted-foreground/50 bg-transparent transition-colors group-hover:border-foreground md:h-32 md:w-32 lg:h-36 lg:w-36">
-                <Plus className="h-12 w-12 text-muted-foreground group-hover:text-foreground md:h-16 md:w-16" />
-              </div>
-              <span className="mt-3 text-sm text-muted-foreground group-hover:text-foreground md:text-base">
-                Agregar perfil
-              </span>
-            </Link>
-          )}
         </div>
-
-        {/* Manage Profiles Button */}
-        <button
-          onClick={() => setIsManaging(!isManaging)}
-          className="rounded border border-muted-foreground/50 px-6 py-2 text-sm text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
-        >
-          {isManaging ? 'Listo' : 'Administrar perfiles'}
-        </button>
       </main>
     </div>
   )

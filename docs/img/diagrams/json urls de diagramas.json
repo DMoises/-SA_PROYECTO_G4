@@ -1,0 +1,94 @@
+{
+    "diagramas": [
+        {
+            "carpeta": "",
+            "nombre_diagrama": "[SA]Proyecto1_VJ2026.pdf",
+            "url": ""
+        },
+        {
+            "carpeta": "",
+            "nombre_diagrama": "casosdeuso.puml",
+            "url": "https://www.plantuml.com/plantuml/png/ZLJTJjim5BxtKnnbDzj5AzgjWqMe0agOUW6QLd6DBFkG7U7QqR7DXgOz5O_0Y-6aILlII2Dt_dwEFt-sSkQ3v13NHXYy3n0SC9M_0cXYL86S5Vw1R2LPhg6Iwa6Mk0fF1g6cfIqDxWcYHoKzmby1S9749RjezS8Pn_2XEBcQ5Tzgnh56Rj5fSNpvUPhGSsRtkmKd5xDYUYJ-xOsMAYHcSF1Ly_K7RsS42Ydkul8MYZ-Lj9gqos4oXk_e0xqyMz08vp6W3QIaQf0d-85yJmOzVBoXHpImM5v_4c8J8hlrKJ8vMDf72bAx3AG7QXTzqKyioGVkPBnTzeMhw1LJbR16wBTB8ThY8Rj-UTRHE9ZaiDHrOYrrrhJILP-bWuvk9gEZ9EcsviGsUpI3exhhGl2GSPfcMrAKR1vztKTdCwuaEsJvaiC2cGSTBeOXoonP69EZQfhk3Ah6XlHVSoXqAhXlm0OSSXmdXw4rsKDF2m-vJd9OeK6bqjC_CFeTanwMwAuSHgFvsrhxpAQvtTs_0wzxsxs1ZjZqSuYtDGmGtLd5Va0OZtVxGmwdfsILYHhdSx65MytUeG-LJPvtAJS9_oyLPsXr-X-z0W=="
+        },
+        {
+            "carpeta": "actividades",
+            "nombre_diagrama": "1_registro_y_pago.puml",
+            "url": "https://www.plantuml.com/plantuml/png/bLRTRYCr5BwVfpWI5qcaXNOB1JPpmIPfMegsgwZ9mcLruZcPcCxOaUr95IWFmmFq0l40IEJ5EBOdOJ9DbwMLsjG-lz_tdUE-jGwDgye2BYJc1aky6mWdrpB3ZEpTe7BBkmdcEd7I5RGtWeoWOGUVmotbqZgZJzxfNAfNyCDFirSmhQmmSYNazay56_21O62tJqeOhNIIs7kfLiW10KCmju5V4-2l8OhxtEXAPIDTQ0EVZR-zF1-_YNVQP6JgyxFnDnTVdeNpWJ7weJv-FJmVdvqclpKos0TP5gXebw4PvStOVpVEPqifxXLP2p7sp7T_gPNRnJ__-dpauoUFeqAISWJTI-x9aSfwZqa0DP4BwFxzruol2KJ5HWWceeGPVjS3joG5tVUwnodwroetP1bOTDfwU6jJdVhRiLfldn2iBgIGhihQ1e-3oJLSeQC7t3nwXrlAf94v0OBdyEI39GDJCcifA3hmwUwWzeYbGMKhD5835rSWpD6IpnRg2fu-b8MBOV0Q6TftfRrTxNqynnL3OT1uSO1Kt0eMqBtLHHyk3L4lZNKuRHG66xuM4TuqeO8BwKwtJnwkewWtK1JQ6D8iES6tXblO_e4l0bbunNuAYXy7SCXY_v_exNgDf6zWYNRfpLjLFy_r8nOyUI0CPQGyZ1IYHyMD6gSH2U7GjWJNoFxzR3Q1hqvVf-7u1MZP_gQY892IbCMVGr_4CsUY7nloxmEMzem7ChiZhPXEb6NKjowuOzlO4BtqiAws0a8EkKZYp-EJrnyK9GgglJq9Mc0nvO2OSuZ-b0eIGcescF0sy8MqbXGTKSZABoucnGTDEVE1JbXqZeoW5S_tYfpS1Lf7ZXRIn7qPVEkTeE-vD6PdlVsTZNHx6RIPWGyAMGBQo5yeIp-Y_o3ONOFuhx8zEGVKy22OodcReImAgVATl21qdzzEHkaUw9P9QDaFBymCiXH4xFYTHngwWz7r1JFPdnWj_2ZQGtWNlEahW_5FwP5JhF7-2Civ1sI1OHRso84RGYUyDjX96-Nu8UfVyRXbBpfkm3LAJ8_sCgdcJ3M7M3EY6ZgsceS8Za7yObKPmLD9MSUBwOPV1DOH30qJoBfF5jhSnwbv5ZT8cIKV-Jz0QiCRiq7msUbfFNgj_TFSGBpMLdx-i3KIdpAmeguYPdy6Ra1sFtkgedMS7lzkCaMYgAJP0ToP62fbLNQYVKOEnJB009YZLB6YGvpgQiPAw68FSwkA62vwlzTEBfWHJy1pF6rLqdznbHuidnKFkcDwCAxMy3BmfpcZnc5uHazuPEHSDsi8QJD-wgStiyc-WJ0RTGIceV7MxQ5W-7b1cfoIj_oH_x5A_W4="
+        },
+        {
+            "carpeta": "actividades",
+            "nombre_diagrama": "2_consumo_video.puml",
+            "url": "https://www.plantuml.com/plantuml/png/XLNHRjis57tNLrna3xM15acQTiDiOAiZnqs7DGWI9tiCM8csxooH0aavTPT-p3uWJ_k00SkFxP2KLBbfDXimPFBUmyDppxrwOvqmhYuBch9O6b6AcqdcUCEvoAMzIRMoTQblhZcNEd7i2ja5KYwf5qilQ58xgHnd8kE7lnJzyjlyELsB0ljnOKiDdayDa3IuT4QAajLoc2HspQeIm2OHSDsM_aW8dsEHhPT6rofFTQ4DVNToD7ivcyOzRN9fclN3rz-_JW_2-iGOVTii7qnV_J0vJ3xtJh2tN1P2oVQ4FigF9_xRMv-lE5ihQIsz3AjpByHCAxTxxESakKiBXWQI1ZE3VQdouLqID4v6bxAGMSPQ2QeLLT8ikF1ArBOMXlKu6HtNDXEKXKJEeSwvB1xkixeGfEbI6fP3H9qRQGFAteMiZCxhZCqUra_Kvk5UaDK5P-pgt6FRLbwFwYio1iV9-JjwAvoy5TkxPFGEfvbCLaw04whNb6eJ2aSBDh7K8PSNDFZdxxbUIqKe-URXJmJfduVaLbWPdEaXz1bTIASD-9tEv-Vqwk2GhfIetKeR_YJpCIA-gL98pDcq6Wagz9ALZqT08WkB-Ck7-t34DSHOm6cK5e9B2uA5PuW0I6YuYhTu5lmfdWqzIEI-in-tlwB_-097DDFc0-Uv36oUv8_CzxM4v89AdOk2zjxBtpN-kPegc8syzMWZ3RH3SbVdlOZgRudV_Zs1UA9CxRmQQGXt-rt7U4TiE9CKohwyE4yRhNYHnD_axb4m2XwQi01cAPt8XTDHlareo2rTNVmQ_gVJCs-MvbYQ7jC-fI9RWPslayMLEw6-86q9bbp2ePg4DnQZFmQMINvat7auVeBJ8w3d3O-UWxVak8Hoegm8ucQn1eyDtVG1E5I-6i87jtKQFz6Yw08u7vR_v1DZLu6H9n1ryUspemnaB863-E9BIhGLfY7o4DZnnR4BRTQjks9m2pr8LxLQsoODuCFeXz5L70m8mqEW1ipEDJ4eXs3PAg2JM0fMOHLyf73XCI2b49ME3iZA9OQejgDkgn6hgWjKR70gCQa-87NeRzvLifiTRLRti2jzTrwS-g4Zjt1au-294iKM4yRkdy8CscnR0tmB-AkG7ZYwjf73iImhtQdlHsPeCSZKZ5SHOlyBVthSWtuBmS5x5VPWXrZ_HlrGt75FNxfTCLw8VghmilQHC9EcjfSmLzZsMld5JsVw_-P7M_9ArDOF_OobYHSAaEDs9lIAjc0LYRRbsZ46iD5KPYcJDtZ4Ypxv5m=="
+        },
+        {
+            "carpeta": "actividades",
+            "nombre_diagrama": "3_panel_admin.puml",
+            "url": "https://www.plantuml.com/plantuml/png/ZLNDRXit4BxlKmpSYmGai5pN1YeT6lrOhWiu42B5FGPZxcZ5c4kg9DUkM-TXSip1fpn0WEh5-d5tBQjg4rIwx9B3cVb-XligHFQnAWrDD1UUItutL57Vwfnp2U-6UQbj5dKqiWsWN6WdXbxIZAsOUZc5wn0zAxtvRAbpBY7MJzWSEnl5wjpHFRqD5NljGZVBmessQqPYuZfflAS_Cy9lnEgcyAwo-TWPv-cxwNHwVDPhzfpFnRVhPwSdHxrcVUYzkskNHzFZqzuu-x1J8Tpfqg3PfmgxMNuyI_-TzSLAgnih8T3tzUeYiJ05YFR0qSdfoRY7_Dd3C-uSEvsfhw7ctOUifZVhNzZ2Is2IahK1_ZM7S8SgWwn_PcytZqp16QrqhF94bN65jiIcvW291gd6x8BEESeTtpza_JUIQwyB8QPX5LSq5t-hbGmGj_EAm2isq8cKbroiqcmaeEYLUBtKYkcDCuDCBwdprnSy4kGSJYulNl_KfRWI2FZQTMlmA1YTjqm_BnOp-g5tJ5FdhtMEf8Cwu1iSrESlAqbxL8eD_5xeOAYK14SJiLBWo46J9aItpiG4eSvyyzZMFaSCZlxowuAKiwGCwp9i_KOTy2c-rC45ajzJKPWiT0V_R3oT1gDFVGso5BVyfdZzeIbPINiOT1YdsCoHZmiv3B26ThPz1Qa94Pf2aQyDnBzrREL9-NTGRA6XfcBihoNgDaCIQ-7W2d99FTBmpqSaSLlDdedR4-te4CBjyjmmq9-B4QM01V9iFkULSR0LRrltQ1lpWri08NJmtpFT6ND47wvmtODslFhpwbfxA1u18JQmR2MtJ3CncqTL6Jw4KRMqIWs3BYnx88vIE8-f2205o7-ha2AqFcjAncUBDnR1VGAU0FzfVp8YIUIq_cUrsdoYJfgRP8qFNuNqT3MXz2pT5M4BPrG5XVQg9e3MS4izpstxbowlPmghcFf4oOZjY-QgPD-5N8hBQutzDVAcKW49lLwtmZPJXEazV1l4x-53bWf8_c3oKYHLNCAQ0WEGxkEPS5XTEp1IEyaos8P_-1dAlBbjq4kv-HHzsgFEbGvDZMG52I-ekRMse_IGCjqZKTXh3fI7oaHy6MgPyPceHpfHw5i7UW5TKVxVNR5jX0g_-RYikmCGd_nQQeZhQi3zgKuq6bgQwhrB4Rm_RhNDN-4Sld3Ptm=="
+        },
+        {
+            "carpeta": "casos de uso",
+            "nombre_diagrama": "1_autenticacion.puml",
+            "url": "https://www.plantuml.com/plantuml/png/ZLJBJXin5DtxAwwcctQHYAHDWH6AW31KMO2gHgoHPL-cLpZso0zQLFMh-0H-3Cyp8MEfdPtFupwEhJbtdbiVjeefVF3W3LWgVtgGP55uCfgvHz8LjtmB5HUFlCIDVrO8DSrrgN1F41mAxX3-C83BA2wj2LgkZ38MFXGdrulYj6QCbMWxT5uSNtsUH_J2MlEh0sUNYs9-nFxkbUR2HoPP-Bhv3WiFDJpvEExgwWwAtnNNagJ9OJQ5R-WylRvea0WNmQFs9BXea6VuZlQ153huU4jFg62rlld4M3j4TkS2jsHW4vomL4Ki0-x03ST3uGyioNdBfMc4TZWU2jVwYNmle-x0M1SyP3UlBp8e0xCSrhAUM7APDQdqqMTnqSdjR78K9NrR6zccVbCsYFj-09iopcDjJOAYpQ6hy-XjofIaKvOlEQpGsgJ319-oBAB5OdHKJTAzGTHOIlyrXqB6E0uDs80fnt5qADgI7diwEEKwoM632eM8JtzaT3icFYpMNn1C9iltiRBT5VTa6ruIhoCQ4sqKOxpRE47qQx7TItpVFOdNtST4stsCTzqJnD1zFmcOJdVz8OUpCz921OdB9HlWJhENxbZPpFDVodR2VqlPEMfP__ZU00=="
+        },
+        {
+            "carpeta": "casos de uso",
+            "nombre_diagrama": "2_suscripciones.puml",
+            "url": "https://www.plantuml.com/plantuml/png/VLB1JXin4BtxAqRBfJqaIY9Ir5KKGRT9nG64Yl81WpriBHmx7TiKYlWgFe4Vw-nsDu4eucJvpPltverz6XDoockd7DqcI07OrhyI6CkaamrUnJlhDyYuXWtgEwpfEZqwWgQCldRqXf0ZQOm4JmhWcv1h3jcRAhZ0SBHSBhzMnqqbi27kqUd9SdmYw1bp-DE1Yo_JyMYadbMoIQogxojOF6pG6sj22PCX_A2OxEkB1qDmdQDckz4oAqNuT6dloK5rVl5PATH9v8fLpCWsm4-gRKoC9XI0KHBqrtrY9obOIupRgrBT3g2uU7qnsGMObEydADhq_IOAcNrmEHcCnYMScT_PicMuSlX-SadI6c77E2GWFbSSD4LagC8DDt5qPYQVg6tM0kB1rcFnrYcZit_n0tT3KMUH2uSqfYLKw3KvKNZRsIZRU_m_GKUGXrExvS9WCDybs-sonNUUUuKkpJxQEwXU48R3dWmbp6RMQvSDpUTgAzrIjlo6H0-9l16EEfMp-Vp_00=="
+        },
+        {
+            "carpeta": "casos de uso",
+            "nombre_diagrama": "3_catalogo.puml",
+            "url": "https://www.plantuml.com/plantuml/png/VLBBRjim4BppAnRgfJtOYEC6HeN0IAtOGG_E8OyFM90RXGYj5PPaaw38n-JOSp_1FnPIaQiaC7AIE3iSpWnvuWDAY1kd7Dq420nYwzi0nWhfOBbH_iusBGfke4LzXpLTXaT7aCVOr8xU4A8dZPxWZm9O978j71jJiME1Byl9wcYrp1CMGzAZ1uUpsU8qeJz5-7u7JevcFnRgIQbWGpghEhs6vKEBZR66IvYEeSAmVNPSCpn2nOsF6uQlv_OtEQX-hRyfXJeafUBQHnJBS46rzK7GS07ea_dTyYFnCdejjarOH_J_bqhryQ5OR_-Pw1YcvNiVgKXo95Xq1UpAA9BxqVbqT30fSuWK46NWWg4S851ZUs_KS_P979OfIIjiehOox8DrTC5ko5Ziu-qu-qIoxLoPIpSFAwjl4QwsVtLZDQOKIJzvUxLoauVx9BwNS4O-FuzEmWLXt-_e_lFL3Ht3Q3GVOWsLVeg_oQ0w7p0U3smeuVYO7b9yCv-h_jHF62Vfan_v2m=="
+        },
+        {
+            "carpeta": "casos de uso",
+            "nombre_diagrama": "4_calificaciones.puml",
+            "url": "https://www.plantuml.com/plantuml/png/RLBDJW8n4BxtAIPhJFG00K4F6q9GN8m7Y97WVToMTKAttRHTH8rFnIFmOivk-3MSDltcc--dtO4Fw4APQw7LF42mu2Zx2239gJIGDS8lo1JeC8S2qmLcQXg-j89gZ2RJweXGUfMYL_0Z01wOd3bR6ZcqsZgu68r6dQHLJQoJoctHvEwstQhGU-VivoduAqIWm5x3nnaagmAD96bZw3PXIZwe747o43NDASMKmoeFLnDQAWt3v_6r49W6rejclaH75gQbJnqLZ4M0lehhXDYsWcYyMSjIM-Z6_pKh5vkNXYJAg6wtQnfnjCQassYrOqXo2kJW3Ra3RsxMfdPPrcTtRkacXh6LjTF97hmujIIir_CTuPn0XwDQuqlDZmYNyAJjE-egxgjARQwCFCv1V0kQlbc9BxRg3er6Vn_l01nuUszeDlTCYA7NKwl0wls-40F-yk_p1m=="
+        },
+        {
+            "carpeta": "casos de uso",
+            "nombre_diagrama": "5_servicio_fx.puml",
+            "url": "https://www.plantuml.com/plantuml/png/RPB1QXin48RlUefXUqaEDd5WCJLcYRss8L27KZVWGoyJQRmLaIKpajoKqgVg8_J5Ehjuksd9JVFhctz6FxgB2JdberEE3WbI0BRDrmJ6CkbaWrVnsVeJCXxXXFeP6zgbxuwWlKRVE7e5v4WQ8y4F1R0KkE6GlQc32mplrfDDkLctDu4DyKMzkPrEbojH5ypXMozEokdxfVgfaaqogbuzmlhbXDvO4sPGZc57VBRQ1jXOZrvROZdkuUh1dib1VR-zLWfr4g_YCMPa8JzHOsDYDA40ZB9-N_uFxdBKR4-YTM3yM_RWukCz68ALFTiemDLcV_t5p-SxyQCZogQ9s8UgwjeFBqfTSeDY-_kNoIv0ENlrWdtHvTLdLyXhHm_bw6OoWngTpWuPFijc1mJoi0sU3CA7eD5r0_I5USlYLYo2ZzcbpYDYktUDnoUPkz0fznOz8uch8HWOZQh1ViZXNxq_m7XS3KumW_dSUksoeQfIWzxsIYPtv4txwVu0"
+        },
+        {
+            "carpeta": "casos de uso",
+            "nombre_diagrama": "6_historial.puml",
+            "url": "https://www.plantuml.com/plantuml/png/JP7DJa8n48NtVOh9TQEBQm03AWk3m3MwW1W83p1fn-k4qjvCM_oBJyKZy68M0iAovtpDEISp214bffLLbjuYH0_2zNi4mq8widSgBDarABY21lKIQvh7Bqkmiz7Lbiw054XZ8FXH0CCCr-AJCoDllS15TVVKhUvtZXT3Sb0xrUtuffFLHn7_SH3RmsxLQQbV5JdcgD5u0TLdWywmyNteNSCpX-Y5qO8Xc54ZtYIjURjnS3dbDLaOlKokb4ATCIWM8Q6mXtaAMhZ9MW4O8Fm_bJfiWsAotPXaFVJwy2g-5WeUw1HOxCSTXnQvMZdjbQrsFzUeCoGeq1p_vN9hpjcMlt7VRXyhHp0FLASEK9OFPzw0dDcTvGy="
+        },
+        {
+            "carpeta": "casos de uso",
+            "nombre_diagrama": "7_notificaciones.puml",
+            "url": "https://www.plantuml.com/plantuml/png/RLBBJiCm4BpxArRX0eTMBQzAKHLHqe8uj484RbmiUmaMZXsjdG92_Qf-0Z_6DatBGvmYpywiPyQv255IR2ehB3v5Y1x8bCyHj25KqNWdmejnjIHPGItLYoonYEyMOJEMhhJuWz04L38WV0Y0IoQNv1kdSsyzmS7ivEhuQhgPUD987JeyEp_B1unEYFnh1mwcfwF9KAn4D96logSFC7khfTD6-nH6VLZuQ9wCaeeDOe2QHRadGW-72xD42_dD_4W8gI9FaeVGI38Uxh0q8PBKFW4PEC7k-9TOD46HgHbhYM5_t14Bf2Lx8IZczxUFRZmkU1DMacr69EUpR2kiOYr4Lniayy-rRgo7KGeJYnIPySw-gyQrKJxNBcchszMOSF3UOjGR35EuHeSawKVobiuhoktaFzrn2gtJVJipowz6h3Hgsm6wfM7jIeZlDg3No_PRlxF_WhilzFjPjmDI68-DKxRHc6MY0pUQjeKBT7hpbtq1"
+        },
+        {
+            "carpeta": "cun",
+            "nombre_diagrama": "core de negocio.puml",
+            "url": "https://www.plantuml.com/plantuml/png/TL9BRXin3Dth5CHqOoy2D0K2eq5W9Fu1NQHmCKdGHJQiXfwoqOW6nN4T53rCpz0Zv6AH9dQQJRMI7j_Zvr6NoL2jxu8Bj34m0UNskq73IjvOeaiF7BUesC4M_GEsLDjZ82XXZ6sWDuG-aST4yCj1FhDCRrNwsCmbYCAxvUdgRBLyYOasf0Vy_OV9PBOOy2jL-Nc4Jyyc7sVkjtF6bYjUIqD1e26OOv9KBhT9pc4kIlaHu3ErubbWzAKdssE0cxknS-WjPwjkKu-QWtMVlF8sOnLWAYthaNAr_bIIBdZ7AOT6gw_Z-tXnKNCowX2MUoEDCfqEmit-AAj9TrpgrjStw_yBKcTRvrvjWshf9HsO_ngk1lEEHbPhbHsHGcrAs75iIuDtt91aUty8BB8wDdWVHuUvF3_zZV2OBRAdFq5Q6G_5VVQeE5d6XPEJwG30ELHpYQdlAB-ZKUH6ihQbL3QFu7kAXfKRo4MrsRzgWY4ORr_suB7xnlA6M8Ojr0K5QX6Y66_OOtOfKggSkwJOv4_t30=="
+        },
+        {
+            "carpeta": "cun",
+            "nombre_diagrama": "primeradescomposición.puml",
+            "url": "https://www.plantuml.com/plantuml/png/TPFDZjD03CVlUGghN42Ygtv7H5MrfTr03riLielsm6KqSOEroKmqCocj40_3C_08-s9uaWOAP7EoRF_iyT_EjNN2kAh8Wnpt3fm6GzaN1oaPb8wq2kmZgL8OKK0fvAF8C76d7C67XSfol4YeB4fX4Ru5mDzRJi-ChbIwqhasy2AEupUhIHFJ9aNJ-gTXF0nh_z8O_VNilfbDXuD1y3rmvBZXpb21Hi0QhTH5gIr9Ulgf8WveYLPRI16sc6b96bvkwO0vh3Qthu90ICVrUlUs4ePZIMMbeP9zFH3MFzgqASlTnbTPqu4iX-A7pse-JyWwB0JS71qQfHUB6jiVMoX1Sw2KhUJsRlSyO0jN1i5PG-XzgD0THGvtdw3VDKBlh6AhQM-rlk_l1iC8tg5rVdAVlAmSAaTIr5gyXWGjxmmjd627PayvshfvEUmgDlgxs5aO-Rk2oFGP7tNXuuX7B7bNJNTVOYNSquzSPxh1nbtO98ADOcM4RB0JKpdjwo5yvmQTTA7J26gr_OfZKa99GiFcGyDCkvXP1Ezv8TeGgyrF_8YbqMdLD6-uMHSNydG5sNQohNR_lJ7aumpy_K2_l_0Q_x575_RumfvSs3C-Xn5SNR4vXGZcSr8ohr9SB09s-1G-idBOP8J_PeoUyOSrML_RDQgKV-rV"
+        },
+        {
+            "carpeta": "secuencias",
+            "nombre_diagrama": "1_secuencias_usuario_invitado.puml",
+            "url": "https://www.plantuml.com/plantuml/png/ZLJRRjf047tVhnYbBo0L0QdKIoIY06wgI2X5qAYFQB07CuhPTNVNqAZgn_GR-WdviOwDpSM9fNfVHZjdpvmvizuRvz7wR9D0m1XRtE1YJc56EcHSFBWCBPl5dTwonyWeppwX0n8Y0bU1eGCb70vmvHvPfoXOM6Bu65kJwMXi4cFXJVzplauGZdxaJ0I_5CWtjDRizjZlQ_PKR4vuHHFMD38s8jkOhTVwS3jy7tmgC5FfbaDEKVlNIKu1_yTpQxIlimn3R-ph1OfKyva6dt90W1wNw1gwFsJh31_7-Jh3rCl_Fft3MaQtOnt32XD79vc8LfWbB_fLc0k7Y_huBm1TTIUKIe-6mSLmUWTVqDCEdmfK6TT0cL_3dEoMGofG-OPIKTb32GX6PHsomKYfmK3gUzBUvBVp7hSKOyZFVpKC1afL4ZlNLKcuAl4868OalW8c4A9__fEOs801rgB8g0hVaRCLpHMywrt2Z2As57fe5H7710WJ4xE6hYHZTjuQICKYCTINVutBDRKBlGU892hcrZXuwDptExr-krduzEly6tHHNEZQWaF4jsY3dBo559tRoJsHYEoAatqRcBIFZLmNXWfFF9kEAnLeNp9eirbQMko9H7DnhB0XzxnmK29vHq1dj3MGbJDlnfrhKYMWSvGq8xbI6Ykg1KVmL9wIk99mviQXWHcvr4YbXf5TzlemjYIvA9zOwJtzP6-SaRPPnh0NPa_cT4CwabTI_GC="
+        },
+        {
+            "carpeta": "secuencias",
+            "nombre_diagrama": "2_secuencias_usuario_registrado.puml",
+            "url": "https://www.plantuml.com/plantuml/png/ZLRDSjis4BxpANRS2pMrnhBJD8rdt8b4IMvQEz5OJfER1W9N4iOGmGAatBJJX-apv9QhNomB4AG8MOej7IXYl_txzWTwOmgcYt8jOIZOKhCrcqsHbvXnmMOVJCcqKBCRN0fJQ9Qgg125n0OBAOAfuT05hm0jXSZSYIndX8OvutTBhSeiJPHK6duu7Tbl2s7mBsiBuTy8wDFNMjrNs8yhKQ0xl18Bl18P3fHEKH-KxlfwDUx_F7pjC1FAM72HiwpORwGDU9wTiSgANIjzNYYztu4J7TOvm9C535d1vimSoBwHxbhu9R7V0BFh_hzs7LPKkdkHBM71fC6M9CK5A-MZV2Dc0uUZnmrm1CpKVH55-POoEEfFti8bA_2UVNOe_ti7L1OhcABU28uEPGz2I48PIRKCKFui10w4b3QfDj2VXS3nfm0p_XIAtwb2B0HdXL1P07I2A4eznJxwuS2JW7euQ0dhkBtSlmQGEc8FyQy4YIukB1EOKLICYuSl6No62Ug5a6WWJeOVkkzEEt1n4KLrJRg_rWp3EKpUJs_XX55u9-HJP13ZcWbv33apvfwQgnFLOD9pQPp3ycQIm9M5FqOx246hB0dy9vCYPHgunjJj1nUOrrini-f47jlTUdZ_HsF8drnYXfhC_Fxnrek2F5mqDsXobH5VCUCSZPaLwWwpLWOkheg5SpZhzSWF_EXCxcVdSbIJaslbAVqD6KsSEOS1Ceqke7qSNOiqbNIcqVFbURYr8SLEQKyQJWgRX_y9IsDoY7fXjtLTvRZqwrdiepyXGcXGYRdSu_VGxGpQ9TvWzb4SUAsvFa3kTObsxXk3a0gB5tDht3RjwE-SrePlMV9CNKzPgwNoJVlYEqthoiAhCQ6dBb1IRpnHX3R_RMWzVPvR7vTEQhDn9weXM_GEjPpM86QsP5jvDx1DT5begipMMf1Ju--PnFA6h_pXwrmAhWwGzTQ6HjNLI3sSbboqmgsvxlRE3at9JxqNC5PwJanIPyOtT3CBr0ZJqd0jygf-jFN5XdLSOHFQVVyqgoY0LTxEZi4zN_hdgoVNqxnQToUvP9cXKQGr2x5zePO_XhNAC6KpgJYJmIJMIzDNzXAB2UbCh7fKomX6IzuZ4YPvAQb7A905YqF31Ei6HYkK9NE3T2ca39YF1PpAraUOaaPEQLQG9uQdWXBlRRkUnfVTtcddMRIPSkwAOAyfqn3tFQeIZIIRjlHe2bgKDVUFw-pgYjUGbRXXO5eLZxR0aBiztTEsx-vFWetMeg1-nGrrC3Lhe6LZJAddAcnBoLt4clfGQrGmaiWBJGeq8MJX-dRIEL0ORzrc-yGCdlLEFKKfnFqLhGl0vizDOqTfAiyRp5BwLnrz0m=="
+        },
+        {
+            "carpeta": "secuencias",
+            "nombre_diagrama": "3_secuencias_usuario_suscriptor.puml",
+            "url": "https://www.plantuml.com/plantuml/png/ZLRDRjj64BxlKmmS19004t9S86aDk8WbEQgQs1Oak-dD69CZUMkAgowNSX8Z3v37w3FabgjUh4DoLznLp3ZMmTJkDt_VDpFKwzoWDiKoXQ74XSObNiyeBYYB9LvVvGLggQvdHHvhkJ9A2oDDIbii90IvWqC4rW0y0v7VoMo5Z8ORZEyMMXLPCb2fql3inMdvyH0v_Llw8dWGm7ydMglx6ll-LXgg3j_9ERsJ6VMLJaYttkx6UlNcvENmjmepuOfbB5UOcSUT-82Vy_D6PMRNoqdCzJyUeBfgjsdXgGGCqU0DvYtLRsztFVmwA3y1PZVyPr-7MqpKlSmMCCSq9-yceJaMwNVr2YmJXxtl6s0FC7Tz8SIgeGpsJYPZ6A6XU_nOeUpp3gWmjp0ZlPOnLQZo88Jy8NCEz350sRCGE4LJrkJZwgCGrfTfkekpPo7mN1avbp6xK5c0hYw4I2pLJOh3lf_TiEz1R78MKNyB02ujYx1V6IAEZs5AAwsI8exbvci6P2D8JA4p65v5vx_iG_N_PHUEZuLmEaM_EzRX24Qdbz2xhLFhFQn8psKwJZxtDEN5adeFCOjEcKmK7mfdnXugYOxWJ2P9ocUQZc0ndGpWBqnbWlfItL7M-VFzPLTKo2W8Mjt2UlCVOxb1FBUEC-jjH6PQ9T9ncUs3br5NE7nZEkopyK1bENSiQjXyIurSAc2c5boJ4Wqi2kBPfx6X9NHoMl0SAQ0FPOzxOO8oF9Ec1aOueezWd77VO8_JOMKttn1q85b2EI_JfSmAe-1lfrfqSDXjKMjoCVFaiZNbstolNRxjZCvmJHDhzpYf-s2zjR8xuinOunulheBb_iGqFqdlvii7QLGBaNvIhFUArQCMHWyF3k3YBNGiNC6YIeQrYcopHmSlkjLu33YtSb8TrsLNr4MsZqDDiAu6aNaDQ5aZxxw0Mpk-bbeNJxVnQXrOgwrznUcOIzPbmoh0XjROBq5iuP4VEonJqu8frfYWU3pGbDXfNAJi_Nb9YgPOBIbBVXZZlA0rpv3ICMK6_w6jwu2yQUDAPKv7wDJ6pxjFA7fMK9auPxKbeEp1KiaHtpWHxLkchhQUc4ExvrxzOCzDhbZNctfzzlBYfdvLSPvvBqR-zP4-iTpylUP3tOBUza3fQ-RvxtI5mpJmIWblVBY-ieKHwbpuMJJ8A0XpyTRtLxrq-FHqAOraFslMHq4d86bWVM9Nr73Fhdg1QPuChKd1QKgnqMmZuzB9sUN4IpwWi_RvaxCQPECgH5wkl15ov8unn3g_vixXtwJYVm=="
+        },
+        {
+            "carpeta": "vista +1",
+            "nombre_diagrama": "vista +1.puml",
+            "url": "https://www.plantuml.com/plantuml/png/RLJDJXin4BxxAKRfeQ0AA9KGAeeYI0XKLQbI5j9Bf9Nn3el1iRV-2QHL7wOFmAcFa1VhsDaDcvGS8dlccvbllXdliVFS-Z1LC9Pqp2-uow-roOTEeEPM6iSKtdhm1gmixpmKqgBmqcZc7gIkkELJgBXuu2LcVguGeflhKc4B41mAxX1-CQ1Vd-2bDK4N0wECXJV3_RE3i-7IPso1jhQ__t1us3zDzXDhpMDZtZyu_DXdlndpqbF5n1mAX1VIiFLkV_i81jpHcJpNpi30Bfwz56GuiJ-2zCHpyLSdmzQtWFw9AxWQRpF6XQSodMiNOYx8WXDMLcJh07Un5zj0ChGpMT0fkxWQJNItcn4Ld78OFdcqslHwASHDVSNOIXZe3AbeZNof35i3On6ofeVjJgrN-ciax5nYIQ7Mm1vyCQNKC9_eSzHekP3KJ-psy_UhL9S7VxSUV8xEDwWHsbkfq2LePKswhCE7JnKfpYq9wHT_b2dDH6-DK2sUHL0KDGTIG6AaIZV1FIVCAvm7Pbh5D7jmYThCw5IBcYYdu9imprsuMOyRMIFG4Np4Ine4bi6QXYuvN5xn-GPZFLiyczZU9GfvOuXYNwAUePO5Nmu3TP6JybAzGZH3XKBGTiUUZVOnpDHXvF6vI4Q_7ZNcYhBRg7kSHhitEA77CbjMdYMOn_p-qM_gersO9jfZMM1KEVCM-LJg4WQdNvVwkiQq7amL0cN-IGG-qMOOAxcQw3cGUAL5jwH_bppp-6ZUaZIAnoOnlWq5zQApkDcmizDRxitgjbgDbQKPzChG38zodwbmdnffgy1g0EpkzjgpWoFeTgKMAXJOwx6s9o9VHhK1R3bY-UNxQjNUr9FLZEkixKd-btdD6V7jiMsWrrmfzsfg6sbNzeYgXx61OSVK5Ns9_m4="
+        }
+    ]
+}

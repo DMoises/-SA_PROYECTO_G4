@@ -2,10 +2,13 @@ package server
 
 import (
 	"context"
+	"errors"
+	"log"
 
-	"github.com/grupo4/quetxaltv-history/internal/pb"
 	"github.com/grupo4/quetxaltv-history/internal/models"
+	"github.com/grupo4/quetxaltv-history/internal/pb"
 	"github.com/grupo4/quetxaltv-history/internal/service"
+	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -15,32 +18,52 @@ type HistoryServer struct {
 	service *service.HistoryService
 }
 
-func NewHistoryServer(service *service.HistoryService) *HistoryServer {
-	return &HistoryServer{service: service}
+func NewHistoryServer(
+	service *service.HistoryService,
+) *HistoryServer {
+	return &HistoryServer{
+		service: service,
+	}
 }
 
-func (s *HistoryServer) SaveProgress(ctx context.Context, req *pb.SaveProgressRequest) (*pb.SaveProgressResponse, error) {
+func (s *HistoryServer) SaveProgress(
+	ctx context.Context,
+	req *pb.SaveProgressRequest,
+) (*pb.SaveProgressResponse, error) {
 	var temporada *int16
 	var episodio *int16
 
 	if req.GetTipo() == "serie" {
 		t := int16(req.GetTemporada())
 		e := int16(req.GetEpisodio())
+
 		temporada = &t
 		episodio = &e
 	}
 
-	err := s.service.GuardarProgreso(ctx, models.GuardarProgresoRequest{
-		PerfilID:      req.GetPerfilId(),
-		ContenidoID:   req.GetContenidoId(),
-		Tipo:          req.GetTipo(),
-		Temporada:     temporada,
-		Episodio:      episodio,
-		SegundoExacto: req.GetSegundoExacto(),
-		DuracionTotal: req.GetDuracionTotal(),
-	})
+	err := s.service.GuardarProgreso(
+		ctx,
+		models.GuardarProgresoRequest{
+			PerfilID:      req.GetPerfilId(),
+			ContenidoID:   req.GetContenidoId(),
+			Tipo:          req.GetTipo(),
+			Temporada:     temporada,
+			Episodio:      episodio,
+			SegundoExacto: req.GetSegundoExacto(),
+			DuracionTotal: req.GetDuracionTotal(),
+		},
+	)
+
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		log.Printf(
+			"error al guardar progreso: %v",
+			err,
+		)
+
+		return nil, status.Error(
+			codes.InvalidArgument,
+			err.Error(),
+		)
 	}
 
 	return &pb.SaveProgressResponse{
@@ -48,31 +71,80 @@ func (s *HistoryServer) SaveProgress(ctx context.Context, req *pb.SaveProgressRe
 	}, nil
 }
 
-func (s *HistoryServer) GetHistory(ctx context.Context, req *pb.GetHistoryRequest) (*pb.GetHistoryResponse, error) {
-	historial, err := s.service.ObtenerHistorial(ctx, req.GetPerfilId())
+func (s *HistoryServer) GetHistory(
+	ctx context.Context,
+	req *pb.GetHistoryRequest,
+) (*pb.GetHistoryResponse, error) {
+	historial, err := s.service.ObtenerHistorial(
+		ctx,
+		req.GetPerfilId(),
+	)
+
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		log.Printf(
+			"error al obtener historial del perfil %s: %v",
+			req.GetPerfilId(),
+			err,
+		)
+
+		return nil, status.Error(
+			codes.Internal,
+			"no se pudo obtener el historial",
+		)
 	}
 
-	items := make([]*pb.HistoryItem, 0, len(historial))
+	items := make(
+		[]*pb.HistoryItem,
+		0,
+		len(historial),
+	)
 
 	for _, h := range historial {
 		items = append(items, toPB(h))
 	}
 
-	return &pb.GetHistoryResponse{Historial: items}, nil
+	return &pb.GetHistoryResponse{
+		Historial: items,
+	}, nil
 }
 
-func (s *HistoryServer) GetResume(ctx context.Context, req *pb.GetResumeRequest) (*pb.HistoryItem, error) {
-	item, err := s.service.ObtenerProgreso(ctx, req.GetPerfilId(), req.GetContenidoId())
+func (s *HistoryServer) GetResume(
+	ctx context.Context,
+	req *pb.GetResumeRequest,
+) (*pb.HistoryItem, error) {
+	item, err := s.service.ObtenerProgreso(
+		ctx,
+		req.GetPerfilId(),
+		req.GetContenidoId(),
+	)
+
 	if err != nil {
-		return nil, status.Error(codes.NotFound, "no se encontro progreso")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(
+				codes.NotFound,
+				"no se encontro progreso",
+			)
+		}
+
+		log.Printf(
+			"error al recuperar progreso del perfil %s y contenido %s: %v",
+			req.GetPerfilId(),
+			req.GetContenidoId(),
+			err,
+		)
+
+		return nil, status.Error(
+			codes.Internal,
+			"no se pudo recuperar el progreso",
+		)
 	}
 
 	return toPB(*item), nil
 }
 
-func toPB(item models.HistorialItem) *pb.HistoryItem {
+func toPB(
+	item models.HistorialItem,
+) *pb.HistoryItem {
 	var temporada int32
 	var episodio int32
 
@@ -94,6 +166,8 @@ func toPB(item models.HistorialItem) *pb.HistoryItem {
 		SegundoExacto:   item.SegundoExacto,
 		DuracionTotal:   item.DuracionTotal,
 		PorcentajeVisto: item.PorcentajeVisto,
-		ActualizadoEn:   item.ActualizadoEn.Format("2006-01-02 15:04:05"),
+		ActualizadoEn: item.ActualizadoEn.Format(
+			"2006-01-02 15:04:05",
+		),
 	}
 }

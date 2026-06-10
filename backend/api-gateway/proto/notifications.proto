@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package notification.v1;
+option go_package = "github.com/grupo4/quetxaltv-gateway/internal/pb";
+
+service NotificationService {
+  rpc EncolarCorreo(EncolarCorreoRequest)
+      returns (EncolarCorreoResponse);
+}
+
+message EncolarCorreoRequest {
+  string usuario_id = 1;
+  string tipo = 2;
+  string destinatario = 3;
+  map<string, string> datos = 4;
+}
+
+message EncolarCorreoResponse {
+  string id = 1;
+  string estado = 2;
+}

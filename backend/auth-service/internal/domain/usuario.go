@@ -3,7 +3,10 @@
 // (principio de inversion de dependencias).
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // RolBase refleja el ENUM rol_base de la tabla usuarios.
 type RolBase string
@@ -12,6 +15,18 @@ const (
 	RolUsuario RolBase = "usuario"
 	RolAdmin   RolBase = "admin"
 )
+
+// UsuarioRepository define las operaciones de persistencia para Usuario y Perfil.
+type UsuarioRepository interface {
+	CrearUsuarioConPerfilInicial(ctx context.Context, u *Usuario, nombrePerfil string) (string, string, error)
+	ObtenerPorEmail(ctx context.Context, email string) (*Usuario, error)
+	ObtenerPorID(ctx context.Context, id string) (*Usuario, error)
+	CambiarPassword(ctx context.Context, usuarioID, nuevoHash string) error
+	CrearPerfil(ctx context.Context, p *Perfil) (string, error)
+	ListarPerfiles(ctx context.Context, usuarioID string) ([]Perfil, error)
+	ActualizarPerfil(ctx context.Context, id, usuarioID, nuevoNombre string) error
+	EliminarPerfil(ctx context.Context, id, usuarioID string) error
+}
 
 // EstadoUsuario refleja el ENUM estado de la tabla usuarios.
 type EstadoUsuario string

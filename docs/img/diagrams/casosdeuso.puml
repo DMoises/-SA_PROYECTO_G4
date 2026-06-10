@@ -1,0 +1,42 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  ArrowColor #1B5E20
+}
+skinparam actor {
+  BackgroundColor #FFFFFF
+  BorderColor #1B5E20
+}
+title CDU Expandido: 1. Gestión de Autenticación y Perfiles (Nivel CIM)
+
+actor "Usuario Invitado" as invitado
+actor "Usuario Registrado" as registrado
+actor "Usuario Suscriptor" as suscriptor
+
+package "Módulo 1: Identidad" {
+  usecase "CDU-N1-01: Registrar usuario" as uc_registrar
+  usecase "CDU-N1-02: Iniciar sesión" as uc_login
+  usecase "CDU-N1-04: Cerrar sesión" as uc_logout
+  usecase "CDU-N1-05: Crear perfil" as uc_crear
+  usecase "CDU-N1-06: Editar perfil" as uc_editar
+  usecase "CDU-N1-07: Eliminar perfil" as uc_eliminar
+  usecase "CDU-N1-08: Seleccionar perfil" as uc_seleccionar
+}
+
+invitado --> uc_registrar
+invitado --> uc_login
+registrado --> uc_login
+registrado --> uc_logout
+suscriptor --> uc_crear
+suscriptor --> uc_editar
+suscriptor --> uc_eliminar
+
+uc_registrar ..> uc_login : <<include>>
+uc_login ..> uc_seleccionar : <<include>>
+uc_crear ..> uc_seleccionar : <<include>>
+uc_editar ..> uc_seleccionar : <<include>>
+
+@enduml

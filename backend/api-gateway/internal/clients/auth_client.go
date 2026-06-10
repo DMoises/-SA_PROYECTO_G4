@@ -52,8 +52,14 @@ func (c *AuthClient) ListarPerfiles(ctx context.Context, usuarioID string) (*pb.
 	return c.cli.ListarPerfiles(ctx, &pb.ListarPerfilesRequest{UsuarioId: usuarioID})
 }
 
-func (c *AuthClient) EditarPerfil(ctx context.Context, usuarioID, perfilID, nombre, idioma string, esInfantil bool) (*pb.PerfilResponse, error) {
-	return c.cli.EditarPerfil(ctx, &pb.EditarPerfilRequest{
-		UsuarioId: usuarioID, PerfilId: perfilID, Nombre: nombre, Idioma: idioma, EsInfantil: esInfantil,
+func (c *AuthClient) ActualizarPerfil(ctx context.Context, id, usuarioID, nombre string) (*pb.PerfilResponse, error) {
+	return c.cli.ActualizarPerfil(ctx, &pb.ActualizarPerfilRequest{
+		Id: id, UsuarioId: usuarioID, Nombre: nombre,
+	})
+}
+
+func (c *AuthClient) EliminarPerfil(ctx context.Context, id, usuarioID string) (*pb.EliminarPerfilResponse, error) {
+	return c.cli.EliminarPerfil(ctx, &pb.EliminarPerfilRequest{
+		Id: id, UsuarioId: usuarioID,
 	})
 }

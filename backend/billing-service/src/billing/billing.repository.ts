@@ -27,6 +27,16 @@ export interface RenovacionRow {
   p_pago_id: string;
 }
 
+export interface PendingRenewalRow {
+  suscripcion_id: string;
+  usuario_id: string;
+  plan_id: string;
+  nombre_plan: string;
+  precio_base: string;
+  moneda_base: string;
+  fecha_fin: Date;
+}
+
 @Injectable()
 export class BillingRepository {
   constructor(private readonly db: DatabaseService) {}
@@ -100,5 +110,26 @@ export class BillingRepository {
       [usuarioId],
     );
     return res.rows[0]?.id ?? null;
+  }
+
+  async listPendingRenewals(): Promise<PendingRenewalRow[]> {
+    const result = await this.db.query<PendingRenewalRow>(
+      `SELECT
+        s.id AS suscripcion_id,
+        s.usuario_id,
+        s.plan_id,
+        p.nombre_plan,
+        p.precio_base,
+        p.moneda_base,
+        s.fecha_fin
+      FROM suscripciones s
+      INNER JOIN planes p ON p.id = s.plan_id
+      WHERE s.estado_suscripcion = 'activa'
+        AND s.fecha_fin IS NOT NULL
+        AND s.fecha_fin <= CURRENT_DATE
+      ORDER BY s.fecha_fin ASC`,
+    );
+
+    return result.rows;
   }
 }

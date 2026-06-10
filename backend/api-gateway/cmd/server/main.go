@@ -56,7 +56,7 @@ func main() {
 
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
-    billingH := handlers.NewBillingHandler(billingClient)
+	billingH := handlers.NewBillingHandler(billingClient)
 	catalogH := handlers.NewCatalogHandler(catalogClient)
 	ratingH := handlers.NewRatingHandler(ratingClient)
 	historyH := handlers.NewHistoryHandler(historyClient)
@@ -75,9 +75,11 @@ func main() {
 
 	// Rutas protegidas (pasan por el middleware de validacion de sesion).
 	mux.Handle("GET /auth/me", authMW(http.HandlerFunc(h.Me)))
+	mux.Handle("PUT /auth/me/password", authMW(http.HandlerFunc(h.ChangePassword)))
 	mux.Handle("POST /auth/profiles", authMW(http.HandlerFunc(h.CreateProfile)))
 	mux.Handle("GET /auth/profiles", authMW(http.HandlerFunc(h.ListProfiles)))
-	mux.Handle("PUT /auth/profiles/{id}", authMW(http.HandlerFunc(h.EditProfile)))
+	mux.Handle("PUT /auth/profiles/{id}", authMW(http.HandlerFunc(h.UpdateProfile)))
+	mux.Handle("DELETE /auth/profiles/{id}", authMW(http.HandlerFunc(h.DeleteProfile)))
 
 	// Rutas de billing
 	mux.Handle("GET /billing/plans", authMW(http.HandlerFunc(billingH.GetPlans)))
@@ -98,7 +100,6 @@ func main() {
 	mux.Handle("POST /ratings", authMW(http.HandlerFunc(ratingH.Calificar)))
 	mux.HandleFunc("GET /ratings/{contenido_id}", ratingH.ObtenerRecomendacion)
 	mux.Handle("GET /ratings/{contenido_id}/usuario", authMW(http.HandlerFunc(ratingH.ObtenerCalificacionUsuario)))
-
 
 	mux.Handle("POST /history/progress", authMW(http.HandlerFunc(historyH.SaveProgress)))
 	mux.Handle("GET /history/{perfilId}", authMW(http.HandlerFunc(historyH.GetHistory)))

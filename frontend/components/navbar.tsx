@@ -173,6 +173,11 @@ export function Navbar() {
                   Mi suscripcion
                 </DropdownMenuItem>
               )}
+              {isMainProfile && user?.rol === 'admin' && (
+                <DropdownMenuItem render={<Link href="/admin" />}>
+                  Panel de Administración
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
                 Cerrar sesion

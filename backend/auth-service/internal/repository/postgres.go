@@ -43,6 +43,11 @@ func (r *PostgresUsuarioRepo) CrearUsuarioConPerfilInicial(
 	// No hace nada si la transaccion ya fue confirmada.
 	defer tx.Rollback(ctx)
 
+	_, err = tx.Exec(ctx, "SELECT set_config('app.current_user', $1, true)", u.Email)
+	if err != nil {
+		return "", "", err
+	}
+
 	err = tx.QueryRow(
 		ctx,
 		`INSERT INTO usuarios (
@@ -192,7 +197,15 @@ func (r *PostgresUsuarioRepo) CambiarPassword(
 	usuarioID string,
 	nuevoHash string,
 ) error {
-	cmdTag, err := r.db.Exec(
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, _ = tx.Exec(ctx, "SELECT set_config('app.current_user', $1, true)", usuarioID)
+
+	cmdTag, err := tx.Exec(
 		ctx,
 		`UPDATE usuarios
 		SET
@@ -211,7 +224,7 @@ func (r *PostgresUsuarioRepo) CambiarPassword(
 		return domain.ErrUsuarioNoEncontrado
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }
 
 // CrearPerfil inserta un perfil adicional. El trigger trg_limite_perfiles
@@ -220,9 +233,17 @@ func (r *PostgresUsuarioRepo) CrearPerfil(
 	ctx context.Context,
 	p *domain.Perfil,
 ) (string, error) {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback(ctx)
+
+	_, _ = tx.Exec(ctx, "SELECT set_config('app.current_user', $1, true)", p.UsuarioID)
+
 	var id string
 
-	err := r.db.QueryRow(
+	err = tx.QueryRow(
 		ctx,
 		`INSERT INTO perfiles (
 			usuario_id,
@@ -250,6 +271,10 @@ func (r *PostgresUsuarioRepo) CrearPerfil(
 		return "", err
 	}
 
+	if err = tx.Commit(ctx); err != nil {
+		return "", err
+	}
+
 	return id, nil
 }
 
@@ -259,7 +284,15 @@ func (r *PostgresUsuarioRepo) EditarPerfil(
 	ctx context.Context,
 	p *domain.Perfil,
 ) error {
-	cmdTag, err := r.db.Exec(
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, _ = tx.Exec(ctx, "SELECT set_config('app.current_user', $1, true)", p.UsuarioID)
+
+	cmdTag, err := tx.Exec(
 		ctx,
 		`UPDATE perfiles
 		SET
@@ -287,7 +320,7 @@ func (r *PostgresUsuarioRepo) EditarPerfil(
 		return domain.ErrPerfilNoEncontrado
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }
 
 // ListarPerfiles devuelve los perfiles de una cuenta.
@@ -348,7 +381,15 @@ func (r *PostgresUsuarioRepo) ActualizarPerfil(
 	usuarioID string,
 	nuevoNombre string,
 ) error {
-	cmdTag, err := r.db.Exec(
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, _ = tx.Exec(ctx, "SELECT set_config('app.current_user', $1, true)", usuarioID)
+
+	cmdTag, err := tx.Exec(
 		ctx,
 		`UPDATE perfiles
 		SET nombre = $1
@@ -371,7 +412,7 @@ func (r *PostgresUsuarioRepo) ActualizarPerfil(
 		return domain.ErrPerfilNoEncontrado
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }
 
 // EliminarPerfil elimina un perfil de un usuario.
@@ -380,7 +421,15 @@ func (r *PostgresUsuarioRepo) EliminarPerfil(
 	id string,
 	usuarioID string,
 ) error {
-	cmdTag, err := r.db.Exec(
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, _ = tx.Exec(ctx, "SELECT set_config('app.current_user', $1, true)", usuarioID)
+
+	cmdTag, err := tx.Exec(
 		ctx,
 		`DELETE FROM perfiles
 		WHERE id = $1
@@ -397,7 +446,7 @@ func (r *PostgresUsuarioRepo) EliminarPerfil(
 		return domain.ErrPerfilNoEncontrado
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }
 
 // esCodigo indica si el error de pgx corresponde a un SQLSTATE dado.

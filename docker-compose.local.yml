@@ -311,8 +311,8 @@ services:
 
   history-service:
     build:
-      context: ./backend
-      dockerfile: history-service/Dockerfile
+      context: ./backend/history-service
+      dockerfile: Dockerfile
     container_name: quetxal-history-service
     environment:
       PORT: 50057

@@ -21,9 +21,11 @@ class Database:
                 cur.execute(sql, params or {})
                 return cur.fetchone()
 
-    def execute(self, sql: str, params: Optional[dict[str, Any]] = None) -> None:
+    def execute(self, sql: str, params: Optional[dict[str, Any]] = None, current_user: Optional[str] = None) -> None:
         with self._pool.connection() as conn:
             with conn.cursor() as cur:
+                if current_user:
+                    cur.execute("SELECT set_config('app.current_user', %s, true)", (current_user,))
                 cur.execute(sql, params or {})
 
     def close(self) -> None:

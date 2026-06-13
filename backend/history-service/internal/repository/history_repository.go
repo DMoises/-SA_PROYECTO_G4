@@ -16,7 +16,18 @@ func NewHistoryRepository(db *pgxpool.Pool) *HistoryRepository {
 }
 
 func (r *HistoryRepository) GuardarProgreso(ctx context.Context, req models.GuardarProgresoRequest) error {
-	_, err := r.db.Exec(ctx,
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, "SELECT set_config('app.current_user', $1, true)", req.PerfilID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
 		`CALL sp_guardar_progreso($1, $2, $3::tipo_contenido, $4, $5, $6, $7)`,
 		req.PerfilID,
 		req.ContenidoID,
@@ -26,7 +37,11 @@ func (r *HistoryRepository) GuardarProgreso(ctx context.Context, req models.Guar
 		req.SegundoExacto,
 		req.DuracionTotal,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (r *HistoryRepository) ObtenerHistorial(ctx context.Context, perfilID string) ([]models.HistorialItem, error) {

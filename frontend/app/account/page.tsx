@@ -24,6 +24,10 @@ export default function AccountPage() {
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [perfiles, setPerfiles] = useState<{id: string, nombre: string}[]>([])
+  const [isMainProfile, setIsMainProfile] = useState(false)
+  const [mainProfileId, setMainProfileId] = useState<string | null>(null)
+  const { user } = useAuth()
 
   useEffect(() => {
     async function loadAccount() {
@@ -39,6 +43,27 @@ export default function AccountPage() {
         }
       } catch {
         setError('No se pudo cargar tu membresía.')
+      }
+
+      try {
+        const res = await fetch('/api/profiles')
+        if (res.ok) {
+          const data = await res.json()
+          const allProfiles = Array.isArray(data) ? data : data.perfiles || []
+          setPerfiles(allProfiles)
+          
+          const stored = localStorage.getItem('selectedProfile')
+          let currentId: string | null = null;
+          if (stored) {
+            try { currentId = JSON.parse(stored).id } catch {}
+          }
+          if (currentId && allProfiles.length > 0 && currentId === allProfiles[0].id) {
+            setIsMainProfile(true)
+            setMainProfileId(allProfiles[0].id)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching profiles', err)
       } finally {
         setIsLoading(false)
       }
@@ -79,7 +104,9 @@ export default function AccountPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-4">
                 <div>
-                  <p className="text-foreground">usuario@ejemplo.com</p>
+                  <p className="text-foreground">
+                    Correo: {user?.email || 'Cargando...'}
+                  </p>
                   <p className="text-sm text-muted-foreground">Contraseña: ********</p>
                 </div>
 

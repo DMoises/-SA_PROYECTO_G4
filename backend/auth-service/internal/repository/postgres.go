@@ -199,6 +199,27 @@ func (r *PostgresUsuarioRepo) ActualizarPerfil(
 	return nil
 }
 
+// EditarPerfil actualiza todos los campos editables de un perfil (nombre, es_infantil, idioma).
+func (r *PostgresUsuarioRepo) EditarPerfil(
+	ctx context.Context, p *domain.Perfil,
+) error {
+	cmdTag, err := r.db.Exec(ctx,
+		`UPDATE perfiles SET nombre = $1, es_infantil = $2, idioma = $3
+		 WHERE id = $4 AND usuario_id = $5`,
+		p.Nombre, p.EsInfantil, p.Idioma, p.ID, p.UsuarioID,
+	)
+	if err != nil {
+		if esCodigo(err, "23505") {
+			return domain.ErrNombrePerfilExiste
+		}
+		return err
+	}
+	if cmdTag.RowsAffected() == 0 {
+		return domain.ErrPerfilNoEncontrado
+	}
+	return nil
+}
+
 // EliminarPerfil elimina un perfil de un usuario.
 func (r *PostgresUsuarioRepo) EliminarPerfil(
 	ctx context.Context, id, usuarioID string,

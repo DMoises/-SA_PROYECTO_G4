@@ -199,6 +199,39 @@ func (s *AuthService) CrearPerfil(
 	return p, nil
 }
 
+// EditarPerfil modifica los campos editables del perfil.
+func (s *AuthService) EditarPerfil(
+	ctx context.Context,
+	usuarioID string,
+	perfilID string,
+	nombre string,
+	idioma string,
+	esInfantil bool,
+) (*domain.Perfil, error) {
+	if strings.TrimSpace(nombre) == "" {
+		return nil, domain.ErrDatosInvalidos
+	}
+
+	if idioma == "" {
+		idioma = "es"
+	}
+
+	p := &domain.Perfil{
+		ID:         perfilID,
+		UsuarioID:  usuarioID,
+		Nombre:     strings.TrimSpace(nombre),
+		EsInfantil: esInfantil,
+		Idioma:     idioma,
+	}
+
+	err := s.repo.EditarPerfil(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}
+
 // ListarPerfiles devuelve los perfiles de la cuenta.
 func (s *AuthService) ListarPerfiles(
 	ctx context.Context,

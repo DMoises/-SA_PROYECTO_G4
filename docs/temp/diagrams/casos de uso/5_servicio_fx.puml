@@ -6,19 +6,32 @@ skinparam usecase {
   BorderColor #0277BD
   ArrowColor #01579B
 }
+skinparam actor {
+  BackgroundColor #FFFFFF
+  BorderColor #0277BD
+}
 title CDU Expandido: 5. Servicio Financiero FX (Nivel CIM)
 
 actor "Usuario Registrado" as registrado
 actor "Usuario Suscriptor" as suscriptor
+actor "Administrador" as admin
 actor "API de Divisas (FX)\n<<Sistema Externo>>" as fx
 
 package "Módulo 5: Servicio FX" {
+  ' Base alineada con fx-service (ConvertirMonto / ConsultarTasa + respaldo PostgreSQL)
   usecase "CDU-N5-01: Calcular Tarifa en Moneda Local" as calcular
-  usecase "CDU-N5-02: Consultar Tasa de Cambio Actual" as consultar
+  usecase "CDU-N5-02: Consultar Tasa de Cambio Actual\n(caché Redis / API externa)" as consultar
+  usecase "CDU-N5-03: Utilizar Tasa de Cambio de Respaldo" as respaldo
+  ' Fase 2
+  usecase "CDU-N5-04: Generar Reporte Financiero\n/ de Conversiones (.csv / PDF)" as reporte
 }
 
 registrado --> calcular
 suscriptor --> calcular
+admin --> reporte
+
 calcular ..> consultar : <<include>>
 consultar --> fx
+respaldo ..> consultar : <<extend>>
+
 @enduml

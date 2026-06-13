@@ -65,53 +65,49 @@ jobs:
           scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             docker-compose.db.yml ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_COMPOSE}
 
+          # Copy .env.example to remote as base .env.cloud
+          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            .env.example ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_ENV}
 
-      - name: Create env file from secrets and send to remote .env.cloud
+
+      - name: Create overrides file from secrets and append to remote .env.cloud
         run: |
-          cat > /tmp/.env.cloud <<EOF
-          # Database Configuration
+          cat > /tmp/.env.overrides <<EOF
+          # Secrets overrides (appended to .env.cloud)
           AUTH_DB_NAME=${{ secrets.AUTH_DB_NAME }}
           AUTH_DB_USER=${{ secrets.AUTH_DB_USER }}
           AUTH_DB_PASSWORD=${{ secrets.AUTH_DB_PASSWORD }}
-          AUTH_DB_PORT=${{ secrets.AUTH_DB_PORT }}
 
           SUBSCRIPTION_DB_NAME=${{ secrets.SUBSCRIPTION_DB_NAME }}
           SUBSCRIPTION_DB_USER=${{ secrets.SUBSCRIPTION_DB_USER }}
           SUBSCRIPTION_DB_PASSWORD=${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
-          SUBSCRIPTION_DB_PORT=${{ secrets.SUBSCRIPTION_DB_PORT }}
 
           CATALOG_DB_NAME=${{ secrets.CATALOG_DB_NAME }}
           CATALOG_DB_USER=${{ secrets.CATALOG_DB_USER }}
           CATALOG_DB_PASSWORD=${{ secrets.CATALOG_DB_PASSWORD }}
-          CATALOG_DB_PORT=${{ secrets.CATALOG_DB_PORT }}
 
           RATING_DB_NAME=${{ secrets.RATING_DB_NAME }}
           RATING_DB_USER=${{ secrets.RATING_DB_USER }}
           RATING_DB_PASSWORD=${{ secrets.RATING_DB_PASSWORD }}
-          RATING_DB_PORT=${{ secrets.RATING_DB_PORT }}
 
           FX_DB_NAME=${{ secrets.FX_DB_NAME }}
           FX_DB_USER=${{ secrets.FX_DB_USER }}
           FX_DB_PASSWORD=${{ secrets.FX_DB_PASSWORD }}
-          FX_DB_PORT=${{ secrets.FX_DB_PORT }}
 
           HISTORY_DB_NAME=${{ secrets.HISTORY_DB_NAME }}
           HISTORY_DB_USER=${{ secrets.HISTORY_DB_USER }}
           HISTORY_DB_PASSWORD=${{ secrets.HISTORY_DB_PASSWORD }}
-          HISTORY_DB_PORT=${{ secrets.HISTORY_DB_PORT }}
 
           NOTIFICATION_DB_NAME=${{ secrets.NOTIFICATION_DB_NAME }}
           NOTIFICATION_DB_USER=${{ secrets.NOTIFICATION_DB_USER }}
           NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
-          NOTIFICATION_DB_PORT=${{ secrets.NOTIFICATION_DB_PORT }}
 
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-          REDIS_PORT=${{ secrets.REDIS_PORT }}
           EOF
 
-          # Send to remote .env.cloud via Gateway
+          # Append overrides to remote .env.cloud via Gateway (no intermediate file left on Gateway)
           ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "cat > ${REMOTE_ENV}" < /tmp/.env.cloud
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "cat >> ${REMOTE_ENV}" < /tmp/.env.overrides
 
       - name: Deploy or update databases on VM (via Gateway)
         env:

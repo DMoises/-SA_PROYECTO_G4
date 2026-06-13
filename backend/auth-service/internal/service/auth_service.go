@@ -17,55 +17,15 @@ import (
 // UsuarioRepository es el contrato que la capa de datos debe cumplir.
 // El servicio no sabe si detras hay PostgreSQL u otra cosa.
 type UsuarioRepository interface {
-	CrearUsuarioConPerfilInicial(
-		ctx context.Context,
-		u *domain.Usuario,
-		nombrePerfil string,
-	) (string, string, error)
-
-	ObtenerPorEmail(
-		ctx context.Context,
-		email string,
-	) (*domain.Usuario, error)
-
-	ObtenerPorID(
-		ctx context.Context,
-		id string,
-	) (*domain.Usuario, error)
-
-	CambiarPassword(
-		ctx context.Context,
-		usuarioID string,
-		nuevoHash string,
-	) error
-
-	CrearPerfil(
-		ctx context.Context,
-		p *domain.Perfil,
-	) (string, error)
-
-	EditarPerfil(
-		ctx context.Context,
-		p *domain.Perfil,
-	) error
-
-	ListarPerfiles(
-		ctx context.Context,
-		usuarioID string,
-	) ([]domain.Perfil, error)
-
-	ActualizarPerfil(
-		ctx context.Context,
-		id string,
-		usuarioID string,
-		nuevoNombre string,
-	) error
-
-	EliminarPerfil(
-		ctx context.Context,
-		id string,
-		usuarioID string,
-	) error
+	CrearUsuarioConPerfilInicial(ctx context.Context, u *domain.Usuario, nombrePerfil string) (string, string, error)
+	ObtenerPorEmail(ctx context.Context, email string) (*domain.Usuario, error)
+	ObtenerPorID(ctx context.Context, id string) (*domain.Usuario, error)
+	CambiarPassword(ctx context.Context, usuarioID, nuevoHash string) error
+	CrearPerfil(ctx context.Context, p *domain.Perfil) (string, error)
+	EditarPerfil(ctx context.Context, p *domain.Perfil) error
+	ListarPerfiles(ctx context.Context, usuarioID string) ([]domain.Perfil, error)
+	ActualizarPerfil(ctx context.Context, id, usuarioID, nuevoNombre string) error
+	EliminarPerfil(ctx context.Context, id, usuarioID string) error
 }
 
 type AuthService struct {
@@ -214,11 +174,7 @@ func (s *AuthService) CrearPerfil(
 	idioma string,
 	esInfantil bool,
 ) (*domain.Perfil, error) {
-	usuarioID = strings.TrimSpace(usuarioID)
-	nombre = strings.TrimSpace(nombre)
-	idioma = strings.TrimSpace(idioma)
-
-	if usuarioID == "" || nombre == "" {
+	if strings.TrimSpace(nombre) == "" {
 		return nil, domain.ErrDatosInvalidos
 	}
 
@@ -228,7 +184,7 @@ func (s *AuthService) CrearPerfil(
 
 	p := &domain.Perfil{
 		UsuarioID:  usuarioID,
-		Nombre:     nombre,
+		Nombre:     strings.TrimSpace(nombre),
 		EsInfantil: esInfantil,
 		Idioma:     idioma,
 	}
@@ -243,150 +199,50 @@ func (s *AuthService) CrearPerfil(
 	return p, nil
 }
 
-// EditarPerfil modifica el nombre, idioma y tipo infantil de un perfil.
-func (s *AuthService) EditarPerfil(
-	ctx context.Context,
-	usuarioID string,
-	perfilID string,
-	nombre string,
-	idioma string,
-	esInfantil bool,
-) (*domain.Perfil, error) {
-	usuarioID = strings.TrimSpace(usuarioID)
-	perfilID = strings.TrimSpace(perfilID)
-	nombre = strings.TrimSpace(nombre)
-	idioma = strings.TrimSpace(idioma)
-
-	if usuarioID == "" ||
-		perfilID == "" ||
-		nombre == "" {
-		return nil, domain.ErrDatosInvalidos
-	}
-
-	if idioma == "" {
-		idioma = "es"
-	}
-
-	perfil := &domain.Perfil{
-		ID:          perfilID,
-		UsuarioID:   usuarioID,
-		Nombre:      nombre,
-		EsInfantil: esInfantil,
-		Idioma:      idioma,
-	}
-
-	if err := s.repo.EditarPerfil(ctx, perfil); err != nil {
-		return nil, err
-	}
-
-	return perfil, nil
-}
-
 // ListarPerfiles devuelve los perfiles de la cuenta.
 func (s *AuthService) ListarPerfiles(
 	ctx context.Context,
 	usuarioID string,
 ) ([]domain.Perfil, error) {
-	usuarioID = strings.TrimSpace(usuarioID)
-
-	if usuarioID == "" {
-		return nil, domain.ErrDatosInvalidos
-	}
-
 	return s.repo.ListarPerfiles(ctx, usuarioID)
 }
 
-// ActualizarPerfil modifica solamente el nombre de un perfil.
+// ActualizarPerfil modifica el nombre de un perfil.
 func (s *AuthService) ActualizarPerfil(
 	ctx context.Context,
 	id string,
 	usuarioID string,
 	nuevoNombre string,
 ) error {
-	id = strings.TrimSpace(id)
-	usuarioID = strings.TrimSpace(usuarioID)
-	nuevoNombre = strings.TrimSpace(nuevoNombre)
-
-	if id == "" ||
-		usuarioID == "" ||
-		nuevoNombre == "" {
+	if strings.TrimSpace(nuevoNombre) == "" {
 		return domain.ErrDatosInvalidos
 	}
-
-	return s.repo.ActualizarPerfil(
-		ctx,
-		id,
-		usuarioID,
-		nuevoNombre,
-	)
+	return s.repo.ActualizarPerfil(ctx, id, usuarioID, strings.TrimSpace(nuevoNombre))
 }
 
 // EliminarPerfil borra un perfil de la cuenta.
-func (s *AuthService) EliminarPerfil(
-	ctx context.Context,
-	id string,
-	usuarioID string,
-) error {
-	id = strings.TrimSpace(id)
-	usuarioID = strings.TrimSpace(usuarioID)
-
-	if id == "" || usuarioID == "" {
-		return domain.ErrDatosInvalidos
-	}
-
-	return s.repo.EliminarPerfil(
-		ctx,
-		id,
-		usuarioID,
-	)
+func (s *AuthService) EliminarPerfil(ctx context.Context, id, usuarioID string) error {
+	return s.repo.EliminarPerfil(ctx, id, usuarioID)
 }
 
 // CambiarPassword verifica la contraseña actual y actualiza el hash.
-func (s *AuthService) CambiarPassword(
-	ctx context.Context,
-	usuarioID string,
-	passwordActual string,
-	passwordNuevo string,
-) error {
-	usuarioID = strings.TrimSpace(usuarioID)
-
-	if usuarioID == "" ||
-		passwordActual == "" ||
-		len(passwordNuevo) < 8 {
+func (s *AuthService) CambiarPassword(ctx context.Context, usuarioID, passwordActual, passwordNuevo string) error {
+	if len(passwordNuevo) < 8 {
 		return domain.ErrDatosInvalidos
 	}
-
 	u, err := s.repo.ObtenerPorID(ctx, usuarioID)
 	if err != nil {
 		return err
 	}
-
 	if !u.EsLocal() {
 		return domain.ErrCuentaSoloOAuth
 	}
-
-	if u.PasswordHash == nil {
-		return domain.ErrCuentaSoloOAuth
-	}
-
-	if bcrypt.CompareHashAndPassword(
-		[]byte(*u.PasswordHash),
-		[]byte(passwordActual),
-	) != nil {
+	if bcrypt.CompareHashAndPassword([]byte(*u.PasswordHash), []byte(passwordActual)) != nil {
 		return domain.ErrCredencialesInvalidas
 	}
-
-	hash, err := bcrypt.GenerateFromPassword(
-		[]byte(passwordNuevo),
-		bcrypt.DefaultCost,
-	)
+	hash, err := bcrypt.GenerateFromPassword([]byte(passwordNuevo), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-
-	return s.repo.CambiarPassword(
-		ctx,
-		usuarioID,
-		string(hash),
-	)
+	return s.repo.CambiarPassword(ctx, usuarioID, string(hash))
 }

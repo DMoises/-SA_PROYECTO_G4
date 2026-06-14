@@ -12,10 +12,10 @@ interface AuthContextType {
   user: AuthUser | null
   isLoading: boolean
   isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  login: (email: string, password: string) => Promise<{ ok: boolean; rol?: string; error?: string }>
   register: (email: string, password: string, nombrePerfil: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => Promise<void>
-  refreshUser: () => Promise<void>
+  refreshUser: () => Promise<AuthUser | null>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -24,25 +24,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const refreshUser = useCallback(async () => {
+  const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
     try {
       const res = await fetch('/api/auth/me')
       if (res.ok) {
         const data = await res.json()
         if (data.usuario_id) {
-          setUser({ usuario_id: data.usuario_id, rol: data.rol, email: data.email || '' })
-          return
+          const u: AuthUser = { usuario_id: data.usuario_id, rol: data.rol, email: data.email || '' }
+          setUser(u)
+          return u
         }
       }
       setUser(null)
+      return null
     } catch {
       setUser(null)
+      return null
     }
   }, [])
 
   useEffect(() => {
     refreshUser().finally(() => setIsLoading(false))
-  }, [refreshUser])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const loginFn = async (email: string, password: string) => {
     try {
@@ -57,8 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, error: data.error || 'Error al iniciar sesion' }
       }
 
-      await refreshUser()
-      return { ok: true }
+      const u = await refreshUser()
+      return { ok: true, rol: u?.rol }
     } catch {
       return { ok: false, error: 'Error de conexion' }
     }

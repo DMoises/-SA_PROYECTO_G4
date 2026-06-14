@@ -10,6 +10,7 @@ import os
 class Config:
     def __init__(self) -> None:
         self.grpc_port = _env("GRPC_PORT", "50053")
+        self.admin_http_port = int(_env("CATALOG_ADMIN_HTTP_PORT", "8086"))
         self.db_host = _env("CATALOG_DB_HOST", "catalog-db")
         self.db_port = _env("CATALOG_DB_PORT_INTERNAL", "5432")  # puerto INTERNO de postgres
         self.db_name = _env("CATALOG_DB_NAME", "catalog_db")

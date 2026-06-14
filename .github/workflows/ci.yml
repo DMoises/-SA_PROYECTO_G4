@@ -1,0 +1,109 @@
+name: Capa de Integración y Testing (CI)
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - feature/*
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  test-go:
+    name: Pruebas Unitarias - Go (auth-service)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22' # Ajustar a la versión utilizada
+
+      - name: Instalar Dependencias y Compilar Protos
+        run: |
+          cd backend/auth-service
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          # Instalar protoc en el runner
+          sudo apt-get update && sudo apt-get install -y protobuf-compiler
+          export PATH=$PATH:$(go env GOPATH)/bin
+          # Regenerar stubs
+          protoc --go_out=. --go_opt=module=github.com/grupo4/quetxaltv-auth \
+                 --go-grpc_out=. --go-grpc_opt=module=github.com/grupo4/quetxaltv-auth \
+                 proto/auth.proto proto/notification.proto
+
+      - name: Ejecutar Pruebas y Certificar Cobertura (>75%)
+        run: |
+          cd backend/auth-service
+          # Ejecuta los tests y calcula cobertura en los paquetes probados
+          go test -v -coverprofile=coverage.out ./internal/service/... ./internal/grpc/...
+          # Muestra el porcentaje general de cobertura y valida el umbral
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+')
+          echo "Cobertura total de Go: $COVERAGE%"
+          # Validar que sea mayor o igual al 75%
+          if (( $(echo "$COVERAGE < 75.0" | bc -l) )); then
+            echo "❌ ERROR: La cobertura de Go ($COVERAGE%) es menor al umbral del 75%"
+            exit 1
+          fi
+          echo "✅ Cobertura aprobada!"
+
+  test-typescript:
+    name: Pruebas Unitarias - NestJS (billing-service)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar Dependencias
+        run: |
+          cd backend/billing-service
+          npm install
+
+      - name: Ejecutar Pruebas y Certificar Cobertura (>75%)
+        run: |
+          cd backend/billing-service
+          # Ejecuta jest y genera reporte de cobertura
+          npm run test:cov
+          # Validar cobertura del modulo de facturación (jest fallará automáticamente si la configuración de jest exige >75%)
+
+  test-python:
+    name: Pruebas Unitarias - Python (catalog-service)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Dependencias
+        run: |
+          cd backend/catalog-service
+          pip install -r requirements.txt
+          pip install coverage
+
+      - name: Ejecutar Pruebas y Certificar Cobertura (>75%)
+        run: |
+          cd backend/catalog-service
+          coverage run -m unittest app.test_service
+          coverage report -m
+          # Obtener porcentaje de cobertura
+          COVERAGE=$(coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          echo "Cobertura total de Python: $COVERAGE%"
+          if [ "$COVERAGE" -lt 75 ]; then
+            echo "❌ ERROR: La cobertura de Python ($COVERAGE%) es menor al umbral del 75%"
+            exit 1
+          fi
+          echo "✅ Cobertura aprobada!"

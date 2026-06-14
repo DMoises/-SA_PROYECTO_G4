@@ -1,33 +1,31 @@
 # **Organización de Tareas — Quetxal TV Fase 2**
 
 ## **📊 Estado del Proyecto**
-- **Docker y Compose:** ✅ Completado (Dockerfiles, docker-compose local y nube listos).
-- **CI/CD:** 🟡 En progreso (Workflows de GitHub Actions base configurados, falta ajustar despliegues finales).
-- **Kubernetes:** 🔴 Pendiente (Faltan los manifiestos YAML y despliegue del clúster).
-- **Desarrollo Backend/Frontend (Fase 2):** 🟡 En progreso (Auditoría, Panel Admin en curso).
+
+* **Docker y Compose:** ✅ Completado (Dockerfiles, docker-compose local y nube listos).  
+* **CI/CD:** 🟡 En progreso (Workflows de GitHub Actions base configurados, falta ajustar despliegues finales).  
+* **Kubernetes:** 🔴 Pendiente (Faltan los manifiestos YAML y despliegue del clúster).  
+* **Desarrollo Backend/Frontend (Fase 2):** 🟡 En progreso (Auditoría, Panel Admin en curso).
 
 ## **⚠️ Notas Importantes (Según Enunciado Oficial)**
-- **CI/CD y Pruebas:** OBLIGATORIO un mínimo de **75% de Code Coverage**. El pipeline debe hacer cortocircuito (detenerse) si fallan las pruebas.
-- **Despliegues:** ESTRICTAMENTE prohibido despliegues manuales; TODO debe ser vía CI/CD. No hacer commits directos a `main` o `develop`, usar Pull Requests obligatoriamente.
-- **Kubernetes:** Obligatorio usar **Ingress** (no exponer servicios directos con LoadBalancer). Configurar Limits/Requests de CPU/Memoria, ConfigMaps y Secrets.
-- **Resiliencia:** Backup automatizado de las DBs (excepto Redis). Despliegues con RollingUpdate (maxSurge, maxUnavailable) y Rollback automatizado en Kubernetes.
-- **Documentación:** Lo no documentado no será calificado. Subir diagramas y archivos fuente (UML/Mockups).
-- **Restricciones:** No usar Supabase/Prisma. Los sistemas Cloud solo se pueden dar de baja DESPUÉS de la calificación.
+
+* **CI/CD y Pruebas:** OBLIGATORIO un mínimo de **75% de Code Coverage**. El pipeline debe hacer cortocircuito (detenerse) si fallan las pruebas.  
+* **Despliegues:** ESTRICTAMENTE prohibido despliegues manuales; TODO debe ser vía CI/CD. No hacer commits directos a `main` o `develop`, usar Pull Requests obligatoriamente.  
+* **Kubernetes:** Obligatorio usar **Ingress** (no exponer servicios directos con LoadBalancer). Configurar Limits/Requests de CPU/Memoria, ConfigMaps y Secrets.  
+* **Resiliencia:** Backup automatizado de las DBs (excepto Redis). Despliegues con RollingUpdate (maxSurge, maxUnavailable) y Rollback automatizado en Kubernetes.  
+* **Documentación:** Lo no documentado no será calificado. Subir diagramas y archivos fuente (UML/Mockups).  
+* **Restricciones:** No usar Supabase/Prisma. Los sistemas Cloud solo se pueden dar de baja DESPUÉS de la calificación.
 
 ---
 
 ## **✅ Completado / Ya asignado**
 
-| Tarea | Responsable | Notas |
-| ----- | ----- | ----- |
-| Panel de Administración y Catálogo Dinámico (CRUD) | Moisés | Completo |
-| 3\. Auditoria interna Transaccional por triggers | JuanJose | Todas las tablas existentes |
-| Fase de integración y Testing (CI) | Fernando | Comienza con las pruebas, excluyendo el módulo de administrador |
-| 4\. Generación de reportes estructurados | — | Depende de la terminación del 3 |
-| 12. Dockerfiles por cada microservicio, BD, caché y API Gateway | Equipo | ✅ Completo |
-| 12. Docker Compose — entorno local y entorno nube | Equipo | ✅ Completo |
-| 12. Archivos de configuración CI/CD (workflows de GitHub Actions) | Equipo | ✅ Completado inicial |
-| Archivos .env — información sensible en el gitignore | Equipo | ✅ Completo |
+| Tarea | Descripción | Responsable | Estado |
+| ----- | ----------- | ----------- | ------ |
+| Panel de Administración y Catálogo Dinámico (CRUD) | Interfaz web para gestión del catálogo (agregar, editar, eliminar y programar estrenos de series/películas). | Moisés | ✅ Completado |
+| 3. Auditoría interna transaccional por triggers | Implementación de triggers en las BDs operacionales para llevar registro en la tabla de auditoría ante cualquier INSERT/UPDATE. | JuanJose | ✅ Completado |
+| Fase de integración y Testing (CI) | Compilación y ejecución de pruebas en backend con requisito de 75% coverage. Pipeline con detención obligatoria ante fallos. | Fernando | 🟡 En progreso |
+| 4. Generación de reportes estructurados | Visualización de logs transaccionales en el panel admin y exportación en formatos .csv y PDF. | — | 🟡 En progreso |
 
 ---
 
@@ -35,47 +33,45 @@
 
 ### **📦 Alcance del sistema**
 
-| Tarea | Responsable | Notas |
-| ----- | ----- | ----- |
-| 2\. Integración con Google Cloud Storage (GCS) — Persistencia de archivos de video e imágenes en Buckets | — | — |
-| 2\. Integración con Google Cloud Storage (GCS) — Reproductor frontend consume URLs firmadas/públicas y muestra duración real del video | — | — |
-
----
+| Tarea | Descripción | Responsable | Estado |
+| ----- | ----------- | ----------- | ------ |
+| 2. Integración con Google Cloud Storage (GCS) | Persistencia de archivos de video e imágenes pesadas en Buckets GCS, sacándolos del sistema local. | Joshua | 🔴 Pendiente |
+| 2. GCS en Reproductor Web | El frontend debe consumir multimedia directo desde GCS mediante URLs públicas/firmadas, mostrando el tiempo de duración. | Joshua | 🔴 Pendiente |
 
 ---
 
 ### **☸️ Kubernetes & Infraestructura**
 
-| Tarea | Responsable | Notas |
-| ----- | ----- | ----- |
-| 8\. Manifiestos YAML de Kubernetes — Deployments, Services, ConfigMaps y Secrets | Voupi | Sin credenciales explícitas |
-| 9\. Estrategia Operativa de Despliegue Zero-Downtime — RollingUpdate (maxSurge, maxUnavailable) \+ Rollback Automatizado | Voupi | — |
-| 10\. Monitoreo de Salud — Liveness Probe y Readiness Probe en todos los manifiestos | Voupi | — |
+| Tarea | Descripción | Responsable | Estado |
+| ----- | ----------- | ----------- | ------ |
+| 8. Manifiestos YAML de Kubernetes | Configuración de Deployments, Services (Ingress), ConfigMaps y Secrets, sin dejar credenciales hardcodeadas. | — | 🔴 Pendiente |
+| 9. Despliegue Zero-Downtime y Rollback | Implementar esquema RollingUpdate (`maxSurge`, `maxUnavailable`) y Rollback automático ante fallo (`CrashLoopBackOff`). | — | 🔴 Pendiente |
+| 10. Monitoreo de Salud de la Aplicación | Configuración mandatoria de Liveness Probe y Readiness Probe dentro de todos los contenedores desplegados. | — | 🔴 Pendiente |
 
 ---
 
 ### **⚙️ CI/CD & Control de Versiones**
 
-| Tarea | Responsable | Notas |
-| ----- | ----- | ----- |
-| Construcción y Versionamiento de Imágenes Docker (frontend \+ backend → registro privado) | — | Tags semánticos solo en rama release |
-| Despliegue Continuo rama develop → Google Compute Engine | — | — |
-| Despliegue Continuo rama release → Google Kubernetes Engine (GKE) | — | — |
-| Estrategia de Resiliencia de Datos — Backup automatizado de todas las BDs (excepto Redis) | Equipo |  Implementado (Script + Pipeline programado) |
-| 11\. Historial de Git — evidencia de ramas y Pull Requests aprobados \+ Tag V2.0.0 | — | — |
+| Tarea | Descripción | Responsable | Estado |
+| ----- | ----------- | ----------- | ------ |
+| Construcción y Versionamiento de Imágenes Docker | Empaquetado frontend/backend a un registro privado. Etiquetado semántico (v2.x.x) obligatorio solo al tocar release. | — | 🟡 En progreso |
+| Despliegue Continuo rama `develop` → Compute Engine | Actualización automática y despliegue del proyecto hacia las máquinas virtuales GCE ante un merge en `develop`. | — | ✅ Completado |
+| Despliegue Continuo rama `release` → GKE | Automatización de infraestructura hacia Kubernetes de Google usando estrategias de despliegue progresivo. | — | 🔴 Pendiente |
+| Resiliencia de Datos (Backup Automatizado) | Script y workflow que genere respaldos automatizados recurrentes para las bases de datos (excluyendo Redis). | Juanjo | ✅ Completado |
+| 11. Historial de Git | Evidencia del flujo de código y aprobaciones (PRs) requeridos y evitar commits a main/develop, sumado al tag de v2.0.0. | — | 🟡 En progreso |
 
 ---
 
 ### **📄 Entregables de Documentación**
 
-| Tarea | Responsable | Notas |
-| ----- | ----- | ----- |
-| 1\. Aplicación de Principios SOLID (los 5 principios: dónde, cómo y por qué se aplicó) | — | — |
-| 2\. Toma y Justificación de Decisiones (lenguajes, frameworks, CI/CD, BD, nube, seguridad) | — | — |
-| 3\. Actualización general de Diagramas (casos de uso del administrador \+ Modelo 4+1 Vistas de Kruchten) | — | — |
-| 4\. Diagrama de flujo del pipeline CI/CD y justificación del diseño | — | — |
-| 4\. Diagrama Entidad-Relación (ER) — incluir stored procedures, vistas, funciones y triggers | — | — |
-| 5\. Diagrama de Arquitectura de alto nivel / Diagrama de Bloques general | — | — |
-| 6\. Diseño UI/UX y Guía Visual — Mockups/wireframes de todas las vistas | — | — |
-| 7\. Arquitectura del Clúster — distribución física/lógica, nodos, namespaces, recursos por Pod | — | — |
-
+| Tarea | Descripción | Responsable | Estado |
+| ----- | ----------- | ----------- | ------ |
+| 1. Principios SOLID | Definir Dónde, Cómo y Por Qué se utilizaron los 5 principios SOLID en las distintas capas del software. | — | 🔴 Pendiente |
+| 2. Justificación de Decisiones Técnicas | Respaldo escrito por el uso de cada herramienta, nube, BDs, lenguajes, CI/CD y mecanismos de seguridad. | — | 🔴 Pendiente |
+| 3. Diagramas de Casos de Uso y Modelo 4+1 | Adaptación del Modelo 4+1 Vistas de Kruchten e inclusión de nuevos flujos para el administrador. | — | 🔴 Pendiente |
+| 4. Pipeline CI/CD (Flujo y Justificación) | Esquema visual del pipeline, validación 75% coverage, backup de DBs y justificación del diseño. | — | 🔴 Pendiente |
+| 4. Diagrama Entidad-Relación (ER) | Esencial incluir stored procedures, vistas, funciones y los triggers/tabla de auditoría. | — | 🔴 Pendiente |
+| 5. Diagrama de Arquitectura (Alto Nivel) | Dibujo macro uniendo todas las interacciones: nube, repos, bases de datos, web, redis, GCS. | — | 🔴 Pendiente |
+| 6. Diseño UI/UX | Elaboración de Mockups/wireframes detallados de las vistas de la página y el Panel Administrativo. | — | 🔴 Pendiente |
+| 7. Arquitectura del Clúster de Kubernetes | Detalle lógico de despliegue: nodos, namespaces, recursos por Pod y puerta de enlace Ingress. | — | 🔴 Pendiente |
+| 8. Manifiestos y Estrategias (Zero-Downtime) | Justificar uso de Secrets/ConfigMaps, sondas Liveness/Readiness y matemáticas del `maxSurge`/`maxUnavailable`. | — | 🔴 Pendiente |

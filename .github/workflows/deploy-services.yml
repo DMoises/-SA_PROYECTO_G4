@@ -110,6 +110,11 @@ jobs:
           SMTP_USER=${{ secrets.SMTP_USER }}
           SMTP_PASS=${{ secrets.SMTP_PASS }}
           SMTP_FROM=${{ secrets.SMTP_FROM }}
+          
+          # GCS Configuration (HMAC Keys)
+          GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}
+          GCS_ACCESS_KEY=${{ secrets.GCS_ACCESS_KEY }}
+          GCS_SECRET_KEY=${{ secrets.GCS_SECRET_KEY }}
           EOF
 
       - name: Copy environment file to Services VM (via Gateway)

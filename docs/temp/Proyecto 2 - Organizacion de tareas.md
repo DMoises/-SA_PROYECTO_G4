@@ -61,7 +61,7 @@
 | Construcción y Versionamiento de Imágenes Docker (frontend \+ backend → registro privado) | — | Tags semánticos solo en rama release |
 | Despliegue Continuo rama develop → Google Compute Engine | — | — |
 | Despliegue Continuo rama release → Google Kubernetes Engine (GKE) | — | — |
-| Estrategia de Resiliencia de Datos — Backup automatizado de todas las BDs (excepto Redis) | Equipo | ✅ Implementado (Script + Pipeline programado) |
+| Estrategia de Resiliencia de Datos — Backup automatizado de todas las BDs (excepto Redis) | Equipo |  Implementado (Script + Pipeline programado) |
 | 11\. Historial de Git — evidencia de ramas y Pull Requests aprobados \+ Tag V2.0.0 | — | — |
 
 ---

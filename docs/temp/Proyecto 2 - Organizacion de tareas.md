@@ -4,7 +4,7 @@
 
 * **Docker y Compose:** ✅ Completado (Dockerfiles, docker-compose local y nube listos).  
 * **CI/CD:** 🟡 En progreso (Workflows de GitHub Actions base configurados, falta ajustar despliegues finales).  
-* **Kubernetes:** 🔴 Pendiente (Faltan los manifiestos YAML y despliegue del clúster).  
+* **Kubernetes:** 🟡 En progreso (Manifiestos YAML creados exitosamente, falta enlazarlos en CI/CD).  
 * **Desarrollo Backend/Frontend (Fase 2):** 🟡 En progreso (Auditoría, Panel Admin en curso).
 
 ## **⚠️ Notas Importantes (Según Enunciado Oficial)**
@@ -44,9 +44,9 @@
 
 | Tarea | Descripción | Responsable | Estado |
 | ----- | ----------- | ----------- | ------ |
-| 8. Manifiestos YAML de Kubernetes | Configuración de Deployments, Services (Ingress), ConfigMaps y Secrets, sin dejar credenciales hardcodeadas. | — | 🔴 Pendiente |
-| 9. Despliegue Zero-Downtime y Rollback | Implementar esquema RollingUpdate (`maxSurge`, `maxUnavailable`) y Rollback automático ante fallo (`CrashLoopBackOff`). | — | 🔴 Pendiente |
-| 10. Monitoreo de Salud de la Aplicación | Configuración mandatoria de Liveness Probe y Readiness Probe dentro de todos los contenedores desplegados. | — | 🔴 Pendiente |
+| 8. Manifiestos YAML de Kubernetes | Configuración de Deployments, Services (Ingress), ConfigMaps y Secrets, sin dejar credenciales hardcodeadas. | AI/Moisés | ✅ Completado |
+| 9. Despliegue Zero-Downtime y Rollback | Implementar esquema RollingUpdate (`maxSurge`, `maxUnavailable`) y Rollback automático ante fallo (`CrashLoopBackOff`). | AI/Moisés | ✅ Completado |
+| 10. Monitoreo de Salud de la Aplicación | Configuración mandatoria de Liveness Probe y Readiness Probe dentro de todos los contenedores desplegados. | AI/Moisés | ✅ Completado |
 
 ---
 

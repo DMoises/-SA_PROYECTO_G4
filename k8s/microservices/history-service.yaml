@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: history-service
+  namespace: quetxal-tv-prod
+  labels:
+    app: history-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: history-service
+  template:
+    metadata:
+      labels:
+        app: history-service
+    spec:
+      containers:
+      - name: history-service
+        image: tu-registro/quetxal-history-service:v2.0.0
+        ports:
+        - containerPort: 50057
+          name: grpc
+        envFrom:
+        - configMapRef:
+            name: quetxal-config
+        env:
+        - name: PORT
+          value: "50057"
+        - name: HISTORY_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: HISTORY_DB_USER
+        - name: HISTORY_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: HISTORY_DB_PASSWORD
+        - name: HISTORY_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: HISTORY_DB_NAME
+        - name: DATABASE_URL
+          value: "postgres://$(HISTORY_DB_USER):$(HISTORY_DB_PASSWORD)@history-db:5432/$(HISTORY_DB_NAME)?sslmode=disable"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "150m"
+        readinessProbe:
+          tcpSocket:
+            port: 50057
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 50057
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: history-service
+  namespace: quetxal-tv-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: history-service
+  ports:
+  - port: 50057
+    targetPort: 50057

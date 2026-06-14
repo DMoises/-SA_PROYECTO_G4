@@ -69,13 +69,24 @@ export class BillingRepository {
     moneda: string,
     meses: number,
   ): Promise<RenovacionRow | null> {
-    const res = await this.db.query<RenovacionRow>(
-      `CALL sp_ProcesarRenovacion(
-         $1::uuid, $2::uuid, $3::numeric, $4::char(3), $5::integer, NULL, NULL
-       )`,
-      [usuarioId, planId, monto, moneda, meses],
-    );
-    return res.rows[0] ?? null;
+    const client = await this.db.getClient();
+    try {
+      await client.query('BEGIN');
+      await client.query("SELECT set_config('app.current_user', $1, true)", [usuarioId]);
+      const res = await client.query<RenovacionRow>(
+        `CALL sp_ProcesarRenovacion(
+           $1::uuid, $2::uuid, $3::numeric, $4::char(3), $5::integer, NULL, NULL
+         )`,
+        [usuarioId, planId, monto, moneda, meses],
+      );
+      await client.query('COMMIT');
+      return res.rows[0] ?? null;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   async getActiveSubscription(usuarioId: string): Promise<SubscriptionRow | null> {
@@ -100,16 +111,27 @@ export class BillingRepository {
 
   // Cancela la suscripcion activa y devuelve su id (o null si no existia).
   async cancelActiveSubscription(usuarioId: string): Promise<string | null> {
-    const res = await this.db.query<{ id: string }>(
-      `UPDATE suscripciones
-       SET estado_suscripcion = 'cancelada',
-           fecha_fin = CURRENT_DATE
-       WHERE usuario_id = $1
-         AND estado_suscripcion = 'activa'
-       RETURNING id`,
-      [usuarioId],
-    );
-    return res.rows[0]?.id ?? null;
+    const client = await this.db.getClient();
+    try {
+      await client.query('BEGIN');
+      await client.query("SELECT set_config('app.current_user', $1, true)", [usuarioId]);
+      const res = await client.query<{ id: string }>(
+        `UPDATE suscripciones
+         SET estado_suscripcion = 'cancelada',
+             fecha_fin = CURRENT_DATE
+         WHERE usuario_id = $1
+           AND estado_suscripcion = 'activa'
+         RETURNING id`,
+        [usuarioId],
+      );
+      await client.query('COMMIT');
+      return res.rows[0]?.id ?? null;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   async listPendingRenewals(): Promise<PendingRenewalRow[]> {

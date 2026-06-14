@@ -305,7 +305,7 @@ services:
       RATING_DB_USER: ${RATING_DB_USER}
       RATING_DB_PASSWORD: ${RATING_DB_PASSWORD}
     ports:
-      - "50056:50056"   # solo para probar con grpcurl/Postman en LOCAL; quitar en cloud
+      - "50056:50056"   
     depends_on:
       rating-db:
         condition: service_healthy
@@ -313,7 +313,9 @@ services:
 
 
   history-service:
-    build: ./backend/history-service
+    build:
+      context: ./backend/history-service
+      dockerfile: Dockerfile
     container_name: quetxal-history-service
     environment:
       PORT: 50057

@@ -62,6 +62,7 @@ func main() {
 	catalogAdminH := handlers.NewCatalogAdminHandler(cfg.CatalogAdminHTTPAddr)
 	ratingH := handlers.NewRatingHandler(ratingClient)
 	historyH := handlers.NewHistoryHandler(historyClient)
+	adminH := handlers.NewAdminHandler(cfg)
 	mux := http.NewServeMux()
 
 	// Salud (util para healthcheck de Docker / GCP).
@@ -82,6 +83,7 @@ func main() {
 	mux.Handle("GET /auth/profiles", authMW(http.HandlerFunc(h.ListProfiles)))
 	mux.Handle("PUT /auth/profiles/{id}", authMW(http.HandlerFunc(h.UpdateProfile)))
 	mux.Handle("DELETE /auth/profiles/{id}", authMW(http.HandlerFunc(h.DeleteProfile)))
+	mux.Handle("GET /admin/audit-logs", authMW(http.HandlerFunc(adminH.GetAuditLogs)))
 
 	// Rutas de billing
 	mux.Handle("GET /billing/plans", authMW(http.HandlerFunc(billingH.GetPlans)))

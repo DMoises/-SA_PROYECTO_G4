@@ -29,5 +29,19 @@ class Database:
                 cur.execute(sql, params or {})
                 return cur.fetchone()
 
+    def execute(self, sql: str, params: Optional[dict[str, Any]] = None) -> None:
+        with self._pool.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, params or {})
+            conn.commit()
+
+    def execute_returning(self, sql: str, params: Optional[dict[str, Any]] = None) -> Optional[dict[str, Any]]:
+        with self._pool.connection() as conn:
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(sql, params or {})
+                row = cur.fetchone()
+            conn.commit()
+            return row
+
     def close(self) -> None:
         self._pool.close()

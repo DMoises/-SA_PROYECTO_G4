@@ -56,8 +56,10 @@ func main() {
 
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
+	adminMW := middleware.AdminOnly
 	billingH := handlers.NewBillingHandler(billingClient)
 	catalogH := handlers.NewCatalogHandler(catalogClient)
+	catalogAdminH := handlers.NewCatalogAdminHandler(cfg.CatalogAdminHTTPAddr)
 	ratingH := handlers.NewRatingHandler(ratingClient)
 	historyH := handlers.NewHistoryHandler(historyClient)
 	adminH := handlers.NewAdminHandler(cfg)
@@ -92,10 +94,21 @@ func main() {
 	mux.Handle("POST /billing/plans/price", authMW(http.HandlerFunc(billingH.GetPlanPrice)))
 
 	// Rutas de catalogo (solo lectura, publicas: navegar el catalogo).
-	// Para exigir sesion (actor Suscriptor), envolver con authMW(...) como billing.
 	mux.HandleFunc("GET /catalog/cartelera", catalogH.ExplorarCartelera)
 	mux.HandleFunc("GET /catalog/buscar", catalogH.BuscarContenido)
 	mux.HandleFunc("GET /catalog/contenido/{id}", catalogH.ObtenerFichaTecnica)
+
+	// Rutas de administracion del catalogo (requieren sesion + rol admin).
+	adminChain := func(h http.HandlerFunc) http.Handler {
+		return authMW(adminMW(http.HandlerFunc(h)))
+	}
+	mux.Handle("GET /catalog/admin/contenidos", adminChain(catalogAdminH.ListarContenidos))
+	mux.Handle("POST /catalog/admin/contenidos", adminChain(catalogAdminH.CrearContenido))
+	mux.Handle("GET /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ObtenerContenido))
+	mux.Handle("PUT /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ActualizarContenido))
+	mux.Handle("DELETE /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.EliminarContenido))
+	mux.Handle("GET /catalog/admin/generos", adminChain(catalogAdminH.ListarGeneros))
+	mux.Handle("GET /catalog/admin/categorias", adminChain(catalogAdminH.ListarCategorias))
 
 	// Rutas de calificaciones (rating). Calificar requiere sesion (RFS-04.1);
 	// el % de recomendacion es publico.

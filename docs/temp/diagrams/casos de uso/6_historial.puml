@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  ArrowColor #1B5E20
+}
+skinparam actor {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+}
+title CDU Expandido: 6. Historial de Reproducción (Nivel CIM)
+
+actor "Usuario Suscriptor" as suscriptor
+actor "Administrador" as admin
+
+package "Módulo 6: Progreso e Historial" {
+  ' Base alineada con history-service (SaveProgress / GetHistory / GetResume)
+  usecase "CDU-N6-01: Registrar Progreso de Visualización" as registrar
+  usecase "CDU-N6-02: Consultar Historial de Reproducción" as consultar
+  usecase "CDU-N6-03: Reanudar Reproducción\n(obtener punto exacto)" as reanudar
+  ' Fase 2
+  usecase "CDU-N6-04: Generar Reporte de Consumo\n/ contenido más visto (.csv / PDF)" as reporte
+}
+
+suscriptor --> registrar
+suscriptor --> consultar
+suscriptor --> reanudar
+admin --> reporte
+
+@enduml

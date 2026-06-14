@@ -415,6 +415,7 @@ func (r *PostgresUsuarioRepo) ActualizarPerfil(
 	return tx.Commit(ctx)
 }
 
+
 // EliminarPerfil elimina un perfil de un usuario.
 func (r *PostgresUsuarioRepo) EliminarPerfil(
 	ctx context.Context,

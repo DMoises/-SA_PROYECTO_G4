@@ -24,10 +24,10 @@
      - Módulo 1: Gestión de Autenticación y Perfiles (CDU-N1-01 a N1-08)
      - Módulo 2: Gestión de Suscripciones (CDU-N2-01 a N2-05)
      - Módulo 3: Catálogo y Consumo de Contenido (CDU-N3-01 a N3-04)
-     - Módulo 4: Sistema de Calificaciones y Recomendaciones (CDU-N4-01 a N4-03)
-     - Módulo 5: Servicio Financiero FX (CDU-N5-01 a N5-02)
-     - Módulo 6: Historial de Reproducción (CDU-N6-01)
-     - Módulo 7: Notificaciones por Correo Electrónico (CDU-N7-01 a N7-02)
+     - Módulo 4: Sistema de Calificaciones y Recomendaciones (CDU-N4-01 a N4-05)
+     - Módulo 5: Servicio Financiero FX (CDU-N5-01 a N5-04)
+     - Módulo 6: Historial de Reproducción (CDU-N6-01 a N6-04)
+     - Módulo 7: Notificaciones por Correo Electrónico (CDU-N7-01 a N7-03)
 3. [Gobernanza y Entrelazamiento — Matrices de Trazabilidad](#3.-gobernanza-y-entrelazamiento-(matrices-de-trazabilidad))
    - [3.1 Matriz: Stakeholders vs. Requerimientos Funcionales](#3.1-matriz:-stakeholders-vs.-requerimientos-funcionales)
    - [3.2 Matriz: Requerimientos Funcionales vs. Casos de Uso](#3.2-matriz:-requerimientos-funcionales-vs.-casos-de-uso)
@@ -450,24 +450,26 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 
 
-- CDU-N4-01: Emitir Calificación
-- CDU-N4-02: Ver Porcentaje de Recomendación Global
-- CDU-N4-03: Consultar % Global de Recomendación
+- CDU-N4-01: Emitir/Actualizar Calificación
+- CDU-N4-02: Consultar % de Recomendación
+- CDU-N4-03: Consultar mi Calificación actual
+- CDU-N4-04: Registrar en Bitácora de Auditoría (Trigger)
+- CDU-N4-05: Generar Reporte de Calificaciones
 
-![Módulo 4](https://www.plantuml.com/plantuml/png/RLBDJW8n4BxtAIPhJFG00K4F6q9GN8m7Y97WVToMTKAttRHTH8rFnIFmOivk-3MSDltcc--dtO4Fw4APQw7LF42mu2Zx2239gJIGDS8lo1JeC8S2qmLcQXg-j89gZ2RJweXGUfMYL_0Z01wOd3bR6ZcqsZgu68r6dQHLJQoJoctHvEwstQhGU-VivoduAqIWm5x3nnaagmAD96bZw3PXIZwe747o43NDASMKmoeFLnDQAWt3v_6r49W6rejclaH75gQbJnqLZ4M0lehhXDYsWcYyMSjIM-Z6_pKh5vkNXYJAg6wtQnfnjCQassYrOqXo2kJW3Ra3RsxMfdPPrcTtRkacXh6LjTF97hmujIIir_CTuPn0XwDQuqlDZmYNyAJjE-egxgjARQwCFCv1V0kQlbc9BxRg3er6Vn_l01nuUszeDlTCYA7NKwl0wls-40F-yk_p1m==)  <br/><br/>
+![Módulo 4](https://www.plantuml.com/plantuml/png/TPJFRXf13CRl-nGMLLKuB844Ua0H2Y5GzP2q0kN6PJhZR4UPdLbvPkW_vM7w03tb4NYnUZTBM5Q46_OtF_kp3LS-20enDud1Xm310UdiUm2b2MNGpYR-KTj2aCYX4F9HPBWElmn2cHOsCzWGH8zIU8G_2S0rYpDoqQgvCuxWtNAvl5WCoemZXLH75n_7mq4PdH6v7yV1fmPQoC2Pjy3yUGFyb2H11-vtVdCFYv-5i4ehDu5H7zRQ1ym5A4uAen-q598DeuVkdTwYWVddsrwIl5JktFieI3jOHoz95nphWF3WNx_kXJELQyje4ghMY3AI9FNue7ExUrRHE1XDseNBLbmUhLP2TIgt7zWlJvHb5eKI89q54a7RBFL8MoqHkdi8mHby-HRG8grGkXojgi27SBDSRQZ7HVPxw_2GqhjHEXXEO97heEbi9aFaHxyPVdYyUxORsqNsYCO86APZS514amdgLOxblgDJy7EsxQoFXYyFtfUU6zqokY9Gqy0foaMJaklZxifpuROhKgwhL3NBPOauFuNZNQmmgzP6W1QkTTZzbOx4ndA3iwWqBtVtJy3bPU1VI8OqdRuijqoTDZgUmATowanSOU4e89lTsFQnzQNVyeg-tYnxjVLAMvxkuReWJQUDiROInzDg9VS3gCwmbhzKI5w1qE-tA31XgzfA4nLEforbRRgbIQxuSVbNyXy0)  <br/><br/>
 
 
 
 ---
 
-### Especificación CDU-N4-01 — Emitir Calificación
+### Especificación CDU-N4-01 — Emitir/Actualizar Calificación
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Emitir Calificación |
+| **Nombre** | Emitir/Actualizar Calificación |
 | **Código** | CDU-N4-01 |
 | **Actores** | Usuario Suscriptor |
-| **Descripción** | Permite al Usuario Suscriptor emitir una calificación discreta de 1 a 5 estrellas sobre un título específico del catálogo que haya visualizado. La calificación queda registrada en el rating-service y alimenta el cálculo del porcentaje de recomendación global (CDU-N4-02). |
+| **Descripción** | Permite al Usuario Suscriptor calificar un título del catálogo mediante **estrella (1 a 5)** o **pulgar (positivo/negativo)**. La operación es un *upsert*: emitir y modificar son la **misma** operación (`INSERT ... ON CONFLICT (perfil_id, contenido_id) DO UPDATE` en el `rating-service`), con un único voto por par `(perfil_id, contenido_id)`. El RPC `Calificar` devuelve el % de recomendación recalculado mediante la función SQL nativa (CDU-N4-02). |
 | **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. El usuario debe tener una suscripción activa. El contenido a calificar debe existir en el catálogo. |
 | **Post Condiciones** | La calificación del usuario queda registrada o actualizada para el par `(perfil_id, contenido_id)`. El porcentaje de recomendación global del contenido se actualiza (o se recalcula al ser consultado). |
 | **Flujo principal** | 1. El Usuario Suscriptor accede a la ficha técnica de un contenido (CDU-N3-03). 2. El sistema muestra el selector de calificación (1 a 5 estrellas) con la calificación previa del usuario si existe. 3. El usuario selecciona la cantidad de estrellas que desea asignar (1 a 5). 4. El usuario confirma su calificación. 5. El sistema envía la calificación al rating-service: POST/PUT `/rating/{contenido_id}` con el valor seleccionado. 6. El rating-service registra o actualiza la calificación asociada al `perfil_id` activo y al `contenido_id`. 7. El sistema devuelve HTTP 200/201 con la confirmación. 8. La interfaz actualiza visualmente la calificación del usuario y el porcentaje de recomendación global. |
@@ -477,11 +479,11 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
-### Especificación CDU-N4-02 — Ver Porcentaje de Recomendación Global
+### Especificación CDU-N4-02 — Consultar % de Recomendación
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Ver Porcentaje de Recomendación Global |
+| **Nombre** | Consultar % de Recomendación |
 | **Código** | CDU-N4-02 |
 | **Actores** | Usuario Registrado, Usuario Suscriptor |
 | **Descripción** | Permite a cualquier usuario autenticado consultar el porcentaje de recomendación global de un título, calculado a partir de todas las calificaciones emitidas por los usuarios de la plataforma. El cálculo se delega a una Función SQL nativa en el motor de base de datos del rating-service. |
@@ -495,20 +497,54 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 ---
 
 
-### Especificación CDU-N4-03 — Consultar % Global de Recomendación
+### Especificación CDU-N4-03 — Consultar mi Calificación actual
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Consultar % Global de Recomendación |
+| **Nombre** | Consultar mi Calificación actual |
 | **Código** | CDU-N4-03 |
-| **Actores** | Usuario Registrado, Usuario Suscriptor |
-| **Descripción** | Permite a cualquier usuario autenticado consultar un resumen del porcentaje de recomendación de múltiples títulos del catálogo de forma simultánea. A diferencia de CDU-N4-02 (que muestra el porcentaje de un título específico), este caso de uso presenta una vista agregada de los porcentajes de recomendación globales del catálogo, facilitando el descubrimiento de contenido mejor valorado. El cálculo de cada porcentaje se delega a la Función SQL nativa del rating-service. |
-| **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. El catálogo debe tener al menos un título con calificaciones registradas. |
-| **Post Condiciones** | Se presenta al usuario la lista de contenidos con sus respectivos porcentajes de recomendación global, ordenados por puntuación descendente. |
-| **Flujo principal** | 1. El usuario autenticado accede a la sección de recomendaciones o al ranking del catálogo. 2. El sistema solicita al rating-service los porcentajes de recomendación: GET `/rating/resumen`. 3. El rating-service invoca la Función SQL `calcular_porcentaje_recomendacion(contenido_id)` para cada título del catálogo que tenga calificaciones. 4. La función SQL calcula el promedio ponderado de calificaciones y lo convierte a porcentaje (0-100%). 5. El rating-service retorna la lista de títulos ordenada por porcentaje de recomendación descendente. 6. El sistema cruza los datos con el catalog-service para complementar la información (título, imagen de portada, género). 7. El sistema presenta el ranking con cada título y su porcentaje de recomendación global. 8. El usuario puede seleccionar cualquier título para ver su ficha técnica completa (CDU-N3-03) o reproducirlo (CDU-N3-02). |
-| **Flujos alternos** | **FA1 — Ningún título tiene calificaciones aún:** FA1.1 El rating-service devuelve lista vacía. FA1.2 El sistema muestra un mensaje informativo: "Aún no hay suficientes calificaciones para mostrar recomendaciones." **FA2 — Error al invocar el rating-service:** FA2.1 El sistema muestra un error genérico. FA2.2 Se ofrece al usuario recargar la página. FA2.3 El catálogo principal (CDU-N3-01) sigue disponible sin interrupciones (fallo aislado). **FA3 — JWT expirado al consultar:** FA3.1 El API Gateway devuelve HTTP 401. FA3.2 El sistema redirige al usuario a `/login`. |
-| **Reglas de negocio** | El cálculo del porcentaje de recomendación para cada título se ejecuta obligatoriamente mediante la Función SQL nativa del motor de base de datos (no en código de aplicación). Los porcentajes son públicos y visibles para todos los usuarios autenticados (Registrados y Suscriptores). Solo se muestran títulos que tengan al menos una calificación registrada. El fallo del rating-service no debe impedir el acceso al resto de la plataforma (tolerancia a fallos). |
-| **Reglas de calidad** | El listado de recomendaciones debe cargarse en menos de 3 segundos. Cada entrada debe mostrar el porcentaje de recomendación de forma visual (barra de progreso o indicador numérico). La lista debe ordenarse de mayor a menor porcentaje para facilitar el descubrimiento de contenido destacado. El sistema debe manejar de forma resiliente la ausencia del rating-service sin degradar la experiencia de navegación principal. |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite al Usuario Suscriptor consultar la calificación que **él mismo** asignó a un contenido (tipo y valor), para que la interfaz pueda resaltarla. Implementado por el RPC `ObtenerCalificacionUsuario(perfil_id, contenido_id)` del `rating-service`, que lee la tabla `calificacion_usuario`. |
+| **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. El contenido consultado debe existir en el catálogo. |
+| **Post Condiciones** | Se devuelve la calificación del perfil para ese contenido: `{existe, tipo, valor}` (o `existe=false` si el perfil aún no lo ha calificado). |
+| **Flujo principal** | 1. El usuario abre la ficha técnica de un contenido (CDU-N3-03). 2. El sistema solicita al rating-service la calificación del perfil activo: `ObtenerCalificacionUsuario(perfil_id, contenido_id)`. 3. El rating-service consulta la tabla `calificacion_usuario` por el par `(perfil_id, contenido_id)`. 4. Si existe, retorna `{tipo, valor}`; si no, retorna `existe=false`. 5. La interfaz resalta la estrella/pulgar previamente seleccionado (o muestra el selector vacío). |
+| **Flujos alternos** | **FA1 — El perfil aún no ha calificado el contenido:** FA1.1 El servicio devuelve `existe=false`. FA1.2 La UI muestra el selector sin resaltar. **FA2 — Error al invocar el rating-service:** FA2.1 El campo de calificación se muestra neutro. FA2.2 El resto de la ficha técnica se muestra normalmente (fallo aislado). |
+| **Reglas de negocio** | La consulta es por `perfil_id`, no por cuenta: cada perfil ve su propia calificación. Es una operación de solo lectura. Mantiene la consistencia entre lo que el usuario emitió (CDU-N4-01) y lo que ve en la UI. |
+| **Reglas de calidad** | La consulta debe completarse en menos de 1 segundo. El valor mostrado debe coincidir exactamente con la última calificación emitida por el perfil. |
+
+---
+
+### Especificación CDU-N4-04 — Registrar en Bitácora de Auditoría (Trigger) · *Fase 2*
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Registrar en Bitácora de Auditoría (Trigger) |
+| **Código** | CDU-N4-04 |
+| **Actores** | Sistema (Trigger de Base de Datos) |
+| **Descripción** | Caso de uso transversal de Fase 2. Cada `INSERT`/`UPDATE` sobre la tabla `calificacion_usuario` (provocado por CDU-N4-01) **dispara automáticamente** un trigger que registra el evento en la tabla exclusiva de **bitácora de auditoría**: usuario responsable, timestamp exacto, tabla afectada, estado anterior y estado nuevo. Es incluido (`<<include>>`) por CDU-N4-01. |
+| **Precondiciones** | Deben existir la tabla de bitácora de auditoría y el trigger asociado en `rating_db`. |
+| **Post Condiciones** | Se crea un registro inmutable en la bitácora de auditoría con el cambio realizado. |
+| **Flujo principal** | 1. CDU-N4-01 ejecuta el `INSERT`/`UPDATE` sobre `calificacion_usuario`. 2. El trigger de auditoría captura los valores `OLD` y `NEW` de la fila. 3. El trigger inserta una fila en la bitácora con `{usuario_responsable, timestamp, tabla, estado_anterior, estado_nuevo}`. 4. La transacción de calificación se confirma junto con su registro de auditoría. |
+| **Flujos alternos** | **FA1 — La operación es un INSERT (primera calificación):** FA1.1 El `estado_anterior` se registra como nulo/vacío. **FA2 — Falla la escritura en la bitácora:** FA2.1 La transacción completa hace rollback (atomicidad): no hay cambio sin auditoría. |
+| **Reglas de negocio** | La auditoría es **automática** mediante trigger; no es invocable por ningún actor humano. Aplica a toda operación transaccional (`INSERT`/`UPDATE`) sobre tablas relacionales. Los registros de auditoría son inmutables. |
+| **Reglas de calidad** | El trigger no debe añadir latencia perceptible a la operación de calificación. La bitácora debe garantizar trazabilidad completa para auditorías contra fallas o fraudes. |
+
+---
+
+### Especificación CDU-N4-05 — Generar Reporte de Calificaciones · *Fase 2*
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Generar Reporte de Calificaciones |
+| **Código** | CDU-N4-05 |
+| **Actores** | Administrador |
+| **Descripción** | Caso de uso de Fase 2. Permite al Administrador generar, desde el Panel de Administración interna, un **reporte estructurado** de las calificaciones / ranking de recomendación (contenido mejor valorado, distribución de votos), exportable en **`.csv` y PDF**. |
+| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. Deben existir calificaciones registradas. |
+| **Post Condiciones** | Se genera y descarga el reporte en el formato solicitado (`.csv` o PDF), bien ordenado y formateado. |
+| **Flujo principal** | 1. El Administrador accede a la sección de reportes del Panel de Administración. 2. Selecciona el reporte de calificaciones y el rango/criterios. 3. El sistema consulta los datos de calificaciones (vía funciones/vistas SQL del rating-service). 4. El sistema arma el reporte ordenado y formateado. 5. El Administrador descarga el archivo en `.csv` o PDF. |
+| **Flujos alternos** | **FA1 — No hay datos en el rango:** FA1.1 El sistema informa que no hay calificaciones para los criterios indicados. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
+| **Reglas de negocio** | Solo el Administrador puede generar reportes. Los reportes deben presentarse ordenados y formateados, exportables en `.csv` y PDF. |
+| **Reglas de calidad** | La generación del reporte no debe bloquear otras operaciones. El formato debe ser legible y consistente con la identidad de QuetxalTV. |
 
 ---
 
@@ -516,9 +552,11 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 - CDU-N5-01: Calcular Tarifa en Moneda Local
 - CDU-N5-02: Consultar Tasa de Cambio Actual
+- CDU-N5-03: Utilizar Tasa de Cambio de Respaldo
+- CDU-N5-04: Generar Reporte Financiero / de Conversiones
 
 
-![Módulo 5](https://www.plantuml.com/plantuml/png/RPB1QXin48RlUefXUqaEDd5WCJLcYRss8L27KZVWGoyJQRmLaIKpajoKqgVg8_J5Ehjuksd9JVFhctz6FxgB2JdberEE3WbI0BRDrmJ6CkbaWrVnsVeJCXxXXFeP6zgbxuwWlKRVE7e5v4WQ8y4F1R0KkE6GlQc32mplrfDDkLctDu4DyKMzkPrEbojH5ypXMozEokdxfVgfaaqogbuzmlhbXDvO4sPGZc57VBRQ1jXOZrvROZdkuUh1dib1VR-zLWfr4g_YCMPa8JzHOsDYDA40ZB9-N_uFxdBKR4-YTM3yM_RWukCz68ALFTiemDLcV_t5p-SxyQCZogQ9s8UgwjeFBqfTSeDY-_kNoIv0ENlrWdtHvTLdLyXhHm_bw6OoWngTpWuPFijc1mJoi0sU3CA7eD5r0_I5USlYLYo2ZzcbpYDYktUDnoUPkz0fznOz8uch8HWOZQh1ViZXNxq_m7XS3KumW_dSUksoeQfIWzxsIYPtv4txwVu0)  <br/><br/>
+![Módulo 5](https://www.plantuml.com/plantuml/png/TLHDRnen4BtxLupeeQ0Ayj4Yr1L2II1RHGeH3OcK0vUfFH0hnaQsboQjyeDwxa_87-kisGsqeNlPzSoRzpnl1av2H1-BfH66vX6Y0wyNzn6KzYIZTbQ41srNw749AvGFkA1fV384PHhjmj0Ee0WaCH3y501d35vuLrWrTCPvU7T-b7VpypBZl29VHG-FUxsp4KTFlNVVw-1Hj_VvJ3plKAECdDbBdAVdFyJF8kh8rnsERk7ySOLMQUKow7PWIdwjfNQGQujMQlByUGVDAxqc0yEBSKk8ZMhZDXJe6NbD2nsYH-KQW84jg8__0gT5a5wlE9Q0uVLO0q_LKjkgU8F1ClAQdbo08XZfjGwSQ-PthPdjzwTSGKlaHY9vwmQ3L3b_5A8Q3JJ6BxzLOHnqivq6xnh9kVVi7Ky7ZRQ42a4woyNja704pQ6pQ_9H-x6pl0W7m85G65wG6mm87xZXi4AZ74nSY0jFqw-NBUQjnzvWazjNtVRXKGP3DB8mwE663PaZa0Lc9LQzT19DkhYiCFieZhEjEYHvzcE8os_SpwcC1PgPRKgKzo-_U2nA1xvkwHebQx2r4QWPzYbypE0sQgD_l1NWh-kgrMhGcqFoC2zPZlSnVihW2rdoJ7XDA-SZxUpMp1uaXUHnu1yMyLmxCgpvufDHtgg4KXblhTWk5xJRWwrNsrtwEvxs9uLg4b7deDCPRBs03FfzRQKf50q6OXilQtcNNeVyjgeqroek4YVyBlyq_W00)  <br/><br/>
 
 
 ---
@@ -554,6 +592,41 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | **Flujos alternos** | **FA1 — Tasa encontrada en caché Redis (ruta óptima):** FA1.1 El sistema retorna la tasa en menos de 50ms. FA1.2 No se realiza ninguna llamada a la API externa. **FA2 — API de Divisas externa no disponible:** FA2.1 El sistema no puede actualizar el caché. FA2.2 Si existe una tasa expirada en Redis, el sistema la retorna como fallback. FA2.3 Si no existe ninguna tasa, se retorna error al solicitante. FA2.4 El fx-service gestiona el fallback a USD. |
 | **Reglas de negocio** | El caché Redis mitiga la latencia y reduce la dependencia de la API externa. El TTL del caché debe balancear frescura de datos vs. carga sobre la API externa. El sistema debe funcionar con un caché ligeramente expirado antes de fallar completamente (tolerancia a fallos). |
 | **Reglas de calidad** | La consulta con caché activo debe completarse en menos de 50ms (EAC-01). La consulta a la API externa no debe superar los 3 segundos de timeout. El sistema debe registrar los tiempos de respuesta para monitoreo de SLA. |
+
+---
+
+### Especificación CDU-N5-03 — Utilizar Tasa de Cambio de Respaldo
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Utilizar Tasa de Cambio de Respaldo |
+| **Código** | CDU-N5-03 |
+| **Actores** | API de Divisas (FX) «Sistema Externo» |
+| **Descripción** | Extiende (`<<extend>>`) a CDU-N5-02. Cuando la API de Divisas externa no está disponible o no devuelve la tasa, el `fx-service` usa como **respaldo** la última tasa almacenada en **PostgreSQL** (`_obtener_tasa_con_respaldo`). Garantiza la resiliencia del cálculo de precios ante fallos del proveedor externo. |
+| **Precondiciones** | El caché Redis no tiene la tasa o está expirada, y la consulta al proveedor externo falló (`ProveedorFXNoDisponible` o `TasaNoEncontrada`). |
+| **Post Condiciones** | Se retorna la tasa de respaldo obtenida de PostgreSQL. Si tampoco existe respaldo vigente, se retorna el error "No existe tasa externa ni tasa de respaldo vigente". |
+| **Flujo principal** | 1. CDU-N5-02 no encuentra la tasa en Redis. 2. El fx-service intenta obtenerla del proveedor externo. 3. El proveedor falla o no la tiene. 4. El fx-service consulta `repo.obtener_tasa(origen, destino)` en PostgreSQL. 5. Si existe, retorna la tasa de respaldo (y se cachea). |
+| **Flujos alternos** | **FA1 — No existe tasa de respaldo en PostgreSQL:** FA1.1 El servicio lanza `TasaNoEncontrada`. FA1.2 La capa superior gestiona el fallback (ej. mostrar precios en USD). |
+| **Reglas de negocio** | El respaldo es un mecanismo interno de resiliencia, no invocable por un usuario. La prioridad de fuentes es: caché Redis → API externa → PostgreSQL (respaldo). |
+| **Reglas de calidad** | El respaldo debe permitir seguir mostrando precios aunque la API externa esté caída. La conmutación a respaldo debe ser transparente para el usuario. |
+
+---
+
+### Especificación CDU-N5-04 — Generar Reporte Financiero / de Conversiones · *Fase 2*
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Generar Reporte Financiero / de Conversiones |
+| **Código** | CDU-N5-04 |
+| **Actores** | Administrador |
+| **Descripción** | Caso de uso de Fase 2. Permite al Administrador generar, desde el Panel de Administración, un **reporte estructurado** de las conversiones de moneda y tasas utilizadas, exportable en **`.csv` y PDF**. |
+| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. |
+| **Post Condiciones** | Se genera y descarga el reporte financiero en el formato solicitado, ordenado y formateado. |
+| **Flujo principal** | 1. El Administrador accede a la sección de reportes. 2. Selecciona el reporte financiero / de conversiones y el rango. 3. El sistema recopila las tasas y conversiones registradas. 4. El sistema arma el reporte ordenado y formateado. 5. El Administrador descarga el archivo en `.csv` o PDF. |
+| **Flujos alternos** | **FA1 — No hay datos en el rango:** FA1.1 El sistema informa la ausencia de datos. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
+| **Reglas de negocio** | Solo el Administrador puede generar reportes. Exportables en `.csv` y PDF, ordenados y formateados. |
+| **Reglas de calidad** | La generación no debe bloquear otras operaciones. El formato debe ser legible y consistente con la identidad de QuetxalTV. |
+
 ---
 
 ### Módulo 6: Historial de Reproducción
@@ -561,8 +634,11 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 
 - CDU-N6-01: Registrar Progreso de Visualización
+- CDU-N6-02: Consultar Historial de Reproducción
+- CDU-N6-03: Reanudar Reproducción
+- CDU-N6-04: Generar Reporte de Consumo
 
-![Módulo 6](https://www.plantuml.com/plantuml/png/JP7DJa8n48NtVOh9TQEBQm03AWk3m3MwW1W83p1fn-k4qjvCM_oBJyKZy68M0iAovtpDEISp214bffLLbjuYH0_2zNi4mq8widSgBDarABY21lKIQvh7Bqkmiz7Lbiw054XZ8FXH0CCCr-AJCoDllS15TVVKhUvtZXT3Sb0xrUtuffFLHn7_SH3RmsxLQQbV5JdcgD5u0TLdWywmyNteNSCpX-Y5qO8Xc54ZtYIjURjnS3dbDLaOlKokb4ATCIWM8Q6mXtaAMhZ9MW4O8Fm_bJfiWsAotPXaFVJwy2g-5WeUw1HOxCSTXnQvMZdjbQrsFzUeCoGeq1p_vN9hpjcMlt7VRXyhHp0FLASEK9OFPzw0dDcTvGy=)  <br/><br/>
+![Módulo 6](https://www.plantuml.com/plantuml/png/VPDBSXCn48RtEaMNMM0ld8T337X19V43M2ILYYkiiX5ICr558qsrf266oc4uGuxWYz6Z6MC3Xjcf7v_-_jLp5gAac4ehB7w943sGAUuZQ4Eeel5EX0VZAacoX4gg1rdWCguiGfEMhh2uKv02AXaGlWk02ouko2UdfzvwWXVpDulJ-TicuqaZTT7H_FNiPCJHSoB_jGiUNvpEHqVYQGSjLUJCNl0YV_y0Fube8ikTpcvX_bX9futs4nWVm0SJ66ca1OrmWnLvdPGowsS7_IjJeuNfnyk14EtDlTkG91aFonGKcOfZFP01mg_Zfl1SbyOncwJkQcGJ4QAp3tgNwsUTh8Vn1Ax95uJ10sxrzFAOBtbGjb9Qur1g2SexkCybgs50ger2w2zbZHqYm26ynzXILktX1aCgSS2qpSlqs8VXrNXuT3pXcOiiaxOgs8bFXWUrvflCLcJzj2dS1nfDOEfTI9Rtw3-UPf3Q5Eu3dJIAf4kQER-rthc-_npH8K6L76yeFZPM3pfjRKjsRD40H_lWhoRi1nDQjgU8ZS8ilFHtxh2HnbVmRa2v_X6WRWQ1_e4ADLjvFLjiRikzl5LY-_0m7BxRyUYFn7RclpewvNazkb2B5sVeTFDF_WG0)  <br/><br/>
 
 
 
@@ -585,26 +661,78 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
+### Especificación CDU-N6-02 — Consultar Historial de Reproducción
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Consultar Historial de Reproducción |
+| **Código** | CDU-N6-02 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite al Usuario Suscriptor consultar la lista de contenidos de su historial reciente ("Seguir viendo") con su porcentaje visto. Implementado por el RPC `GetHistory(perfil_id)` del `history-service`. |
+| **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. |
+| **Post Condiciones** | Se devuelve la lista de items del historial del perfil con su progreso (`segundo_exacto`, `duracion_total`, `porcentaje_visto`, `actualizado_en`). |
+| **Flujo principal** | 1. El usuario accede a la sección "Seguir viendo" / su historial. 2. El sistema solicita al history-service: `GetHistory(perfil_id)`. 3. El history-service consulta su base de datos y retorna los items del perfil ordenados por más reciente. 4. El sistema cruza con el catalog-service para complementar (título, portada). 5. La interfaz presenta el historial con el progreso de cada contenido. |
+| **Flujos alternos** | **FA1 — El perfil no tiene historial:** FA1.1 Se devuelve lista vacía. FA1.2 La UI muestra "Aún no has reproducido contenido". **FA2 — Error al invocar el history-service:** FA2.1 La sección se muestra vacía sin afectar el resto de la navegación (fallo aislado). |
+| **Reglas de negocio** | El historial es por `perfil_id`, independiente entre perfiles de la misma cuenta. Es una operación de solo lectura. |
+| **Reglas de calidad** | El historial debe cargarse en menos de 2 segundos. El progreso debe mostrarse de forma visual (barra de avance). |
+
+---
+
+### Especificación CDU-N6-03 — Reanudar Reproducción
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Reanudar Reproducción |
+| **Código** | CDU-N6-03 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite obtener el punto exacto (temporada, episodio, segundo) donde el perfil dejó un contenido, para reanudar la reproducción desde ahí. Implementado por el RPC `GetResume(perfil_id, contenido_id)` del `history-service`; es consumido por la reproducción (CDU-N3-02). |
+| **Precondiciones** | El usuario debe tener sesión activa con perfil seleccionado. Debe existir un registro de progreso previo para el par `(perfil_id, contenido_id)`. |
+| **Post Condiciones** | Se devuelve el `HistoryItem` con el punto exacto de reanudación; la reproducción inicia desde ese timestamp. |
+| **Flujo principal** | 1. El usuario selecciona un contenido para reproducir (CDU-N3-02). 2. El sistema solicita `GetResume(perfil_id, contenido_id)` al history-service. 3. El history-service retorna el último punto guardado (temporada, episodio, segundo_exacto). 4. El reproductor inicia desde ese punto exacto. |
+| **Flujos alternos** | **FA1 — No existe progreso previo:** FA1.1 El history-service no retorna punto. FA1.2 La reproducción inicia desde el segundo 0. **FA2 — Error al invocar el history-service:** FA2.1 La reproducción inicia desde el inicio (fallo aislado, no bloquea). |
+| **Reglas de negocio** | La reanudación es por `perfil_id`. El punto de reanudación corresponde al último progreso registrado por CDU-N6-01. |
+| **Reglas de calidad** | La obtención del punto de reanudación no debe retrasar perceptiblemente el inicio de la reproducción (< 1 segundo). |
+
+---
+
+### Especificación CDU-N6-04 — Generar Reporte de Consumo · *Fase 2*
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Generar Reporte de Consumo |
+| **Código** | CDU-N6-04 |
+| **Actores** | Administrador |
+| **Descripción** | Caso de uso de Fase 2. Permite al Administrador generar, desde el Panel de Administración, un **reporte estructurado** de consumo / contenido más visto (a partir del historial agregado), exportable en **`.csv` y PDF**. |
+| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. Debe existir historial registrado. |
+| **Post Condiciones** | Se genera y descarga el reporte de consumo en el formato solicitado, ordenado y formateado. |
+| **Flujo principal** | 1. El Administrador accede a la sección de reportes. 2. Selecciona el reporte de consumo y el rango/criterios. 3. El sistema agrega los datos del historial (más visto, tiempo reproducido). 4. El sistema arma el reporte ordenado y formateado. 5. El Administrador descarga el archivo en `.csv` o PDF. |
+| **Flujos alternos** | **FA1 — No hay datos en el rango:** FA1.1 El sistema informa la ausencia de datos. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
+| **Reglas de negocio** | Solo el Administrador puede generar reportes. Exportables en `.csv` y PDF, ordenados y formateados. |
+| **Reglas de calidad** | La generación no debe bloquear otras operaciones. El formato debe ser legible y consistente con la identidad de QuetxalTV. |
+
+---
+
 
 ### Módulo 7: Notificaciones por Correo Electrónico
 
-- CDU-N7-01: Generar Notificación
+- CDU-N7-01: Encolar Notificación
 - CDU-N7-02: Servir Correo Electrónico
+- CDU-N7-03: Programar/Calendarizar Estreno
 
 
-![Módulo 7](https://www.plantuml.com/plantuml/png/RLBBJiCm4BpxArRX0eTMBQzAKHLHqe8uj484RbmiUmaMZXsjdG92_Qf-0Z_6DatBGvmYpywiPyQv255IR2ehB3v5Y1x8bCyHj25KqNWdmejnjIHPGItLYoonYEyMOJEMhhJuWz04L38WV0Y0IoQNv1kdSsyzmS7ivEhuQhgPUD987JeyEp_B1unEYFnh1mwcfwF9KAn4D96logSFC7khfTD6-nH6VLZuQ9wCaeeDOe2QHRadGW-72xD42_dD_4W8gI9FaeVGI38Uxh0q8PBKFW4PEC7k-9TOD46HgHbhYM5_t14Bf2Lx8IZczxUFRZmkU1DMacr69EUpR2kiOYr4Lniayy-rRgo7KGeJYnIPySw-gyQrKJxNBcchszMOSF3UOjGR35EuHeSawKVobiuhoktaFzrn2gtJVJipowz6h3Hgsm6wfM7jIeZlDg3No_PRlxF_WhilzFjPjmDI68-DKxRHc6MY0pUQjeKBT7hpbtq1)  <br/><br/>
+![Módulo 7](https://www.plantuml.com/plantuml/png/TLFRQjj047tVhnZSXzeKNzFK88o98zkGXxW1j_GbK3RIH5cysZ6ZbPEqv6Fw3Va4_rX7DzTfNRrecJawUywPqKNcDViyjShYlGTFm2Pvy10RniWRSYhR6BVLh5FOwcYZ4rpxPujGjBLBB1u1yWmZdI7yL02N0awOSXU7P8dXtU9iELhEYmvnZ5nNX-UVpiE1L6VCz5WN1_EFuzbGlHnHwyXBvoJnidp-G_oYlF4YDvn_XSNJLhlOn1J0k0ShykRUH3eIavZ1LZuAYHa9sYkpGmlXrNL7gUhYrXfvPmIQmPNpo8woMzUUvVu1-d1fh3KkaLEe_VwNfOGwjsuoMPlCOwgdqnRe3BA6eQ6SnQbn0c4T4vSGNLIQzZVY3J9yplqTFVrBzrYstyWJ6bXVVxav0eldKcsZ8VLRfUevGkjw_nhdbc0SmCmYUq4yImXfxifSzg-kLKR-NaANiMfnYJhM4943LyTNx4YtyeRGNhY8hEOwo0-roje4TAUblevGDglIai5qL-FkO1X0_V7HP4I1nCoO536H12nRP-wAWyjnHzz5Y4SdnZkbFQm8Jj6F0YWpEWnvOMM1MIum4SaTRuL6_U4Ww_mP6vSXB0l6qIdsim1kc19PLCtzK5jqiMRpGxmiH3WwgkHLPzb9TLW6w4eeZUvo_bMbXjQoYb8jf7fLbMAQDH9wlGCF132PUFcF4-Jf5Df_PwNKXGWi_ldV)  <br/><br/>
 
 
 ---
 
-### Especificación CDU-N7-01 — Generar Notificación
+### Especificación CDU-N7-01 — Encolar Notificación
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Generar Notificación |
+| **Nombre** | Encolar Notificación |
 | **Código** | CDU-N7-01 |
-| **Actores** | Usuario Registrado, Usuario Suscriptor |
-| **Descripción** | El notification-service genera y encola un mensaje de notificación transaccional (confirmación de registro, recibo de cobro, alerta de nuevo contenido) utilizando el patrón Outbox para garantizar la entrega eventual sin bloquear el hilo principal de ejecución. Incluye CDU-N7-02 para el despacho efectivo del correo. |
+| **Actores** | Servicios Internos (Auth / Billing / Catálogo) |
+| **Descripción** | Los **microservicios internos** (auth-service, billing-service, catalog-service) — **no el usuario** — invocan al `notification-service` vía gRPC `EncolarCorreo(usuario_id, tipo, destinatario, datos)` para encolar un correo transaccional (tipos `registro`, `recibo`, `nuevo_contenido`) usando el patrón **Outbox**. El envío efectivo lo realiza un worker en segundo plano (CDU-N7-02). El usuario es el *receptor*, no el iniciador. |
 | **Precondiciones** | Debe haberse producido un evento de negocio que requiera notificación: registro de nuevo usuario, cobro procesado, o publicación de nuevo contenido. El notification-service debe estar operativo. El correo del destinatario debe ser válido y estar disponible en el payload del evento. |
 | **Post Condiciones** | El mensaje de notificación queda encolado en la base de datos del notification-service (tabla Outbox) con estado "Pendiente". El proceso de despacho (CDU-N7-02) procesa la cola de forma asíncrona. |
 | **Flujo principal** | 1. Un microservicio origen (auth-service o billing-service) produce un evento de negocio que requiere notificación. 2. El microservicio invoca al notification-service mediante gRPC: `EncolarCorreo(UsuarioId, Tipo, Destinatario, Datos)`. 3. El notification-service recibe la solicitud y crea un registro en su tabla Outbox con estado "Pendiente". 4. El notification-service devuelve confirmación de encolado al microservicio origen. 5. El notification-service desencadena CDU-N7-02 para procesar la cola de forma asíncrona. 6. Los tipos de notificación soportados son: `registro`, `cobro_exitoso`, `cobro_fallido`, `cancelacion`, `nuevo_contenido`. |
@@ -628,6 +756,24 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | **Flujos alternos** | **FA1 — Servidor SMTP no disponible (timeout):** FA1.1 El notification-service captura el error de conexión. FA1.2 El registro Outbox se actualiza a estado "Fallido" con el detalle del error. FA1.3 El sistema puede reintentar el envío en el siguiente ciclo de procesamiento. **FA2 — Dirección de correo del destinatario inválida:** FA2.1 El servidor SMTP rechaza el correo con error SMTP apropiado. FA2.2 El registro se marca como "Fallido". FA2.3 No se realizan más reintentos para este registro. **FA3 — Plantilla de correo no encontrada para el tipo indicado:** FA3.1 El sistema registra el error en logs. FA3.2 El registro Outbox se marca como "Fallido". |
 | **Reglas de negocio** | El despacho de correos es estrictamente asíncrono y no bloquea ningún otro proceso del sistema. Cada registro Outbox se procesa una vez; los reintentos están controlados para evitar spam. El servidor SMTP y las credenciales se configuran exclusivamente mediante variables de entorno (nunca en código fuente). Los correos fallidos se registran con el error para análisis posterior. |
 | **Reglas de calidad** | El despacho asíncrono no debe añadir latencia perceptible al flujo de negocio principal (EAC-02). Los correos deben seguir plantillas HTML estilizadas con la identidad visual de QuetxalTV. El tiempo entre el encolado y el envío efectivo no debe superar 60 segundos en condiciones normales. El sistema debe registrar métricas de tasa de entrega exitosa vs. fallida. |
+
+---
+
+### Especificación CDU-N7-03 — Programar/Calendarizar Estreno · *Fase 2*
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Programar/Calendarizar Estreno |
+| **Código** | CDU-N7-03 |
+| **Actores** | Administrador |
+| **Descripción** | Caso de uso de Fase 2 que conecta el Panel de Administración con las notificaciones. El Administrador programa/calendariza el estreno de nuevo contenido; al activarse el estreno, el catalog-service **dispara** (`<<trigger>>`) la notificación de tipo `nuevo_contenido` (CDU-N7-01) hacia los usuarios. |
+| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. El contenido a estrenar debe estar cargado en el catálogo. |
+| **Post Condiciones** | El estreno queda calendarizado; al cumplirse la fecha, se encola la notificación `nuevo_contenido` y el contenido pasa a estar visible en la cartelera. |
+| **Flujo principal** | 1. El Administrador define la fecha/hora de estreno de un contenido desde el Panel de Administración. 2. El sistema registra el estreno programado (Trigger/Disparador). 3. Al cumplirse la fecha, el catalog-service invoca `EncolarCorreo(tipo=nuevo_contenido)` en el notification-service (CDU-N7-01). 4. El contenido se publica en la cartelera y los usuarios reciben la alerta de estreno. |
+| **Flujos alternos** | **FA1 — El Administrador cancela o reprograma el estreno antes de la fecha:** FA1.1 Se actualiza/elimina el disparador programado. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
+| **Reglas de negocio** | Solo el Administrador puede programar estrenos. El disparo de la notificación `nuevo_contenido` es automático al activarse el estreno. La calendarización es parte del CRUD del catálogo (Fase 2). |
+| **Reglas de calidad** | El estreno debe reflejarse en la cartelera y disparar las alertas de forma oportuna respecto a la fecha programada. |
+
 ---
 
 ## **3\. Gobernanza y Entrelazamiento (Matrices de Trazabilidad)** {#3.-gobernanza-y-entrelazamiento-(matrices-de-trazabilidad)}
@@ -684,38 +830,46 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | CDU - N3-02 | Reproducir Contenido |
 | CDU - N3-03 | Consultar Ficha Técnica |
 | CDU - N3-04 | Gestionar Filtros |
-| CDU - N4-01 | Emitir Calificación |
-| CDU - N4-02 | Ver % Recomendación |
-| CDU - N4-03 | Consultar % Global de Recomendación |
+| CDU - N4-01 | Emitir/Actualizar Calificación |
+| CDU - N4-02 | Consultar % de Recomendación |
+| CDU - N4-03 | Consultar mi Calificación actual |
+| CDU - N4-04 | Registrar en Bitácora de Auditoría (Trigger) · Fase 2 |
+| CDU - N4-05 | Generar Reporte de Calificaciones · Fase 2 |
 | CDU - N5-01 | Calcular Tarifa Local |
 | CDU - N5-02 | Consultar Tasa de Cambio |
+| CDU - N5-03 | Utilizar Tasa de Cambio de Respaldo |
+| CDU - N5-04 | Generar Reporte Financiero / de Conversiones · Fase 2 |
 | CDU - N6-01 | Registrar Progreso |
-| CDU - N7-01 | Generar Notificación |
+| CDU - N6-02 | Consultar Historial de Reproducción |
+| CDU - N6-03 | Reanudar Reproducción |
+| CDU - N6-04 | Generar Reporte de Consumo · Fase 2 |
+| CDU - N7-01 | Encolar Notificación |
 | CDU - N7-02 | Servir Correo Electrónico |
+| CDU - N7-03 | Programar/Calendarizar Estreno · Fase 2 |
 
 ----
 
 ### Matriz: Requerimientos Funcionales vs. Casos de Uso
 
-| RF | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 |
-|-----|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|
-| RF-01 Registro usuarios | X | | | | | | | | | | | | | | | | | | | | | | |
-| RF-02 Login local + JWT | | X | X | | | | X | | | | | | | | | | | | | | | | |
-| RF-03 Límite 5 perfiles | | | | X | | X | | | | | | | | | | | | | | | | | |
-| RF-04 Trigger auditoría | X | | | | | | | | | | | | | | | | | | | | | | |
-| RF-05 Despliegue planes | | | | | | | X | | X | | | | | | | | | | | | | | |
-| RF-06 Cobro recurrente | | | | | | | | X | | | | | | | | | | | | | | | |
-| RF-07 Autogestión suscripción | | | | | | | | | X | X | | | | | | | | | | | | | |
-| RF-08 Búsqueda multicriterio | | | | | | | | | | | | X | | | X | | | | | | | | |
-| RF-09 Ficha técnica | | | | | | | | | | | | | | X | | | | | | | | | |
-| RF-10 Calificación contenido | | | | | | | | | | | | | | | | X | | | | | | | |
-| RF-11 % Recomendación | | | | | | | | | | | | | | | | | X | X | | | | | |
-| RF-12 Conversión moneda | | | | | | | X | | | | | | | | | | | | X | | | | |
-| RF-13 Caché Redis FX | | | | | | | | | | | | | | | | | | | | X | | | |
-| RF-14 Registro timestamp | | | | | | | | | | | | | X | | | | | | | | X | | |
-| RF-15 Reanudación exacta | | | | | | | | | | | | | X | | | | | | | | | | |
-| RF-16 Encolado notificaciones | | | | | | | | X | | | | | | | | | | | | | | X | |
-| RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | | | | | | | | X |
+| RF | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N4-05 | CDU - N5-03 | CDU - N5-04 | CDU - N6-02 | CDU - N6-03 | CDU - N6-04 | CDU - N7-03 |
+|-----|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+| RF-01 Registro usuarios | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-02 Login local + JWT | | X | X | | | | X | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-03 Límite 5 perfiles | | | | X | | X | | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-04 Trigger auditoría | X | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |  |  |  |
+| RF-05 Despliegue planes | | | | | | | X | | X | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-06 Cobro recurrente | | | | | | | | X | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-07 Autogestión suscripción | | | | | | | | | X | X | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-08 Búsqueda multicriterio | | | | | | | | | | | | X | | | X | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-09 Ficha técnica | | | | | | | | | | | | | | X | | | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-10 Calificación contenido | | | | | | | | | | | | | | | | X | | | | | | | |  |  |  |  |  |  |  |  |
+| RF-11 % Recomendación | | | | | | | | | | | | | | | | | X |  | | | | | |  |  |  |  |  |  |  |  |
+| RF-12 Conversión moneda | | | | | | | X | | | | | | | | | | | | X | | | | |  |  |  |  |  |  |  |  |
+| RF-13 Caché Redis FX | | | | | | | | | | | | | | | | | | | | X | | | |  |  | X |  |  |  |  |  |
+| RF-14 Registro timestamp | | | | | | | | | | | | | X | | | | | | | | X | | |  |  |  |  | X |  |  |  |
+| RF-15 Reanudación exacta | | | | | | | | | | | | | X | | | | | | | | | | |  |  |  |  |  | X |  |  |
+| RF-16 Encolado notificaciones | | | | | | | | X | | | | | | | | | | | | | | X | |  |  |  |  |  |  |  | X |
+| RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |  |  |  |  |
 
 
 ### 3.3 Matriz: Stakeholders vs. Casos de Uso {#3.3-matriz:-stakeholders-vs.-casos-de-uso}
@@ -723,17 +877,19 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 ### Matriz: Stakeholders vs. Casos de Uso
 
 
-| Stakeholder | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 |
-|------------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|
-| ST-01 Usuario Invitado | X | | | | | | | | | | | | | | | | | | | | | | |
-| ST-02 Usuario Registrado | | X | X | | | | X | X | | | X | | X | X | | X | X | X | X | | X | | |
-| ST-03 Usuario Suscriptor | | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | |
-| ST-05 API de Divisas | | | | | | | | | | | | | | | | | | | X | X | | | |
-| ST-06 Servidor SMTP | | | | | | | | | | | | | | | | | | | | | | X | X |
-| ST-07 Juan Pablo (SA) | X | X | | X | | | | X | X | | X | X | X | | | X | | X | | | | X | |
-| ST-08 Ing. SRE / Arquitecto | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X |
+| Stakeholder | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N4-05 | CDU - N5-03 | CDU - N5-04 | CDU - N6-02 | CDU - N6-03 | CDU - N6-04 | CDU - N7-03 |
+|------------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|-------- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+| ST-01 Usuario Invitado | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
+| ST-02 Usuario Registrado | | X | X | | | | X | X | | | X | | X | X | | X | X |  | X | | X | | |  |  |  |  |  |  |  |  |
+| ST-03 Usuario Suscriptor | | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | |  |  |  |  | X | X |  |  |
+| ST-05 API de Divisas | | | | | | | | | | | | | | | | | | | X | X | | | |  |  | X |  |  |  |  |  |
+| ST-06 Servidor SMTP | | | | | | | | | | | | | | | | | | | | | | X | X |  |  |  |  |  |  |  |  |
+| ST-07 Juan Pablo (SA) | X | X | | X | | | | X | X | | X | X | X | | | X | | X | | | | X | |  |  |  |  |  |  |  |  |
+| ST-08 Ing. SRE / Arquitecto | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X |
 
 ----
+
+> **Nota (Fase 2):** Los casos de uso nuevos de Fase 2 (`N4-04`, `N4-05`, `N5-03`, `N5-04`, `N6-02`, `N6-03`, `N6-04`, `N7-03`) se agregaron como columnas en las matrices 3.2 y 3.3. Las relaciones de los casos de uso de **reportes / panel de administración** con **nuevos Requerimientos Funcionales de Fase 2** y con un **stakeholder "Administrador"** dedicado quedan pendientes de la actualización de requisitos/stakeholders de Fase 2; provisionalmente, los casos de uso administrativos se asocian al stakeholder Arquitecto/SRE (ST-08).
 
 
 ### 3.4 Matriz: Requerimientos vs. Requerimientos (Dependencias de ejecución) {#3.4-matriz:-requerimientos-vs.-requerimientos-(dependencias-de-ejecución)}

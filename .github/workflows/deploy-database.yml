@@ -48,7 +48,7 @@ jobs:
           : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "DOCKERHUB_TOKEN missing"; exit 1; }
         shell: bash
 
-      - name: Ensure remote workdir and copy compose + env.example (via Gateway)
+      - name: Ensure remote workdir and copy compose + backup script (via Gateway)
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
@@ -59,11 +59,19 @@ jobs:
 
           # Ensure remote workdir exists (via Gateway)
           ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p ${REMOTE_WORKDIR} && chown ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} ${REMOTE_WORKDIR} || true"
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p ${REMOTE_WORKDIR}/scripts && chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} ${REMOTE_WORKDIR} || true"
 
           # Copy docker-compose.db.yml to remote via Gateway
           scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             docker-compose.db.yml ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_COMPOSE}
+
+          # Copy backup-databases.sh to remote via Gateway
+          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            scripts/backup-databases.sh ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_WORKDIR}/scripts/backup-databases.sh
+
+          # Set executable permissions on backup script
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "chmod +x ${REMOTE_WORKDIR}/scripts/backup-databases.sh"
 
 
       - name: Create env file from secrets and send to remote .env.cloud
@@ -129,7 +137,7 @@ jobs:
           ENV_FILE="${WORKDIR}/.env.cloud"
 
           echo "=== Entering ${WORKDIR} ==="
-          cd "${WORKDIR}" || { echo "❌ Directory not found: ${WORKDIR}"; exit 2; }
+          cd "${WORKDIR}" || { echo " Directory not found: ${WORKDIR}"; exit 2; }
 
           echo "=== Validating docker compose file ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" config || { echo "❌ docker compose config failed"; exit 3; }
@@ -166,7 +174,7 @@ jobs:
           WORKDIR="/home/${{ secrets.SSH_USER }}/quetxal"
           COMPOSE_FILE="${WORKDIR}/docker-compose.db.yml"
           ENV_FILE="${WORKDIR}/.env.cloud"
-          cd "${WORKDIR}" || { echo "❌ Directory not found: ${WORKDIR}"; exit 2; }
+          cd "${WORKDIR}" || { echo " Directory not found: ${WORKDIR}"; exit 2; }
 
           echo "=== Checking PostgreSQL databases ==="
           for db in auth subscription catalog rating fx history notification; do
@@ -213,7 +221,7 @@ jobs:
       - name: Notify failure
         if: failure()
         run: |
-          echo "❌ Database deployment failed"
+          echo " Database deployment failed"
           echo "SSH to Database VM: ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}"
           echo "Check logs: docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.db.yml logs"
           exit 1

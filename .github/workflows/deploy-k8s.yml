@@ -1,0 +1,115 @@
+name: Deploy to Kubernetes (GKE)
+
+on:
+  push:
+    branches:
+      - release # <-- REGLA DEL PROYECTO: Automatización solo en release
+  workflow_dispatch: # <-- EL TRUCO: Permite correrlo a mano desde "develop" o "feature/x" en Github para probar
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: quetxal-cluster    # IMPORTANTE: Cambia esto por el nombre real de tu clúster en GCP
+  GKE_ZONE: us-central1-a         # IMPORTANTE: Cambia esto por la zona de tu clúster
+
+jobs:
+  deploy-to-gke:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 1. Autenticación contra Google Cloud Platform
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+
+    # 2. Configurar el CLI de Kubernetes (kubectl)
+    - name: Set up GKE credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+
+    # 3. Inyectar Secretos de Github Actions en la plantilla secrets.yaml
+    - name: Inject Secrets into Manifest
+      run: |
+        # Exportamos todos los secretos necesarios para el comando envsubst
+        export AUTH_DB_NAME="${{ secrets.AUTH_DB_NAME }}"
+        export AUTH_DB_USER="${{ secrets.AUTH_DB_USER }}"
+        export AUTH_DB_PASSWORD="${{ secrets.AUTH_DB_PASSWORD }}"
+        
+        export SUBSCRIPTION_DB_NAME="${{ secrets.SUBSCRIPTION_DB_NAME }}"
+        export SUBSCRIPTION_DB_USER="${{ secrets.SUBSCRIPTION_DB_USER }}"
+        export SUBSCRIPTION_DB_PASSWORD="${{ secrets.SUBSCRIPTION_DB_PASSWORD }}"
+        
+        export CATALOG_DB_NAME="${{ secrets.CATALOG_DB_NAME }}"
+        export CATALOG_DB_USER="${{ secrets.CATALOG_DB_USER }}"
+        export CATALOG_DB_PASSWORD="${{ secrets.CATALOG_DB_PASSWORD }}"
+        
+        export RATING_DB_NAME="${{ secrets.RATING_DB_NAME }}"
+        export RATING_DB_USER="${{ secrets.RATING_DB_USER }}"
+        export RATING_DB_PASSWORD="${{ secrets.RATING_DB_PASSWORD }}"
+        
+        export FX_DB_NAME="${{ secrets.FX_DB_NAME }}"
+        export FX_DB_USER="${{ secrets.FX_DB_USER }}"
+        export FX_DB_PASSWORD="${{ secrets.FX_DB_PASSWORD }}"
+        
+        export HISTORY_DB_NAME="${{ secrets.HISTORY_DB_NAME }}"
+        export HISTORY_DB_USER="${{ secrets.HISTORY_DB_USER }}"
+        export HISTORY_DB_PASSWORD="${{ secrets.HISTORY_DB_PASSWORD }}"
+        
+        export NOTIFICATION_DB_NAME="${{ secrets.NOTIFICATION_DB_NAME }}"
+        export NOTIFICATION_DB_USER="${{ secrets.NOTIFICATION_DB_USER }}"
+        export NOTIFICATION_DB_PASSWORD="${{ secrets.NOTIFICATION_DB_PASSWORD }}"
+        
+        export REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}"
+        export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+        
+        export FX_API_URL="${{ secrets.FX_API_URL }}"
+        export FX_API_TIMEOUT="${{ secrets.FX_API_TIMEOUT }}"
+        export FX_CACHE_TTL="${{ secrets.FX_CACHE_TTL }}"
+        
+        export SMTP_HOST="${{ secrets.SMTP_HOST }}"
+        export SMTP_USER="${{ secrets.SMTP_USER }}"
+        export SMTP_PASS="${{ secrets.SMTP_PASS }}"
+        export SMTP_FROM="${{ secrets.SMTP_FROM }}"
+        
+        export GCS_ACCESS_KEY="${{ secrets.GCS_ACCESS_KEY }}"
+        export GCS_SECRET_KEY="${{ secrets.GCS_SECRET_KEY }}"
+        export GCS_BUCKET_NAME="${{ secrets.GCS_BUCKET_NAME }}"
+        
+        # Sustituimos las variables del archivo base y lo guardamos temporalmente
+        envsubst < k8s/base/secrets.yaml > k8s/base/secrets-injected.yaml
+        
+        # Ocultamos la impresión en la consola para no revelar contraseñas
+        echo "Secretos inyectados correctamente en los manifiestos."
+
+    # 4. Ajustar el Registry de las imágenes dinámicamente
+    - name: Set correct Docker Registry
+      run: |
+        find k8s/microservices -type f -name "*.yaml" -exec sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" {} +
+        sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" k8s/api-gateway.yaml
+
+    # 5. Desplegar Infraestructura en Kubernetes
+    - name: Deploy Base infrastructure (Namespace, ConfigMap, Secrets)
+      run: |
+        kubectl apply -f k8s/base/namespace.yaml
+        kubectl apply -f k8s/base/configmap.yaml
+        kubectl apply -f k8s/base/secrets-injected.yaml
+
+    - name: Deploy Databases and Cache
+      run: |
+        kubectl apply -f k8s/databases/
+
+    - name: Deploy Microservices and API Gateway
+      run: |
+        kubectl apply -f k8s/microservices/
+        kubectl apply -f k8s/api-gateway.yaml
+
+    - name: Expose Ingress Rules
+      run: |
+        kubectl apply -f k8s/ingress.yaml
+        
+    - name: Clean up temporary secrets
+      run: rm k8s/base/secrets-injected.yaml

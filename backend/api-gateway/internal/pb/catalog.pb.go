@@ -63,6 +63,7 @@ type BuscarContenidoRequest struct {
 	Categoria     string                 `protobuf:"bytes,2,opt,name=categoria,proto3" json:"categoria,omitempty"`
 	Genero        string                 `protobuf:"bytes,3,opt,name=genero,proto3" json:"genero,omitempty"`
 	Actor         string                 `protobuf:"bytes,4,opt,name=actor,proto3" json:"actor,omitempty"`
+	Tipo          string                 `protobuf:"bytes,5,opt,name=tipo,proto3" json:"tipo,omitempty"` // 'pelicula' | 'serie', opcional
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -121,6 +122,13 @@ func (x *BuscarContenidoRequest) GetGenero() string {
 func (x *BuscarContenidoRequest) GetActor() string {
 	if x != nil {
 		return x.Actor
+	}
+	return ""
+}
+
+func (x *BuscarContenidoRequest) GetTipo() string {
+	if x != nil {
+		return x.Tipo
 	}
 	return ""
 }
@@ -607,12 +615,13 @@ const file_proto_catalog_proto_rawDesc = "" +
 	"\n" +
 	"\x13proto/catalog.proto\x12\n" +
 	"catalog.v1\"\x1a\n" +
-	"\x18ExplorarCarteleraRequest\"|\n" +
+	"\x18ExplorarCarteleraRequest\"\x90\x01\n" +
 	"\x16BuscarContenidoRequest\x12\x16\n" +
 	"\x06titulo\x18\x01 \x01(\tR\x06titulo\x12\x1c\n" +
 	"\tcategoria\x18\x02 \x01(\tR\tcategoria\x12\x16\n" +
 	"\x06genero\x18\x03 \x01(\tR\x06genero\x12\x14\n" +
-	"\x05actor\x18\x04 \x01(\tR\x05actor\"\xd2\x01\n" +
+	"\x05actor\x18\x04 \x01(\tR\x05actor\x12\x12\n" +
+	"\x04tipo\x18\x05 \x01(\tR\x04tipo\"\xd2\x01\n" +
 	"\rItemCartelera\x12!\n" +
 	"\fcontenido_id\x18\x01 \x01(\tR\vcontenidoId\x12\x16\n" +
 	"\x06titulo\x18\x02 \x01(\tR\x06titulo\x12\x12\n" +

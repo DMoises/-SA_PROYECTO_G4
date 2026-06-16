@@ -17,6 +17,42 @@ services:
       BILLING_SERVICE_ADDR: ${BILLING_SERVICE_ADDR:-billing-service:50052}
       COOKIE_SECURE: "false"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      # Database configurations for audit logs
+      AUTH_DB_HOST: ${DATABASE_VM_IP:-auth-db}
+      AUTH_DB_PORT: 5432
+      AUTH_DB_NAME: ${AUTH_DB_NAME:-auth_db}
+      AUTH_DB_USER: ${AUTH_DB_USER:-auth_user}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:-admin}
+      SUBSCRIPTION_DB_HOST: ${DATABASE_VM_IP:-subscription-db}
+      SUBSCRIPTION_DB_PORT: 5433
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME:-subscription_db}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER:-subscription_user}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD:-admin}
+      CATALOG_DB_HOST: ${DATABASE_VM_IP:-catalog-db}
+      CATALOG_DB_PORT: 5434
+      CATALOG_DB_NAME: ${CATALOG_DB_NAME:-catalog_db}
+      CATALOG_DB_USER: ${CATALOG_DB_USER:-catalog_user}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD:-admin}
+      RATING_DB_HOST: ${DATABASE_VM_IP:-rating-db}
+      RATING_DB_PORT: 5435
+      RATING_DB_NAME: ${RATING_DB_NAME:-rating_db}
+      RATING_DB_USER: ${RATING_DB_USER:-rating_user}
+      RATING_DB_PASSWORD: ${RATING_DB_PASSWORD:-admin}
+      FX_DB_HOST: ${DATABASE_VM_IP:-fx-db}
+      FX_DB_PORT: 5436
+      FX_DB_NAME: ${FX_DB_NAME:-fx_db}
+      FX_DB_USER: ${FX_DB_USER:-fx_user}
+      FX_DB_PASSWORD: ${FX_DB_PASSWORD:-admin}
+      HISTORY_DB_HOST: ${DATABASE_VM_IP:-history-db}
+      HISTORY_DB_PORT: 5437
+      HISTORY_DB_NAME: ${HISTORY_DB_NAME:-history_db}
+      HISTORY_DB_USER: ${HISTORY_DB_USER:-history_user}
+      HISTORY_DB_PASSWORD: ${HISTORY_DB_PASSWORD:-admin}
+      NOTIFICATION_DB_HOST: ${DATABASE_VM_IP:-notification-db}
+      NOTIFICATION_DB_PORT: 5438
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME:-notification_db}
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER:-notification_user}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-admin}
     networks:
       - quetxal-net
 

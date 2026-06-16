@@ -1,19 +1,11 @@
 name: Deploy Database
 
 on:
-  workflow_run:
-    workflows: ["Build and Push to Docker Hub - Database"]
-    types:
-      - completed
-    branches:
-      - develop
-      - main
   workflow_dispatch:
 
 jobs:
   deploy-database:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success')
 
     env:
       REMOTE_WORKDIR: "/home/${{ secrets.SSH_USER }}/quetxal"
@@ -140,8 +132,8 @@ jobs:
           echo "=== Pulling images (if available) ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" pull || true
 
-          echo "=== Stopping old containers (if any) ==="
-          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" down --remove-orphans || true
+          echo "=== Stopping old containers and removing volumes ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" down -v --remove-orphans || true
 
           echo "=== Starting containers ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" up -d

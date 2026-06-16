@@ -2,7 +2,10 @@
 // de entorno.
 package config
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 type DBConfig struct {
 	Host     string
@@ -22,6 +25,7 @@ type Config struct {
 	RatingServiceAddr   string // direccion gRPC del rating-service
 	CORSOrigin          string // origen permitido (el frontend)
 	HistoryServiceAddr  string // direccion gRPC del history-service
+	CatalogAdminHTTPAddr string // direccion HTTP del servidor admin del catalog-service
 
 	// DB configs
 	AuthDB         DBConfig
@@ -52,6 +56,7 @@ func Load() *Config {
 		RatingServiceAddr:   getEnv("RATING_SERVICE_ADDR", "rating-service:50056"),
 		CORSOrigin:          getEnv("CORS_ORIGIN", "http://localhost:3000"),
 		HistoryServiceAddr:  getEnv("HISTORY_SERVICE_ADDR", "history-service:50057"),
+		CatalogAdminHTTPAddr: getEnv("CATALOG_ADMIN_HTTP_ADDR", "http://catalog-service:8086"),
 
 		AuthDB: DBConfig{
 			Host:     authHost,
@@ -113,7 +118,7 @@ func getEnv(k, def string) string {
 }
 
 func getDBPort(envPort, host string) string {
-	if host == "localhost" || host == "127.0.0.1" {
+	if host == "localhost" || host == "127.0.0.1" || strings.Contains(host, ".") {
 		return envPort
 	}
 	return "5432"

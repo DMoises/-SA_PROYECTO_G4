@@ -53,7 +53,29 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SERVICES_VM_IP: ${{ secrets.SERVICES_VM_IP }}
           GATEWAY_VM_IP: ${{ secrets.GATEWAY_VM_IP }}
+          DATABASE_VM_IP: ${{ secrets.DATABASE_VM_IP }}
           GATEWAY_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/quetxal-api-gateway:latest
+          AUTH_DB_NAME: ${{ secrets.AUTH_DB_NAME || 'auth_db' }}
+          AUTH_DB_USER: ${{ secrets.AUTH_DB_USER || 'auth_user' }}
+          AUTH_DB_PASSWORD: ${{ secrets.AUTH_DB_PASSWORD }}
+          SUBSCRIPTION_DB_NAME: ${{ secrets.SUBSCRIPTION_DB_NAME || 'subscription_db' }}
+          SUBSCRIPTION_DB_USER: ${{ secrets.SUBSCRIPTION_DB_USER || 'subscription_user' }}
+          SUBSCRIPTION_DB_PASSWORD: ${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
+          CATALOG_DB_NAME: ${{ secrets.CATALOG_DB_NAME || 'catalog_db' }}
+          CATALOG_DB_USER: ${{ secrets.CATALOG_DB_USER || 'catalog_user' }}
+          CATALOG_DB_PASSWORD: ${{ secrets.CATALOG_DB_PASSWORD }}
+          RATING_DB_NAME: ${{ secrets.RATING_DB_NAME || 'rating_db' }}
+          RATING_DB_USER: ${{ secrets.RATING_DB_USER || 'rating_user' }}
+          RATING_DB_PASSWORD: ${{ secrets.RATING_DB_PASSWORD }}
+          FX_DB_NAME: ${{ secrets.FX_DB_NAME || 'fx_db' }}
+          FX_DB_USER: ${{ secrets.FX_DB_USER || 'fx_user' }}
+          FX_DB_PASSWORD: ${{ secrets.FX_DB_PASSWORD }}
+          HISTORY_DB_NAME: ${{ secrets.HISTORY_DB_NAME || 'history_db' }}
+          HISTORY_DB_USER: ${{ secrets.HISTORY_DB_USER || 'history_user' }}
+          HISTORY_DB_PASSWORD: ${{ secrets.HISTORY_DB_PASSWORD }}
+          NOTIFICATION_DB_NAME: ${{ secrets.NOTIFICATION_DB_NAME || 'notification_db' }}
+          NOTIFICATION_DB_USER: ${{ secrets.NOTIFICATION_DB_USER || 'notification_user' }}
+          NOTIFICATION_DB_PASSWORD: ${{ secrets.NOTIFICATION_DB_PASSWORD }}
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME} \
@@ -61,7 +83,29 @@ jobs:
             SSH_USER=${SSH_USER} \
             SERVICES_VM_IP=${SERVICES_VM_IP} \
             GATEWAY_VM_IP=${GATEWAY_VM_IP} \
-            GATEWAY_IMAGE=${GATEWAY_IMAGE} bash -s << 'EOF'
+            DATABASE_VM_IP=${DATABASE_VM_IP} \
+            GATEWAY_IMAGE=${GATEWAY_IMAGE} \
+            AUTH_DB_NAME=${AUTH_DB_NAME} \
+            AUTH_DB_USER=${AUTH_DB_USER} \
+            AUTH_DB_PASSWORD=${AUTH_DB_PASSWORD} \
+            SUBSCRIPTION_DB_NAME=${SUBSCRIPTION_DB_NAME} \
+            SUBSCRIPTION_DB_USER=${SUBSCRIPTION_DB_USER} \
+            SUBSCRIPTION_DB_PASSWORD=${SUBSCRIPTION_DB_PASSWORD} \
+            CATALOG_DB_NAME=${CATALOG_DB_NAME} \
+            CATALOG_DB_USER=${CATALOG_DB_USER} \
+            CATALOG_DB_PASSWORD=${CATALOG_DB_PASSWORD} \
+            RATING_DB_NAME=${RATING_DB_NAME} \
+            RATING_DB_USER=${RATING_DB_USER} \
+            RATING_DB_PASSWORD=${RATING_DB_PASSWORD} \
+            FX_DB_NAME=${FX_DB_NAME} \
+            FX_DB_USER=${FX_DB_USER} \
+            FX_DB_PASSWORD=${FX_DB_PASSWORD} \
+            HISTORY_DB_NAME=${HISTORY_DB_NAME} \
+            HISTORY_DB_USER=${HISTORY_DB_USER} \
+            HISTORY_DB_PASSWORD=${HISTORY_DB_PASSWORD} \
+            NOTIFICATION_DB_NAME=${NOTIFICATION_DB_NAME} \
+            NOTIFICATION_DB_USER=${NOTIFICATION_DB_USER} \
+            NOTIFICATION_DB_PASSWORD=${NOTIFICATION_DB_PASSWORD} bash -s << 'EOF'
           set -euo pipefail
 
           # Variables de Entorno Locales en la VM
@@ -101,7 +145,29 @@ jobs:
           export RATING_SERVICE_ADDR="${SERVICES_VM_IP}:50056"
           export FX_SERVICE_ADDR="${SERVICES_VM_IP}:50053"
           export BILLING_SERVICE_ADDR="${SERVICES_VM_IP}:50052"
-          export CORS_ORIGIN="http://${GATEWAY_VM_IP}"          
+          export CORS_ORIGIN="http://${GATEWAY_VM_IP}"
+          export DATABASE_VM_IP="${DATABASE_VM_IP}"
+          export AUTH_DB_NAME="${AUTH_DB_NAME}"
+          export AUTH_DB_USER="${AUTH_DB_USER}"
+          export AUTH_DB_PASSWORD="${AUTH_DB_PASSWORD}"
+          export SUBSCRIPTION_DB_NAME="${SUBSCRIPTION_DB_NAME}"
+          export SUBSCRIPTION_DB_USER="${SUBSCRIPTION_DB_USER}"
+          export SUBSCRIPTION_DB_PASSWORD="${SUBSCRIPTION_DB_PASSWORD}"
+          export CATALOG_DB_NAME="${CATALOG_DB_NAME}"
+          export CATALOG_DB_USER="${CATALOG_DB_USER}"
+          export CATALOG_DB_PASSWORD="${CATALOG_DB_PASSWORD}"
+          export RATING_DB_NAME="${RATING_DB_NAME}"
+          export RATING_DB_USER="${RATING_DB_USER}"
+          export RATING_DB_PASSWORD="${RATING_DB_PASSWORD}"
+          export FX_DB_NAME="${FX_DB_NAME}"
+          export FX_DB_USER="${FX_DB_USER}"
+          export FX_DB_PASSWORD="${FX_DB_PASSWORD}"
+          export HISTORY_DB_NAME="${HISTORY_DB_NAME}"
+          export HISTORY_DB_USER="${HISTORY_DB_USER}"
+          export HISTORY_DB_PASSWORD="${HISTORY_DB_PASSWORD}"
+          export NOTIFICATION_DB_NAME="${NOTIFICATION_DB_NAME}"
+          export NOTIFICATION_DB_USER="${NOTIFICATION_DB_USER}"
+          export NOTIFICATION_DB_PASSWORD="${NOTIFICATION_DB_PASSWORD}"
           docker-compose -f "${COMPOSE_FILE}" down --remove-orphans || true
           docker-compose -f "${COMPOSE_FILE}" up -d
 

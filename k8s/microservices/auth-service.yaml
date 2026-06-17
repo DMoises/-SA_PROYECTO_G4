@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: tu-registro/quetxal-auth-service:v2.0.0 # Esto se reemplazará en CI/CD dinámicamente
+        image: tu-registro/quetxal-auth-service:latest # Esto se reemplazará en CI/CD dinámicamente
         ports:
         - containerPort: 50051
           name: grpc

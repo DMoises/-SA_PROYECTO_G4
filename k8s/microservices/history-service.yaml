@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: history-service
-        image: tu-registro/quetxal-history-service:v2.0.0
+        image: tu-registro/quetxal-history-service:latest
         ports:
         - containerPort: 50057
           name: grpc

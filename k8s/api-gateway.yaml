@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: tu-registro/quetxal-api-gateway:v2.0.0
+        image: tu-registro/quetxal-api-gateway:latest
         ports:
         - containerPort: 8080
           name: http

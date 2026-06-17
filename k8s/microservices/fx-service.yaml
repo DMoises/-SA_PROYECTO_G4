@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: fx-service
-        image: tu-registro/quetxal-fx-service:v2.0.0
+        image: tu-registro/quetxal-fx-service:latest
         ports:
         - containerPort: 50053
           name: grpc

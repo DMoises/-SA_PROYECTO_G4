@@ -49,7 +49,7 @@ export function ContinueWatching() {
 
   const fetchHistory = async (perfilId: string) => {
     try {
-      const res = await fetch(`/api/history/${encodeURIComponent(perfilId)}`)
+      const res = await fetch(`/api/history-bff/${encodeURIComponent(perfilId)}`)
       if (res.ok) {
         const data = await res.json()
         if (Array.isArray(data)) {

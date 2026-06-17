@@ -505,7 +505,7 @@ export default function WatchPage({
       </Link>
 
       <h1 className="mb-5 text-2xl font-bold">
-        Reproduciendo contenido
+        {video ? `Reproduciendo: ${video.nombre}` : 'Reproduciendo contenido'}
       </h1>
 
       {!perfilCargado && (
@@ -614,10 +614,6 @@ export default function WatchPage({
           'permitido' &&
         video && (
           <div>
-            <p className="mb-4 text-sm text-white/60">
-              {video.nombre}
-            </p>
-
             {!playerReady && (
               <p className="mb-3 text-sm text-white/60">
                 Preparando reproductor...

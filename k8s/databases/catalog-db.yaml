@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:15-alpine
+        image: tu-registro/quetxal-catalog-db:latest
         ports:
         - containerPort: 5432
           name: postgres

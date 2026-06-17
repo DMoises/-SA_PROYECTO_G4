@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:15-alpine # Imagen temporal, luego usaremos la del Registry Privado que ustedes compilen
+        image: tu-registro/quetxal-auth-db:latest # Usando la imagen privada con las tablas de la BD
         ports:
         - containerPort: 5432
           name: postgres

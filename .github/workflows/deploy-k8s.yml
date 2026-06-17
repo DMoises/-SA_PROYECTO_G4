@@ -94,6 +94,7 @@ jobs:
     - name: Set correct Docker Registry
       run: |
         find k8s/microservices -type f -name "*.yaml" -exec sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" {} +
+        find k8s/databases -type f -name "*.yaml" -exec sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" {} +
         sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" k8s/api-gateway.yaml
 
     # 5. Desplegar Infraestructura en Kubernetes

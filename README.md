@@ -1060,7 +1060,47 @@ Prohibicion de ORMs Magicos y Uso de SQL Nativo Que: Descartamos el uso de herra
 
 API Gateway como Punto de Entrada Unico (Go) Que: Se implementa un enrutador perimetral utilizando el ecosistema de Go. Por que: Exponer los microservicios directamente a internet viola el Atributo de Calidad de Seguridad (EAC-03) y acopla los clientes directamente a la red interna. Para que: Para centralizar la validacion de los tokens JWT, rechazar peticiones no autorizadas en la frontera de la Zona Desmilitarizada (DMZ) y actuar como un traductor de interoperabilidad que recibe peticiones HTTP/REST del cliente y las convierte en llamadas gRPC de alta velocidad para la comunicacion inter-servicios.
 
-### **5.3 Aplicación de Principios SOLID (Nivel ISM)** {#5.3-aplicación-de-principios-solid-(nivel-ism)}
+## 5.3 Toma y Justificación de Decisiones Técnicas
+
+### 2.1 Lenguajes de Programación Utilizados
+*   **¿Qué?**: Go, Python y TypeScript.
+*   **¿Por qué?**: Go ofrece un rendimiento excepcional, tiempos de compilación bajos y un manejo nativo de concurrencia sumamente eficiente. Python destaca por su agilidad en el desarrollo y un rico ecosistema de librerías para manipulación de datos. TypeScript provee tipado estático robusto sobre JavaScript, previniendo errores en tiempo de ejecución.
+*   **¿Para qué?**: Para cumplir de forma estricta con la restricción del backend políglota, delegando responsabilidades según la fortaleza de cada lenguaje: Go para servicios perimetrales de alta concurrencia, Python para la lógica de catálogos y evaluación, y TypeScript para el frontend y lógicas de dominio complejas.
+
+### 2.2 Frameworks utilizados en el desarrollo
+*   **¿Qué?**: Next.js (Frontend), NestJS (Backend TypeScript para billing), y librerías base gRPC (Go/Python).
+*   **¿Por qué?**: Next.js permite renderizado del lado del servidor (SSR) optimizando la carga inicial del cliente. NestJS impone una arquitectura limpia y modular basada en decoradores e inyección de dependencias. Para Go y Python se optó por implementaciones puras de servidores gRPC sin frameworks web pesados (como FastAPI o Gin).
+*   **¿Para qué?**: Para estandarizar el desarrollo de interfaces (Next.js), estructurar sólidamente el servicio de facturación asegurando mantenibilidad (NestJS), y garantizar comunicaciones internas de red con la menor latencia posible mediante el uso de Protocol Buffers y gRPC puro en el resto de la malla.
+
+### 2.3 Mapeo de Aplicaciones por Microservicio
+*   **¿Qué?**:
+    *   **Go**: `api-gateway`, `auth-service`, `history-service`.
+    *   **Python**: `catalog-service`, `fx-service`, `rating-service`.
+    *   **TypeScript**: `billing-service` (NestJS), `notification-service` (Node.js), `frontend` (Next.js).
+*   **¿Por qué?**: Se asignó Go a la puerta de enlace (API Gateway) y autenticación por su rapidez manejando miles de peticiones y enrutamiento seguro. Python se usó en el catálogo, reviews y conversiones de moneda por su agilidad transaccional. TypeScript se asignó a pagos y notificaciones para mantener coherencia de ecosistema y tipado fuerte en dominios sensibles.
+*   **¿Para qué?**: Para distribuir la carga cognitiva del desarrollo en el equipo y asegurar que cada dominio del negocio se resuelva de manera desacoplada con la pila tecnológica óptima.
+
+### 2.4 Herramienta de Automatización CI/CD
+*   **¿Qué?**: GitHub Actions.
+*   **¿Por qué?**: Está integrado de forma nativa en el control de versiones del repositorio, provee "Runners" administrados que no requieren infraestructura on-premise, y su configuración declarativa mediante YAML facilita la creación condicional de pipelines.
+*   **¿Para qué?**: Para orquestar la compilación automatizada de imágenes, ejecutar pruebas unitarias con un umbral de cortocircuito crítico del 75%, y bifurcar lógicamente el despliegue automático: hacia Google Compute Engine (VMs) al impactar la rama `develop`, y hacia Google Kubernetes Engine al impactar la rama `release`.
+
+### 2.5 Ecosistema de Base de Datos
+*   **¿Qué?**: PostgreSQL (Base de datos relacional) y Redis (Caché en memoria).
+*   **¿Por qué?**: PostgreSQL es un motor robusto, maduro y estrictamente transaccional (ACID) que soporta la programación de Procedimientos Almacenados y Triggers, siendo un requerimiento obligatorio de la rúbrica para la tabla de auditoría. Redis es un almacén clave-valor extremadamente rápido.
+*   **¿Para qué?**: PostgreSQL gestiona la persistencia bajo el patrón "Database per Microservice" aislando la data de cada dominio de negocio. Redis se utiliza específicamente para cachear los tipos de cambio (evitando saturar APIs externas en el `fx-service`) y acelerar consultas recurrentes.
+
+### 2.6 Servicios de Nubes Utilizados
+*   **¿Qué?**: Infraestructura de Google Cloud Platform (GCP) incluyendo GKE, Compute Engine y Google Cloud Storage (GCS).
+*   **¿Por qué?**: GCP provee un ecosistema altamente interoperable. GKE ofrece el estándar de la industria para orquestación nativa de Kubernetes. Cloud Storage es un servicio gestionado para blobs escalable y rentable.
+*   **¿Para qué?**: Google Compute Engine provee la flexibilidad de máquinas virtuales para las pruebas en `develop`. GKE orquesta la topología de producción (`release`) garantizando alta disponibilidad con estrategias de Rollout y Health Checks. Finalmente, GCS abstrae y almacena la multimedia pesada (videos y portadas) entregando el contenido directamente al frontend mediante URLs firmadas/públicas.
+
+### 2.7 Mecanismos de Seguridad (Autenticación y Autorización)
+*   **¿Qué?**: JSON Web Tokens (JWT) a nivel lógico y ConfigMaps/Secrets a nivel de infraestructura.
+*   **¿Por qué?**: JWT provee autenticación "Stateless" (sin estado), ideal para sistemas distribuidos ya que no satura una base de datos centralizada validando cada petición. Los Secrets de Kubernetes cifran la información en etcd.
+*   **¿Para qué?**: JWT se utiliza para afirmar la identidad del usuario en el API Gateway y propagar dichos claims firmados hacia la red interna de microservicios. Adicionalmente, se prohibió el hardcoding; por lo tanto, los ConfigMaps inyectan la configuración genérica, mientras que los Secrets de K8s resguardan y montan de forma segura las credenciales de BD y llaves privadas en tiempo de ejecución de los Pods.
+
+### **5.4 Aplicación de Principios SOLID (Nivel ISM)** {#5.3-aplicación-de-principios-solid-(nivel-ism)}
 
 Quetxal TV es una plataforma de streaming construida como **microservicios políglotas**
 (Go, Python y TypeScript) que se comunican por **gRPC** detrás de un **API Gateway**.
@@ -1222,6 +1262,15 @@ Esta documentación corresponde al **RNF-06 — Mantenibilidad y calidad de cód
 > La misma separación (handler / service / repository / domain) se repite también en
 > **rating** e **history**.
 
+
+<p align="center"><img src="docs/img/solid/srp-01-admin-handler.png" width="820" height="1000" alt="SRP — Separación de Handler HTTP y Repository SQL"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_handler_http.py y admin_repository.py</code></sub></p>
+- **Dónde:** catalog-service (Panel de Administración).
+- **Cómo:** Se separó estrictamente la capa de red de la capa de datos. La clase `AdminHTTPHandler` se encarga **únicamente** de procesar las peticiones web HTTP, parsear JSON y devolver códigos de estado (200, 404, 500). Por otro lado, `AdminRepository` se encarga **únicamente** de ejecutar sentencias SQL.
+- **Por qué (cohesión):** Aislar el manejo del servidor. Si el día de mañana se cambia el framework web del panel de administración, el archivo del repositorio de datos queda intacto.
+
+
+
 ---
 
 #### OCP — Open/Closed Principle
@@ -1255,6 +1304,14 @@ El mismo mecanismo de "repositorio inyectado" hace extensibles a **catalog**, **
 **billing** (un nuevo origen de datos = una nueva clase repositorio), y el **api-gateway** se
 extiende agregando un `client` + `handler` por servicio sin tocar los existentes.
 
+
+<p align="center"><img src="docs/img/solid/ocp-01-audit-trigger.png" width="820" alt="OCP — Implementación de Triggers para Auditoría"/></p>
+<p align="center"><sub><code>database/catalog/06_audit.sql</code></sub></p>
+- **Dónde:** Nivel de Base de Datos (Auditoría Transaccional de la Fase 2).
+- **Cómo:** Para implementar la auditoría obligatoria, no se modificó el código fuente de los microservicios (el repositorio quedó **cerrado** a modificación). En su lugar, el sistema se **abrió** a la extensión mediante la inyección de Triggers en PostgreSQL que interceptan automáticamente cualquier `INSERT` o `UPDATE`.
+- **Por qué (extensibilidad):** Garantiza que la lógica de negocio no se acople al registro de auditorías, haciendo que esta capa de seguridad escale de forma automática sin reescribir código existente.
+
+
 ---
 
 #### LSP — Liskov Substitution Principle
@@ -1281,6 +1338,15 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
   por lo que el servidor gRPC lo registra y lo invoca **como si fuera la clase base**.
 - **Por qué (confiabilidad):** el framework gRPC trata a todos los handlers de forma uniforme; un
   handler mal formado no compilaría ni se registraría.
+
+
+
+<p align="center"><img src="docs/img/solid/lsp-03-admin-http-server.png" width="820" alt="LSP — AdminHTTPHandler hereda de BaseHTTPRequestHandler"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_handler_http.py</code></sub></p>
+- **Dónde:** catalog-service (Manejador de Servidor HTTP).
+- **Cómo:** La clase `AdminHTTPHandler` hereda de `BaseHTTPRequestHandler` (nativa de Python) e implementa correctamente los contratos de la clase padre (`do_GET`, `do_POST`) para manejar las rutas CRUD.
+- **Por qué (confiabilidad):** Permite que la instancia de `HTTPServer` invoque los métodos de nuestro manejador como si fuera la clase padre genérica. Al respetar las firmas, la sustitución no rompe el hilo de ejecución interno del servidor de Python.
+
 
 ---
 
@@ -1317,6 +1383,13 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
   interfaz monolítica que todos deban implementar.
 - **Por qué (modularidad):** un cliente del gateway depende únicamente de las operaciones del
   dominio que consume.
+
+
+<p align="center"><img src="docs/img/solid/isp-04-admin-repo-queries.png" width="820" alt="ISP — Consultas segregadas sin sobrecarga de datos"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_repository.py</code></sub></p>
+- **Dónde:** Consultas de metadatos en el Panel de Administración.
+- **Cómo:** Al enviar datos auxiliares (como listas de géneros o categorías), no se retorna un objeto masivo con relaciones innecesarias. Las consultas están segregadas para retornar diccionarios ligeros con exactamente lo que requiere la vista (`SELECT id, nombre`).
+- **Por qué (bajo acoplamiento):** Reduce el tamaño de la transferencia (Payload) sobre la red. El Frontend de administración solo recibe los campos que estrictamente va a utilizar para poblar sus Dropdowns.
 
 ---
 
@@ -1360,7 +1433,16 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
   dobles (`billing.service.spec.ts`).
 
 > El mismo patrón de inyección está también en **catalog/rating** (`app/server.py`: `db → repo →
-> service → handler`) y **notification** (`DatabaseService` con `DatabaseModule` `@Global`).
+> service → handler`) y **notification** (`DatabaseService` con `DatabaseModule` `@Global`).\
+
+
+<p align="center"><img src="docs/img/solid/dip-04-admin-wiring.png" width="820" alt="DIP — Inyección del Repositorio en el Handler HTTP"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_handler_http.py</code></sub></p>
+- **Dónde:** catalog-service, función `make_server` (Composición).
+- **Cómo:** El manejador de las peticiones web (`AdminHTTPHandler`) no instancia su propia conexión a la BD. El repositorio ya instanciado se le **inyecta** dinámicamente al crear la clase mediante parámetros (`{"repo": repo}`).
+- **Por qué (testabilidad):** Desacopla completamente el servidor HTTP de los datos. Permite que durante pruebas se pueda inyectar un repositorio simulado (Mock) en memoria sin que el servidor web lo note, facilitando el Testing Automatizado de la Fase 2.
+
+
 
 ## **6\. Conclusiones** {#6.-conclusiones}
 

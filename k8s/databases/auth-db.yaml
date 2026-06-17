@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-db
+  namespace: quetxal-tv-prod
+  labels:
+    app: auth-db
+spec:
+  replicas: 1 # Las DBs relacionales suelen tener 1 réplica a menos que se use un clúster tipo Patroni
+  selector:
+    matchLabels:
+      app: auth-db
+  template:
+    metadata:
+      labels:
+        app: auth-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine # Imagen temporal, luego usaremos la del Registry Privado que ustedes compilen
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: AUTH_DB_NAME
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: AUTH_DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: AUTH_DB_PASSWORD
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        # PUNTO 10: Monitoreo de Salud para Base de Datos
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-db
+  namespace: quetxal-tv-prod
+spec:
+  type: ClusterIP # Solo accesible internamente en la malla
+  selector:
+    app: auth-db
+  ports:
+  - port: 5432
+    targetPort: 5432

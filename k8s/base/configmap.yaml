@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quetxal-config
+  namespace: quetxal-tv-prod
+data:
+  # General
+  ENVIRONMENT: "production"
+  TZ: "America/Guatemala"
+  
+  # API Gateway
+  GATEWAY_PORT: "8080"
+  COOKIE_SECURE: "false" # Cambiar a true si se usa HTTPS en Ingress
+  
+  # Microservices Internal Addresses & Ports
+  AUTH_SERVICE_ADDR: "auth-service:50051"
+  BILLING_SERVICE_ADDR: "billing-service:50052"
+  FX_SERVICE_ADDR: "fx-service:50053"
+  NOTIFICATION_SERVICE_ADDR: "notification-service:50054"
+  CATALOG_SERVICE_ADDR: "catalog-service:50055"
+  HISTORY_SERVICE_ADDR: "history-service:50057"
+  
+  # DB Internal Hosts & Ports
+  AUTH_DB_HOST: "auth-db"
+  AUTH_DB_PORT_INTERNAL: "5432"
+  SUBSCRIPTION_DB_HOST: "subscription-db"
+  SUBSCRIPTION_DB_PORT: "5432"
+  CATALOG_DB_HOST: "catalog-db"
+  CATALOG_DB_PORT_INTERNAL: "5432"
+  RATING_DB_HOST: "rating-db" # Segun compose
+  FX_DB_HOST: "fx-db"
+  FX_DB_PORT: "5432"
+  HISTORY_DB_HOST: "history-db"
+  NOTIFICATION_DB_HOST: "notification-db"
+  NOTIFICATION_DB_PORT_INTERNAL: "5432"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+
+  # Database SSL
+  DB_SSLMODE: "disable"
+  
+  # Other Settings
+  JWT_TTL_MIN: "60"
+  SMTP_PORT: "587"
+  SMTP_SECURE: "false"

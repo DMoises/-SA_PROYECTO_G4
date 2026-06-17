@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fx-service
+  namespace: quetxal-tv-prod
+  labels:
+    app: fx-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: fx-service
+  template:
+    metadata:
+      labels:
+        app: fx-service
+    spec:
+      containers:
+      - name: fx-service
+        image: tu-registro/quetxal-fx-service:v2.0.0
+        ports:
+        - containerPort: 50053
+          name: grpc
+        envFrom:
+        - configMapRef:
+            name: quetxal-config
+        env:
+        - name: GRPC_PORT
+          value: "50053"
+        - name: FX_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_DB_NAME
+        - name: FX_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_DB_USER
+        - name: FX_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_DB_PASSWORD
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: REDIS_PASSWORD
+        - name: FX_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_API_URL
+        - name: FX_API_TIMEOUT
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_API_TIMEOUT
+        - name: FX_CACHE_TTL
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_CACHE_TTL
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "150m"
+        readinessProbe:
+          tcpSocket:
+            port: 50053
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 50053
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fx-service
+  namespace: quetxal-tv-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: fx-service
+  ports:
+  - port: 50053
+    targetPort: 50053

@@ -47,8 +47,10 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _read_json(self) -> Any:
+        print(f"[admin-http] HEADERS: {dict(self.headers)}", flush=True)
         length = int(self.headers.get("Content-Length", 0))
         raw = self.rfile.read(length) if length else b"{}"
+        print(f"[admin-http] RAW BODY: {raw}", flush=True)
         return json.loads(raw)
 
     # ------------------------------------------------------------------
@@ -76,6 +78,18 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
             self._send(200, self.repo.listar_categorias())
             return
 
+        m_video_epi = re.fullmatch(r"/admin/videos/([^/]+)/temporadas/(\d+)/episodios/(\d+)", path)
+        if m_video_epi:
+            url = self.repo.obtener_video_episodio(m_video_epi.group(1), int(m_video_epi.group(2)), int(m_video_epi.group(3)))
+            self._send(200, {"video_url": url})
+            return
+
+        m_video_peli = re.fullmatch(r"/admin/videos/([^/]+)", path)
+        if m_video_peli:
+            url = self.repo.obtener_video_pelicula(m_video_peli.group(1))
+            self._send(200, {"video_url": url})
+            return
+
         self._send(404, {"error": "ruta no encontrada"})
 
     def do_POST(self) -> None:
@@ -100,6 +114,7 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
         if m:
             try:
                 datos = self._read_json()
+                print(f"[admin-http] DATOS RECIBIDOS EN PUT: {datos}", flush=True)
                 actualizado = self.repo.actualizar_contenido(m.group(1), datos)
                 if actualizado is None:
                     self._send(404, {"error": "no encontrado"})

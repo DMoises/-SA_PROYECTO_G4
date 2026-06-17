@@ -88,12 +88,12 @@ class AdminRepository:
             UPDATE contenido SET
                 titulo        = COALESCE(%(titulo)s,        titulo),
                 tipo          = COALESCE(%(tipo)s::tipo_contenido, tipo),
-                sinopsis      = COALESCE(%(sinopsis)s,      sinopsis),
-                anio          = COALESCE(%(anio)s,          anio),
+                sinopsis      = %(sinopsis)s,
+                anio          = %(anio)s,
                 clasificacion = COALESCE(%(clasificacion)s::clasificacion_edad, clasificacion),
-                duracion_min  = COALESCE(%(duracion_min)s,  duracion_min),
-                portada_url   = COALESCE(%(portada_url)s,   portada_url),
-                video_url     = COALESCE(%(video_url)s,     video_url),
+                duracion_min  = %(duracion_min)s,
+                portada_url   = %(portada_url)s,
+                video_url     = %(video_url)s,
                 fecha_estreno = %(fecha_estreno)s,
                 activo        = COALESCE(%(activo)s,        activo)
             WHERE id = %(id)s::uuid
@@ -143,6 +143,26 @@ class AdminRepository:
 
     def listar_categorias(self) -> list[dict[str, Any]]:
         return self.db.fetch_all("SELECT id, nombre FROM categorias ORDER BY nombre")
+
+    # ---- Obtener URLs de Video ----
+    def obtener_video_pelicula(self, contenido_id: str) -> Optional[str]:
+        row = self.db.fetch_one(
+            "SELECT video_url FROM contenido WHERE id = %(id)s::uuid AND tipo = 'pelicula'",
+            {"id": contenido_id}
+        )
+        return row["video_url"] if row else None
+
+    def obtener_video_episodio(self, contenido_id: str, temporada: int, episodio: int) -> Optional[str]:
+        row = self.db.fetch_one(
+            """
+            SELECT e.video_url 
+            FROM episodios e
+            JOIN temporadas t ON t.id = e.temporada_id
+            WHERE t.contenido_id = %(id)s::uuid AND t.numero = %(temporada)s AND e.numero = %(episodio)s
+            """,
+            {"id": contenido_id, "temporada": temporada, "episodio": episodio}
+        )
+        return row["video_url"] if row else None
 
     # ---- Helpers internos ----
     def _sync_generos(self, contenido_id: Any, generos: list[str]) -> None:

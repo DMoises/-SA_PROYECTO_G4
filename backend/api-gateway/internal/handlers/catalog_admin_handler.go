@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,11 +25,24 @@ func (h *CatalogAdminHandler) proxy(w http.ResponseWriter, r *http.Request) {
 	backendPath := strings.TrimPrefix(r.URL.RequestURI(), "/catalog")
 	targetURL := fmt.Sprintf("%s%s", h.adminBaseURL, backendPath)
 
-	proxyReq, err := http.NewRequestWithContext(r.Context(), r.Method, targetURL, r.Body)
+	var bodyReader io.Reader = r.Body
+	var contentLength int64 = r.ContentLength
+
+	if r.Method == http.MethodPost || r.Method == http.MethodPut {
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err == nil {
+			bodyReader = bytes.NewReader(bodyBytes)
+			contentLength = int64(len(bodyBytes))
+		}
+	}
+
+	proxyReq, err := http.NewRequestWithContext(r.Context(), r.Method, targetURL, bodyReader)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "error interno"})
 		return
 	}
+	proxyReq.ContentLength = contentLength
+
 	if ct := r.Header.Get("Content-Type"); ct != "" {
 		proxyReq.Header.Set("Content-Type", ct)
 	}

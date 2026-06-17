@@ -178,8 +178,8 @@ jobs:
           echo "=== Estado de los contenedores desplegados ==="
           docker-compose -f "${COMPOSE_FILE}" ps
 
-          echo "=== Limpieza de imágenes huérfanas para optimizar almacenamiento ==="
-          docker image prune -f || true
+          echo "=== Limpieza de sistema Docker para optimizar almacenamiento ==="
+          docker system prune -af || true
           
           EOF
 

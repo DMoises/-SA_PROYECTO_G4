@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: tu-registro/quetxal-catalog-db:latest
+        image: tu-registro/quetxal-catalog-db:01ffa0c62f8d7bb18cea83fb842a33084100e6b7
         ports:
         - containerPort: 5432
           name: postgres

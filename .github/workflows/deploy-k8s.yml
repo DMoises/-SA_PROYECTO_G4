@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - release # <-- REGLA DEL PROYECTO: Automatización solo en release
+      - 'release/**' # Para detectar ramas como release/v2.0.0
   workflow_dispatch: # <-- EL TRUCO: Permite correrlo a mano desde "develop" o "feature/x" en Github para probar
 
 env:

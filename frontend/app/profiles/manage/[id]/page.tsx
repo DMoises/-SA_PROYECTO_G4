@@ -51,17 +51,6 @@ export default function EditProfilePage({ params }: PageProps) {
           const allProfiles = Array.isArray(data) ? data : data.perfiles || []
           
           if (allProfiles.length > 0) {
-            // Re-verify that user has access to manage
-            const stored = localStorage.getItem('selectedProfile')
-            let currentId: string | null = null;
-            if (stored) {
-              try { currentId = JSON.parse(stored).id } catch {}
-            }
-            if (currentId !== allProfiles[0].id) {
-              router.push('/browse')
-              return
-            }
-
             // check if the current profile being edited is the main profile
             setIsMainProfile(id === allProfiles[0].id)
             

@@ -50,6 +50,7 @@ def _item(row: dict[str, Any]) -> pb.ItemCartelera:
         clasificacion=row["clasificacion"],
         generos=row["generos"] or "",
         categorias=row["categorias"] or "",
+        portada_url=row.get("portada_url") or "",
     )
 
 
@@ -82,4 +83,6 @@ def _ficha(f: dict[str, Any]) -> pb.FichaTecnicaResponse:
             )
             for t in f["temporadas"]
         ],
+        portada_url=f.get("portada_url") or "",
     )
+

@@ -25,11 +25,12 @@ message BuscarContenidoRequest {
 message ItemCartelera {
   string contenido_id  = 1;
   string titulo        = 2;
-  string tipo          = 3;
+  string tipo          = 3; // pelicula | serie
   int32  anio          = 4;
-  string clasificacion = 5;
-  string generos       = 6;
-  string categorias    = 7;
+  string clasificacion = 5; // TP | +7 | +13 | +16 | +18
+  string generos       = 6; // lista separada por coma
+  string categorias    = 7; // lista separada por coma
+  string portada_url   = 8;
 }
 
 message CarteleraResponse {
@@ -43,7 +44,7 @@ message FichaTecnicaRequest {
 message MiembroReparto {
   string actor     = 1;
   string personaje = 2;
-  string rol       = 3;
+  string rol       = 3; // protagonista | secundario
 }
 
 message Episodio {
@@ -60,13 +61,14 @@ message Temporada {
 message FichaTecnicaResponse {
   string                  contenido_id  = 1;
   string                  titulo        = 2;
-  string                  tipo          = 3;
+  string                  tipo          = 3; // pelicula | serie
   string                  sinopsis      = 4;
   int32                   anio          = 5;
   string                  clasificacion = 6;
   int32                   duracion_min  = 7;
-  string                  generos       = 8;
-  string                  categorias    = 9;
+  string                  generos       = 8; // lista separada por coma
+  string                  categorias    = 9; // lista separada por coma
   repeated MiembroReparto reparto       = 10;
-  repeated Temporada      temporadas    = 11;
+  repeated Temporada      temporadas    = 11; // solo si tipo = serie
+  string                  portada_url   = 12;
 }

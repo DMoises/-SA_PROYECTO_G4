@@ -36,6 +36,7 @@ message ItemCartelera {
   string clasificacion = 5; // TP | +7 | +13 | +16 | +18
   string generos       = 6; // lista separada por coma
   string categorias    = 7; // lista separada por coma
+  string portada_url   = 8;
 }
 
 message CarteleraResponse {
@@ -75,4 +76,6 @@ message FichaTecnicaResponse {
   string                  categorias    = 9; // lista separada por coma
   repeated MiembroReparto reparto       = 10;
   repeated Temporada      temporadas    = 11; // solo si tipo = serie
+  string                  portada_url   = 12;
 }
+

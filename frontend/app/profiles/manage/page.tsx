@@ -49,15 +49,9 @@ export default function ManageProfilesPage() {
         .then(res => res.json())
         .then(data => {
           const allProfiles = Array.isArray(data) ? data : data.perfiles || []
-          
-          if (allProfiles.length > 0 && currentId !== allProfiles[0].id) {
-            // Not main profile, redirect to browse
-            router.push('/browse')
-            return
-          }
-
           setPerfiles(allProfiles)
           setIsLoadingPerfiles(false)
+
         })
         .catch(err => {
           console.error('Error cargando perfiles:', err)

@@ -23,8 +23,11 @@ from .admin_repository import AdminRepository
 def _json(data: Any) -> bytes:
     def default(o: Any) -> Any:
         import datetime
+        import uuid
         if isinstance(o, (datetime.datetime, datetime.date)):
             return o.isoformat()
+        if isinstance(o, uuid.UUID):
+            return str(o)
         raise TypeError(f"Object of type {type(o)} is not JSON serializable")
     return json.dumps(data, default=default).encode("utf-8")
 

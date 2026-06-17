@@ -173,13 +173,24 @@ class AdminRepository:
         for nombre in generos:
             if not nombre.strip():
                 continue
-            row = self.db.execute_returning(
-                "INSERT INTO generos (nombre) VALUES (%(n)s) ON CONFLICT (nombre) DO UPDATE SET nombre = EXCLUDED.nombre RETURNING id",
-                {"n": nombre.strip()},
+            nombre_clean = nombre.strip()
+            # Buscar si el genero ya existe para evitar la auditoria redundante de UPDATE
+            row_exist = self.db.fetch_one(
+                "SELECT id FROM generos WHERE nombre = %(n)s",
+                {"n": nombre_clean}
             )
+            if row_exist:
+                genero_id = row_exist["id"]
+            else:
+                row = self.db.execute_returning(
+                    "INSERT INTO generos (nombre) VALUES (%(n)s) RETURNING id",
+                    {"n": nombre_clean},
+                )
+                genero_id = row["id"]
+
             self.db.execute(
                 "INSERT INTO contenido_genero (contenido_id, genero_id) VALUES (%(cid)s::uuid, %(gid)s) ON CONFLICT DO NOTHING",
-                {"cid": str(contenido_id), "gid": row["id"]},
+                {"cid": str(contenido_id), "gid": genero_id},
             )
 
     def _sync_categorias(self, contenido_id: Any, categorias: list[str]) -> None:
@@ -190,13 +201,24 @@ class AdminRepository:
         for nombre in categorias:
             if not nombre.strip():
                 continue
-            row = self.db.execute_returning(
-                "INSERT INTO categorias (nombre) VALUES (%(n)s) ON CONFLICT (nombre) DO UPDATE SET nombre = EXCLUDED.nombre RETURNING id",
-                {"n": nombre.strip()},
+            nombre_clean = nombre.strip()
+            # Buscar si la categoria ya existe para evitar la auditoria redundante de UPDATE
+            row_exist = self.db.fetch_one(
+                "SELECT id FROM categorias WHERE nombre = %(n)s",
+                {"n": nombre_clean}
             )
+            if row_exist:
+                categoria_id = row_exist["id"]
+            else:
+                row = self.db.execute_returning(
+                    "INSERT INTO categorias (nombre) VALUES (%(n)s) RETURNING id",
+                    {"n": nombre_clean},
+                )
+                categoria_id = row["id"]
+
             self.db.execute(
                 "INSERT INTO contenido_categoria (contenido_id, categoria_id) VALUES (%(cid)s::uuid, %(catid)s) ON CONFLICT DO NOTHING",
-                {"cid": str(contenido_id), "catid": row["id"]},
+                {"cid": str(contenido_id), "catid": categoria_id},
             )
 
     def _refresh_cartelera(self) -> None:

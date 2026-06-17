@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Film, CalendarDays, LogOut } from 'lucide-react'
+import { LayoutDashboard, Film, CalendarDays, LogOut, Activity } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
 
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/catalog', label: 'Catálogo', icon: Film },
   { href: '/admin/estrenos', label: 'Estrenos', icon: CalendarDays },
+  { href: '/admin/auditoria', label: 'Auditoría', icon: Activity },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

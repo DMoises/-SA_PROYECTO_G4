@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: billing-service
-        image: tu-registro/quetxal-billing-service:v2.0.0
+        image: tu-registro/quetxal-billing-service:latest
         ports:
         - containerPort: 50052
           name: grpc

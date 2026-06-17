@@ -89,4 +89,4 @@ BEGIN
         (v_serie, a2, 'Balam', 'protagonista');
 END; $$;
 
-CALL sp_RefrescarCartelera();
+REFRESH MATERIALIZED VIEW vw_cartelera;

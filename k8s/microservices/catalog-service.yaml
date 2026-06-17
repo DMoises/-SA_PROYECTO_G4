@@ -26,6 +26,8 @@ spec:
         ports:
         - containerPort: 50055
           name: grpc
+        - containerPort: 8086
+          name: http-admin
         envFrom:
         - configMapRef:
             name: quetxal-config
@@ -77,3 +79,7 @@ spec:
   ports:
   - port: 50055
     targetPort: 50055
+    name: grpc
+  - port: 8086
+    targetPort: 8086
+    name: http-admin

@@ -980,6 +980,13 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 ----
 ### **4.2 Vista Lógica y Estilos Arquitectónicos** {#4.2-vista-lógica-y-estilos-arquitectónicos}
 
+
+#### 4.2.1 Diagrama de Bloques de Alto Nivel:
+
+<div align="center">
+  <img src="./assets/DiagramaAltoNivelF2.svg" alt="" width="900"/>
+</div>
+
 #### 4.2.2 Frontera Lógica de Datos (Diagramas ER Desacoplados): {#4.2.2-frontera-lógica-de-datos-(diagramas-er-desacoplados):}
 
 *Obligatorio: Un esquema por cada microservicio, sin llaves foráneas cruzadas y con Triggers/SPs modelados visualmente.*

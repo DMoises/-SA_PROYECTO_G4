@@ -174,7 +174,7 @@ jobs:
         done
         # 2) Luego los microservicios. Timeout amplio (240s): un redeploy de toda la malla
         #    tarda mucho mas de 60s y 60s disparaba un Rollback en falso.
-        SERVICES=("auth-service" "billing-service" "catalog-service" "frontend" "fx-service" "history-service" "notification-service")
+        SERVICES=("auth-service" "billing-service" "catalog-service" "rating-service" "frontend" "fx-service" "history-service" "notification-service")
         for SERVICE in "${SERVICES[@]}"; do
           echo "Verificando estado de $SERVICE..."
           kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=240s
@@ -184,7 +184,7 @@ jobs:
       if: failure()
       run: |
         echo "🚨 Falla detectada en el despliegue. Iniciando Rollback automático..."
-        SERVICES=("auth-service" "billing-service" "catalog-service" "frontend" "fx-service" "history-service" "notification-service")
+        SERVICES=("auth-service" "billing-service" "catalog-service" "rating-service" "frontend" "fx-service" "history-service" "notification-service")
         for SERVICE in "${SERVICES[@]}"; do
           echo "Revirtiendo $SERVICE..."
           kubectl rollout undo deployment/$SERVICE -n quetxal-tv-prod || true

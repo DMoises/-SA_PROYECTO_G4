@@ -175,7 +175,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N1-08: Seleccionar Perfil
 
 
-![Módulo 1](/-SA_PROYECTO_G4/assets/f2/identidad.png)
+![Módulo 1](./assets/f2/identidad.png)
 
 
 
@@ -307,7 +307,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N2-03: Actualizar Plan de Suscripción
 - CDU-N2-04: Cancelar Suscripción Activa
 
-![Módulo 2](/-SA_PROYECTO_G4/assets/f2/suscripciones.png)  <br/><br/>
+![Módulo 2](./assets/f2/suscripciones.png)  <br/><br/>
 
 ### Especificación CDU-N2-01 — Adquirir Plan de Suscripción
 
@@ -384,7 +384,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N3-03: Consultar Ficha Técnica y Reparto
 - CDU-N3-04: Gestionar Filtros
 
-![Módulo 3](/-SA_PROYECTO_G4/assets/f2/catalogo.png)  <br/><br/>
+![Módulo 3](./assets/f2/catalogo.png)  <br/><br/>
 
 
 
@@ -468,7 +468,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N4-03: Consultar mi Calificación actual
 - CDU-N4-04: Registrar en Bitácora de Auditoría (Trigger)
 
-![Módulo 4](/-SA_PROYECTO_G4/assets/f2/calificaciones.png)  <br/><br/>
+![Módulo 4](./assets/f2/calificaciones.png)  <br/><br/>
 
 
 
@@ -551,7 +551,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N5-03: Utilizar Tasa de Cambio de Respaldo
 
 
-![Módulo 5](/-SA_PROYECTO_G4/assets/f2/servicio_fx.png)  <br/><br/>
+![Módulo 5](./assets/f2/servicio_fx.png)  <br/><br/>
 
 
 ---
@@ -616,7 +616,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N6-02: Consultar Historial de Reproducción
 - CDU-N6-03: Reanudar Reproducción
 
-![Módulo 6](/-SA_PROYECTO_G4/assets/f2/historial.png)  <br/><br/>
+![Módulo 6](../assets/f2/historial.png)  <br/><br/>
 
 
 
@@ -682,7 +682,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N7-03: Programar/Calendarizar Estreno
 
 
-![Módulo 7](/-SA_PROYECTO_G4/assets/f2/notificaciones.png)  <br/><br/>
+![Módulo 7](./assets/f2/notificaciones.png)  <br/><br/>
 
 
 ---
@@ -748,7 +748,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N8-05: Programar/Calendarizar Estreno
 - CDU-N8-06: Generar Reporte de Auditoría (CSV/PDF)
 
-![Módulo 8](/-SA_PROYECTO_G4/assets/f2/admin.png)  <br/><br/>
+![Módulo 8](./assets/f2/admin.png)  <br/><br/>
 
 ---
 
@@ -1096,37 +1096,85 @@ Esta sección formaliza las relaciones de Fase 2 que en la primera entrega queda
 
 #### 4.2.2 Frontera Lógica de Datos (Diagramas ER Desacoplados): {#4.2.2-frontera-lógica-de-datos-(diagramas-er-desacoplados):}
 
-*Obligatorio: Un esquema por cada microservicio, sin llaves foráneas cruzadas y con Triggers/SPs modelados visualmente.*
+**Justificación Arquitectónica: ¿Por qué y para qué se definieron estos componentes?**
 
-Cada microservicio expone su propio esquema (patrón *Database per Microservice*, RES-02): **sin llaves foráneas físicas entre dominios** (las referencias cruzadas son lógicas, por `id`), y con sus **vistas, triggers, funciones y stored procedures** modelados (RES-04). A continuación, el ER de cada dominio por separado:
+
+*   **Tablas Aisladas:** 
+    *   **¿Por qué?** Para garantizar la cohesión funcional y el desacoplamiento de los microservicios.
+    *   **¿Para qué?** Para que cada equipo o servicio pueda escalar, modificar y migrar sus esquemas de forma independiente sin afectar o romper el código de otros dominios. Las referencias cruzadas se manejan lógicamente mediante `id` (ej. el `usuario_id` en Calificaciones existe sin FK real hacia Identidad).
+*   **Funciones y Procedimientos Almacenados (SPs):**
+    *   **¿Por qué?** Para encapsular lógica transaccional compleja o cálculos intensivos (ej. cobros recurrentes, actualización de tasas FX, encolado de correos Outbox) que requieren estricta atomicidad a nivel de datos (ACID).
+    *   **¿Para qué?** Para centralizar el procesamiento pesado en el motor de BD, reduciendo la latencia de transferencia de datos por la red y evitando que los microservicios manejen lógicas de reversión de transacciones complejas manualmente.
+*   **Triggers (Disparadores):**
+    *   **¿Por qué?** Porque la restricción técnica **RES-04** exige un registro infalible de todo cambio en el sistema para cumplimiento normativo y auditorías.
+    *   **¿Para qué?** Para interceptar eventos de modificación (`INSERT`, `UPDATE`, `DELETE`) de forma automática, poblando las tablas de `auditoria_transaccional` o recalculando métricas de manera "silenciosa", garantizando que incluso si un desarrollador olvida auditar desde el microservicio, la base de datos lo hará obligatoriamente.
+*   **Vistas:**
+    *   **¿Por qué?** Para abstraer consultas recurrentes de múltiples uniones o filtrados lógicos de estado.
+    *   **¿Para qué?** Para proveer interfaces de lectura limpias y seguras hacia los workers (ej. la `vista_buzon_pendiente` para el envío de correos), mejorando el rendimiento de lectura y ocultando la complejidad del modelo base al código de la aplicación.
+
+A continuación, se detalla el Modelo Entidad-Relación y los componentes implementados de forma independiente para cada uno de los 7 dominios:
 
 **Dominio 1 — Identidad (Go) · IdentityDB**
 
-<p align="center"><img src="assets/er/er-1-identidad.png" width="860" alt="ER — Identidad"/></p>
+* **Tablas:** auditoria_transaccional, auditoria_usuarios, perfiles, usuarios
+* **Funciones:** trg_fn_audit_credenciales, trg_fn_auditar_transaccion, trg_fn_limite_perfiles, trg_fn_timestamp
+* **Triggers:** trg_AuditCredenciales, trg_audit_perfiles, trg_audit_usuarios, trg_limite_perfiles, trg_timestamp_usuarios
+
+<p align="center"><img src="assets/f2/db/identidad.png" width="860" alt="ER — Identidad"/></p>
 
 **Dominio 2 — Suscripciones (TypeScript) · BillingDB**
 
-<p align="center"><img src="assets/er/er-2-suscripciones.png" width="860" alt="ER — Suscripciones"/></p>
+* **Tablas:** auditoria_transaccional, pagos, planes, suscripciones
+* **Funciones:** trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_ProcesarRenovacion
+* **Triggers:** trg_audit_pagos, trg_audit_planes, trg_audit_suscripciones
+
+<p align="center"><img src="assets/f2/db/suscripciones.png" width="860" alt="ER — Suscripciones"/></p>
 
 **Dominio 3 — Catálogo (Python) · CatalogDB**
 
-<p align="center"><img src="assets/er/er-3-catalogo.png" width="860" alt="ER — Catálogo"/></p>
+* **Tablas:** actores, auditoria_transaccional, categorias, contenido, contenido_categoria, contenido_genero, episodios, generos, reparto, temporadas
+* **Funciones:** trg_fn_auditar_transaccion, trg_fn_validar_temporada
+* **Triggers:** trg_audit_actores, trg_audit_categorias, trg_audit_contenido, trg_audit_contenido_categoria, trg_audit_contenido_genero, trg_audit_episodios, trg_audit_generos, trg_audit_reparto, trg_audit_temporadas, trg_validar_temporada
+
+<p align="center"><img src="assets/f2/db/catalogo.png" width="860" alt="ER — Catálogo"/></p>
 
 **Dominio 4 — Calificaciones (Python) · RatingsDB**
 
-<p align="center"><img src="assets/er/er-4-calificaciones.png" width="860" alt="ER — Calificaciones"/></p>
+* **Tablas:** auditoria_transaccional, calificacion_usuario, resumen_recomendacion
+* **Funciones:** fn_RecalcularPorcentaje, fn_es_positiva, trg_fn_auditar_transaccion, trg_fn_refrescar_resumen
+* **Triggers:** trg_audit_calificacion_usuario, trg_audit_resumen_recomendacion, trg_refrescar_resumen
+
+<p align="center"><img src="assets/f2/db/calificaciones.png" width="860" alt="ER — Calificaciones"/></p>
 
 **Dominio 5 — Servicio FX (Python) · FXDB + Redis**
 
-<p align="center"><img src="assets/er/er-5-fx.png" width="860" alt="ER — Servicio FX"/></p>
+* **Tablas:** auditoria_transaccional, monedas, tipos_cambio
+* **Funciones:** fn_convertir, trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_actualizar_tasa
+* **Triggers:** trg_audit_monedas, trg_audit_tipos_cambio
+
+<p align="center"><img src="assets/f2/db/servicio_fx.png" width="860" alt="ER — Servicio FX"/></p>
 
 **Dominio 6 — Historial (Go) · HistoryDB**
 
-<p align="center"><img src="assets/er/er-6-historial.png" width="860" alt="ER — Historial"/></p>
+* **Tablas:** auditoria_transaccional, progreso_reproduccion
+* **Vistas:** vw_historial_reciente
+* **Funciones:** fn_porcentaje_visto, trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_guardar_progreso
+* **Triggers:** trg_audit_progreso_reproduccion
+
+<p align="center"><img src="assets/f2/db/historial.png" width="860" alt="ER — Historial"/></p>
 
 **Dominio 7 — Notificaciones (TypeScript) · NotificationDB**
 
-<p align="center"><img src="assets/er/er-7-notificaciones.png" width="860" alt="ER — Notificaciones"/></p>
+* **Tablas:** auditoria_transaccional, buzon_salida
+* **Vistas:** vista_buzon_pendiente
+* **Funciones:** trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_encolar_correo
+* **Triggers:** trg_audit_buzon_salida
+
+<p align="center"><img src="assets/f2/db/notificaciones.png" width="860" alt="ER — Notificaciones"/></p>
 
 ### **4.3 Vista de Procesos** {#4.3-vista-de-procesos}
 

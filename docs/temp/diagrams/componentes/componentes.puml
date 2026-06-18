@@ -1,0 +1,83 @@
+@startuml
+skinparam componentStyle uml2
+left to right direction
+
+title Vista de Componentes y Persistencia (Nivel PIM) - Quetxal TV
+
+actor "Cliente Web/Móvil" as cliente
+
+package "Capa Perimetral" {
+  [Ingress Controller] as ingress
+  [Frontend (SPA)] as front
+  [API Gateway] as apigw
+}
+
+cliente --> ingress : HTTP/HTTPS
+ingress --> front : Regla: www.*
+ingress --> apigw : Regla: api.*
+front ..> apigw : Peticiones AJAX/REST (JWT)
+
+package "Ecosistema de Microservicios (Backend Políglota)" {
+  [auth-service] as auth
+  [catalog-service] as cat
+  [billing-service] as bill
+  [fx-service] as fx
+  [history-service] as hist
+  [notification-service] as notif
+}
+
+apigw --> auth : gRPC
+apigw --> cat : gRPC
+apigw --> bill : gRPC
+apigw --> fx : gRPC
+apigw --> hist : gRPC
+apigw --> notif : gRPC
+
+package "Capa de Persistencia y Caché" {
+  database "auth-db\n(PostgreSQL)" as db_auth {
+      [Tabla Usuarios]
+      [Trigger Auditoría]
+      [Tabla Audit]
+  }
+  database "catalog-db\n(PostgreSQL)" as db_cat {
+      [Tabla Peliculas/Series]
+      [Trigger Auditoría]
+      [Tabla Audit_Cat]
+  }
+  database "rating-db\n(PostgreSQL)" as db_rat
+  database "subscription-db\n(PostgreSQL)" as db_sub {
+      [Tabla Suscripciones]
+      [Trigger Auditoría]
+      [Tabla Audit_Sub]
+  }
+  database "fx-db\n(PostgreSQL)" as db_fx
+  database "redis\n(Caché)" as db_redis
+  database "history-db\n(PostgreSQL)" as db_hist {
+      [Tabla Progreso]
+      [Trigger Auditoría]
+      [Tabla Audit_Hist]
+  }
+  database "notification-db\n(PostgreSQL)" as db_notif
+}
+
+auth --> db_auth : TCP :5432
+cat --> db_cat : TCP :5432
+cat --> db_rat : TCP :5432
+bill --> db_sub : TCP :5432
+fx --> db_fx : TCP :5432
+fx --> db_redis : TCP :6379
+hist --> db_hist : TCP :5432
+notif --> db_notif : TCP :5432
+
+package "Capa de Servicios Externos de la Nube" {
+  [Google Cloud Storage (GCS)] as gcs
+  [API Externa Monedas] as ext_fx
+  [Servidor SMTP] as ext_smtp
+}
+
+cat --> gcs : Subida de Media / HMAC
+front --> gcs : Streaming Directo (URL Firmada)
+fx --> ext_fx : REST/HTTP
+notif --> ext_smtp : SMTP
+
+@enduml

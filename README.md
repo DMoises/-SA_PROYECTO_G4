@@ -1108,35 +1108,83 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 #### 4.2.2 Frontera Lógica de Datos (Diagramas ER Desacoplados): {#4.2.2-frontera-lógica-de-datos-(diagramas-er-desacoplados):}
 
-*Obligatorio: Un esquema por cada microservicio, sin llaves foráneas cruzadas y con Triggers/SPs modelados visualmente.*
+**Justificación Arquitectónica: ¿Por qué y para qué se definieron estos componentes?**
 
-Cada microservicio expone su propio esquema (patrón *Database per Microservice*, RES-02): **sin llaves foráneas físicas entre dominios** (las referencias cruzadas son lógicas, por `id`), y con sus **vistas, triggers, funciones y stored procedures** modelados (RES-04). A continuación, el ER de cada dominio por separado:
+
+*   **Tablas Aisladas:** 
+    *   **¿Por qué?** Para garantizar la cohesión funcional y el desacoplamiento de los microservicios.
+    *   **¿Para qué?** Para que cada equipo o servicio pueda escalar, modificar y migrar sus esquemas de forma independiente sin afectar o romper el código de otros dominios. Las referencias cruzadas se manejan lógicamente mediante `id` (ej. el `usuario_id` en Calificaciones existe sin FK real hacia Identidad).
+*   **Funciones y Procedimientos Almacenados (SPs):**
+    *   **¿Por qué?** Para encapsular lógica transaccional compleja o cálculos intensivos (ej. cobros recurrentes, actualización de tasas FX, encolado de correos Outbox) que requieren estricta atomicidad a nivel de datos (ACID).
+    *   **¿Para qué?** Para centralizar el procesamiento pesado en el motor de BD, reduciendo la latencia de transferencia de datos por la red y evitando que los microservicios manejen lógicas de reversión de transacciones complejas manualmente.
+*   **Triggers (Disparadores):**
+    *   **¿Por qué?** Porque la restricción técnica **RES-04** exige un registro infalible de todo cambio en el sistema para cumplimiento normativo y auditorías.
+    *   **¿Para qué?** Para interceptar eventos de modificación (`INSERT`, `UPDATE`, `DELETE`) de forma automática, poblando las tablas de `auditoria_transaccional` o recalculando métricas de manera "silenciosa", garantizando que incluso si un desarrollador olvida auditar desde el microservicio, la base de datos lo hará obligatoriamente.
+*   **Vistas:**
+    *   **¿Por qué?** Para abstraer consultas recurrentes de múltiples uniones o filtrados lógicos de estado.
+    *   **¿Para qué?** Para proveer interfaces de lectura limpias y seguras hacia los workers (ej. la `vista_buzon_pendiente` para el envío de correos), mejorando el rendimiento de lectura y ocultando la complejidad del modelo base al código de la aplicación.
+
+A continuación, se detalla el Modelo Entidad-Relación y los componentes implementados de forma independiente para cada uno de los 7 dominios:
 
 **Dominio 1 — Identidad (Go) · IdentityDB**
+
+* **Tablas:** auditoria_transaccional, auditoria_usuarios, perfiles, usuarios
+* **Funciones:** trg_fn_audit_credenciales, trg_fn_auditar_transaccion, trg_fn_limite_perfiles, trg_fn_timestamp
+* **Triggers:** trg_AuditCredenciales, trg_audit_perfiles, trg_audit_usuarios, trg_limite_perfiles, trg_timestamp_usuarios
 
 <p align="center"><img src="assets/f2/db/identidad.png" width="860" alt="ER — Identidad"/></p>
 
 **Dominio 2 — Suscripciones (TypeScript) · BillingDB**
 
+* **Tablas:** auditoria_transaccional, pagos, planes, suscripciones
+* **Funciones:** trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_ProcesarRenovacion
+* **Triggers:** trg_audit_pagos, trg_audit_planes, trg_audit_suscripciones
+
 <p align="center"><img src="assets/f2/db/suscripciones.png" width="860" alt="ER — Suscripciones"/></p>
 
 **Dominio 3 — Catálogo (Python) · CatalogDB**
+
+* **Tablas:** actores, auditoria_transaccional, categorias, contenido, contenido_categoria, contenido_genero, episodios, generos, reparto, temporadas
+* **Funciones:** trg_fn_auditar_transaccion, trg_fn_validar_temporada
+* **Triggers:** trg_audit_actores, trg_audit_categorias, trg_audit_contenido, trg_audit_contenido_categoria, trg_audit_contenido_genero, trg_audit_episodios, trg_audit_generos, trg_audit_reparto, trg_audit_temporadas, trg_validar_temporada
 
 <p align="center"><img src="assets/f2/db/catalogo.png" width="860" alt="ER — Catálogo"/></p>
 
 **Dominio 4 — Calificaciones (Python) · RatingsDB**
 
+* **Tablas:** auditoria_transaccional, calificacion_usuario, resumen_recomendacion
+* **Funciones:** fn_RecalcularPorcentaje, fn_es_positiva, trg_fn_auditar_transaccion, trg_fn_refrescar_resumen
+* **Triggers:** trg_audit_calificacion_usuario, trg_audit_resumen_recomendacion, trg_refrescar_resumen
+
 <p align="center"><img src="assets/f2/db/calificaciones.png" width="860" alt="ER — Calificaciones"/></p>
 
 **Dominio 5 — Servicio FX (Python) · FXDB + Redis**
+
+* **Tablas:** auditoria_transaccional, monedas, tipos_cambio
+* **Funciones:** fn_convertir, trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_actualizar_tasa
+* **Triggers:** trg_audit_monedas, trg_audit_tipos_cambio
 
 <p align="center"><img src="assets/f2/db/servicio_fx.png" width="860" alt="ER — Servicio FX"/></p>
 
 **Dominio 6 — Historial (Go) · HistoryDB**
 
+* **Tablas:** auditoria_transaccional, progreso_reproduccion
+* **Vistas:** vw_historial_reciente
+* **Funciones:** fn_porcentaje_visto, trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_guardar_progreso
+* **Triggers:** trg_audit_progreso_reproduccion
+
 <p align="center"><img src="assets/f2/db/historial.png" width="860" alt="ER — Historial"/></p>
 
 **Dominio 7 — Notificaciones (TypeScript) · NotificationDB**
+
+* **Tablas:** auditoria_transaccional, buzon_salida
+* **Vistas:** vista_buzon_pendiente
+* **Funciones:** trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_encolar_correo
+* **Triggers:** trg_audit_buzon_salida
 
 <p align="center"><img src="assets/f2/db/notificaciones.png" width="860" alt="ER — Notificaciones"/></p>
 

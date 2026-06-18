@@ -7,23 +7,21 @@ title Vista de Componentes y Persistencia (Nivel PIM) - Quetxal TV
 actor "Cliente Web/Móvil" as cliente
 
 package "Capa Perimetral" {
-  [Ingress Controller] as ingress
   [Frontend (SPA)] as front
   [API Gateway] as apigw
 }
 
-cliente --> ingress : HTTP/HTTPS
-ingress --> front : Regla: www.*
-ingress --> apigw : Regla: api.*
+cliente --> front : HTTP/HTTPS (Web)
 front ..> apigw : Peticiones AJAX/REST (JWT)
 
 package "Ecosistema de Microservicios (Backend Políglota)" {
-  [auth-service] as auth
-  [catalog-service] as cat
-  [billing-service] as bill
-  [fx-service] as fx
-  [history-service] as hist
-  [notification-service] as notif
+  [auth-service\n<<Go>>] as auth
+  [catalog-service\n<<Python>>] as cat
+  [billing-service\n<<TypeScript>>] as bill
+  [fx-service\n<<Python>>] as fx
+  [history-service\n<<Go>>] as hist
+  [notification-service\n<<TypeScript>>] as notif
+  [rating-service\n<<Python>>] as rat
 }
 
 apigw --> auth : gRPC
@@ -32,6 +30,13 @@ apigw --> bill : gRPC
 apigw --> fx : gRPC
 apigw --> hist : gRPC
 apigw --> notif : gRPC
+apigw --> rat : gRPC
+
+' Comunicaciones inter-microservicios
+bill --> fx : gRPC (Tasas)
+bill --> notif : gRPC (Recibos)
+cat --> notif : gRPC (Alertas)
+rat --> cat : gRPC (Votos)
 
 package "Capa de Persistencia y Caché" {
   database "auth-db\n(PostgreSQL)" as db_auth {
@@ -62,7 +67,7 @@ package "Capa de Persistencia y Caché" {
 
 auth --> db_auth : TCP :5432
 cat --> db_cat : TCP :5432
-cat --> db_rat : TCP :5432
+rat --> db_rat : TCP :5432
 bill --> db_sub : TCP :5432
 fx --> db_fx : TCP :5432
 fx --> db_redis : TCP :6379
@@ -76,8 +81,13 @@ package "Capa de Servicios Externos de la Nube" {
 }
 
 cat --> gcs : Subida de Media / HMAC
-front --> gcs : Streaming Directo (URL Firmada)
 fx --> ext_fx : REST/HTTP
 notif --> ext_smtp : SMTP
+
+note bottom of front
+  El Frontend consume directamente 
+  el Streaming de Video usando la 
+  URL Firmada generada por catalog.
+end note
 
 @enduml

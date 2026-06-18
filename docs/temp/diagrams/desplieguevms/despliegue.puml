@@ -29,7 +29,10 @@ actor "Cliente\n<<Web/Mobile>>" as user
 node "Google Cloud Platform (GCP) - Red Virtual Privada (VPC)" <<GCP>> {
 
     node "VM 1: Zona Desmilitarizada (DMZ)" <<VM>> {
-        node "Contenedor: API Gateway\n<<Docker / TypeScript>>" <<Docker>> as gw_node {
+        node "Contenedor: Frontend\n<<Docker / NextJS>>" <<Docker>> as front_node {
+            component "SPA Frontend" as comp_front
+        }
+        node "Contenedor: API Gateway\n<<Docker / Go>>" <<Docker>> as gw_node {
             component "Enrutador de Borde" as comp_gw
         }
     }
@@ -60,19 +63,26 @@ node "Google Cloud Platform (GCP) - Red Virtual Privada (VPC)" <<GCP>> {
     }
 
     node "VM 3: Red Privada de Persistencia" <<VM>> {
-        database "IdentityDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_id
-        database "HistoryDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_hist
-        database "CatalogDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_cat
+        database "IdentityDB\n<<PostgreSQL + Audit>>" <<PostgreSQL>> as db_id
+        database "HistoryDB\n<<PostgreSQL + Audit>>" <<PostgreSQL>> as db_hist
+        database "CatalogDB\n<<PostgreSQL + Audit>>" <<PostgreSQL>> as db_cat
         database "RatingsDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_rate
-        database "BillingDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_bill
+        database "BillingDB\n<<PostgreSQL + Audit>>" <<PostgreSQL>> as db_bill
         database "NotificationDB\n<<PostgreSQL>>" <<PostgreSQL>> as db_notif
-        
-        database "FX_Cache\n<<Redis In-Memory>>" <<Redis>> as db_fx
+        database "FX_DB\n<<PostgreSQL>>" <<PostgreSQL>> as db_fx_pg
+        database "FX_Cache\n<<Redis In-Memory>>" <<Redis>> as db_fx_redis
     }
 }
 
+cloud "Servicios Externos de la Nube" {
+    database "Bucket GCS\n<<Cloud Storage>>" as gcs
+    node "API Divisas FX" as ext_fx
+    node "Servidor SMTP" as ext_smtp
+}
+
 ' Tráfico Público
-user ===> comp_gw : "<<HTTPS>>\nREST/GraphQL (Puerto 443)"
+user ===> comp_front : "<<HTTP/HTTPS>>\nPuerto 80"
+comp_front ===> comp_gw : "AJAX / REST\nProxy Reverso"
 
 ' Tráfico Interno: Gateway -> Microservicios (API Composition)
 comp_gw ===> comp_id : "<<gRPC>>"
@@ -96,7 +106,14 @@ comp_cat ...> db_cat : "TCP 5432"
 comp_rate ...> db_rate : "TCP 5432"
 comp_bill ...> db_bill : "TCP 5432"
 comp_notif ...> db_notif : "TCP 5432"
-comp_fx ...> db_fx : "TCP 6379"
+comp_fx ...> db_fx_pg : "TCP 5432"
+comp_fx ...> db_fx_redis : "TCP 6379"
+
+' Tráfico de Integración Externa
+comp_front ...> gcs : "Streaming Video\n(URL Firmada)"
+comp_cat ...> gcs : "Subida / HMAC"
+comp_fx ...> ext_fx : "REST"
+comp_notif ...> ext_smtp : "SMTP"
 
 note bottom of gw_node
   <b>Táctica de Seguridad (Borde):</b>

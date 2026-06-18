@@ -1,151 +1,198 @@
-<mxGraphModel dx="1791" dy="1021" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+<mxGraphModel dx="2280" dy="1300" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
   <root>
     <mxCell id="0" />
     <mxCell id="1" parent="0" />
     <mxCell id="title" parent="1" style="text;html=1;fontSize=15;fontStyle=1;align=center;fontColor=#0D47A1;" value="Vista Física: Diagrama de Despliegue PSM (Quetxal TV)" vertex="1">
       <mxGeometry height="30" width="1560" x="40" y="10" as="geometry" />
     </mxCell>
-    <mxCell id="client_node" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#EDE7F6;strokeColor=#512DA8;fontStyle=1;fontSize=11;fontColor=#512DA8;verticalAlign=top;spacingTop=8;size=20;" value="Dispositivo del Usuario&#xa;&lt;&lt;Device - Smartphone / PC&gt;&gt;" vertex="1">
+    <mxCell id="client_node" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#EDE7F6;strokeColor=#512DA8;fontStyle=1;fontSize=11;fontColor=#512DA8;verticalAlign=top;spacingTop=8;size=20;" value="Dispositivo del Usuario Device - Smartphone / PC" vertex="1">
       <mxGeometry height="130" width="260" x="40" y="50" as="geometry" />
     </mxCell>
-    <mxCell id="frontend" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#512DA8;fontSize=10;" value="Navegador Web&lt;br&gt;&amp;lt;&amp;gt;" vertex="1">
-      <mxGeometry height="50" width="190" x="70" y="110" as="geometry" />
+    <mxCell id="gcp_node" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E3F2FD;strokeColor=#1565C0;fontStyle=1;fontSize=12;fontColor=#1565C0;verticalAlign=top;spacingTop=8;size=20;" value="Google Cloud Platform (GCP) Cloud Provider" vertex="1">
+      <mxGeometry height="980" width="1240" x="350" y="50" as="geometry" />
     </mxCell>
-    <mxCell id="gcp_node" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E3F2FD;strokeColor=#1565C0;fontStyle=1;fontSize=12;fontColor=#1565C0;verticalAlign=top;spacingTop=8;size=20;" value="Google Cloud Platform (GCP)&#xa;&lt;&lt;Cloud Provider&gt;&gt;" vertex="1">
-      <mxGeometry height="980" width="1240" x="360" y="50" as="geometry" />
+    <mxCell id="vpc_node" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E8EAF6;strokeColor=#3949AB;fontStyle=1;fontSize=11;fontColor=#3949AB;verticalAlign=top;spacingTop=8;size=16;" value="Virtual Private Cloud (VPC) Network" vertex="1">
+      <mxGeometry height="890" width="1180" x="390" y="95" as="geometry" />
     </mxCell>
-    <mxCell id="vpc_node" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E8EAF6;strokeColor=#3949AB;fontStyle=1;fontSize=11;fontColor=#3949AB;verticalAlign=top;spacingTop=8;size=16;" value="Virtual Private Cloud (VPC)&#xa;&lt;&lt;Network&gt;&gt;" vertex="1">
-      <mxGeometry height="890" width="1180" x="390" y="110" as="geometry" />
+    <mxCell id="vm1" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#BBDEFB;strokeColor=#1565C0;fontStyle=1;fontSize=10;fontColor=#0D47A1;verticalAlign=top;spacingTop=8;size=14;" value="VM 1: Zona DMZ Frontera Ubuntu Server 22.04 LTS" vertex="1">
+      <mxGeometry height="360" width="380" x="420" y="140" as="geometry" />
     </mxCell>
-    <mxCell id="vm1" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#BBDEFB;strokeColor=#1565C0;fontStyle=1;fontSize=10;fontColor=#0D47A1;verticalAlign=top;spacingTop=8;size=14;" value="VM 1: Zona DMZ Frontera&#xa;&lt;&lt;Ubuntu Server 22.04 LTS&gt;&gt;" vertex="1">
-      <mxGeometry height="260" width="340" x="420" y="180" as="geometry" />
+    <mxCell id="d1" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E3F2FD;strokeColor=#0288D1;fontStyle=2;fontSize=9;fontColor=#0277BD;verticalAlign=top;spacingTop=6;size=10;" value="docker-compose.cloud.yml Docker Engine" vertex="1">
+      <mxGeometry height="280" width="330" x="440" y="200" as="geometry" />
     </mxCell>
-    <mxCell id="d1" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E3F2FD;strokeColor=#0288D1;fontStyle=2;fontSize=9;fontColor=#0277BD;verticalAlign=top;spacingTop=6;size=10;" value="docker-compose.cloud.yml&#xa;&lt;&lt;Docker Engine&gt;&gt;" vertex="1">
-      <mxGeometry height="170" width="300" x="440" y="250" as="geometry" />
-    </mxCell>
-    <mxCell id="gw" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1565C0;fontStyle=1;fontSize=10;" value="API Gateway&#xa;&lt;&lt;Contenedor / TypeScript&gt;&gt;" vertex="1">
-      <mxGeometry height="55" width="200" x="455" y="300" as="geometry" />
-    </mxCell>
-    <mxCell id="jwt" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=9;" value="Middleware JWT&#xa;&lt;&lt;Librería de Seguridad&gt;&gt;" vertex="1">
-      <mxGeometry height="38" width="190" x="460" y="368" as="geometry" />
+    <mxCell id="gw" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1565C0;fontStyle=1;fontSize=10;" value="API Gateway" vertex="1">
+      <mxGeometry height="55" width="200" x="505" y="348" as="geometry" />
     </mxCell>
     <mxCell id="e_gw_jwt" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=none;strokeColor=#7B1FA2;strokeWidth=1;dashed=1;" target="jwt" value="">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="vm2" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontStyle=1;fontSize=10;fontColor=#1B5E20;verticalAlign=top;spacingTop=8;size=14;" value="VM 2: Red Privada de Lógica&#xa;&lt;&lt;Ubuntu Server 22.04 LTS&gt;&gt;" vertex="1">
+    <mxCell id="vm2" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontStyle=1;fontSize=10;fontColor=#1B5E20;verticalAlign=top;spacingTop=8;size=14;" value="VM 2: Red Privada de Lógica Ubuntu Server 22.04 LTS" vertex="1">
       <mxGeometry height="560" width="380" x="810" y="180" as="geometry" />
     </mxCell>
-    <mxCell id="d2" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E8F5E9;strokeColor=#388E3C;fontStyle=2;fontSize=9;fontColor=#2E7D32;verticalAlign=top;spacingTop=6;size=10;" value="docker-compose.cloud.yml&#xa;&lt;&lt;Docker Engine&gt;&gt;" vertex="1">
+    <mxCell id="d2" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E8F5E9;strokeColor=#388E3C;fontStyle=2;fontSize=9;fontColor=#2E7D32;verticalAlign=top;spacingTop=6;size=10;" value="docker-compose.cloud.yml Docker Engine" vertex="1">
       <mxGeometry height="470" width="340" x="830" y="250" as="geometry" />
     </mxCell>
-    <mxCell id="ms_id" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="Identity_MS&#xa;&lt;&lt;Contenedor / Go&gt;&gt;" vertex="1">
+    <mxCell id="ms_id" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;auth-service&lt;/div&gt;&lt;div&gt;Contenedor / Go&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="295" as="geometry" />
     </mxCell>
-    <mxCell id="ms_bill" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="Billing_MS&#xa;&lt;&lt;Contenedor / TypeScript&gt;&gt;" vertex="1">
+    <mxCell id="ms_bill" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;billing-service&lt;/div&gt;&lt;div&gt;Contenedor / TypeScript&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="355" as="geometry" />
     </mxCell>
-    <mxCell id="ms_cat" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="Catalog_MS&#xa;&lt;&lt;Contenedor / Python&gt;&gt;" vertex="1">
+    <mxCell id="ms_cat" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;catalog-service&lt;/div&gt;&lt;div&gt;Contenedor / Python&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="415" as="geometry" />
     </mxCell>
-    <mxCell id="ms_rate" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="Rating_MS&#xa;&lt;&lt;Contenedor / Python&gt;&gt;" vertex="1">
+    <mxCell id="ms_rate" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;rating-service&lt;/div&gt;&lt;div&gt;Contenedor / Python&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="475" as="geometry" />
     </mxCell>
-    <mxCell id="ms_hist" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="History_MS&#xa;&lt;&lt;Contenedor / Go&gt;&gt;" vertex="1">
+    <mxCell id="ms_hist" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;history-service&lt;/div&gt;&lt;div&gt;Contenedor / Go&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="535" as="geometry" />
     </mxCell>
-    <mxCell id="ms_fx" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="FX_MS&#xa;&lt;&lt;Contenedor / Python&gt;&gt;" vertex="1">
+    <mxCell id="ms_fx" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;fx-service&lt;/div&gt;&lt;div&gt;Contenedor / Python&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="595" as="geometry" />
     </mxCell>
-    <mxCell id="ms_notif" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="Notification_MS&#xa;&lt;&lt;Contenedor / TypeScript&gt;&gt;" vertex="1">
+    <mxCell id="ms_notif" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;notification-service&lt;/div&gt;&lt;div&gt;Contenedor / TypeScript&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="655" as="geometry" />
     </mxCell>
-    <mxCell id="vm3" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#FFF9C4;strokeColor=#F9A825;fontStyle=1;fontSize=10;fontColor=#F57F17;verticalAlign=top;spacingTop=8;size=14;" value="VM 3: Red Privada de Persistencia&#xa;&lt;&lt;Ubuntu Server 22.04 LTS&gt;&gt;" vertex="1">
+    <mxCell id="vm3" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#FFF9C4;strokeColor=#F9A825;fontStyle=1;fontSize=10;fontColor=#F57F17;verticalAlign=top;spacingTop=8;size=14;" value="VM 3: Red Privada de Persistencia Ubuntu Server 22.04 LTS" vertex="1">
       <mxGeometry height="720" width="290" x="1250" y="180" as="geometry" />
     </mxCell>
-    <mxCell id="d3" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#FFFDE7;strokeColor=#FBC02D;fontStyle=2;fontSize=9;fontColor=#F57F17;verticalAlign=top;spacingTop=6;size=10;" value="docker-compose.cloud.yml&#xa;&lt;&lt;Docker Engine&gt;&gt;" vertex="1">
+    <mxCell id="d3" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#FFFDE7;strokeColor=#FBC02D;fontStyle=2;fontSize=9;fontColor=#F57F17;verticalAlign=top;spacingTop=6;size=10;" value="docker-compose.cloud.yml Docker Engine" vertex="1">
       <mxGeometry height="630" width="252" x="1268" y="250" as="geometry" />
     </mxCell>
-    <mxCell id="db_id" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="IdentityDB&#xa;&lt;&lt;Contenedor / PostgreSQL&gt;&gt;" vertex="1">
+    <mxCell id="db_id" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="&lt;div&gt;auth&lt;/div&gt;&lt;div&gt;Contenedor / PostgreSQL + Audit&lt;/div&gt;" vertex="1">
       <mxGeometry height="60" width="210" x="1283" y="295" as="geometry" />
     </mxCell>
-    <mxCell id="db_bill" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="BillingDB&#xa;&lt;&lt;Contenedor / PostgreSQL&gt;&gt;" vertex="1">
+    <mxCell id="db_bill" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="&lt;div&gt;subscription&amp;nbsp;&lt;/div&gt;&lt;div&gt;Contenedor / PostgreSQL + Audit&lt;/div&gt;" vertex="1">
       <mxGeometry height="60" width="210" x="1283" y="370" as="geometry" />
     </mxCell>
-    <mxCell id="db_cat" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="CatalogDB&#xa;&lt;&lt;Contenedor / PostgreSQL&gt;&gt;" vertex="1">
+    <mxCell id="db_cat" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="&lt;div&gt;catalog&lt;/div&gt;&lt;div&gt;Contenedor / PostgreSQL + Audit&lt;/div&gt;" vertex="1">
       <mxGeometry height="60" width="210" x="1283" y="445" as="geometry" />
     </mxCell>
-    <mxCell id="db_rate" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="RatingDB&#xa;&lt;&lt;Contenedor / PostgreSQL&gt;&gt;" vertex="1">
+    <mxCell id="db_rate" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="&lt;div&gt;RatingDB&lt;/div&gt;&lt;div&gt;Contenedor / PostgreSQL&lt;/div&gt;" vertex="1">
       <mxGeometry height="60" width="210" x="1283" y="520" as="geometry" />
     </mxCell>
-    <mxCell id="db_hist" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="HistoryDB&#xa;&lt;&lt;Contenedor / PostgreSQL&gt;&gt;" vertex="1">
+    <mxCell id="db_hist" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="&lt;div&gt;HistoryDB&lt;/div&gt;&lt;div&gt;Contenedor / PostgreSQL + Audit&lt;/div&gt;" vertex="1">
       <mxGeometry height="60" width="210" x="1283" y="595" as="geometry" />
     </mxCell>
-    <mxCell id="db_notif" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="NotificationDB&#xa;&lt;&lt;Contenedor / PostgreSQL&gt;&gt;" vertex="1">
+    <mxCell id="db_notif" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="&lt;div&gt;NotificationDB&amp;nbsp;&lt;/div&gt;&lt;div&gt;Contenedor / PostgreSQL&lt;/div&gt;" vertex="1">
       <mxGeometry height="60" width="210" x="1283" y="670" as="geometry" />
     </mxCell>
-    <mxCell id="db_fx" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFCCBC;strokeColor=#E64A19;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="FX_Cache&#xa;&lt;&lt;Contenedor / Redis&gt;&gt;" vertex="1">
+    <mxCell id="db_fx_pg" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F9A825;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="&lt;div&gt;FX_DB&amp;nbsp;&lt;/div&gt;&lt;div&gt;Contenedor / PostgreSQL&lt;/div&gt;" vertex="1">
       <mxGeometry height="60" width="210" x="1283" y="745" as="geometry" />
     </mxCell>
-    <mxCell id="e_fe_gw" edge="1" parent="1" source="frontend" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#512DA8;strokeWidth=2.5;fontSize=9;fontColor=#512DA8;labelBackgroundColor=#EDE7F6;" target="gw" value="&lt;&lt;HTTPS&gt;&gt;&#xa;Puerto 443">
+    <mxCell id="db_fx" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFCCBC;strokeColor=#E64A19;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="FX_Cache Contenedor / Redis" vertex="1">
+      <mxGeometry height="60" width="210" x="1283" y="820" as="geometry" />
+    </mxCell>
+    <mxCell id="e_fe_gw" edge="1" parent="1" source="frontend" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#512DA8;strokeWidth=2.5;fontSize=9;fontColor=#512DA8;labelBackgroundColor=#EDE7F6;" target="gw" value="AJAX / REST Proxy Reverso">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
-          <mxPoint x="470" y="135" />
+          <mxPoint x="555" y="280" />
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_gw_id" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_id" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50051">
+    <mxCell id="e_client_fe" edge="1" parent="1" source="client_node" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#512DA8;strokeWidth=2.5;fontSize=9;fontColor=#512DA8;labelBackgroundColor=#EDE7F6;" target="frontend" value="HTTP/HTTPS Puerto 80">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
-          <mxPoint x="750" y="328" />
+          <mxPoint x="170" y="235" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="cloud_services" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E1BEE7;strokeColor=#8E24AA;fontStyle=1;fontSize=11;fontColor=#4A148C;verticalAlign=top;spacingTop=8;size=16;" value="Servicios Externos de la Nube" vertex="1">
+      <mxGeometry height="260" width="280" x="40" y="240" as="geometry" />
+    </mxCell>
+    <mxCell id="gcs" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#8E24AA;fontSize=9;boundedLbl=1;backgroundOutline=1;size=8;" value="Bucket GCS" vertex="1">
+      <mxGeometry height="50" width="160" x="100" y="280" as="geometry" />
+    </mxCell>
+    <mxCell id="ext_fx" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#8E24AA;fontSize=9;" value="API Divisas FX" vertex="1">
+      <mxGeometry height="40" width="160" x="100" y="360" as="geometry" />
+    </mxCell>
+    <mxCell id="ext_smtp" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#8E24AA;fontSize=9;" value="Servidor SMTP" vertex="1">
+      <mxGeometry height="40" width="160" x="100" y="430" as="geometry" />
+    </mxCell>
+    <mxCell id="e_fe_gcs" edge="1" parent="1" source="frontend" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#8E24AA;strokeWidth=1.5;dashed=1;fontSize=9;" target="gcs" value="Streaming">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="400" y="278" />
+          <mxPoint x="400" y="305" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_cat_gcs" edge="1" parent="1" source="jwt" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#8E24AA;strokeWidth=1.5;dashed=1;fontSize=9;" target="gcs" value="Subida / HMAC">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="410" y="430" />
+          <mxPoint x="410" y="320" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_fx_ext" edge="1" parent="1" source="ms_fx" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#8E24AA;strokeWidth=1.5;dashed=1;fontSize=9;" target="ext_fx" value="REST">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="360" y="619" />
+          <mxPoint x="360" y="380" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_notif_smtp" edge="1" parent="1" source="ms_notif" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#8E24AA;strokeWidth=1.5;dashed=1;fontSize=9;" target="ext_smtp" value="SMTP">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="340" y="679" />
+          <mxPoint x="340" y="450" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_gw_id" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_id" value="gRPC Puerto 50051">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="605" y="310" />
+          <mxPoint x="750" y="310" />
           <mxPoint x="750" y="300" />
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_gw_bill" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_bill" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50052">
+    <mxCell id="e_gw_bill" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_bill" value="gRPC Puerto 50052">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
-          <mxPoint x="750" y="328" />
-          <mxPoint x="750" y="370" />
+          <mxPoint x="605" y="330" />
+          <mxPoint x="780" y="330" />
+          <mxPoint x="780" y="370" />
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_gw_cat" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_cat" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50053">
+    <mxCell id="e_gw_cat" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_cat" value="gRPC Puerto 50053">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
-          <mxPoint x="680" y="328" />
-          <mxPoint x="680" y="430" />
+          <mxPoint x="680" y="439" />
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_gw_rate" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_rate" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50054">
+    <mxCell id="e_gw_rate" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_rate" value="gRPC Puerto 50054">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
-          <mxPoint x="670" y="328" />
-          <mxPoint x="670" y="480" />
+          <mxPoint x="670" y="499" />
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_gw_hist" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_hist" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50055">
+    <mxCell id="e_gw_hist" edge="1" parent="1" source="gw" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontSize=9;fontColor=#1565C0;labelBackgroundColor=#E3F2FD;" target="ms_hist" value="gRPC Puerto 50055">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
-          <mxPoint x="660" y="328" />
-          <mxPoint x="660" y="550" />
+          <mxPoint x="660" y="559" />
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_id_db" edge="1" parent="1" source="ms_id" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_id" value="&lt;&lt;TCP&gt;&gt;&#xa;Puerto 5432">
+    <mxCell id="e_id_db" edge="1" parent="1" source="ms_id" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_id" value="TCP Puerto 5432">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="e_bill_db" edge="1" parent="1" source="ms_bill" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_bill" value="&lt;&lt;TCP&gt;&gt;&#xa;Puerto 5432">
+    <mxCell id="e_bill_db" edge="1" parent="1" source="ms_bill" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_bill" value="TCP Puerto 5432">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="e_cat_db" edge="1" parent="1" source="ms_cat" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_cat" value="&lt;&lt;TCP&gt;&gt;&#xa;Puerto 5432">
+    <mxCell id="e_cat_db" edge="1" parent="1" source="ms_cat" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_cat" value="TCP Puerto 5432">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="e_rate_db" edge="1" parent="1" source="ms_rate" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_rate" value="&lt;&lt;TCP&gt;&gt;&#xa;Puerto 5432">
+    <mxCell id="e_rate_db" edge="1" parent="1" source="ms_rate" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_rate" value="TCP Puerto 5432">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="e_hist_db" edge="1" parent="1" source="ms_hist" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_hist" value="&lt;&lt;TCP&gt;&gt;&#xa;Puerto 5432">
+    <mxCell id="e_hist_db" edge="1" parent="1" source="ms_hist" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_hist" value="TCP Puerto 5432">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="945" y="590" />
@@ -153,18 +200,26 @@
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_notif_db" edge="1" parent="1" source="ms_notif" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_notif" value="&lt;&lt;TCP&gt;&gt;&#xa;Puerto 5432">
+    <mxCell id="e_notif_db" edge="1" parent="1" source="ms_notif" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_notif" value="TCP Puerto 5432">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="e_fx_db" edge="1" parent="1" source="ms_fx" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E64A19;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#E64A19;labelBackgroundColor=#FFCCBC;" target="db_fx" value="&lt;&lt;TCP&gt;&gt;&#xa;Puerto 6379">
+    <mxCell id="e_fx_db" edge="1" parent="1" source="ms_fx" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E64A19;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#E64A19;labelBackgroundColor=#FFCCBC;" target="db_fx" value="TCP Puerto 6379">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="1230" y="619" />
-          <mxPoint x="1230" y="775" />
+          <mxPoint x="1230" y="850" />
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_bill_fx" edge="1" parent="1" source="ms_bill" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_fx" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50056">
+    <mxCell id="e_fx_pg" edge="1" parent="1" source="ms_fx" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#F57F17;strokeWidth=1.5;dashed=1;fontSize=9;fontColor=#F57F17;labelBackgroundColor=#FFF9C4;" target="db_fx_pg" value="TCP Puerto 5432">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1240" y="619" />
+          <mxPoint x="1240" y="775" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_bill_fx" edge="1" parent="1" source="ms_bill" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_fx" value="gRPC Puerto 50056">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="770" y="379" />
@@ -172,7 +227,7 @@
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_bill_not" edge="1" parent="1" source="ms_bill" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_notif" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50057">
+    <mxCell id="e_bill_not" edge="1" parent="1" source="ms_bill" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_notif" value="gRPC Puerto 50057">
       <mxGeometry relative="1" x="0.0536" as="geometry">
         <mxPoint as="offset" />
         <Array as="points">
@@ -181,7 +236,7 @@
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_cat_not" edge="1" parent="1" source="ms_cat" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_notif" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50057">
+    <mxCell id="e_cat_not" edge="1" parent="1" source="ms_cat" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_notif" value="gRPC Puerto 50057">
       <mxGeometry relative="1" x="0.1999" as="geometry">
         <mxPoint as="offset" />
         <Array as="points">
@@ -190,13 +245,29 @@
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_rate_cat" edge="1" parent="1" source="ms_rate" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_cat" value="&lt;&lt;gRPC&gt;&gt;&#xa;Puerto 50053">
+    <mxCell id="e_rate_cat" edge="1" parent="1" source="ms_rate" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#E65100;strokeWidth=1.5;fontSize=9;fontColor=#E65100;labelBackgroundColor=#FFF3E0;" target="ms_cat" value="gRPC Puerto 50053">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="820" y="499" />
           <mxPoint x="820" y="450" />
         </Array>
       </mxGeometry>
+    </mxCell>
+    <mxCell id="frontend" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#512DA8;fontStyle=1;fontSize=10;" value="SPA Frontend" vertex="1">
+      <mxGeometry height="55" width="200" x="450" y="250" as="geometry" />
+    </mxCell>
+    <mxCell id="eQtwvbJXr9CnZp2duj02-1" edge="1" parent="1" source="ms_cat" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#8E24AA;strokeWidth=1.5;dashed=1;fontSize=9;" target="jwt" value="">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="760" y="460" />
+          <mxPoint x="760" y="460" />
+        </Array>
+        <mxPoint x="845" y="439" as="sourcePoint" />
+        <mxPoint x="260" y="305" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="jwt" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontSize=9;" value="Middleware JWT" vertex="1">
+      <mxGeometry height="38" width="190" x="460" y="425" as="geometry" />
     </mxCell>
   </root>
 </mxGraphModel>

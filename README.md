@@ -2122,54 +2122,40 @@ Los **mockups vectoriales editables** (archivos crudos `.excalidraw`) de todas l
 
 ### B. Panel de Administración (Fase 2)
 
-**13. Acceso de Administrador** · [`13-admin-login.excalidraw`](./docs/mocks/13-admin-login.excalidraw) · CDU-N8-01
+**13. Gestión de catálogo (CRUD)** · [`13-admin-catalogo.excalidraw`](./docs/mocks/13-admin-catalogo.excalidraw) · CDU-N8-02/03/04
 
-<div align="center"><img src="./docs/mocks/13-admin-login.png" alt="Mockup — 13. Acceso de Administrador" width="820"/></div>
-
-- **Narrativa de uso:** El administrador abre el formulario de acceso (badge *Panel de administración*) e ingresa correo y contraseña. La autenticación se resuelve por sesión (JWT/Cookies); solo si el token resuelve `rol === 'admin'` se le redirige al panel. Cualquier usuario sin ese rol es rechazado (*Acceso restringido · rol administrador*).
-- **Flujo:** Pantalla pública → **Acceso admin** → Panel de administración (`/admin`)
-
-**14. Panel de administración (dashboard)** · [`14-admin-dashboard.excalidraw`](./docs/mocks/14-admin-dashboard.excalidraw) · CDU-N8-01
-
-<div align="center"><img src="./docs/mocks/14-admin-dashboard.png" alt="Mockup — 14. Panel de administración (dashboard)" width="820"/></div>
-
-- **Narrativa de uso:** Tras autenticarse con rol `admin`, llega al panel con el sidebar fijo *QUETXAL Admin* (Dashboard, Catálogo, Estrenos, Auditoría, Cerrar sesión). El área principal resume el estado de la plataforma en tarjetas de métricas (total de contenidos, películas, series, estrenos programados, eventos de auditoría) y ofrece accesos rápidos.
-- **Flujo:** Acceso admin → **Panel de administración** → Catálogo · Estrenos · Auditoría
-
-**15. Gestión de catálogo (CRUD)** · [`15-admin-catalogo.excalidraw`](./docs/mocks/15-admin-catalogo.excalidraw) · CDU-N8-02/03/04
-
-<div align="center"><img src="./docs/mocks/15-admin-catalogo.png" alt="Mockup — 15. Gestión de catálogo (CRUD)" width="820"/></div>
+<div align="center"><img src="./docs/mocks/13-admin-catalogo.png" alt="Mockup — 13. Gestión de catálogo (CRUD)" width="820"/></div>
 
 - **Narrativa de uso:** El administrador ve el listado completo de títulos con su tipo, año, clasificación, estado (Activo/Inactivo) y fecha de estreno. Puede filtrar con la barra de búsqueda, crear con *+ Nuevo contenido*, o usar las acciones por fila para **editar** o **eliminar** (eliminar marca el contenido como inactivo).
-- **Flujo:** Panel de administración → **Gestión de catálogo** → Agregar (`/admin/catalog/nuevo`) · Editar (`/admin/catalog/[id]/editar`)
+- **Flujo:** Sesión de administrador → **Gestión de catálogo** → Agregar (`/admin/catalog/nuevo`) · Editar (`/admin/catalog/[id]/editar`)
 
-**16. Agregar nuevo contenido** · [`16-admin-nuevo-contenido.excalidraw`](./docs/mocks/16-admin-nuevo-contenido.excalidraw) · CDU-N8-02
+**14. Agregar nuevo contenido** · [`14-admin-nuevo-contenido.excalidraw`](./docs/mocks/14-admin-nuevo-contenido.excalidraw) · CDU-N8-02
 
-<div align="center"><img src="./docs/mocks/16-admin-nuevo-contenido.png" alt="Mockup — 16. Agregar nuevo contenido" width="820"/></div>
+<div align="center"><img src="./docs/mocks/14-admin-nuevo-contenido.png" alt="Mockup — 14. Agregar nuevo contenido" width="820"/></div>
 
 - **Narrativa de uso:** El administrador completa el formulario de una nueva película o serie: Título, Tipo, Clasificación, Año, Género y Sinopsis. La **portada** y el **video** se cargan arrastrando o seleccionando el archivo, que se sube a **Google Cloud Storage**; las URLs resultantes (`portada_url`, `video_url`) quedan asociadas. Al *Guardar* se crea el contenido y vuelve al listado.
 - **Flujo:** Gestión de catálogo → **Agregar contenido** → vuelta al catálogo
 
-**17. Editar metadatos / eliminar contenido** · [`17-admin-editar-contenido.excalidraw`](./docs/mocks/17-admin-editar-contenido.excalidraw) · CDU-N8-03, N8-04
+**15. Editar metadatos / eliminar contenido** · [`15-admin-editar-contenido.excalidraw`](./docs/mocks/15-admin-editar-contenido.excalidraw) · CDU-N8-03, N8-04
 
-<div align="center"><img src="./docs/mocks/17-admin-editar-contenido.png" alt="Mockup — 17. Editar metadatos / eliminar contenido" width="820"/></div>
+<div align="center"><img src="./docs/mocks/15-admin-editar-contenido.png" alt="Mockup — 15. Editar metadatos / eliminar contenido" width="820"/></div>
 
 - **Narrativa de uso:** El administrador ve el formulario **precargado** con los metadatos existentes (Título, Tipo, Clasificación, Año, Duración, Sinopsis, Géneros, URLs de portada/video en GCS, fecha de estreno y estado *activo*). Edita lo necesario y pulsa *Guardar cambios*. El botón destructivo *Eliminar título* cubre la baja (N8-04), confirmada con un diálogo.
 - **Flujo:** Gestión de catálogo → **Editar contenido** → vuelta al catálogo
 
-**18. Programar / Calendarizar estrenos** · [`18-admin-estrenos.excalidraw`](./docs/mocks/18-admin-estrenos.excalidraw) · CDU-N8-05, N7-03
+**16. Programar / Calendarizar estrenos** · [`16-admin-estrenos.excalidraw`](./docs/mocks/16-admin-estrenos.excalidraw) · CDU-N8-05, N7-03
 
-<div align="center"><img src="./docs/mocks/18-admin-estrenos.png" alt="Mockup — 18. Programar / Calendarizar estrenos" width="820"/></div>
+<div align="center"><img src="./docs/mocks/16-admin-estrenos.png" alt="Mockup — 16. Programar / Calendarizar estrenos" width="820"/></div>
 
 - **Narrativa de uso:** El administrador selecciona un contenido del catálogo, define la **fecha y hora** de estreno y pulsa *Programar estreno*. La tabla lista cada título con su fecha, estado (Pendiente / Estrenado / Sin programar) y acciones. Al llegar la fecha el sistema **encola automáticamente la notificación de nuevo contenido** (N7-03).
-- **Flujo:** Panel de administración → **Estrenos** → notificación de nuevo contenido
+- **Flujo:** Sesión de administrador → **Estrenos** → notificación de nuevo contenido
 
-**19. Auditoría interna y reportes (CSV/PDF)** · [`19-admin-auditoria.excalidraw`](./docs/mocks/19-admin-auditoria.excalidraw) · CDU-N8-06, N4-04
+**17. Auditoría interna y reportes (CSV/PDF)** · [`17-admin-auditoria.excalidraw`](./docs/mocks/17-admin-auditoria.excalidraw) · CDU-N8-06, N4-04
 
-<div align="center"><img src="./docs/mocks/19-admin-auditoria.png" alt="Mockup — 19. Auditoría interna y reportes (CSV/PDF)" width="820"/></div>
+<div align="center"><img src="./docs/mocks/17-admin-auditoria.png" alt="Mockup — 17. Auditoría interna y reportes (CSV/PDF)" width="820"/></div>
 
 - **Narrativa de uso:** El administrador ve un resumen de métricas (total de eventos y desglose INSERT/UPDATE/DELETE) y una tabla de logs (Fecha/Hora, Acción, Tabla, Registro, Usuario). Estos registros **no se escriben desde la aplicación**: los generan **triggers** en la base de datos ante cada INSERT/UPDATE/DELETE (N4-04). Desde la misma vista descarga el reporte con *Exportar CSV* o *Exportar PDF* (N8-06).
-- **Flujo:** Panel de administración → **Auditoría** → descarga de reporte (CSV/PDF)
+- **Flujo:** Sesión de administrador → **Auditoría** (`/admin`) → descarga de reporte (CSV/PDF)
 
 ### Mapa de flujo de navegación (global)
 
@@ -2193,10 +2179,11 @@ Los **mockups vectoriales editables** (archivos crudos `.excalidraw`) de todas l
                                                      ▼
                                               12 Reproductor
 
-   ADMIN:  13 Login admin ─► 14 Dashboard ─┬─► 15 Catálogo ─┬─► 16 Nuevo
-                                           │                └─► 17 Editar
-                                           ├─► 18 Estrenos ─► (notificación)
-                                           └─► 19 Auditoría ─► CSV / PDF
+   ADMIN (login con rol admin):
+           13 Catálogo ─┬─► 14 Nuevo contenido
+                        └─► 15 Editar / eliminar
+           16 Estrenos ─► (notificación de nuevo contenido)
+           17 Auditoría ─► reporte CSV / PDF
 ```
 
 

@@ -1249,7 +1249,8 @@ Justificación de Gobernanza: Para dar cumplimiento a los Drivers de Restricció
 1. Mapeo de contenedores Docker por cada microservicio.  
 2. Distribución del ecosistema políglota (Go, TypeScript, Python).  
 3. Inclusión del componente de Middleware JWT adherido al API Gateway en la Capa de Entrada.  
-4. Definición explícita de los motores de persistencia, incluyendo PostgreSQL y la capa en memoria de Redis para el servicio financiero.
+4. Definición explícita de los motores de persistencia, incluyendo PostgreSQL y la capa en memoria de Redis para el servicio financiero.  
+5. Inclusión de **Google Cloud Storage (bucket privado)** como almacén de objetos para la multimedia pesada (videos y portadas), consumido por el `catalog-service` mediante credenciales por defecto (ADC) y servido al cliente con URLs Firmadas v4.
 
 ![Diagrama de Componentes](assets/DiagramaComponentes.png)
 
@@ -1293,6 +1294,9 @@ La arquitectura **combina deliberadamente dos estilos de comunicación** según 
 ![Vista Física](./assets/Fisicadespliegue.png)
 
 ![Diagrama de Despliegue Kubernetes](./assets/Diagramas_Proyecto_2_Despliegue_Kubernetes.drawio.png)
+
+> **Nota (almacenamiento de objetos).** Además de las VMs/Pods y de las bases PostgreSQL por dominio, el despliegue incluye un **bucket privado de Google Cloud Storage** (`quetxal-tv-media-bucket`) como artefacto de persistencia para la multimedia pesada (videos y portadas), sacándola del sistema de archivos local de los contenedores. Los contenedores que lo consumen (p. ej. `catalog-service`) se autentican por **ADC** con la cuenta de servicio del entorno (Workload Identity en GKE / cuenta de la VM en Compute Engine); el navegador descarga la multimedia **directamente desde GCS** mediante URLs Firmadas v4 de corta duración, sin que los bytes atraviesen el API Gateway.
+
 ### **5.2 Justificación Tecnológica (Gobernanza)** {#5.2-justificación-tecnológica-(gobernanza)}
 
 Esta seccion fundamenta las decisiones tomadas para la asignacion de recursos en el Nivel PSM (Modelo Especifico de la Plataforma) y el Nivel ISM (Modelo Especifico de Implementacion). Toda tecnologia seleccionada esta estrictamente subordinada a la resolucion de los Drivers Arquitectonicos (Requerimientos Funcionales, Escenarios de Calidad y Restricciones) definidos en la Fase 1\.
@@ -1338,12 +1342,12 @@ API Gateway como Punto de Entrada Unico (Go) Que: Se implementa un enrutador per
 ### 2.6 Servicios de Nubes Utilizados
 *   **¿Qué?**: Infraestructura de Google Cloud Platform (GCP) incluyendo GKE, Compute Engine y Google Cloud Storage (GCS).
 *   **¿Por qué?**: GCP provee un ecosistema altamente interoperable. GKE ofrece el estándar de la industria para orquestación nativa de Kubernetes. Cloud Storage es un servicio gestionado para blobs escalable y rentable.
-*   **¿Para qué?**: Google Compute Engine provee la flexibilidad de máquinas virtuales para las pruebas en `develop`. GKE orquesta la topología de producción (`release`) garantizando alta disponibilidad con estrategias de Rollout y Health Checks. Finalmente, GCS abstrae y almacena la multimedia pesada (videos y portadas) entregando el contenido directamente al frontend mediante URLs firmadas/públicas.
+*   **¿Para qué?**: Google Compute Engine provee la flexibilidad de máquinas virtuales para las pruebas en `develop`. GKE orquesta la topología de producción (`release`) garantizando alta disponibilidad con estrategias de Rollout y Health Checks. Finalmente, GCS abstrae y almacena la multimedia pesada (videos y portadas) en un **bucket privado** (`quetxal-tv-media-bucket`), sacándola del sistema de archivos local. El `catalog-service` (Python, dueño del dato) genera bajo demanda **URLs Firmadas v4** (acción `read`, expiración de 2 h) y se las entrega al frontend; los bytes del video viajan **directamente del navegador a GCS** sin atravesar el API Gateway. El control de acceso se ejerce **al emitir la URL** (validación de suscripción en el BFF más la caducidad corta de la firma), no en la entrega del archivo.
 
 ### 2.7 Mecanismos de Seguridad (Autenticación y Autorización)
 *   **¿Qué?**: JSON Web Tokens (JWT) a nivel lógico y ConfigMaps/Secrets a nivel de infraestructura.
 *   **¿Por qué?**: JWT provee autenticación "Stateless" (sin estado), ideal para sistemas distribuidos ya que no satura una base de datos centralizada validando cada petición. Los Secrets de Kubernetes cifran la información en etcd.
-*   **¿Para qué?**: JWT se utiliza para afirmar la identidad del usuario en el API Gateway y propagar dichos claims firmados hacia la red interna de microservicios. Adicionalmente, se prohibió el hardcoding; por lo tanto, los ConfigMaps inyectan la configuración genérica, mientras que los Secrets de K8s resguardan y montan de forma segura las credenciales de BD y llaves privadas en tiempo de ejecución de los Pods.
+*   **¿Para qué?**: JWT se utiliza para afirmar la identidad del usuario en el API Gateway y propagar dichos claims firmados hacia la red interna de microservicios. Adicionalmente, se prohibió el hardcoding; por lo tanto, los ConfigMaps inyectan la configuración genérica, mientras que los Secrets de K8s resguardan y montan de forma segura las credenciales de BD y llaves privadas en tiempo de ejecución de los Pods. Para el acceso a **Google Cloud Storage** no se emplean llaves estáticas (ni archivos JSON de cuenta de servicio ni llaves HMAC estilo S3): la autenticación es por **Application Default Credentials (ADC)**, tomando la **cuenta de servicio** del entorno de ejecución (Workload Identity en GKE; cuenta asociada a la VM en Compute Engine). Dicha cuenta requiere acceso de lectura al bucket y el rol `roles/iam.serviceAccountTokenCreator` para **firmar** las URLs v4 mediante la API IAM `signBlob`, sin depender de una llave privada descargada.
 
 
 ### 5.4 Manifiestos y Estrategias Operativas de Kubernetes

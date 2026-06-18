@@ -20,6 +20,8 @@ spec:
       labels:
         app: catalog-service
     spec:
+      # Workload Identity: usa el SA con permiso para firmar Signed URLs de GCS (portadas/video)
+      serviceAccountName: catalog-gcs-sa
       containers:
       - name: catalog-service
         image: tu-registro/quetxal-catalog-service:latest

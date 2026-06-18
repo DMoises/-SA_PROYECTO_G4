@@ -1,0 +1,13 @@
+# ServiceAccount de Kubernetes para catalog-service.
+# Vía Workload Identity queda enlazado con el Service Account de GCP que tiene
+# permiso de firmar Signed URLs v4 (roles/iam.serviceAccountTokenCreator) y leer el
+# bucket (roles/storage.objectViewer). Sin esto, catalog no puede firmar portadas/video.
+# El nombre del archivo (catalog-gcs-...) ordena ANTES que catalog-service.yaml para que
+# el SA exista cuando se aplica el Deployment (kubectl apply -f k8s/microservices/).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: catalog-gcs-sa
+  namespace: quetxal-tv-prod
+  annotations:
+    iam.gke.io/gcp-service-account: quetxal-catalog-gcs@quetxal-tv-498705.iam.gserviceaccount.com

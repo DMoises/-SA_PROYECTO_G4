@@ -926,6 +926,51 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ### **4.1 Vista de Escenarios (+1)** {#4.1-vista-de-escenarios-(+1)}
 
+### Vista general
+<div align="center">
+  <img src="./docs/img/modelo4vistas/vista4+1.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Vista Logica
+<div align="center">
+  <img src="./docs/img/modelo4vistas/vistaLogica.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Administradir
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/admin.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Invitador
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/invitado.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Registrado
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/registrado.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Suscriptor
+<div align="center">
+  <img src="./docs/img/modelo4vistas/suscriptor.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Vista +1
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/v+1.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Vista de Despliegue
+<div align="center">
+  <img src="./docs/img/modelo4vistas/despliegue.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+
 *Casos de uso críticos que validan la arquitectura.*
 
 ![Vista de Escenarios +1](https://www.plantuml.com/plantuml/png/RLJDJXin4BxxAKRfeQ0AA9KGAeeYI0XKLQbI5j9Bf9Nn3el1iRV-2QHL7wOFmAcFa1VhsDaDcvGS8dlccvbllXdliVFS-Z1LC9Pqp2-uow-roOTEeEPM6iSKtdhm1gmixpmKqgBmqcZc7gIkkELJgBXuu2LcVguGeflhKc4B41mAxX1-CQ1Vd-2bDK4N0wECXJV3_RE3i-7IPso1jhQ__t1us3zDzXDhpMDZtZyu_DXdlndpqbF5n1mAX1VIiFLkV_i81jpHcJpNpi30Bfwz56GuiJ-2zCHpyLSdmzQtWFw9AxWQRpF6XQSodMiNOYx8WXDMLcJh07Un5zj0ChGpMT0fkxWQJNItcn4Ld78OFdcqslHwASHDVSNOIXZe3AbeZNof35i3On6ofeVjJgrN-ciax5nYIQ7Mm1vyCQNKC9_eSzHekP3KJ-psy_UhL9S7VxSUV8xEDwWHsbkfq2LePKswhCE7JnKfpYq9wHT_b2dDH6-DK2sUHL0KDGTIG6AaIZV1FIVCAvm7Pbh5D7jmYThCw5IBcYYdu9imprsuMOyRMIFG4Np4Ine4bi6QXYuvN5xn-GPZFLiyczZU9GfvOuXYNwAUePO5Nmu3TP6JybAzGZH3XKBGTiUUZVOnpDHXvF6vI4Q_7ZNcYhBRg7kSHhitEA77CbjMdYMOn_p-qM_gersO9jfZMM1KEVCM-LJg4WQdNvVwkiQq7amL0cN-IGG-qMOOAxcQw3cGUAL5jwH_bppp-6ZUaZIAnoOnlWq5zQApkDcmizDRxitgjbgDbQKPzChG38zodwbmdnffgy1g0EpkzjgpWoFeTgKMAXJOwx6s9o9VHhK1R3bY-UNxQjNUr9FLZEkixKd-btdD6V7jiMsWrrmfzsfg6sbNzeYgXx61OSVK5Ns9_m4=)
@@ -986,13 +1031,30 @@ Flujos de trabajo de los procesos de negocio.
 Intercambio dinámico de mensajes y sincronización.
 
 **1. Usuario Invitado:**
-![1_secuencias_usuario_invitado.puml](https://www.plantuml.com/plantuml/png/ZLJRRjf047tVhnYbBo0L0QdKIoIY06wgI2X5qAYFQB07CuhPTNVNqAZgn_GR-WdviOwDpSM9fNfVHZjdpvmvizuRvz7wR9D0m1XRtE1YJc56EcHSFBWCBPl5dTwonyWeppwX0n8Y0bU1eGCb70vmvHvPfoXOM6Bu65kJwMXi4cFXJVzplauGZdxaJ0I_5CWtjDRizjZlQ_PKR4vuHHFMD38s8jkOhTVwS3jy7tmgC5FfbaDEKVlNIKu1_yTpQxIlimn3R-ph1OfKyva6dt90W1wNw1gwFsJh31_7-Jh3rCl_Fft3MaQtOnt32XD79vc8LfWbB_fLc0k7Y_huBm1TTIUKIe-6mSLmUWTVqDCEdmfK6TT0cL_3dEoMGofG-OPIKTb32GX6PHsomKYfmK3gUzBUvBVp7hSKOyZFVpKC1afL4ZlNLKcuAl4868OalW8c4A9__fEOs801rgB8g0hVaRCLpHMywrt2Z2As57fe5H7710WJ4xE6hYHZTjuQICKYCTINVutBDRKBlGU892hcrZXuwDptExr-krduzEly6tHHNEZQWaF4jsY3dBo559tRoJsHYEoAatqRcBIFZLmNXWfFF9kEAnLeNp9eirbQMko9H7DnhB0XzxnmK29vHq1dj3MGbJDlnfrhKYMWSvGq8xbI6Ykg1KVmL9wIk99mviQXWHcvr4YbXf5TzlemjYIvA9zOwJtzP6-SaRPPnh0NPa_cT4CwabTI_GC=)
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/invitado.png" alt="Modelo 4+1" width="900"/>
+</div>
 
 **2. Usuario Registrado:**
-![2_secuencias_usuario_registrado.puml](https://www.plantuml.com/plantuml/png/ZLRDSjis4BxpANRS2pMrnhBJD8rdt8b4IMvQEz5OJfER1W9N4iOGmGAatBJJX-apv9QhNomB4AG8MOej7IXYl_txzWTwOmgcYt8jOIZOKhCrcqsHbvXnmMOVJCcqKBCRN0fJQ9Qgg125n0OBAOAfuT05hm0jXSZSYIndX8OvutTBhSeiJPHK6duu7Tbl2s7mBsiBuTy8wDFNMjrNs8yhKQ0xl18Bl18P3fHEKH-KxlfwDUx_F7pjC1FAM72HiwpORwGDU9wTiSgANIjzNYYztu4J7TOvm9C535d1vimSoBwHxbhu9R7V0BFh_hzs7LPKkdkHBM71fC6M9CK5A-MZV2Dc0uUZnmrm1CpKVH55-POoEEfFti8bA_2UVNOe_ti7L1OhcABU28uEPGz2I48PIRKCKFui10w4b3QfDj2VXS3nfm0p_XIAtwb2B0HdXL1P07I2A4eznJxwuS2JW7euQ0dhkBtSlmQGEc8FyQy4YIukB1EOKLICYuSl6No62Ug5a6WWJeOVkkzEEt1n4KLrJRg_rWp3EKpUJs_XX55u9-HJP13ZcWbv33apvfwQgnFLOD9pQPp3ycQIm9M5FqOx246hB0dy9vCYPHgunjJj1nUOrrini-f47jlTUdZ_HsF8drnYXfhC_Fxnrek2F5mqDsXobH5VCUCSZPaLwWwpLWOkheg5SpZhzSWF_EXCxcVdSbIJaslbAVqD6KsSEOS1Ceqke7qSNOiqbNIcqVFbURYr8SLEQKyQJWgRX_y9IsDoY7fXjtLTvRZqwrdiepyXGcXGYRdSu_VGxGpQ9TvWzb4SUAsvFa3kTObsxXk3a0gB5tDht3RjwE-SrePlMV9CNKzPgwNoJVlYEqthoiAhCQ6dBb1IRpnHX3R_RMWzVPvR7vTEQhDn9weXM_GEjPpM86QsP5jvDx1DT5begipMMf1Ju--PnFA6h_pXwrmAhWwGzTQ6HjNLI3sSbboqmgsvxlRE3at9JxqNC5PwJanIPyOtT3CBr0ZJqd0jygf-jFN5XdLSOHFQVVyqgoY0LTxEZi4zN_hdgoVNqxnQToUvP9cXKQGr2x5zePO_XhNAC6KpgJYJmIJMIzDNzXAB2UbCh7fKomX6IzuZ4YPvAQb7A905YqF31Ei6HYkK9NE3T2ca39YF1PpAraUOaaPEQLQG9uQdWXBlRRkUnfVTtcddMRIPSkwAOAyfqn3tFQeIZIIRjlHe2bgKDVUFw-pgYjUGbRXXO5eLZxR0aBiztTEsx-vFWetMeg1-nGrrC3Lhe6LZJAddAcnBoLt4clfGQrGmaiWBJGeq8MJX-dRIEL0ORzrc-yGCdlLEFKKfnFqLhGl0vizDOqTfAiyRp5BwLnrz0m==)
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/registrado.png" alt="Modelo 4+1" width="900"/>
+</div>
 
 **3. Usuario Suscriptor:**
-![3_secuencias_usuario_suscriptor.puml](https://www.plantuml.com/plantuml/png/ZLRDRjj64BxlKmmS19004t9S86aDk8WbEQgQs1Oak-dD69CZUMkAgowNSX8Z3v37w3FabgjUh4DoLznLp3ZMmTJkDt_VDpFKwzoWDiKoXQ74XSObNiyeBYYB9LvVvGLggQvdHHvhkJ9A2oDDIbii90IvWqC4rW0y0v7VoMo5Z8ORZEyMMXLPCb2fql3inMdvyH0v_Llw8dWGm7ydMglx6ll-LXgg3j_9ERsJ6VMLJaYttkx6UlNcvENmjmepuOfbB5UOcSUT-82Vy_D6PMRNoqdCzJyUeBfgjsdXgGGCqU0DvYtLRsztFVmwA3y1PZVyPr-7MqpKlSmMCCSq9-yceJaMwNVr2YmJXxtl6s0FC7Tz8SIgeGpsJYPZ6A6XU_nOeUpp3gWmjp0ZlPOnLQZo88Jy8NCEz350sRCGE4LJrkJZwgCGrfTfkekpPo7mN1avbp6xK5c0hYw4I2pLJOh3lf_TiEz1R78MKNyB02ujYx1V6IAEZs5AAwsI8exbvci6P2D8JA4p65v5vx_iG_N_PHUEZuLmEaM_EzRX24Qdbz2xhLFhFQn8psKwJZxtDEN5adeFCOjEcKmK7mfdnXugYOxWJ2P9ocUQZc0ndGpWBqnbWlfItL7M-VFzPLTKo2W8Mjt2UlCVOxb1FBUEC-jjH6PQ9T9ncUs3br5NE7nZEkopyK1bENSiQjXyIurSAc2c5boJ4Wqi2kBPfx6X9NHoMl0SAQ0FPOzxOO8oF9Ec1aOueezWd77VO8_JOMKttn1q85b2EI_JfSmAe-1lfrfqSDXjKMjoCVFaiZNbstolNRxjZCvmJHDhzpYf-s2zjR8xuinOunulheBb_iGqFqdlvii7QLGBaNvIhFUArQCMHWyF3k3YBNGiNC6YIeQrYcopHmSlkjLu33YtSb8TrsLNr4MsZqDDiAu6aNaDQ5aZxxw0Mpk-bbeNJxVnQXrOgwrznUcOIzPbmoh0XjROBq5iuP4VEonJqu8frfYWU3pGbDXfNAJi_Nb9YgPOBIbBVXZZlA0rpv3ICMK6_w6jwu2yQUDAPKv7wDJ6pxjFA7fMK9auPxKbeEp1KiaHtpWHxLkchhQUc4ExvrxzOCzDhbZNctfzzlBYfdvLSPvvBqR-zP4-iTpylUP3tOBUza3fQ-RvxtI5mpJmIWblVBY-ieKHwbpuMJJ8A0XpyTRtLxrq-FHqAOraFslMHq4d86bWVM9Nr73Fhdg1QPuChKd1QKgnqMmZuzB9sUN4IpwWi_RvaxCQPECgH5wkl15ov8unn3g_vixXtwJYVm==)
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/suscriptor.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+**4. Usuario Suscriptor:**
+<div align="center">
+  <img src="./docs/img/modelo4vistas/admin.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+
+
 
 ### **4.4 Vista de Desarrollo (Componentes)** {#4.4-vista-de-desarrollo-(componentes)}
 
@@ -1451,6 +1513,58 @@ La arquitectura diseñada para la plataforma Quetxal TV demuestra un entrelazami
 Al aplicar el analisis del Triangulo de la Triple Restriccion, el equipo arquitectonico tomo decisiones de alcance para proteger la variable de Tiempo y garantizar la entrega del Producto Minimo Viable dentro de los plazos estipulados por el negocio. Asimismo, la segregacion de la infraestructura fisica en tres Maquinas Virtuales independientes dentro de Google Cloud Platform (GCP) asegura que los recursos de memoria no colapsen, protegiendo las bases de datos en una Red Privada Virtual desconectada del trafico publico.
 
 Este Documento de Decision Arquitectonica (DDA) se constituye como la Linea Base oficial del proyecto. A partir de este momento, cualquier desarrollo a nivel de codigo, modificacion de base de datos o integracion futura debera subordinarse a los lineamientos aqui establecidos, demostrando que en la Ingenieria de Software, la tecnologia es unicamente el medio para alcanzar los objetivos estrategicos del negocio.
+
+## Mokups Diseño UI/UX y Guía Visual
+
+### Inicio de sesión
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/mock3.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Registro nuevo usuario
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/inicioU.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/inicioU2.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Panel administrador
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/mockAdmin2.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/muckAdmin.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+
+### Panel Usuario
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/mock1.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/mock2.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/mock5.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/mock6.png" alt="Modelo 4+1" width="900"/>
+</div>
+
 
 ## 7\. Archivos Crudos
 

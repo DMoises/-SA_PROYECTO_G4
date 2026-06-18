@@ -2050,46 +2050,40 @@ Este Documento de Decision Arquitectonica (DDA) se constituye como la Linea Base
 ### Inicio de sesión
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/mock3.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/inicioS.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 ### Registro nuevo usuario
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/inicioU.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/nuevo1.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/inicioU2.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/nuevo2.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 ### Panel administrador
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/mockAdmin2.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/padmin.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/muckAdmin.png" alt="Modelo 4+1" width="900"/>
-</div>
 
 
 ### Panel Usuario
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/mock1.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/us1.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/mock2.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/us2.png" alt="Modelo 4+1" width="900"/>
 </div>
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/mock5.png" alt="Modelo 4+1" width="900"/>
-</div>
 
 
 <div align="center">

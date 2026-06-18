@@ -1,11 +1,18 @@
 name: Deploy to Kubernetes (GKE)
 
 on:
-  push:
-    branches:
-      - release # <-- REGLA DEL PROYECTO: Automatización solo en release
-      - 'release/**' # Para detectar ramas como release/v2.0.0
-  workflow_dispatch: # <-- EL TRUCO: Permite correrlo a mano desde "develop" o "feature/x" en Github para probar
+  # Despliegue AUTOMÁTICO: se encadena cuando el pipeline de release termina de
+  # construir y publicar las imágenes versionadas (garantiza que :vX.Y.Z ya existe).
+  workflow_run:
+    workflows: ["Release - Build & Push Versión Semántica (vX.Y.Z)"]
+    types: [completed]
+  # Despliegue MANUAL: desplegar/re-desplegar un tag de versión específico a demanda
+  # (útil para rollback puntual a una versión estable anterior).
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Tag de versión a desplegar (ej. v2.0.0)'
+        required: true
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -14,6 +21,8 @@ env:
 
 jobs:
   deploy-to-gke:
+    # En el encadenamiento automático, solo desplegar si el release fue exitoso.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -21,6 +30,24 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        # En el deploy automático tomamos el commit exacto del release; en el manual, la rama actual.
+        ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+    - name: Resolver versión a desplegar
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+        fi
+        if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "❌ ERROR: '$VERSION' no es un Tag semántico válido (vX.Y.Z)"; exit 1
+        fi
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "🚀 Desplegando versión $VERSION en GKE"
+      shell: bash
 
     # 1. Autenticación contra Google Cloud Platform
     - name: Authenticate to GCP
@@ -90,12 +117,19 @@ jobs:
         # Ocultamos la impresión en la consola para no revelar contraseñas
         echo "Secretos inyectados correctamente en los manifiestos."
 
-    # 4. Ajustar el Registry de las imágenes dinámicamente
-    - name: Set correct Docker Registry
+    # 4. Ajustar el Registry y PINEAR la versión de las imágenes (no :latest)
+    - name: Set Docker Registry y pinear versión
+      env:
+        DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        VERSION: ${{ steps.version.outputs.version }}
       run: |
-        find k8s/microservices -type f -name "*.yaml" -exec sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" {} +
-        find k8s/databases -type f -name "*.yaml" -exec sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" {} +
-        sed -i "s|tu-registro|${{ secrets.DOCKERHUB_USERNAME }}|g" k8s/api-gateway.yaml
+        # Pinea SOLO las imágenes propias: tu-registro/quetxal-XXX:latest -> DH_USER/quetxal-XXX:VERSION
+        # Así cada release es una revisión distinta y el `kubectl rollout undo` puede volver a una versión estable real.
+        find k8s -type f -name "*.yaml" -exec sed -i \
+          "s|tu-registro/\(quetxal-[a-z0-9-]*\):latest|${DH_USER}/\1:${VERSION}|g" {} +
+        # Cualquier referencia restante al placeholder (sin :latest) toma el usuario real.
+        find k8s -type f -name "*.yaml" -exec sed -i "s|tu-registro|${DH_USER}|g" {} +
+        echo "✅ Manifiestos apuntando a ${DH_USER}/quetxal-*:${VERSION}"
 
     # 5. Desplegar Infraestructura en Kubernetes
     - name: Deploy Base infrastructure (Namespace, ConfigMap, Secrets)

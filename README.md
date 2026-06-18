@@ -67,10 +67,10 @@ Para establecer los límites del sistema sin involucrar decisiones tecnológicas
 
 * **2.1.1 Core del Negocio (Caso de Uso Nivel 0):**  
   Definimos el alcance global mediante un único proceso unificado denominado *"Gestionar Autenticación, Catálogo y Suscripciones de Quetxal TV"*. Este núcleo encapsula la entrega de valor principal: permitir a los usuarios consumir contenido multimedia bajo un modelo de suscripción financiera segura.  
-  ![Core de Negocio](https://www.plantuml.com/plantuml/png/TL9BRXin3Dth5CHqOoy2D0K2eq5W9Fu1NQHmCKdGHJQiXfwoqOW6nN4T53rCpz0Zv6AH9dQQJRMI7j_Zvr6NoL2jxu8Bj34m0UNskq73IjvOeaiF7BUesC4M_GEsLDjZ82XXZ6sWDuG-aST4yCj1FhDCRrNwsCmbYCAxvUdgRBLyYOasf0Vy_OV9PBOOy2jL-Nc4Jyyc7sVkjtF6bYjUIqD1e26OOv9KBhT9pc4kIlaHu3ErubbWzAKdssE0cxknS-WjPwjkKu-QWtMVlF8sOnLWAYthaNAr_bIIBdZ7AOT6gw_Z-tXnKNCowX2MUoEDCfqEmit-AAj9TrpgrjStw_yBKcTRvrvjWshf9HsO_ngk1lEEHbPhbHsHGcrAs75iIuDtt91aUty8BB8wDdWVHuUvF3_zZV2OBRAdFq5Q6G_5VVQeE5d6XPEJwG30ELHpYQdlAB-ZKUH6ihQbL3QFu7kAXfKRo4MrsRzgWY4ORr_suB7xnlA6M8Ojr0K5QX6Y66_OOtOfKggSkwJOv4_t30==)  
+  ![Core de Negocio](./assets/f2/core.png)  
 * **2.1.2 Primera Descomposición (Procesos de Negocio):**   
   Para hacer el sistema manejable y preparar la segregación de los futuros microservicios, descompusimos el Core en 7 procesos de negocio lógicos:  
-  ![Primera Descomposición](https://www.plantuml.com/plantuml/png/TPFDZjD03CVlUGghN42Ygtv7H5MrfTr03riLielsm6KqSOEroKmqCocj40_3C_08-s9uaWOAP7EoRF_iyT_EjNN2kAh8Wnpt3fm6GzaN1oaPb8wq2kmZgL8OKK0fvAF8C76d7C67XSfol4YeB4fX4Ru5mDzRJi-ChbIwqhasy2AEupUhIHFJ9aNJ-gTXF0nh_z8O_VNilfbDXuD1y3rmvBZXpb21Hi0QhTH5gIr9Ulgf8WveYLPRI16sc6b96bvkwO0vh3Qthu90ICVrUlUs4ePZIMMbeP9zFH3MFzgqASlTnbTPqu4iX-A7pse-JyWwB0JS71qQfHUB6jiVMoX1Sw2KhUJsRlSyO0jN1i5PG-XzgD0THGvtdw3VDKBlh6AhQM-rlk_l1iC8tg5rVdAVlAmSAaTIr5gyXWGjxmmjd627PayvshfvEUmgDlgxs5aO-Rk2oFGP7tNXuuX7B7bNJNTVOYNSquzSPxh1nbtO98ADOcM4RB0JKpdjwo5yvmQTTA7J26gr_OfZKa99GiFcGyDCkvXP1Ezv8TeGgyrF_8YbqMdLD6-uMHSNydG5sNQohNR_lJ7aumpy_K2_l_0Q_x575_RumfvSs3C-Xn5SNR4vXGZcSr8ohr9SB09s-1G-idBOP8J_PeoUyOSrML_RDQgKV-rV)
+  ![Primera Descomposición](./assets/f2/primeraDescomposicion.png)
 
 
 ### **2.2 Catálogo de Stakeholders y Responsabilidades** {#2.2-catálogo-de-stakeholders-y-responsabilidades}

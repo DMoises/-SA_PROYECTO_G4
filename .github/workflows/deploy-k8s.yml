@@ -119,3 +119,15 @@ jobs:
         
     - name: Clean up temporary secrets
       run: rm k8s/base/secrets-injected.yaml
+
+    - name: Verify Deployment Success (Rollout Status)
+      run: |
+        kubectl rollout status deployment/auth-service -n quetxal-tv-prod --timeout=60s
+        # (Idealmente hacer esto para cada servicio crítico)
+        
+    - name: Automatic Rollback on Failure
+      if: failure()
+      run: |
+        echo "🚨 Falla detectada en el despliegue. Iniciando Rollback automático..."
+        kubectl rollout undo deployment/auth-service -n quetxal-tv-prod
+        exit 1

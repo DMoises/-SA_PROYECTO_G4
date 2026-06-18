@@ -69,7 +69,7 @@ class CatalogRepository:
         return self.db.fetch_one(
             """
             SELECT c.id AS contenido_id, c.titulo, c.tipo, c.sinopsis, c.anio,
-                   c.clasificacion, c.duracion_min, c.portada_url,
+                   c.clasificacion, c.duracion_min, c.portada_url, c.video_url,
                    COALESCE(v.generos, '')    AS generos,
                    COALESCE(v.categorias, '') AS categorias
             FROM contenido c
@@ -97,7 +97,7 @@ class CatalogRepository:
         return self.db.fetch_all(
             """
             SELECT t.numero AS temporada, e.numero AS episodio,
-                   e.titulo, e.duracion_min
+                   e.titulo, e.duracion_min, e.video_url
             FROM temporadas t
             JOIN episodios e ON e.temporada_id = t.id
             WHERE t.contenido_id = %(id)s::uuid

@@ -51,6 +51,7 @@ message Episodio {
   int32  numero       = 1;
   string titulo       = 2;
   int32  duracion_min = 3;
+  string video_url    = 4; // Signed URL de GCS (vacio si no hay video)
 }
 
 message Temporada {
@@ -71,4 +72,5 @@ message FichaTecnicaResponse {
   repeated MiembroReparto reparto       = 10;
   repeated Temporada      temporadas    = 11; // solo si tipo = serie
   string                  portada_url   = 12;
+  string                  video_url     = 13; // Signed URL de GCS para peliculas
 }

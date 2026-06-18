@@ -33,6 +33,7 @@ export interface Content {
   isNew?: boolean
   isTrending?: boolean
   trailerUrl?: string
+  videoUrl?: string
 }
 
 export interface CastMember {
@@ -51,6 +52,7 @@ export interface Episode {
   description: string
   duration: string
   thumbnail: string
+  videoUrl?: string
 }
 
 export interface WatchProgress {

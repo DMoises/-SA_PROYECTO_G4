@@ -78,6 +78,7 @@ class CatalogHandler(pb_grpc.CatalogServiceServicer):
                             numero=e["numero"],
                             titulo=e["titulo"],
                             duracion_min=e["duracion_min"] or 0,
+                            video_url=self.media.to_playable_url(e.get("video_url")) or "",
                         )
                         for e in t["episodios"]
                     ],
@@ -85,5 +86,6 @@ class CatalogHandler(pb_grpc.CatalogServiceServicer):
                 for t in f["temporadas"]
             ],
             portada_url=self.media.to_playable_url(f.get("portada_url")) or "",
+            video_url=self.media.to_playable_url(f.get("video_url")) or "",
         )
 

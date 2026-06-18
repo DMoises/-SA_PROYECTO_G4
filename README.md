@@ -2014,56 +2014,133 @@ Al aplicar el analisis del Triangulo de la Triple Restriccion, el equipo arquite
 
 Este Documento de Decision Arquitectonica (DDA) se constituye como la Linea Base oficial del proyecto. A partir de este momento, cualquier desarrollo a nivel de codigo, modificacion de base de datos o integracion futura debera subordinarse a los lineamientos aqui establecidos, demostrando que en la Ingenieria de Software, la tecnologia es unicamente el medio para alcanzar los objetivos estrategicos del negocio.
 
-## Mokups Diseño UI/UX y Guía Visual
+## Diseño UI/UX y Guía Visual (Mockups)
 
-### Inicio de sesión
+> **Entregable 6 (Fase 2):** *Diseño escrito del frontend, incluyendo **Mockups** (bocetos de interfaz/wireframes) de las vistas, **narrativas de uso** y **flujos de navegación**.*
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/mock3.png" alt="Modelo 4+1" width="900"/>
-</div>
+Los **mockups vectoriales editables** (archivos crudos `.excalidraw`) de todas las vistas de Quetxal TV están en [`docs/mocks/`](./docs/mocks). Son bocetos/wireframes hechos en Excalidraw (herramienta autorizada), no capturas, por lo que cumplen también el requisito de *archivos crudos* cargados al repositorio. Cada mockup se construyó leyendo la página real implementada en `frontend/` (la **fuente de verdad es el código**), para que la documentación coincida con el trabajo realizado.
 
-### Registro nuevo usuario
+**Cómo abrir / editar:** en [excalidraw.com](https://excalidraw.com) → ☰ → *Open*, o en VS Code con la extensión *Excalidraw* (`pomdtr.excalidraw-editor`).
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/inicioU.png" alt="Modelo 4+1" width="900"/>
-</div>
+### Guía visual
 
+| Elemento | Valor |
+|---|---|
+| Color de marca (acento/CTA) | Rojo `#e50914` |
+| Fondo de aplicación | Oscuro `#141414` / `#0b0b0b` |
+| Tarjetas / inputs | `#1c1c1c` / `#1f1f1f`, borde `#3a3a3a` |
+| Texto | Blanco `#ffffff`, secundario `#b3b3b3`, tenue `#8c8c8c` |
+| Indicador positivo (% recomendación) | Verde `#46d369` |
+| Tipografía | Hand-drawn (estilo wireframe) |
+| Marco | Ventana de navegador con barra de URL |
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/inicioU2.png" alt="Modelo 4+1" width="900"/>
-</div>
+### A. Pantallas de Usuario (Fase 1)
 
-### Panel administrador
+**01. Inicio de sesión** · [`01-login.excalidraw`](./docs/mocks/01-login.excalidraw) · CDU-N1-02
+- **Narrativa de uso:** El usuario abre Quetxal TV y se encuentra la pantalla de inicio de sesión sobre fondo oscuro con el wordmark de marca. Ingresa correo y contraseña y pulsa *Iniciar sesión*; el API Gateway valida las credenciales y emite la sesión (JWT/Cookie). Si no recuerda su contraseña usa *¿Olvidaste tu contraseña?*, y si no tiene cuenta sigue *Suscríbete ya*.
+- **Flujo:** Landing público → **Inicio de sesión** → Selección de perfil (`/profiles`)
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/mockAdmin2.png" alt="Modelo 4+1" width="900"/>
-</div>
+**02. Registro de nuevo usuario** · [`02-registro.excalidraw`](./docs/mocks/02-registro.excalidraw) · CDU-N1-01
+- **Narrativa de uso:** Un visitante sin cuenta llega al registro. En el *Paso 1* ingresa su correo y pulsa *Continuar*; en el *Paso 2* define nombre de perfil y contraseña (validada: 6+ caracteres, una mayúscula y un número) y opcionalmente acepta ofertas. Al pulsar *Crear cuenta* el sistema crea la cuenta y lo redirige a la selección de perfiles.
+- **Flujo:** Landing / Login → **Registro (Paso 1 → Paso 2)** → Selección de perfiles (`/profiles`)
 
+**03. Selección de perfil** · [`03-seleccion-perfil.excalidraw`](./docs/mocks/03-seleccion-perfil.excalidraw) · CDU-N1-08
+- **Narrativa de uso:** Tras autenticarse, el usuario llega a *¿Quién está viendo?* y ve los perfiles de su cuenta como avatares con la inicial del nombre; los perfiles infantiles muestran la insignia *KIDS*. Al pulsar un avatar se guarda el perfil seleccionado y entra al catálogo; arriba a la derecha puede *Cerrar sesión*.
+- **Flujo:** Inicio de sesión → **Selección de perfil** → Catálogo / Browse (`/browse`)
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/muckAdmin.png" alt="Modelo 4+1" width="900"/>
-</div>
+**04. Crear / Editar perfil** · [`04-gestion-perfil.excalidraw`](./docs/mocks/04-gestion-perfil.excalidraw) · CDU-N1-05/06/07
+- **Narrativa de uso:** El titular abre este formulario para crear o modificar un perfil (mismo layout). Ingresa el *Nombre del perfil* (máx. 30 caracteres), elige idioma y marca *Perfil infantil* para restringir el contenido; el avatar es una vista previa autogenerada con la inicial. Confirma con *Crear perfil*/*Guardar* o descarta con *Cancelar*. En edición aparece *Eliminar perfil* (pide confirmación, oculto para el perfil principal).
+- **Flujo:** Selección / Gestión de perfiles → **Crear/Editar perfil** → vuelta a la lista
 
+**05. Selección de plan de suscripción** · [`05-planes.excalidraw`](./docs/mocks/05-planes.excalidraw) · CDU-N2-01, N2-03, N5-01
+- **Narrativa de uso:** El usuario llega a *Elige el plan ideal para ti* y primero elige su moneda (GTQ/USD/MXN/EUR). Esa selección dispara una llamada al **FX-Service**, que convierte el `precio_base` de cada plan y devuelve el precio en moneda local mostrado en cada tarjeta. Compara los 3 planes (Básico, Estándar, Premium) y pulsa *Suscribirse*; el plan Estándar va resaltado como *Más popular*.
+- **Flujo:** Registro / Login → **Planes** → Pago / Confirmación de suscripción
 
-### Panel Usuario
+**06. Mi cuenta / Gestión de suscripción** · [`06-cuenta.excalidraw`](./docs/mocks/06-cuenta.excalidraw) · CDU-N2-03, N2-04
+- **Narrativa de uso:** El titular entra a *Cuenta* y ve las secciones reales: *Membresía y facturación* (correo, contraseña enmascarada, plan actual con precio/mes) con *Cambiar plan* (N2-03) y *Cancelar suscripción* (N2-04). Debajo, accesos a Información personal, Métodos de pago y Seguridad, el bloque de Perfiles y *Cerrar sesión en todos los dispositivos*.
+- **Flujo:** Selección de perfil / Browse → **Mi cuenta** → Cambiar plan · Personal · Pago · Seguridad
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/mock1.png" alt="Modelo 4+1" width="900"/>
-</div>
+**07. Home / Cartelera** · [`07-home.excalidraw`](./docs/mocks/07-home.excalidraw) · CDU-N3-01, N6-02
+- **Narrativa de uso:** Tras iniciar sesión y elegir perfil, el usuario llega a la cartelera (`/browse`). Arriba ve un *HERO* con el contenido destacado (título, badges, % match) y los botones *Reproducir* y *Más información*. La primera fila *Continuar viendo* reconstruye su **historial de reproducción** con barras de progreso. Luego explora los carruseles *Tendencias* y *Nuevos lanzamientos*, cada póster con su badge de coincidencia (%).
+- **Flujo:** Login / Selección de perfil → **Home / Cartelera** → Detalle (`/browse/{id}`) o Reproductor (`/watch/{id}`)
 
+**08. Catálogo de Películas** · [`08-peliculas.excalidraw`](./docs/mocks/08-peliculas.excalidraw) · CDU-N3-01, N4-02
+- **Narrativa de uso:** El usuario abre la pestaña *Películas* (`/browse/movies`). El sistema filtra la cartelera por `type === 'movie'` y muestra el carrusel *Todas las películas* y un carrusel por cada género detectado dinámicamente. Cada póster expone su porcentaje de recomendación (*% Match*, en verde). Hace clic en un póster para ir al detalle.
+- **Flujo:** Home → **Películas** → Detalle de contenido (`/browse/{id}`)
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/mock2.png" alt="Modelo 4+1" width="900"/>
-</div>
+**09. Catálogo de Series** · [`09-series.excalidraw`](./docs/mocks/09-series.excalidraw) · CDU-N3-01, N4-02
+- **Narrativa de uso:** Desde la navbar el usuario selecciona *Series*. La página filtra el contenido de `tipo = serie` y lo presenta bajo un hero *Series*, con un carrusel *Todas las series* y uno por género. Los pósters llevan badge de % de recomendación del rating-service. Hace clic en un póster para abrir su ficha.
+- **Flujo:** Home → **Series** → Ficha de contenido (`/browse/{id}`)
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/mock5.png" alt="Modelo 4+1" width="900"/>
-</div>
+**10. Búsqueda y filtros** · [`10-busqueda.excalidraw`](./docs/mocks/10-busqueda.excalidraw) · CDU-N3-04
+- **Narrativa de uso:** El usuario escribe en la barra grande (*Buscar por título, género o categoría…*) y refina con los chips de filtro reales —Tipo, Categoría editorial y Género artístico— actualizándose en vivo. La grilla muestra el conteo (*Resultados (6)*) y marca con badge *NUEVO* el contenido reciente.
+- **Flujo:** Navbar (Inicio) → **Búsqueda** → Detalle de contenido (`/browse/{id}`)
 
+**11. Ficha técnica, reparto y calificación** · [`11-ficha-tecnica.excalidraw`](./docs/mocks/11-ficha-tecnica.excalidraw) · CDU-N3-03, N4-01/02/03
+- **Narrativa de uso:** El usuario abre el detalle de un título y ve el póster grande, metadatos (año, clasificación, temporadas/episodios) y el **% de recomendación global** destacado en verde (`recomendacion.porcentaje` del rating-service). Pulsa *Reproducir* y puede **calificar** (pulgar arriba/abajo, que recalcula el %). Más abajo lee la sinopsis, recorre el *Reparto* y, si es serie, los *Episodios* de la temporada seleccionada.
+- **Flujo:** Catálogo / Carrusel → **Ficha técnica** → Reproductor (`/watch/{id}`)
 
-<div align="center">
-  <img src="./docs/img/modelo4vistas/mock6.png" alt="Modelo 4+1" width="900"/>
-</div>
+**12. Reproductor de video** · [`12-reproductor.excalidraw`](./docs/mocks/12-reproductor.excalidraw) · CDU-N3-02, N6-01, N6-03
+- **Narrativa de uso:** El usuario reproduce el contenido casi a pantalla completa con control central de play/pausa. La barra superpuesta muestra el tiempo transcurrido sobre la **duración real** del video, calculada desde el archivo servido en **GCS** (`onLoadedMetadata`), con scrubber, volumen, calidad (HD), subtítulos y pantalla completa. Al cargar consulta el historial y **reanuda** desde el último `segundo_exacto`, persistiendo el progreso cada 10 s.
+- **Flujo:** Detalle (`/browse/{id}`) → **Reproductor (`/watch/{id}`)** → al salir, vuelta al detalle
+
+### B. Panel de Administración (Fase 2)
+
+**13. Acceso de Administrador** · [`13-admin-login.excalidraw`](./docs/mocks/13-admin-login.excalidraw) · CDU-N8-01
+- **Narrativa de uso:** El administrador abre el formulario de acceso (badge *Panel de administración*) e ingresa correo y contraseña. La autenticación se resuelve por sesión (JWT/Cookies); solo si el token resuelve `rol === 'admin'` se le redirige al panel. Cualquier usuario sin ese rol es rechazado (*Acceso restringido · rol administrador*).
+- **Flujo:** Pantalla pública → **Acceso admin** → Panel de administración (`/admin`)
+
+**14. Panel de administración (dashboard)** · [`14-admin-dashboard.excalidraw`](./docs/mocks/14-admin-dashboard.excalidraw) · CDU-N8-01
+- **Narrativa de uso:** Tras autenticarse con rol `admin`, llega al panel con el sidebar fijo *QUETXAL Admin* (Dashboard, Catálogo, Estrenos, Auditoría, Cerrar sesión). El área principal resume el estado de la plataforma en tarjetas de métricas (total de contenidos, películas, series, estrenos programados, eventos de auditoría) y ofrece accesos rápidos.
+- **Flujo:** Acceso admin → **Panel de administración** → Catálogo · Estrenos · Auditoría
+
+**15. Gestión de catálogo (CRUD)** · [`15-admin-catalogo.excalidraw`](./docs/mocks/15-admin-catalogo.excalidraw) · CDU-N8-02/03/04
+- **Narrativa de uso:** El administrador ve el listado completo de títulos con su tipo, año, clasificación, estado (Activo/Inactivo) y fecha de estreno. Puede filtrar con la barra de búsqueda, crear con *+ Nuevo contenido*, o usar las acciones por fila para **editar** o **eliminar** (eliminar marca el contenido como inactivo).
+- **Flujo:** Panel de administración → **Gestión de catálogo** → Agregar (`/admin/catalog/nuevo`) · Editar (`/admin/catalog/[id]/editar`)
+
+**16. Agregar nuevo contenido** · [`16-admin-nuevo-contenido.excalidraw`](./docs/mocks/16-admin-nuevo-contenido.excalidraw) · CDU-N8-02
+- **Narrativa de uso:** El administrador completa el formulario de una nueva película o serie: Título, Tipo, Clasificación, Año, Género y Sinopsis. La **portada** y el **video** se cargan arrastrando o seleccionando el archivo, que se sube a **Google Cloud Storage**; las URLs resultantes (`portada_url`, `video_url`) quedan asociadas. Al *Guardar* se crea el contenido y vuelve al listado.
+- **Flujo:** Gestión de catálogo → **Agregar contenido** → vuelta al catálogo
+
+**17. Editar metadatos / eliminar contenido** · [`17-admin-editar-contenido.excalidraw`](./docs/mocks/17-admin-editar-contenido.excalidraw) · CDU-N8-03, N8-04
+- **Narrativa de uso:** El administrador ve el formulario **precargado** con los metadatos existentes (Título, Tipo, Clasificación, Año, Duración, Sinopsis, Géneros, URLs de portada/video en GCS, fecha de estreno y estado *activo*). Edita lo necesario y pulsa *Guardar cambios*. El botón destructivo *Eliminar título* cubre la baja (N8-04), confirmada con un diálogo.
+- **Flujo:** Gestión de catálogo → **Editar contenido** → vuelta al catálogo
+
+**18. Programar / Calendarizar estrenos** · [`18-admin-estrenos.excalidraw`](./docs/mocks/18-admin-estrenos.excalidraw) · CDU-N8-05, N7-03
+- **Narrativa de uso:** El administrador selecciona un contenido del catálogo, define la **fecha y hora** de estreno y pulsa *Programar estreno*. La tabla lista cada título con su fecha, estado (Pendiente / Estrenado / Sin programar) y acciones. Al llegar la fecha el sistema **encola automáticamente la notificación de nuevo contenido** (N7-03).
+- **Flujo:** Panel de administración → **Estrenos** → notificación de nuevo contenido
+
+**19. Auditoría interna y reportes (CSV/PDF)** · [`19-admin-auditoria.excalidraw`](./docs/mocks/19-admin-auditoria.excalidraw) · CDU-N8-06, N4-04
+- **Narrativa de uso:** El administrador ve un resumen de métricas (total de eventos y desglose INSERT/UPDATE/DELETE) y una tabla de logs (Fecha/Hora, Acción, Tabla, Registro, Usuario). Estos registros **no se escriben desde la aplicación**: los generan **triggers** en la base de datos ante cada INSERT/UPDATE/DELETE (N4-04). Desde la misma vista descarga el reporte con *Exportar CSV* o *Exportar PDF* (N8-06).
+- **Flujo:** Panel de administración → **Auditoría** → descarga de reporte (CSV/PDF)
+
+### Mapa de flujo de navegación (global)
+
+```
+                    ┌─────────────┐      ┌──────────────┐
+   Landing ───────► │ 01 Login    │      │ 02 Registro  │
+                    └──────┬──────┘      └──────┬───────┘
+                           │                    │
+                           ▼                    ▼
+                    ┌─────────────┐      ┌──────────────┐
+                    │ 03 Perfiles │◄────►│ 04 Crear/Edit│
+                    └──────┬──────┘      └──────────────┘
+                           ▼
+                    ┌─────────────┐   05 Planes ─► 06 Cuenta
+                    │ 07 Home     │◄──────────────────────────┐
+                    └──────┬──────┘                           │
+            ┌──────────────┼───────────────┬─────────────┐    │
+            ▼              ▼               ▼             ▼     │
+      08 Películas    09 Series      10 Búsqueda   11 Ficha ──┘
+                                                     │
+                                                     ▼
+                                              12 Reproductor
+
+   ADMIN:  13 Login admin ─► 14 Dashboard ─┬─► 15 Catálogo ─┬─► 16 Nuevo
+                                           │                └─► 17 Editar
+                                           ├─► 18 Estrenos ─► (notificación)
+                                           └─► 19 Auditoría ─► CSV / PDF
+```
 
 
 ## 7\. Archivos Crudos

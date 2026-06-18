@@ -163,7 +163,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N1-08: Seleccionar Perfil
 
 
-![Módulo 1](/-SA_PROYECTO_G4/assets/f2/identidad.png)
+![Módulo 1](./assets/f2/identidad.png)
 
 
 
@@ -295,7 +295,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N2-03: Actualizar Plan de Suscripción
 - CDU-N2-04: Cancelar Suscripción Activa
 
-![Módulo 2](/-SA_PROYECTO_G4/assets/f2/suscripciones.png)  <br/><br/>
+![Módulo 2](./assets/f2/suscripciones.png)  <br/><br/>
 
 ### Especificación CDU-N2-01 — Adquirir Plan de Suscripción
 
@@ -372,7 +372,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N3-03: Consultar Ficha Técnica y Reparto
 - CDU-N3-04: Gestionar Filtros
 
-![Módulo 3](/-SA_PROYECTO_G4/assets/f2/catalogo.png)  <br/><br/>
+![Módulo 3](./assets/f2/catalogo.png)  <br/><br/>
 
 
 
@@ -457,7 +457,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N4-04: Registrar en Bitácora de Auditoría (Trigger)
 - CDU-N4-05: Generar Reporte de Calificaciones
 
-![Módulo 4](/-SA_PROYECTO_G4/assets/f2/calificaciones.png)  <br/><br/>
+![Módulo 4](./assets/f2/calificaciones.png)  <br/><br/>
 
 
 
@@ -557,7 +557,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N5-04: Generar Reporte Financiero / de Conversiones
 
 
-![Módulo 5](/-SA_PROYECTO_G4/assets/f2/servicio_fx.png)  <br/><br/>
+![Módulo 5](./assets/f2/servicio_fx.png)  <br/><br/>
 
 
 ---
@@ -639,7 +639,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N6-03: Reanudar Reproducción
 - CDU-N6-04: Generar Reporte de Consumo
 
-![Módulo 6](/-SA_PROYECTO_G4/assets/f2/historial.png)  <br/><br/>
+![Módulo 6](../assets/f2/historial.png)  <br/><br/>
 
 
 
@@ -721,7 +721,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N7-03: Programar/Calendarizar Estreno
 
 
-![Módulo 7](/-SA_PROYECTO_G4/assets/f2/notificaciones.png)  <br/><br/>
+![Módulo 7](./assets/f2/notificaciones.png)  <br/><br/>
 
 
 ---
@@ -787,7 +787,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N8-05: Programar/Calendarizar Estreno
 - CDU-N8-06: Generar Reporte de Auditoría (CSV/PDF)
 
-![Módulo 8](/-SA_PROYECTO_G4/assets/f2/admin.png)  <br/><br/>
+![Módulo 8](./assets/f2/admin.png)  <br/><br/>
 
 ---
 
@@ -1114,31 +1114,31 @@ Cada microservicio expone su propio esquema (patrón *Database per Microservice*
 
 **Dominio 1 — Identidad (Go) · IdentityDB**
 
-<p align="center"><img src="assets/er/er-1-identidad.png" width="860" alt="ER — Identidad"/></p>
+<p align="center"><img src="assets/f2/db/identidad.png" width="860" alt="ER — Identidad"/></p>
 
 **Dominio 2 — Suscripciones (TypeScript) · BillingDB**
 
-<p align="center"><img src="assets/er/er-2-suscripciones.png" width="860" alt="ER — Suscripciones"/></p>
+<p align="center"><img src="assets/f2/db/suscripciones.png" width="860" alt="ER — Suscripciones"/></p>
 
 **Dominio 3 — Catálogo (Python) · CatalogDB**
 
-<p align="center"><img src="assets/er/er-3-catalogo.png" width="860" alt="ER — Catálogo"/></p>
+<p align="center"><img src="assets/f2/db/catalogo.png" width="860" alt="ER — Catálogo"/></p>
 
 **Dominio 4 — Calificaciones (Python) · RatingsDB**
 
-<p align="center"><img src="assets/er/er-4-calificaciones.png" width="860" alt="ER — Calificaciones"/></p>
+<p align="center"><img src="assets/f2/db/calificaciones.png" width="860" alt="ER — Calificaciones"/></p>
 
 **Dominio 5 — Servicio FX (Python) · FXDB + Redis**
 
-<p align="center"><img src="assets/er/er-5-fx.png" width="860" alt="ER — Servicio FX"/></p>
+<p align="center"><img src="assets/f2/db/servicio_fx.png" width="860" alt="ER — Servicio FX"/></p>
 
 **Dominio 6 — Historial (Go) · HistoryDB**
 
-<p align="center"><img src="assets/er/er-6-historial.png" width="860" alt="ER — Historial"/></p>
+<p align="center"><img src="assets/f2/db/historial.png" width="860" alt="ER — Historial"/></p>
 
 **Dominio 7 — Notificaciones (TypeScript) · NotificationDB**
 
-<p align="center"><img src="assets/er/er-7-notificaciones.png" width="860" alt="ER — Notificaciones"/></p>
+<p align="center"><img src="assets/f2/db/notificaciones.png" width="860" alt="ER — Notificaciones"/></p>
 
 ### **4.3 Vista de Procesos** {#4.3-vista-de-procesos}
 

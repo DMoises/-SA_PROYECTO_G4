@@ -17,6 +17,15 @@ class Config:
         self.db_user = _env("CATALOG_DB_USER", "catalog_user")
         self.db_password = _env("CATALOG_DB_PASSWORD", "")
 
+        # --- Google Cloud Storage (multimedia: videos y portadas) ---
+        # Auth por ADC (cuenta de servicio de la VM/Pod): sin llaves JSON ni HMAC.
+        self.gcs_bucket = _env("GCS_BUCKET_NAME", "quetxal-tv-media-bucket")
+        self.gcs_project = _env("GCS_PROJECT_ID", "quetxal-tv-498705")
+        # TTL de las Signed URLs v4 (por defecto 2h, como pide la tarea).
+        self.gcs_signed_url_ttl_seconds = int(_env("GCS_SIGNED_URL_TTL", "7200"))
+        # Permite desactivar la firma (passthrough total) sin tocar codigo.
+        self.gcs_enabled = _env("GCS_ENABLED", "true").lower() in ("1", "true", "yes", "on")
+
     @property
     def dsn(self) -> str:
         # Trafico interno en la red de Docker: sin TLS (sslmode disable).

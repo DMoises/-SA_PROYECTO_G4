@@ -18,6 +18,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
 from .admin_repository import AdminRepository
+from .gcs import MediaStorage
 
 
 def _json(data: Any) -> bytes:
@@ -33,7 +34,8 @@ def _json(data: Any) -> bytes:
 
 
 class AdminHTTPHandler(BaseHTTPRequestHandler):
-    repo: AdminRepository  # inyectado al crear el servidor
+    repo: AdminRepository    # inyectado al crear el servidor
+    media: MediaStorage      # idem: resuelve rutas GCS a Signed URLs
 
     def log_message(self, fmt: str, *args: Any) -> None:
         print(f"[admin-http] {fmt % args}", flush=True)
@@ -81,13 +83,13 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
         m_video_epi = re.fullmatch(r"/admin/videos/([^/]+)/temporadas/(\d+)/episodios/(\d+)", path)
         if m_video_epi:
             url = self.repo.obtener_video_episodio(m_video_epi.group(1), int(m_video_epi.group(2)), int(m_video_epi.group(3)))
-            self._send(200, {"video_url": url})
+            self._send(200, {"video_url": self.media.to_playable_url(url)})
             return
 
         m_video_peli = re.fullmatch(r"/admin/videos/([^/]+)", path)
         if m_video_peli:
             url = self.repo.obtener_video_pelicula(m_video_peli.group(1))
-            self._send(200, {"video_url": url})
+            self._send(200, {"video_url": self.media.to_playable_url(url)})
             return
 
         self._send(404, {"error": "ruta no encontrada"})
@@ -140,8 +142,8 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
         self._send(404, {"error": "ruta no encontrada"})
 
 
-def make_server(port: int, repo: AdminRepository) -> HTTPServer:
-    # Inyectamos el repo en la clase del handler (patron de http.server).
-    handler = type("_H", (AdminHTTPHandler,), {"repo": repo})
+def make_server(port: int, repo: AdminRepository, media: MediaStorage) -> HTTPServer:
+    # Inyectamos el repo y el media storage en la clase del handler (patron de http.server).
+    handler = type("_H", (AdminHTTPHandler,), {"repo": repo, "media": media})
     srv = HTTPServer(("0.0.0.0", port), handler)
     return srv

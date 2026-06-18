@@ -35,6 +35,16 @@ type EstadoAcceso =
   | 'sin-sesion'
   | 'error'
 
+function formatDuracion(segundos: number): string {
+  if (!Number.isFinite(segundos) || segundos <= 0) return ''
+  const total = Math.floor(segundos)
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+}
+
 export default function WatchPage({
   params,
 }: {
@@ -66,6 +76,9 @@ export default function WatchPage({
 
   const [video, setVideo] =
     useState<PlaybackVideo | null>(null)
+
+  const [duracionSegundos, setDuracionSegundos] =
+    useState(0)
 
   /*
    * Detecta si el componente continúa montado.
@@ -249,6 +262,16 @@ export default function WatchPage({
     playerRef.current = player
     setPlayerReady(true)
 
+    try {
+      const d =
+        typeof player.getDuration === 'function'
+          ? player.getDuration()
+          : 0
+      if (d > 0) setDuracionSegundos(d)
+    } catch {
+      /* la duración se actualizará luego en el intervalo de progreso */
+    }
+
     if (
       !perfilId ||
       progresoCargadoRef.current
@@ -355,6 +378,13 @@ export default function WatchPage({
     setPlayerReady(true)
 
     if (
+      Number.isFinite(videoElement.duration) &&
+      videoElement.duration > 0
+    ) {
+      setDuracionSegundos(videoElement.duration)
+    }
+
+    if (
       !perfilId ||
       progresoCargadoRef.current
     ) {
@@ -449,6 +479,10 @@ export default function WatchPage({
           isHTML5 ? player.duration : player.getDuration()
         )
 
+        if (duration > 0) {
+          setDuracionSegundos(duration)
+        }
+
         if (
           !duration ||
           currentTime <= 0
@@ -504,9 +538,15 @@ export default function WatchPage({
         Volver al detalle
       </Link>
 
-      <h1 className="mb-5 text-2xl font-bold">
+      <h1 className="mb-2 text-2xl font-bold">
         {video ? `Reproduciendo: ${video.nombre}` : 'Reproduciendo contenido'}
       </h1>
+
+      {duracionSegundos > 0 && (
+        <p className="mb-5 text-sm text-white/60">
+          Duración: {formatDuracion(duracionSegundos)}
+        </p>
+      )}
 
       {!perfilCargado && (
         <p className="text-sm text-white/60">

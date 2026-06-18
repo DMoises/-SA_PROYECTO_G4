@@ -10,14 +10,17 @@ skinparam usecase {
 title Modelo de Casos de Uso: Core del Negocio (Quetxal TV)
 
 actor "Usuario Suscriptor" as user
+actor "Administrador" as admin
 actor "API de Divisas (FX)\n<<Sistema Externo>>" as fx
 actor "Servicio SMTP\n<<Sistema Externo>>" as smtp
 
 rectangle "Ecosistema Quetxal TV" {
   usecase "Proveer Streaming de Video Bajo Demanda\n(Suscripción y Catálogo)" as core
+  usecase "Administrar Plataforma, Catálogo y Auditoría" as adminCore
 }
 
 user --> core : "Consume contenido y gestiona cuenta"
+admin --> adminCore : "Gestiona contenido y auditoría"
 core --> fx : "Consulta tipos de cambio"
 core --> smtp : "Delega notificaciones"
 

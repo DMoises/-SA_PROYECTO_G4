@@ -41,6 +41,7 @@
    - [4.3 Vista de Procesos](#4.3-vista-de-procesos)
      - [4.3.1 Diagramas de Actividades](#4.3.1-diagramas-de-actividades:)
      - [4.3.2 Diagramas de Secuencia](#4.3.2-diagramas-de-secuencia:)
+     - [4.3.3 Diagrama de Flujo](#4.3.3-diagrama-de-flujo:)
    - [4.4 Vista de Desarrollo (Componentes)](#4.4-vista-de-desarrollo-(componentes))
      - [4.4.1 Diagrama de Componentes](#4.4.1-diagrama-de-componentes:)
    - [4.5 Análisis Estructural: Arquitectura Síncrona vs. Asíncrona](#4.5-análisis-estructural:-arquitectura-síncrona-vs.-asíncrona)
@@ -1060,7 +1061,26 @@ Intercambio dinámico de mensajes y sincronización.
   <img src="./docs/img/modelo4vistas/admin.png" alt="Modelo 4+1" width="900"/>
 </div>
 
+#### **4.3.3 Diagrama de flujo:**  {#4.3.3-diagrama-de-flujo:}
+<div align="center">
+  <img src="assets/Diagrama_flujo_CICD_QuetxalTV_Proyecto2.png" alt="Modelo 4+1" width="900"/>
+</div>
 
+## Justificación del diseño del pipeline CI/CD
+
+El pipeline CI/CD de Quetxal TV fue diseñado para automatizar la validación, construcción y despliegue de la plataforma, reduciendo errores manuales y asegurando que cada cambio pase por controles antes de llegar a la nube.
+
+En la fase de Integración Continua se separaron los jobs por tecnología: Go, TypeScript/NestJS y Python. Esto permite probar cada microservicio con sus propias herramientas y detectar con mayor facilidad en qué stack ocurre un error. Además, cada job ejecuta pruebas unitarias y valida una cobertura mínima del 75%, deteniendo el pipeline si no se cumple el umbral requerido.
+
+Después de las pruebas, el pipeline construye y publica imágenes Docker para los servicios de la aplicación. Esto permite versionar cada componente y mantener trazabilidad entre el código, la imagen generada y el despliegue realizado.
+
+El flujo de despliegue se divide por ramas. La rama `develop` despliega automáticamente hacia Google Compute Engine usando Docker Compose, funcionando como ambiente de integración en la nube. La rama `release` se orienta al despliegue en Google Kubernetes Engine, aplicando manifiestos de Kubernetes, estrategia RollingUpdate, health checks y rollback automático en caso de fallos.
+
+El backup de bases de datos se maneja como un workflow separado y programado, ya que no es necesario generar respaldos en cada push. Este flujo respalda las bases PostgreSQL operacionales y excluye Redis por ser utilizado como caché.
+
+También se separó el flujo de Build & Push Database/Cache y el Deploy Database. La construcción de imágenes de bases de datos solo publica imágenes actualizadas, mientras que el despliegue de bases se ejecuta de forma manual/controlada para evitar afectar volúmenes o datos persistentes.
+
+Finalmente, el pipeline utiliza GitHub Secrets para proteger credenciales sensibles como tokens, llaves SSH, usuarios, contraseñas e información de conexión. Con esta estructura, el proceso queda organizado, seguro, trazable y alineado con una arquitectura de microservicios desplegada en la nube.
 
 
 ### **4.4 Vista de Desarrollo (Componentes)** {#4.4-vista-de-desarrollo-(componentes)}
@@ -1892,4 +1912,4 @@ Este Documento de Decision Arquitectonica (DDA) se constituye como la Linea Base
 
 ## 7\. Archivos Crudos
 
-[https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing](https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing)   
+[https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing](https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing)   )   

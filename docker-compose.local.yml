@@ -214,6 +214,7 @@ services:
       AUTH_SERVICE_ADDR: auth-service:50051
       BILLING_SERVICE_ADDR: billing-service:50052
       CATALOG_SERVICE_ADDR: catalog-service:50055
+      CATALOG_ADMIN_HTTP_ADDR: http://catalog-service:8086
       RATING_SERVICE_ADDR: rating-service:50056
       COOKIE_SECURE: "false"        # true en cloud (HTTPS)
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
@@ -277,14 +278,16 @@ services:
     build: ./backend/catalog-service
     container_name: quetxal-catalog-service
     environment:
-      GRPC_PORT: 50055              # 50053 lo usa fx-service; catalog usa 50055
-      CATALOG_DB_HOST: catalog-db          # nombre del servicio de la base
-      CATALOG_DB_PORT_INTERNAL: 5432       # puerto INTERNO de postgres (no el de host)
+      GRPC_PORT: 50055
+      CATALOG_ADMIN_HTTP_PORT: 8086
+      CATALOG_DB_HOST: catalog-db
+      CATALOG_DB_PORT_INTERNAL: 5432
       CATALOG_DB_NAME: ${CATALOG_DB_NAME}
       CATALOG_DB_USER: ${CATALOG_DB_USER}
       CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
     ports:
-      - "50055:50055"   # solo para probar con grpcurl/Postman en LOCAL; quitar en cloud
+      - "50055:50055"
+      - "8086:8086"     # admin HTTP (solo LOCAL para depuracion directa)
     depends_on:
       catalog-db:
         condition: service_healthy
@@ -302,7 +305,7 @@ services:
       RATING_DB_USER: ${RATING_DB_USER}
       RATING_DB_PASSWORD: ${RATING_DB_PASSWORD}
     ports:
-      - "50056:50056"   # solo para probar con grpcurl/Postman en LOCAL; quitar en cloud
+      - "50056:50056"   
     depends_on:
       rating-db:
         condition: service_healthy
@@ -311,8 +314,8 @@ services:
 
   history-service:
     build:
-      context: ./backend
-      dockerfile: history-service/Dockerfile
+      context: ./backend/history-service
+      dockerfile: Dockerfile
     container_name: quetxal-history-service
     environment:
       PORT: 50057

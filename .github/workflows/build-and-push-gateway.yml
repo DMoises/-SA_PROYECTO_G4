@@ -53,4 +53,4 @@ jobs:
 
       - name: Dictamen Final del Auditor Técnico
         run: |
-          echo "✅ ¡Pipeline de Construcción del Gateway Finalizado Exitosamente!"
+          echo " ¡Pipeline de Construcción del Gateway Finalizado Exitosamente!"

@@ -8,6 +8,7 @@ import { ContentCarousel } from '@/components/content-carousel'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Content, Episode } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { getResume } from '@/lib/history'
 
 type ContentDetalle = Content & { episodesList?: Episode[] }
 
@@ -19,12 +20,41 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
   const [userRating, setUserRating] = useState<'up' | 'down' | null>(null)
   const [inMyList, setInMyList] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState(1)
+  const [resumeData, setResumeData] = useState<{
+    temporada?: number
+    episodio?: number
+    segundo_exacto?: number
+  } | null>(null)
+
   // Campos opcionales: proto3-JSON omite los que valen 0 (p. ej. porcentaje 0%).
   const [recomendacion, setRecomendacion] = useState<{
     total_votos?: number
     votos_positivos?: number
     porcentaje?: number
   } | null>(null)
+
+  // Consultar el progreso de reproducción
+  useEffect(() => {
+    const stored = localStorage.getItem('selectedProfile')
+    if (!stored) return
+
+    try {
+      const profile = JSON.parse(stored)
+      if (profile?.id) {
+        getResume(profile.id, id)
+          .then(res => {
+            if (res) {
+              setResumeData({
+                temporada: res.temporada,
+                episodio: res.episodio,
+                segundo_exacto: res.segundo_exacto,
+              })
+            }
+          })
+          .catch(err => console.error('Error fetching resume data:', err))
+      }
+    } catch {}
+  }, [id])
 
   // Ficha tecnica real (via gateway: /api/catalog/{id} -> /catalog/contenido/{id}).
   useEffect(() => {
@@ -174,11 +204,17 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
             {/* Actions */}
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <Link
-                href={`/watch/${content.id}`}
+                href={
+                  content.type === 'series'
+                    ? (resumeData?.temporada && resumeData?.episodio
+                      ? `/watch/${content.id}?season=${resumeData.temporada}&episode=${resumeData.episodio}`
+                      : `/watch/${content.id}?season=1&episode=1`)
+                    : `/watch/${content.id}`
+                }
                 className={cn(buttonVariants({ size: 'lg' }), 'gap-2 bg-foreground text-background hover:bg-foreground/90')}
               >
                 <Play className="h-5 w-5 fill-current" />
-                Reproducir
+                {resumeData ? 'Reanudar' : 'Reproducir'}
               </Link>
               <Button
                 size="lg"
@@ -255,9 +291,10 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
 
                 <div className="space-y-4">
                   {episodes.map(episode => (
-                    <div
+                    <Link
                       key={episode.id}
-                      className="group flex gap-4 rounded-lg bg-card p-4 transition-colors hover:bg-accent"
+                      href={`/watch/${content.id}?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
+                      className="group flex gap-4 rounded-lg bg-card p-4 transition-colors hover:bg-accent w-full text-left"
                     >
                       <div className="relative aspect-video w-32 flex-shrink-0 overflow-hidden rounded md:w-40">
                         <img
@@ -280,7 +317,7 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
                           {episode.description}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>

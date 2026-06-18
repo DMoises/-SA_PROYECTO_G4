@@ -8,7 +8,6 @@ package pb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -24,6 +23,7 @@ const (
 	AuthService_Login_FullMethodName            = "/auth.v1.AuthService/Login"
 	AuthService_ValidarToken_FullMethodName     = "/auth.v1.AuthService/ValidarToken"
 	AuthService_CrearPerfil_FullMethodName      = "/auth.v1.AuthService/CrearPerfil"
+	AuthService_EditarPerfil_FullMethodName     = "/auth.v1.AuthService/EditarPerfil"
 	AuthService_ListarPerfiles_FullMethodName   = "/auth.v1.AuthService/ListarPerfiles"
 	AuthService_ActualizarPerfil_FullMethodName = "/auth.v1.AuthService/ActualizarPerfil"
 	AuthService_EliminarPerfil_FullMethodName   = "/auth.v1.AuthService/EliminarPerfil"

@@ -1,0 +1,192 @@
+name: Deploy to Kubernetes (GKE)
+
+on:
+  # Despliegue AUTOMÁTICO: se encadena cuando el pipeline de release termina de
+  # construir y publicar las imágenes versionadas (garantiza que :vX.Y.Z ya existe).
+  workflow_run:
+    workflows: ["Release - Build & Push Versión Semántica (vX.Y.Z)"]
+    types: [completed]
+  # Despliegue MANUAL: desplegar/re-desplegar un tag de versión específico a demanda
+  # (útil para rollback puntual a una versión estable anterior).
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Tag de versión a desplegar (ej. v2.0.0)'
+        required: true
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: quetxal-cluster    # IMPORTANTE: Cambia esto por el nombre real de tu clúster en GCP
+  GKE_ZONE: us-central1-a         # IMPORTANTE: Cambia esto por la zona de tu clúster
+
+jobs:
+  deploy-to-gke:
+    # En el encadenamiento automático, solo desplegar si el release fue exitoso.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # En el deploy automático tomamos el commit exacto del release; en el manual, la rama actual.
+        ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+    - name: Resolver versión a desplegar
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          # Misma versión que produjo el release: sale del nombre de la rama que lo disparó.
+          REF="${{ github.event.workflow_run.head_branch }}"
+          if [ "$REF" = "release" ]; then
+            VERSION="$(tr -d '[:space:]' < VERSION)"
+          elif [[ "$REF" =~ ^release/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            echo "❌ ERROR: el release vino de la rama '$REF', que no es válida (usa 'release' o 'release/vX.Y.Z')"; exit 1
+          fi
+        fi
+        if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "❌ ERROR: '$VERSION' no es un Tag semántico válido (vX.Y.Z)"; exit 1
+        fi
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "🚀 Desplegando versión $VERSION en GKE"
+      shell: bash
+
+    # 1. Autenticación contra Google Cloud Platform
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+        service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+
+    # 2. Configurar el CLI de Kubernetes (kubectl)
+    - name: Set up GKE credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+
+    # 3. Inyectar Secretos de Github Actions en la plantilla secrets.yaml
+    - name: Inject Secrets into Manifest
+      run: |
+        # Exportamos todos los secretos necesarios para el comando envsubst
+        export AUTH_DB_NAME="${{ secrets.AUTH_DB_NAME }}"
+        export AUTH_DB_USER="${{ secrets.AUTH_DB_USER }}"
+        export AUTH_DB_PASSWORD="${{ secrets.AUTH_DB_PASSWORD }}"
+        
+        export SUBSCRIPTION_DB_NAME="${{ secrets.SUBSCRIPTION_DB_NAME }}"
+        export SUBSCRIPTION_DB_USER="${{ secrets.SUBSCRIPTION_DB_USER }}"
+        export SUBSCRIPTION_DB_PASSWORD="${{ secrets.SUBSCRIPTION_DB_PASSWORD }}"
+        
+        export CATALOG_DB_NAME="${{ secrets.CATALOG_DB_NAME }}"
+        export CATALOG_DB_USER="${{ secrets.CATALOG_DB_USER }}"
+        export CATALOG_DB_PASSWORD="${{ secrets.CATALOG_DB_PASSWORD }}"
+        
+        export RATING_DB_NAME="${{ secrets.RATING_DB_NAME }}"
+        export RATING_DB_USER="${{ secrets.RATING_DB_USER }}"
+        export RATING_DB_PASSWORD="${{ secrets.RATING_DB_PASSWORD }}"
+        
+        export FX_DB_NAME="${{ secrets.FX_DB_NAME }}"
+        export FX_DB_USER="${{ secrets.FX_DB_USER }}"
+        export FX_DB_PASSWORD="${{ secrets.FX_DB_PASSWORD }}"
+        
+        export HISTORY_DB_NAME="${{ secrets.HISTORY_DB_NAME }}"
+        export HISTORY_DB_USER="${{ secrets.HISTORY_DB_USER }}"
+        export HISTORY_DB_PASSWORD="${{ secrets.HISTORY_DB_PASSWORD }}"
+        
+        export NOTIFICATION_DB_NAME="${{ secrets.NOTIFICATION_DB_NAME }}"
+        export NOTIFICATION_DB_USER="${{ secrets.NOTIFICATION_DB_USER }}"
+        export NOTIFICATION_DB_PASSWORD="${{ secrets.NOTIFICATION_DB_PASSWORD }}"
+        
+        export REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}"
+        export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+        
+        export FX_API_URL="${{ secrets.FX_API_URL }}"
+        export FX_API_TIMEOUT="${{ secrets.FX_API_TIMEOUT }}"
+        export FX_CACHE_TTL="${{ secrets.FX_CACHE_TTL }}"
+        
+        export SMTP_HOST="${{ secrets.SMTP_HOST }}"
+        export SMTP_USER="${{ secrets.SMTP_USER }}"
+        export SMTP_PASS="${{ secrets.SMTP_PASS }}"
+        export SMTP_FROM="${{ secrets.SMTP_FROM }}"
+        
+        export GCS_ACCESS_KEY="${{ secrets.GCS_ACCESS_KEY }}"
+        export GCS_SECRET_KEY="${{ secrets.GCS_SECRET_KEY }}"
+        export GCS_BUCKET_NAME="${{ secrets.GCS_BUCKET_NAME }}"
+        
+        # Sustituimos las variables del archivo base y lo guardamos temporalmente
+        envsubst < k8s/base/secrets.yaml > k8s/base/secrets-injected.yaml
+        
+        # Ocultamos la impresión en la consola para no revelar contraseñas
+        echo "Secretos inyectados correctamente en los manifiestos."
+
+    # 4. Ajustar el Registry y PINEAR la versión de las imágenes (no :latest)
+    - name: Set Docker Registry y pinear versión
+      env:
+        DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        # Pinea SOLO las imágenes propias: tu-registro/quetxal-XXX:latest -> DH_USER/quetxal-XXX:VERSION
+        # Así cada release es una revisión distinta y el `kubectl rollout undo` puede volver a una versión estable real.
+        find k8s -type f -name "*.yaml" -exec sed -i \
+          "s|tu-registro/\(quetxal-[a-z0-9-]*\):latest|${DH_USER}/\1:${VERSION}|g" {} +
+        # Cualquier referencia restante al placeholder (sin :latest) toma el usuario real.
+        find k8s -type f -name "*.yaml" -exec sed -i "s|tu-registro|${DH_USER}|g" {} +
+        echo "✅ Manifiestos apuntando a ${DH_USER}/quetxal-*:${VERSION}"
+
+    # 5. Desplegar Infraestructura en Kubernetes
+    - name: Deploy Base infrastructure (Namespace, ConfigMap, Secrets)
+      run: |
+        kubectl apply -f k8s/base/namespace.yaml
+        kubectl apply -f k8s/base/configmap.yaml
+        kubectl apply -f k8s/base/secrets-injected.yaml
+
+    - name: Deploy Databases and Cache
+      run: |
+        kubectl apply -f k8s/databases/
+
+    - name: Deploy Microservices and API Gateway
+      run: |
+        kubectl apply -f k8s/microservices/
+        kubectl apply -f k8s/api-gateway.yaml
+
+    - name: Expose Ingress Rules
+      run: |
+        kubectl apply -f k8s/ingress.yaml
+        
+    - name: Clean up temporary secrets
+      run: rm k8s/base/secrets-injected.yaml
+
+    - name: Verify Deployment Success (Rollout Status)
+      run: |
+        # 1) Primero las bases de datos y redis: los microservicios dependen de ellas,
+        #    y en un redeploy completo tardan en quedar listas (sin esto, los servicios
+        #    se chequean mientras su DB aun se recrea y el rollout da timeout en falso).
+        DATABASES=("auth-db" "catalog-db" "rating-db" "fx-db" "history-db" "notification-db" "subscription-db" "redis")
+        for DB in "${DATABASES[@]}"; do
+          echo "Esperando base de datos $DB..."
+          kubectl rollout status deployment/$DB -n quetxal-tv-prod --timeout=180s
+        done
+        # 2) Luego los microservicios. Timeout amplio (240s): un redeploy de toda la malla
+        #    tarda mucho mas de 60s y 60s disparaba un Rollback en falso.
+        SERVICES=("auth-service" "billing-service" "catalog-service" "rating-service" "frontend" "fx-service" "history-service" "notification-service")
+        for SERVICE in "${SERVICES[@]}"; do
+          echo "Verificando estado de $SERVICE..."
+          kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=240s
+        done
+        
+    - name: Automatic Rollback on Failure
+      if: failure()
+      run: |
+        echo "🚨 Falla detectada en el despliegue. Iniciando Rollback automático..."
+        SERVICES=("auth-service" "billing-service" "catalog-service" "rating-service" "frontend" "fx-service" "history-service" "notification-service")
+        for SERVICE in "${SERVICES[@]}"; do
+          echo "Revirtiendo $SERVICE..."
+          kubectl rollout undo deployment/$SERVICE -n quetxal-tv-prod || true
+        done
+        exit 1

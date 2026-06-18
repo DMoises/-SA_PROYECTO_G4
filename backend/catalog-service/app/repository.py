@@ -10,7 +10,7 @@ from typing import Any, Optional
 from .db import Database
 
 # Columnas que expone vw_cartelera (proyeccion de la cartelera).
-_COLS_CARTELERA = "contenido_id, titulo, tipo, anio, clasificacion, generos, categorias"
+_COLS_CARTELERA = "contenido_id, titulo, tipo, anio, clasificacion, generos, categorias, portada_url"
 
 
 class CatalogRepository:
@@ -69,7 +69,7 @@ class CatalogRepository:
         return self.db.fetch_one(
             """
             SELECT c.id AS contenido_id, c.titulo, c.tipo, c.sinopsis, c.anio,
-                   c.clasificacion, c.duracion_min,
+                   c.clasificacion, c.duracion_min, c.portada_url, c.video_url,
                    COALESCE(v.generos, '')    AS generos,
                    COALESCE(v.categorias, '') AS categorias
             FROM contenido c
@@ -78,6 +78,7 @@ class CatalogRepository:
             """,
             {"id": contenido_id},
         )
+
 
     def obtener_reparto(self, contenido_id: str) -> list[dict[str, Any]]:
         return self.db.fetch_all(
@@ -96,7 +97,7 @@ class CatalogRepository:
         return self.db.fetch_all(
             """
             SELECT t.numero AS temporada, e.numero AS episodio,
-                   e.titulo, e.duracion_min
+                   e.titulo, e.duracion_min, e.video_url
             FROM temporadas t
             JOIN episodios e ON e.temporada_id = t.id
             WHERE t.contenido_id = %(id)s::uuid

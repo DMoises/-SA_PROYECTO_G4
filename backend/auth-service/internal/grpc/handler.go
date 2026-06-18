@@ -6,6 +6,7 @@ package grpcserver
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/grupo4/quetxaltv-auth/internal/domain"
 	"github.com/grupo4/quetxaltv-auth/internal/pb"
@@ -137,6 +138,7 @@ func aGRPC(err error) error {
 	case errors.Is(err, domain.ErrDatosInvalidos):
 		return status.Error(codes.InvalidArgument, err.Error())
 	default:
-		return status.Error(codes.Internal, "error interno")
+		log.Printf("🔥 ERROR CRÍTICO (no controlado): %v", err)
+		return status.Error(codes.Internal, "error interno del servidor")
 	}
 }

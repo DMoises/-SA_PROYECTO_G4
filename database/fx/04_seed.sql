@@ -10,7 +10,3 @@ CALL sp_actualizar_tasa('USD', 'EUR', 0.92);
 CALL sp_actualizar_tasa('GTQ', 'USD', 0.1290);
 CALL sp_actualizar_tasa('GTQ', 'MXN', 2.2193);
 CALL sp_actualizar_tasa('GTQ', 'EUR', 0.1187);
-CALL sp_actualizar_tasa('USD', 'USD', 1);
-CALL sp_actualizar_tasa('GTQ', 'GTQ', 1);
-CALL sp_actualizar_tasa('MXN', 'MXN', 1);
-CALL sp_actualizar_tasa('EUR', 'EUR', 1);

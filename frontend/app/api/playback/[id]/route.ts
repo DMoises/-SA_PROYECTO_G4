@@ -3,6 +3,7 @@ import {
   NextResponse,
 } from 'next/server'
 import { getVideoForContent } from '@/lib/server/content-videos'
+import { fetchFicha } from '@/lib/catalog-gateway'
 
 const GATEWAY_URL =
   process.env.GATEWAY_URL ||
@@ -326,13 +327,77 @@ export async function GET(
       )
     }
 
-    const video =
-      getVideoForContent(id)
+    const { searchParams } = new URL(request.url)
+    const season = searchParams.get('season')
+    const episode = searchParams.get('episode')
+
+    // La URL del video viaja por el API Gateway dentro de la ficha tecnica
+    // (el catalog-service la firma como Signed URL de GCS). NO se llama al admin
+    // HTTP :8086 directo -> se respeta el gateway como unico punto de entrada.
+    let content: Awaited<ReturnType<typeof fetchFicha>> = null
+    try {
+      content = await fetchFicha(id)
+    } catch (err) {
+      console.warn('No se pudo obtener la ficha para reproduccion:', err)
+    }
+
+    let dbVideoUrl: string | null = null
+    if (content) {
+      if (season && episode) {
+        const ep = content.episodesList?.find(
+          e =>
+            e.seasonNumber === Number(season) &&
+            e.episodeNumber === Number(episode)
+        )
+        dbVideoUrl = ep?.videoUrl ?? null
+      } else {
+        dbVideoUrl = content.videoUrl ?? null
+      }
+    }
+
+    let videoUrl = dbVideoUrl || ''
+    let isVideoUrl = false
+    let youtubeId = ''
+
+    if (videoUrl) {
+      const isHttp = videoUrl.startsWith('http://') || videoUrl.startsWith('https://')
+      const isYoutubeUrl = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')
+      
+      if (isHttp && !isYoutubeUrl) {
+        isVideoUrl = true
+      } else if (isYoutubeUrl) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+        const match = videoUrl.match(regExp)
+        youtubeId = (match && match[2].length === 11) ? match[2] : videoUrl
+      } else {
+        youtubeId = videoUrl
+      }
+    }
+
+    if (!videoUrl) {
+      const fallback = getVideoForContent(id)
+      youtubeId = fallback.youtubeId
+      videoUrl = fallback.youtubeId
+      isVideoUrl = false
+    }
+
+    let tipo = 'pelicula'
+    let nombre = 'Reproduciendo contenido'
+    if (content) {
+      tipo = content.type === 'series' ? 'serie' : 'pelicula'
+      nombre = content.title
+      if (season && episode) {
+        nombre += ` - T${season}:E${episode}`
+      }
+    }
 
     return NextResponse.json({
       contenidoId: id,
-      youtubeId: video.youtubeId,
-      nombre: video.nombre,
+      videoUrl: videoUrl,
+      isVideoUrl: isVideoUrl,
+      youtubeId: youtubeId,
+      nombre: nombre,
+      tipo: tipo,
     })
   } catch (error) {
     console.error(

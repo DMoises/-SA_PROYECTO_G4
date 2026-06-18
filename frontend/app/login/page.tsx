@@ -38,7 +38,7 @@ export default function LoginPage() {
       } else {
         localStorage.removeItem('rememberedEmail')
       }
-      router.push('/profiles')
+      router.push(result.rol === 'admin' ? '/admin' : '/profiles')
     } else {
       setError(result.error || 'Error al iniciar sesion')
     }

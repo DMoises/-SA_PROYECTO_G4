@@ -917,7 +917,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | X | — |
 ----
 
-## **4\. Fase 2: Espacio de la Solución Conceptual (Nivel PIM)** {#4.-fase-2:-espacio-de-la-solución-conceptual-(nivel-pim)}
+## **4\. Fase 2: Espacio de la Solución Conceptual (Nivel PIM)
 
 <div align="center">
   <img src="../ProyectoSA-NoOficial/assets/Diagramas Proyecto 1-Vista 4+1.svg" alt="Modelo 4+1" width="900"/>

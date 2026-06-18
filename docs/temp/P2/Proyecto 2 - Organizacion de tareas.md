@@ -73,5 +73,5 @@
 | 4. Diagrama Entidad-Relación (ER) | Esencial incluir stored procedures, vistas, funciones y los triggers/tabla de auditoría. | — | 🔴 Pendiente |
 | 5. Diagrama de Arquitectura (Alto Nivel) | Dibujo macro uniendo todas las interacciones: nube, repos, bases de datos, web, redis, GCS. | — | 🔴 Pendiente |
 | 6. Diseño UI/UX | Elaboración de Mockups/wireframes detallados de las vistas de la página y el Panel Administrativo. | — | 🔴 Pendiente |
-| 7. Arquitectura del Clúster de Kubernetes | Detalle lógico de despliegue: nodos, namespaces, recursos por Pod y puerta de enlace Ingress. | — | 🔴 Pendiente |
+| 7. Arquitectura del Clúster de Kubernetes | Detalle lógico de despliegue: nodos, namespaces, recursos por Pod y puerta de enlace Ingress. | Chan | ✅ Completado |
 | 8. Manifiestos y Estrategias (Zero-Downtime) | Justificar uso de Secrets/ConfigMaps, sondas Liveness/Readiness y matemáticas del `maxSurge`/`maxUnavailable`. | — | 🔴 Pendiente |

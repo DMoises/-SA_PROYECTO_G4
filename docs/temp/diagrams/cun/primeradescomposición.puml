@@ -9,6 +9,7 @@ skinparam usecase {
 title Primera Descomposición: Procesos de Negocio (Nivel CIM)
 
 actor "Usuario Suscriptor" as user
+actor "Administrador" as admin
 actor "API de Divisas FX\n<<Sistema Externo>>" as fx
 actor "Servidor SMTP\n<<Sistema Externo>>" as smtp
 
@@ -20,6 +21,7 @@ package "Quetxal TV - Procesos de Negocio" {
     usecase "CDU-P05: Servicio Financiero FX" as p5
     usecase "CDU-P06: Historial de Reproducción" as p6
     usecase "CDU-P07: Emisión de Notificaciones" as p7
+    usecase "CDU-P08: Panel de Administración y Auditoría" as p8
 }
 
 user --> p1
@@ -27,6 +29,7 @@ user --> p2
 user --> p3
 user --> p4
 user --> p6
+admin --> p8
 
 p2 ..> p5 : <<include>>
 p5 --> fx

@@ -163,7 +163,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N1-08: Seleccionar Perfil
 
 
-![Módulo 1](https://www.plantuml.com/plantuml/png/ZLJBJXin5DtxAwwcctQHYAHDWH6AW31KMO2gHgoHPL-cLpZso0zQLFMh-0H-3Cyp8MEfdPtFupwEhJbtdbiVjeefVF3W3LWgVtgGP55uCfgvHz8LjtmB5HUFlCIDVrO8DSrrgN1F41mAxX3-C83BA2wj2LgkZ38MFXGdrulYj6QCbMWxT5uSNtsUH_J2MlEh0sUNYs9-nFxkbUR2HoPP-Bhv3WiFDJpvEExgwWwAtnNNagJ9OJQ5R-WylRvea0WNmQFs9BXea6VuZlQ153huU4jFg62rlld4M3j4TkS2jsHW4vomL4Ki0-x03ST3uGyioNdBfMc4TZWU2jVwYNmle-x0M1SyP3UlBp8e0xCSrhAUM7APDQdqqMTnqSdjR78K9NrR6zccVbCsYFj-09iopcDjJOAYpQ6hy-XjofIaKvOlEQpGsgJ319-oBAB5OdHKJTAzGTHOIlyrXqB6E0uDs80fnt5qADgI7diwEEKwoM632eM8JtzaT3icFYpMNn1C9iltiRBT5VTa6ruIhoCQ4sqKOxpRE47qQx7TItpVFOdNtST4stsCTzqJnD1zFmcOJdVz8OUpCz921OdB9HlWJhENxbZPpFDVodR2VqlPEMfP__ZU00==)
+![Módulo 1](/-SA_PROYECTO_G4/assets/f2/identidad.png)
 
 
 
@@ -292,10 +292,10 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 - CDU-N2-01: Adquirir Plan de Suscripción
 - CDU-N2-02: Procesar Cobro Recurrente
-- CDU-N2-04: Actualizar Plan de Suscripción
-- CDU-N2-05: Cancelar Suscripción Activa
+- CDU-N2-03: Actualizar Plan de Suscripción
+- CDU-N2-04: Cancelar Suscripción Activa
 
-![Módulo 2](https://www.plantuml.com/plantuml/png/VLB1JXin4BtxAqRBfJqaIY9Ir5KKGRT9nG64Yl81WpriBHmx7TiKYlWgFe4Vw-nsDu4eucJvpPltverz6XDoockd7DqcI07OrhyI6CkaamrUnJlhDyYuXWtgEwpfEZqwWgQCldRqXf0ZQOm4JmhWcv1h3jcRAhZ0SBHSBhzMnqqbi27kqUd9SdmYw1bp-DE1Yo_JyMYadbMoIQogxojOF6pG6sj22PCX_A2OxEkB1qDmdQDckz4oAqNuT6dloK5rVl5PATH9v8fLpCWsm4-gRKoC9XI0KHBqrtrY9obOIupRgrBT3g2uU7qnsGMObEydADhq_IOAcNrmEHcCnYMScT_PicMuSlX-SadI6c77E2GWFbSSD4LagC8DDt5qPYQVg6tM0kB1rcFnrYcZit_n0tT3KMUH2uSqfYLKw3KvKNZRsIZRU_m_GKUGXrExvS9WCDybs-sonNUUUuKkpJxQEwXU48R3dWmbp6RMQvSDpUTgAzrIjlo6H0-9l16EEfMp-Vp_00==)  <br/><br/>
+![Módulo 2](/-SA_PROYECTO_G4/assets/f2/suscripciones.png)  <br/><br/>
 
 ### Especificación CDU-N2-01 — Adquirir Plan de Suscripción
 
@@ -336,7 +336,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | Campo | Descripción |
 |---|---|
 | **Nombre** | Actualizar Plan de Suscripción |
-| **Código** | CDU-N2-04 |
+| **Código** | CDU-N2-03 |
 | **Actores** | Usuario Suscriptor |
 | **Descripción** | Permite al Usuario Suscriptor cambiar su plan activo por uno de mayor (upgrade) o menor (downgrade) valor. Este caso de uso extiende a CDU-N2-01. El cambio de plan puede implicar un cobro prorrateado o un crédito según la política de facturación. |
 | **Precondiciones** | El usuario debe tener sesión activa con JWT válido. El usuario debe tener una suscripción activa. El nuevo plan seleccionado debe ser diferente al plan actual. |
@@ -353,7 +353,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | Campo | Descripción |
 |---|---|
 | **Nombre** | Cancelar Suscripción Activa |
-| **Código** | CDU-N2-05 |
+| **Código** | CDU-N2-04 |
 | **Actores** | Usuario Suscriptor |
 | **Descripción** | Permite al Usuario Suscriptor cancelar su suscripción activa en QuetxalTV. La cancelación puede ser inmediata o al final del período facturado actual, según la política del sistema. El acceso a contenido se mantiene hasta el fin del período pagado. |
 | **Precondiciones** | El usuario debe tener sesión activa con JWT válido. El usuario debe tener una suscripción con estado "Activa". Solo el perfil administrador puede cancelar la suscripción. |
@@ -372,7 +372,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N3-03: Consultar Ficha Técnica y Reparto
 - CDU-N3-04: Gestionar Filtros
 
-![Módulo 3](https://www.plantuml.com/plantuml/png/VLBBRjim4BppAnRgfJtOYEC6HeN0IAtOGG_E8OyFM90RXGYj5PPaaw38n-JOSp_1FnPIaQiaC7AIE3iSpWnvuWDAY1kd7Dq420nYwzi0nWhfOBbH_iusBGfke4LzXpLTXaT7aCVOr8xU4A8dZPxWZm9O978j71jJiME1Byl9wcYrp1CMGzAZ1uUpsU8qeJz5-7u7JevcFnRgIQbWGpghEhs6vKEBZR66IvYEeSAmVNPSCpn2nOsF6uQlv_OtEQX-hRyfXJeafUBQHnJBS46rzK7GS07ea_dTyYFnCdejjarOH_J_bqhryQ5OR_-Pw1YcvNiVgKXo95Xq1UpAA9BxqVbqT30fSuWK46NWWg4S851ZUs_KS_P979OfIIjiehOox8DrTC5ko5Ziu-qu-qIoxLoPIpSFAwjl4QwsVtLZDQOKIJzvUxLoauVx9BwNS4O-FuzEmWLXt-_e_lFL3Ht3Q3GVOWsLVeg_oQ0w7p0U3smeuVYO7b9yCv-h_jHF62Vfan_v2m==)  <br/><br/>
+![Módulo 3](/-SA_PROYECTO_G4/assets/f2/catalogo.png)  <br/><br/>
 
 
 
@@ -457,7 +457,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N4-04: Registrar en Bitácora de Auditoría (Trigger)
 - CDU-N4-05: Generar Reporte de Calificaciones
 
-![Módulo 4](https://www.plantuml.com/plantuml/png/TPJFRXf13CRl-nGMLLKuB844Ua0H2Y5GzP2q0kN6PJhZR4UPdLbvPkW_vM7w03tb4NYnUZTBM5Q46_OtF_kp3LS-20enDud1Xm310UdiUm2b2MNGpYR-KTj2aCYX4F9HPBWElmn2cHOsCzWGH8zIU8G_2S0rYpDoqQgvCuxWtNAvl5WCoemZXLH75n_7mq4PdH6v7yV1fmPQoC2Pjy3yUGFyb2H11-vtVdCFYv-5i4ehDu5H7zRQ1ym5A4uAen-q598DeuVkdTwYWVddsrwIl5JktFieI3jOHoz95nphWF3WNx_kXJELQyje4ghMY3AI9FNue7ExUrRHE1XDseNBLbmUhLP2TIgt7zWlJvHb5eKI89q54a7RBFL8MoqHkdi8mHby-HRG8grGkXojgi27SBDSRQZ7HVPxw_2GqhjHEXXEO97heEbi9aFaHxyPVdYyUxORsqNsYCO86APZS514amdgLOxblgDJy7EsxQoFXYyFtfUU6zqokY9Gqy0foaMJaklZxifpuROhKgwhL3NBPOauFuNZNQmmgzP6W1QkTTZzbOx4ndA3iwWqBtVtJy3bPU1VI8OqdRuijqoTDZgUmATowanSOU4e89lTsFQnzQNVyeg-tYnxjVLAMvxkuReWJQUDiROInzDg9VS3gCwmbhzKI5w1qE-tA31XgzfA4nLEforbRRgbIQxuSVbNyXy0)  <br/><br/>
+![Módulo 4](/-SA_PROYECTO_G4/assets/f2/calificaciones.png)  <br/><br/>
 
 
 
@@ -557,7 +557,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N5-04: Generar Reporte Financiero / de Conversiones
 
 
-![Módulo 5](https://www.plantuml.com/plantuml/png/TLHDRnen4BtxLupeeQ0Ayj4Yr1L2II1RHGeH3OcK0vUfFH0hnaQsboQjyeDwxa_87-kisGsqeNlPzSoRzpnl1av2H1-BfH66vX6Y0wyNzn6KzYIZTbQ41srNw749AvGFkA1fV384PHhjmj0Ee0WaCH3y501d35vuLrWrTCPvU7T-b7VpypBZl29VHG-FUxsp4KTFlNVVw-1Hj_VvJ3plKAECdDbBdAVdFyJF8kh8rnsERk7ySOLMQUKow7PWIdwjfNQGQujMQlByUGVDAxqc0yEBSKk8ZMhZDXJe6NbD2nsYH-KQW84jg8__0gT5a5wlE9Q0uVLO0q_LKjkgU8F1ClAQdbo08XZfjGwSQ-PthPdjzwTSGKlaHY9vwmQ3L3b_5A8Q3JJ6BxzLOHnqivq6xnh9kVVi7Ky7ZRQ42a4woyNja704pQ6pQ_9H-x6pl0W7m85G65wG6mm87xZXi4AZ74nSY0jFqw-NBUQjnzvWazjNtVRXKGP3DB8mwE663PaZa0Lc9LQzT19DkhYiCFieZhEjEYHvzcE8os_SpwcC1PgPRKgKzo-_U2nA1xvkwHebQx2r4QWPzYbypE0sQgD_l1NWh-kgrMhGcqFoC2zPZlSnVihW2rdoJ7XDA-SZxUpMp1uaXUHnu1yMyLmxCgpvufDHtgg4KXblhTWk5xJRWwrNsrtwEvxs9uLg4b7deDCPRBs03FfzRQKf50q6OXilQtcNNeVyjgeqroek4YVyBlyq_W00)  <br/><br/>
+![Módulo 5](/-SA_PROYECTO_G4/assets/f2/servicio_fx.png)  <br/><br/>
 
 
 ---
@@ -639,7 +639,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N6-03: Reanudar Reproducción
 - CDU-N6-04: Generar Reporte de Consumo
 
-![Módulo 6](https://www.plantuml.com/plantuml/png/VPDBSXCn48RtEaMNMM0ld8T337X19V43M2ILYYkiiX5ICr558qsrf266oc4uGuxWYz6Z6MC3Xjcf7v_-_jLp5gAac4ehB7w943sGAUuZQ4Eeel5EX0VZAacoX4gg1rdWCguiGfEMhh2uKv02AXaGlWk02ouko2UdfzvwWXVpDulJ-TicuqaZTT7H_FNiPCJHSoB_jGiUNvpEHqVYQGSjLUJCNl0YV_y0Fube8ikTpcvX_bX9futs4nWVm0SJ66ca1OrmWnLvdPGowsS7_IjJeuNfnyk14EtDlTkG91aFonGKcOfZFP01mg_Zfl1SbyOncwJkQcGJ4QAp3tgNwsUTh8Vn1Ax95uJ10sxrzFAOBtbGjb9Qur1g2SexkCybgs50ger2w2zbZHqYm26ynzXILktX1aCgSS2qpSlqs8VXrNXuT3pXcOiiaxOgs8bFXWUrvflCLcJzj2dS1nfDOEfTI9Rtw3-UPf3Q5Eu3dJIAf4kQER-rthc-_npH8K6L76yeFZPM3pfjRKjsRD40H_lWhoRi1nDQjgU8ZS8ilFHtxh2HnbVmRa2v_X6WRWQ1_e4ADLjvFLjiRikzl5LY-_0m7BxRyUYFn7RclpewvNazkb2B5sVeTFDF_WG0)  <br/><br/>
+![Módulo 6](/-SA_PROYECTO_G4/assets/f2/historial.png)  <br/><br/>
 
 
 
@@ -721,7 +721,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N7-03: Programar/Calendarizar Estreno
 
 
-![Módulo 7](https://www.plantuml.com/plantuml/png/TLFRQjj047tVhnZSXzeKNzFK88o98zkGXxW1j_GbK3RIH5cysZ6ZbPEqv6Fw3Va4_rX7DzTfNRrecJawUywPqKNcDViyjShYlGTFm2Pvy10RniWRSYhR6BVLh5FOwcYZ4rpxPujGjBLBB1u1yWmZdI7yL02N0awOSXU7P8dXtU9iELhEYmvnZ5nNX-UVpiE1L6VCz5WN1_EFuzbGlHnHwyXBvoJnidp-G_oYlF4YDvn_XSNJLhlOn1J0k0ShykRUH3eIavZ1LZuAYHa9sYkpGmlXrNL7gUhYrXfvPmIQmPNpo8woMzUUvVu1-d1fh3KkaLEe_VwNfOGwjsuoMPlCOwgdqnRe3BA6eQ6SnQbn0c4T4vSGNLIQzZVY3J9yplqTFVrBzrYstyWJ6bXVVxav0eldKcsZ8VLRfUevGkjw_nhdbc0SmCmYUq4yImXfxifSzg-kLKR-NaANiMfnYJhM4943LyTNx4YtyeRGNhY8hEOwo0-roje4TAUblevGDglIai5qL-FkO1X0_V7HP4I1nCoO536H12nRP-wAWyjnHzz5Y4SdnZkbFQm8Jj6F0YWpEWnvOMM1MIum4SaTRuL6_U4Ww_mP6vSXB0l6qIdsim1kc19PLCtzK5jqiMRpGxmiH3WwgkHLPzb9TLW6w4eeZUvo_bMbXjQoYb8jf7fLbMAQDH9wlGCF132PUFcF4-Jf5Df_PwNKXGWi_ldV)  <br/><br/>
+![Módulo 7](/-SA_PROYECTO_G4/assets/f2/notificaciones.png)  <br/><br/>
 
 
 ---
@@ -774,6 +774,124 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | **Flujos alternos** | **FA1 — El Administrador cancela o reprograma el estreno antes de la fecha:** FA1.1 Se actualiza/elimina el disparador programado. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
 | **Reglas de negocio** | Solo el Administrador puede programar estrenos. El disparo de la notificación `nuevo_contenido` es automático al activarse el estreno. La calendarización es parte del CRUD del catálogo (Fase 2). |
 | **Reglas de calidad** | El estreno debe reflejarse en la cartelera y disparar las alertas de forma oportuna respecto a la fecha programada. |
+
+
+---
+
+## Módulo 8: Panel de Administrador
+
+- CDU-N8-01: Iniciar Sesión como Administrador
+- CDU-N8-02: Agregar Nuevo Contenido (Película/Serie)
+- CDU-N8-03: Actualizar/Editar Metadatos
+- CDU-N8-04: Eliminar Título
+- CDU-N8-05: Programar/Calendarizar Estreno
+- CDU-N8-06: Generar Reporte de Auditoría (CSV/PDF)
+
+![Módulo 8](/-SA_PROYECTO_G4/assets/f2/admin.png)  <br/><br/>
+
+---
+
+### Especificación CDU-N8-01 — Iniciar Sesión como Administrador
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Iniciar Sesión como Administrador |
+| **Código** | CDU-N8-01 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador autenticarse en el Panel de Administración de Quetxal TV. |
+| **Precondiciones** | El usuario debe tener credenciales de administrador válidas. |
+| **Post Condiciones** | Sesión de administrador iniciada con un token de acceso válido. |
+| **Flujo principal** | 1. El Administrador accede a la pantalla de login del panel. 2. Ingresa sus credenciales. 3. El sistema valida las credenciales y el rol de Administrador. 4. El sistema emite el JWT y redirige al dashboard. |
+| **Flujos alternos** | **FA1 — Credenciales inválidas:** FA1.1 El sistema rechaza el acceso. FA1.2 Muestra mensaje de error. |
+| **Reglas de negocio** | Solo los usuarios con rol explícito de 'Administrador' pueden acceder a este panel. |
+| **Reglas de calidad** | El proceso de autenticación debe ser seguro y rápido (< 2 segundos). |
+
+---
+
+### Especificación CDU-N8-02 — Agregar Nuevo Contenido (Película/Serie)
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Agregar Nuevo Contenido (Película/Serie) |
+| **Código** | CDU-N8-02 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador agregar un nuevo título al catálogo. Involucra llenar un formulario con metadatos y subir archivos multimedia. |
+| **Precondiciones** | Sesión activa como Administrador. Los archivos multimedia deben cumplir los formatos permitidos. |
+| **Post Condiciones** | El nuevo contenido queda registrado en la base de datos y los archivos en GCS. |
+| **Flujo principal** | 1. El Administrador llena el formulario de metadatos (título, sinopsis, etc.). 2. Sube archivo de video y portada. 3. El sistema guarda los metadatos en la base de datos (catalog-service). 4. El sistema guarda los archivos en Google Cloud Storage (GCS). |
+| **Flujos alternos** | **FA1 — GCS Upload Fail:** FA1.1 El bucket rechaza el archivo por timeout o token HMAC inválido (Error 500). FA1.2 Se notifica al administrador del fallo en la subida. **FA2 — DB Timeout:** FA2.1 El microservicio catalog-service no responde. FA2.2 La operación falla. |
+| **Reglas de negocio** | Todo contenido debe tener metadatos completos y archivos multimedia válidos. |
+| **Reglas de calidad** | La subida de archivos debe ser resiliente y manejar archivos grandes sin bloquear el frontend. |
+
+---
+
+### Especificación CDU-N8-03 — Actualizar/Editar Metadatos
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Actualizar/Editar Metadatos |
+| **Código** | CDU-N8-03 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador modificar la información descriptiva de un título existente en el catálogo. |
+| **Precondiciones** | Sesión activa como Administrador. El contenido debe existir. |
+| **Post Condiciones** | Los metadatos del título se actualizan en la base de datos. |
+| **Flujo principal** | 1. El Administrador busca y selecciona un contenido. 2. Modifica los campos necesarios en el formulario de edición. 3. Guarda los cambios. 4. El sistema actualiza la base de datos del catalog-service. |
+| **Flujos alternos** | **FA1 — Datos inválidos:** FA1.1 El sistema detecta campos obligatorios faltantes o con formato incorrecto. FA1.2 Muestra error de validación. |
+| **Reglas de negocio** | Las actualizaciones de metadatos deben reflejarse inmediatamente en el catálogo. |
+| **Reglas de calidad** | El tiempo de actualización en base de datos debe ser < 2 segundos. |
+
+---
+
+### Especificación CDU-N8-04 — Eliminar Título
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Eliminar Título |
+| **Código** | CDU-N8-04 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador remover un título del catálogo. La eliminación ejecuta un borrado lógico (Soft-Delete) o físico con un trigger de auditoría. |
+| **Precondiciones** | Sesión activa como Administrador. El contenido debe existir. |
+| **Post Condiciones** | El contenido deja de estar disponible en el catálogo y se registra en la auditoría. |
+| **Flujo principal** | 1. El Administrador selecciona un título y elige la opción de eliminar. 2. El Administrador confirma la eliminación. 3. El sistema ejecuta el Soft-Delete o borra los registros. 4. El sistema lanza el trigger de auditoría para registrar el cambio. |
+| **Flujos alternos** | **FA1 — Restricción de Integridad:** FA1.1 Falla en la base de datos si hay historial atado sin borrado en cascada (Error 409). FA1.2 El sistema informa que no se puede eliminar el título. |
+| **Reglas de negocio** | Se debe requerir confirmación antes de eliminar. La acción debe dejar rastro en la auditoría. |
+| **Reglas de calidad** | La eliminación debe mantener la integridad referencial en todo momento. |
+
+---
+
+### Especificación CDU-N8-05 — Programar/Calendarizar Estreno
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Programar/Calendarizar Estreno |
+| **Código** | CDU-N8-05 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador establecer una fecha futura en la que un contenido oculto pasará a ser visible en el catálogo. |
+| **Precondiciones** | Sesión activa como Administrador. El contenido debe estar en estado oculto o borrador. |
+| **Post Condiciones** | El contenido queda en estado "Programado" y se hará visible en la fecha especificada. |
+| **Flujo principal** | 1. El Administrador selecciona un contenido oculto. 2. Define la fecha y hora de visibilidad. 3. El sistema actualiza el estado a "Programado". 4. En la fecha definida, el sistema lo hace visible. |
+| **Flujos alternos** | **FA1 — Validación Fallida:** FA1.1 La fecha definida es en el pasado o tiene formato inválido. FA1.2 El sistema rechaza la solicitud (Error 400). |
+| **Reglas de negocio** | El contenido programado no debe ser visible para usuarios finales hasta alcanzar la fecha/hora exacta. |
+| **Reglas de calidad** | El servicio encargado de publicar el contenido debe ser preciso y no tener desfases significativos. |
+
+---
+
+### Especificación CDU-N8-06 — Generar Reporte de Auditoría (CSV/PDF)
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Generar Reporte de Auditoría (CSV/PDF) |
+| **Código** | CDU-N8-06 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador generar y descargar un archivo (CSV o PDF) con el registro histórico de las acciones realizadas en el panel (ej. eliminaciones, ediciones). |
+| **Precondiciones** | Sesión activa como Administrador. Deben existir registros de auditoría. |
+| **Post Condiciones** | El administrador recibe un archivo con el reporte. |
+| **Flujo principal** | 1. El Administrador define los filtros, como el rango de fechas. 2. El sistema consulta la tabla de auditoría en la base de datos. 3. El sistema genera el archivo en el formato seleccionado (.csv o PDF). 4. Se inicia la descarga del archivo. |
+| **Flujos alternos** | **FA1 — Memory Limit:** FA1.1 La consulta es muy grande y sobrecarga el microservicio. FA1.2 El sistema debe paginar o abortar la operación notificando al Administrador. |
+| **Reglas de negocio** | Solo el Administrador tiene permiso para generar y visualizar reportes de auditoría. |
+| **Reglas de calidad** | La generación del reporte no debe afectar el rendimiento general del sistema. |
+
+
 
 ---
 
@@ -1137,6 +1255,7 @@ La arquitectura **combina deliberadamente dos estilos de comunicación** según 
 
 ![Vista Física](./assets/Diagramas%20Proyecto%201-Diagrama%20de%20Despliegue.drawio.png)
 
+![Diagrama de Despliegue Kubernetes](./assets/Diagramas_Proyecto_2_Despliegue_Kubernetes.drawio.png)
 ### **5.2 Justificación Tecnológica (Gobernanza)** {#5.2-justificación-tecnológica-(gobernanza)}
 
 Esta seccion fundamenta las decisiones tomadas para la asignacion de recursos en el Nivel PSM (Modelo Especifico de la Plataforma) y el Nivel ISM (Modelo Especifico de Implementacion). Toda tecnologia seleccionada esta estrictamente subordinada a la resolucion de los Drivers Arquitectonicos (Requerimientos Funcionales, Escenarios de Calidad y Restricciones) definidos en la Fase 1\.

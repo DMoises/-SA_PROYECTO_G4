@@ -6,11 +6,12 @@ name: Release - Build & Push Versión Semántica (vX.Y.Z)
 on:
   push:
     branches:
-      - release
+      - release          # release plano: la versión sale del archivo VERSION
+      - 'release/**'      # ramas por versión: release/v2.0.1 (la versión sale del nombre)
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versión semántica a publicar (ej. v2.0.0). Vacío = usar el archivo VERSION'
+        description: 'Versión semántica a publicar (ej. v2.0.0). Vacío = usar VERSION o el nombre de la rama'
         required: false
 
 permissions:
@@ -27,10 +28,15 @@ jobs:
       - name: Resolver versión semántica
         id: version
         run: |
+          REF="${GITHUB_REF_NAME}"
           if [ -n "${{ github.event.inputs.version }}" ]; then
             VERSION="${{ github.event.inputs.version }}"
-          else
+          elif [ "$REF" = "release" ]; then
             VERSION="$(tr -d '[:space:]' < VERSION)"
+          elif [[ "$REF" =~ ^release/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            echo "❌ ERROR: la rama '$REF' no es un release válido (usa 'release' o 'release/vX.Y.Z')"; exit 1
           fi
           if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "❌ ERROR: '$VERSION' no es SemVer válido (formato esperado vX.Y.Z)"; exit 1

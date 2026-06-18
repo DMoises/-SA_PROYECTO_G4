@@ -40,7 +40,15 @@ jobs:
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           VERSION="${{ github.event.inputs.version }}"
         else
-          VERSION="$(tr -d '[:space:]' < VERSION)"
+          # Misma versión que produjo el release: sale del nombre de la rama que lo disparó.
+          REF="${{ github.event.workflow_run.head_branch }}"
+          if [ "$REF" = "release" ]; then
+            VERSION="$(tr -d '[:space:]' < VERSION)"
+          elif [[ "$REF" =~ ^release/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            echo "❌ ERROR: el release vino de la rama '$REF', que no es válida (usa 'release' o 'release/vX.Y.Z')"; exit 1
+          fi
         fi
         if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
           echo "❌ ERROR: '$VERSION' no es un Tag semántico válido (vX.Y.Z)"; exit 1

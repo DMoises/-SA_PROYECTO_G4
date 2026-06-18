@@ -13,6 +13,7 @@ from .admin_handler_http import make_server
 from .admin_repository import AdminRepository
 from .config import Config
 from .db import Database
+from .gcs import MediaStorage
 from .handler import CatalogHandler
 from .pb import catalog_pb2 as pb
 from .pb import catalog_pb2_grpc as pb_grpc
@@ -27,7 +28,9 @@ def serve() -> None:
     db = Database(cfg)
     repo = CatalogRepository(db)
     service = CatalogService(repo)
-    handler = CatalogHandler(service)
+    # Entrega de multimedia desde GCS (firma Signed URLs v4 para objetos privados).
+    media = MediaStorage(cfg)
+    handler = CatalogHandler(service, media)
 
     # Servidor gRPC (lectura publica via gateway).
     grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -45,7 +48,7 @@ def serve() -> None:
 
     # Servidor HTTP admin (CRUD interno, solo accesible desde la red Docker).
     admin_repo = AdminRepository(db)
-    http_srv = make_server(cfg.admin_http_port, admin_repo)
+    http_srv = make_server(cfg.admin_http_port, admin_repo, media)
     http_thread = threading.Thread(target=http_srv.serve_forever, daemon=True)
     http_thread.start()
     print(f"catalog-service admin HTTP en :{cfg.admin_http_port}", flush=True)

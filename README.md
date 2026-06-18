@@ -24,15 +24,16 @@
      - Módulo 1: Gestión de Autenticación y Perfiles (CDU-N1-01 a N1-08)
      - Módulo 2: Gestión de Suscripciones (CDU-N2-01 a N2-05)
      - Módulo 3: Catálogo y Consumo de Contenido (CDU-N3-01 a N3-04)
-     - Módulo 4: Sistema de Calificaciones y Recomendaciones (CDU-N4-01 a N4-05)
-     - Módulo 5: Servicio Financiero FX (CDU-N5-01 a N5-04)
-     - Módulo 6: Historial de Reproducción (CDU-N6-01 a N6-04)
+     - Módulo 4: Sistema de Calificaciones y Recomendaciones (CDU-N4-01 a N4-04)
+     - Módulo 5: Servicio Financiero FX (CDU-N5-01 a N5-03)
+     - Módulo 6: Historial de Reproducción (CDU-N6-01 a N6-03)
      - Módulo 7: Notificaciones por Correo Electrónico (CDU-N7-01 a N7-03)
 3. [Gobernanza y Entrelazamiento — Matrices de Trazabilidad](#3.-gobernanza-y-entrelazamiento-(matrices-de-trazabilidad))
    - [3.1 Matriz: Stakeholders vs. Requerimientos Funcionales](#3.1-matriz:-stakeholders-vs.-requerimientos-funcionales)
    - [3.2 Matriz: Requerimientos Funcionales vs. Casos de Uso](#3.2-matriz:-requerimientos-funcionales-vs.-casos-de-uso)
    - [3.3 Matriz: Stakeholders vs. Casos de Uso](#3.3-matriz:-stakeholders-vs.-casos-de-uso)
    - [3.4 Matriz: Requerimientos vs. Requerimientos (Dependencias de ejecución)](#3.4-matriz:-requerimientos-vs.-requerimientos-(dependencias-de-ejecución))
+   - [3.5 Trazabilidad de Fase 2 (Administrador · RF-18+ · CDU-N8)](#3.5-trazabilidad-de-fase-2)
 4. [Fase 2: Espacio de la Solución Conceptual (Nivel PIM)](#4.-fase-2:-espacio-de-la-solución-conceptual-(nivel-pim))
    - [4.1 Vista de Escenarios (+1)](#4.1-vista-de-escenarios-(+1))
    - [4.2 Vista Lógica y Estilos Arquitectónicos](#4.2-vista-lógica-y-estilos-arquitectónicos)
@@ -82,6 +83,7 @@ Identificamos a los interesados clave del proyecto para garantizar que las preoc
 | **Juan Pablo (Auxiliar SA)** | Representante de la Alta Dirección / Evaluador Técnico. | • Aprobar la visión, el alcance del sistema y el DDA. • Imponer los Drivers de Restricción Técnica (Uso de GCP, Backend Políglota, Docker, Redis, cero ORMs). |
 | **Ingeniero SRE / Arquitecto** | Líder del diseño estructural y orquestador de infraestructura. | • Definir el patrón *Database per Microservice*. • Diseñar las Vistas Lógica, de Procesos y Despliegue. • Gobernar el flujo de CI/CD y despliegue físico en GCP. |
 | **Dev Team (Desarrolladores)** | Ingenieros encargados de la implementación (Nivel ISM). | • Programar la lógica en Go, Python y TypeScript respetando contratos gRPC. • Implementar Funciones, Vistas y *Stored Procedures* en SQL nativo. |
+| **Administrador (Operador de Plataforma)** | Operador interno responsable de la gestión de contenido y de la cartelera desde el Panel de Administración (Fase 2). | • Ejecutar el CRUD del catálogo (películas/series) y la carga de portadas/video a GCS. • Programar y calendarizar estrenos. • Consultar y exportar reportes (auditoría y de negocio). • Operar siempre bajo control de acceso por rol Administrador (JWT/Cookies). |
 
 ### **2.3 Características del Sistema Priorizadas** {#2.3-características-del-sistema-priorizadas}
 
@@ -124,6 +126,14 @@ Estos drivers definen las características operacionales exactas que el sistema 
 | **RF-15** | Historial (Go) | El sistema debe consultar el último registro de tiempo del perfil activo para reanudar el flujo de video exactamente en la marca de tiempo donde se dejó. | Alta |
 | **RF-16** | Notificaciones (TS) | El sistema debe encolar de forma asíncrona, mediante el patrón Outbox, los mensajes de confirmación de registro y los recibos de cobro de suscripción. | Baja |
 | **RF-17** | Notificaciones (TS) | El sistema debe despachar las alertas de nuevas publicaciones de contenido hacia el servidor SMTP configurado sin bloquear el hilo principal de ejecución. | Baja |
+| **RF-18** | Administración (Python) | El sistema debe exponer un Panel de Administración web protegido por rol de Administrador (validación JWT/Cookies en el API Gateway) para gestionar el catálogo y la cartelera desde el frontend. | Alta |
+| **RF-19** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador agregar nuevo contenido (películas/series) con sus metadatos y portadas. | Alta |
+| **RF-20** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador actualizar/editar los metadatos y portadas de contenido existente. | Alta |
+| **RF-21** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador eliminar contenido mediante borrado lógico (Soft-Delete), dejando rastro en la bitácora de auditoría. | Alta |
+| **RF-22** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador programar/calendarizar la fecha de estreno que controla la visibilidad del contenido en la cartelera. | Media |
+| **RF-23** | Almacenamiento / GCS (Python) | El sistema debe desacoplar la multimedia pesada (portadas y video) hacia Buckets de Google Cloud Storage y servirla al frontend mediante URLs firmadas. | Alta |
+| **RF-24** | Auditoría (Transversal · SQL nativo) | El sistema debe registrar automáticamente, mediante triggers en el motor de base de datos, toda operación INSERT/UPDATE/DELETE (usuario responsable, timestamp, tabla afectada, estado anterior y estado nuevo) en una tabla exclusiva de auditoría por microservicio. | Alta |
+| **RF-25** | Reportes / Administración | El sistema debe generar y exportar el reporte de auditoría del Panel de Administración en formatos `.csv` y PDF, accesible únicamente al rol Administrador. | Media |
 
 #### 2.4.2 Drivers de Atributos de Calidad (Escenarios EAC): {#2.4.2-drivers-de-atributos-de-calidad-(escenarios-eac):}
 
@@ -134,6 +144,8 @@ Los Requerimientos No Funcionales se formalizan a través de Escenarios de Atrib
 | **EAC-01** | Rendimiento / Eficiencia | **Fuente:** Módulo de Suscripciones (TS). **Estímulo:** Solicita el tipo de cambio de divisas para procesar un cobro. **Entorno:** Día de estrenos con picos altos de concurrencia y transacciones financieras. **Artefacto:** Módulo Financiero FX Cache (Redis). **Respuesta:** El sistema intercepta la petición y recupera la tasa de cambio directamente desde la memoria temporal, evitando la latencia de red. **Medida:** Latencia de resolución y entrega menor a 50 milisegundos. |
 | **EAC-02** | Disponibilidad / Tolerancia a Fallos | **Fuente:** Caída interna del sistema. **Estímulo:** Caída abrupta del motor de BD de Calificaciones o del servicio de Notificaciones. **Entorno:** Momento normal de operación de streaming de video. **Artefacto:** Arquitectura de Microservicios. **Respuesta:** El sistema aísla la falla mediante separación estricta de dominios; el Gateway rechaza las acciones del servicio caído de forma controlada sin afectar el catálogo ni bloquear la reproducción principal de video. **Medida:** El usuario continúa su visualización sin interrupciones perceptibles, manteniendo una disponibilidad global del 99.5%. |
 | **EAC-03** | Seguridad (Autorización) | **Fuente:** Cliente (Frontend Web/Mobile) o atacante externo. **Estímulo:** Intento de acceso a un endpoint protegido (ej. modificar perfil o cobro) en la red interna. **Entorno:** Internet público (Zona Desmilitarizada DMZ). **Artefacto:** API Gateway (Enrutador de borde). **Respuesta:** El Gateway intercepta la petición, exige la presencia de un Token JWT y valida matemáticamente su firma antes de enrutar. **Medida:** Rechazo absoluto (HTTP 401 Unauthorized) del 100% de las peticiones que carezcan de un token válido y firmado. |
+| **EAC-04** | Disponibilidad / Despliegue (Zero-Downtime) · *Fase 2* | **Fuente:** Pipeline de CD (rama `release`). **Estímulo:** Despliegue de una nueva versión de imágenes a GKE. **Entorno:** Usuarios consumiendo streaming de video en producción. **Artefacto:** Deployments de Kubernetes con estrategia RollingUpdate (`maxUnavailable=0`, `maxSurge=1`). **Respuesta:** El clúster actualiza los Pods de forma progresiva sin cortar las transmisiones activas y ejecuta rollback automático (`kubectl rollout undo`) si un Pod entra en `CrashLoopBackOff`. **Medida:** Cero Pods indisponibles durante el rollout; el servicio se mantiene disponible y la reversión ante fallo de arranque es automática. |
+| **EAC-05** | Integridad / Trazabilidad (Auditoría) · *Fase 2* | **Fuente:** Cualquier microservicio con base de datos relacional. **Estímulo:** Operación transaccional (INSERT/UPDATE/DELETE) sobre una tabla operacional. **Entorno:** Operación normal y ante intentos de fraude o fallas. **Artefacto:** Triggers de auditoría en el motor PostgreSQL. **Respuesta:** Cada cambio queda registrado de forma inmutable en la tabla exclusiva de auditoría con usuario responsable, timestamp y estados anterior/nuevo, dentro de la misma transacción del negocio. **Medida:** 100% de las operaciones transaccionales auditadas; ningún cambio queda sin rastro. |
 
 #### 2.4.3 Drivers de Restricción: {#2.4.3-drivers-de-restricción:}
 
@@ -455,7 +467,6 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N4-02: Consultar % de Recomendación
 - CDU-N4-03: Consultar mi Calificación actual
 - CDU-N4-04: Registrar en Bitácora de Auditoría (Trigger)
-- CDU-N4-05: Generar Reporte de Calificaciones
 
 ![Módulo 4](/-SA_PROYECTO_G4/assets/f2/calificaciones.png)  <br/><br/>
 
@@ -532,29 +543,12 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
-### Especificación CDU-N4-05 — Generar Reporte de Calificaciones · *Fase 2*
-
-| Campo | Descripción |
-|---|---|
-| **Nombre** | Generar Reporte de Calificaciones |
-| **Código** | CDU-N4-05 |
-| **Actores** | Administrador |
-| **Descripción** | Caso de uso de Fase 2. Permite al Administrador generar, desde el Panel de Administración interna, un **reporte estructurado** de las calificaciones / ranking de recomendación (contenido mejor valorado, distribución de votos), exportable en **`.csv` y PDF**. |
-| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. Deben existir calificaciones registradas. |
-| **Post Condiciones** | Se genera y descarga el reporte en el formato solicitado (`.csv` o PDF), bien ordenado y formateado. |
-| **Flujo principal** | 1. El Administrador accede a la sección de reportes del Panel de Administración. 2. Selecciona el reporte de calificaciones y el rango/criterios. 3. El sistema consulta los datos de calificaciones (vía funciones/vistas SQL del rating-service). 4. El sistema arma el reporte ordenado y formateado. 5. El Administrador descarga el archivo en `.csv` o PDF. |
-| **Flujos alternos** | **FA1 — No hay datos en el rango:** FA1.1 El sistema informa que no hay calificaciones para los criterios indicados. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
-| **Reglas de negocio** | Solo el Administrador puede generar reportes. Los reportes deben presentarse ordenados y formateados, exportables en `.csv` y PDF. |
-| **Reglas de calidad** | La generación del reporte no debe bloquear otras operaciones. El formato debe ser legible y consistente con la identidad de QuetxalTV. |
-
----
 
 ### Módulo 5: Servicio Financiero FX
 
 - CDU-N5-01: Calcular Tarifa en Moneda Local
 - CDU-N5-02: Consultar Tasa de Cambio Actual
 - CDU-N5-03: Utilizar Tasa de Cambio de Respaldo
-- CDU-N5-04: Generar Reporte Financiero / de Conversiones
 
 
 ![Módulo 5](/-SA_PROYECTO_G4/assets/f2/servicio_fx.png)  <br/><br/>
@@ -613,22 +607,6 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
-### Especificación CDU-N5-04 — Generar Reporte Financiero / de Conversiones · *Fase 2*
-
-| Campo | Descripción |
-|---|---|
-| **Nombre** | Generar Reporte Financiero / de Conversiones |
-| **Código** | CDU-N5-04 |
-| **Actores** | Administrador |
-| **Descripción** | Caso de uso de Fase 2. Permite al Administrador generar, desde el Panel de Administración, un **reporte estructurado** de las conversiones de moneda y tasas utilizadas, exportable en **`.csv` y PDF**. |
-| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. |
-| **Post Condiciones** | Se genera y descarga el reporte financiero en el formato solicitado, ordenado y formateado. |
-| **Flujo principal** | 1. El Administrador accede a la sección de reportes. 2. Selecciona el reporte financiero / de conversiones y el rango. 3. El sistema recopila las tasas y conversiones registradas. 4. El sistema arma el reporte ordenado y formateado. 5. El Administrador descarga el archivo en `.csv` o PDF. |
-| **Flujos alternos** | **FA1 — No hay datos en el rango:** FA1.1 El sistema informa la ausencia de datos. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
-| **Reglas de negocio** | Solo el Administrador puede generar reportes. Exportables en `.csv` y PDF, ordenados y formateados. |
-| **Reglas de calidad** | La generación no debe bloquear otras operaciones. El formato debe ser legible y consistente con la identidad de QuetxalTV. |
-
----
 
 ### Módulo 6: Historial de Reproducción
 
@@ -637,7 +615,6 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N6-01: Registrar Progreso de Visualización
 - CDU-N6-02: Consultar Historial de Reproducción
 - CDU-N6-03: Reanudar Reproducción
-- CDU-N6-04: Generar Reporte de Consumo
 
 ![Módulo 6](/-SA_PROYECTO_G4/assets/f2/historial.png)  <br/><br/>
 
@@ -696,22 +673,6 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
-### Especificación CDU-N6-04 — Generar Reporte de Consumo · *Fase 2*
-
-| Campo | Descripción |
-|---|---|
-| **Nombre** | Generar Reporte de Consumo |
-| **Código** | CDU-N6-04 |
-| **Actores** | Administrador |
-| **Descripción** | Caso de uso de Fase 2. Permite al Administrador generar, desde el Panel de Administración, un **reporte estructurado** de consumo / contenido más visto (a partir del historial agregado), exportable en **`.csv` y PDF**. |
-| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. Debe existir historial registrado. |
-| **Post Condiciones** | Se genera y descarga el reporte de consumo en el formato solicitado, ordenado y formateado. |
-| **Flujo principal** | 1. El Administrador accede a la sección de reportes. 2. Selecciona el reporte de consumo y el rango/criterios. 3. El sistema agrega los datos del historial (más visto, tiempo reproducido). 4. El sistema arma el reporte ordenado y formateado. 5. El Administrador descarga el archivo en `.csv` o PDF. |
-| **Flujos alternos** | **FA1 — No hay datos en el rango:** FA1.1 El sistema informa la ausencia de datos. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
-| **Reglas de negocio** | Solo el Administrador puede generar reportes. Exportables en `.csv` y PDF, ordenados y formateados. |
-| **Reglas de calidad** | La generación no debe bloquear otras operaciones. El formato debe ser legible y consistente con la identidad de QuetxalTV. |
-
----
 
 
 ### Módulo 7: Notificaciones por Correo Electrónico
@@ -907,6 +868,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | ST-01 | Usuario Invitado | Usuario externo no autenticado |
 | ST-02 | Usuario Registrado | Usuario autenticado sin suscripción activa |
 | ST-03 | Usuario Suscriptor | Usuario autenticado con suscripción activa |
+| ST-04 | Administrador | Operador interno de la plataforma; gestiona catálogo, estrenos y reportes desde el Panel de Administración (Fase 2) |
 | ST-05 | API de Divisas (FX) | Sistema externo de tipo de cambio |
 | ST-06 | Servidor SMTP | Infraestructura de correo transaccional |
 | ST-07 | Juan Pablo (Auxiliar SA) | Autoridad de negocio / patrocinador del proyecto |
@@ -953,15 +915,12 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | CDU - N4-02 | Consultar % de Recomendación |
 | CDU - N4-03 | Consultar mi Calificación actual |
 | CDU - N4-04 | Registrar en Bitácora de Auditoría (Trigger) · Fase 2 |
-| CDU - N4-05 | Generar Reporte de Calificaciones · Fase 2 |
 | CDU - N5-01 | Calcular Tarifa Local |
 | CDU - N5-02 | Consultar Tasa de Cambio |
 | CDU - N5-03 | Utilizar Tasa de Cambio de Respaldo |
-| CDU - N5-04 | Generar Reporte Financiero / de Conversiones · Fase 2 |
 | CDU - N6-01 | Registrar Progreso |
 | CDU - N6-02 | Consultar Historial de Reproducción |
 | CDU - N6-03 | Reanudar Reproducción |
-| CDU - N6-04 | Generar Reporte de Consumo · Fase 2 |
 | CDU - N7-01 | Encolar Notificación |
 | CDU - N7-02 | Servir Correo Electrónico |
 | CDU - N7-03 | Programar/Calendarizar Estreno · Fase 2 |
@@ -970,25 +929,25 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ### Matriz: Requerimientos Funcionales vs. Casos de Uso
 
-| RF | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N4-05 | CDU - N5-03 | CDU - N5-04 | CDU - N6-02 | CDU - N6-03 | CDU - N6-04 | CDU - N7-03 |
-|-----|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| RF-01 Registro usuarios | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-02 Login local + JWT | | X | X | | | | X | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-03 Límite 5 perfiles | | | | X | | X | | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-04 Trigger auditoría | X | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |  |  |  |
-| RF-05 Despliegue planes | | | | | | | X | | X | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-06 Cobro recurrente | | | | | | | | X | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-07 Autogestión suscripción | | | | | | | | | X | X | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-08 Búsqueda multicriterio | | | | | | | | | | | | X | | | X | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-09 Ficha técnica | | | | | | | | | | | | | | X | | | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-10 Calificación contenido | | | | | | | | | | | | | | | | X | | | | | | | |  |  |  |  |  |  |  |  |
-| RF-11 % Recomendación | | | | | | | | | | | | | | | | | X |  | | | | | |  |  |  |  |  |  |  |  |
-| RF-12 Conversión moneda | | | | | | | X | | | | | | | | | | | | X | | | | |  |  |  |  |  |  |  |  |
-| RF-13 Caché Redis FX | | | | | | | | | | | | | | | | | | | | X | | | |  |  | X |  |  |  |  |  |
-| RF-14 Registro timestamp | | | | | | | | | | | | | X | | | | | | | | X | | |  |  |  |  | X |  |  |  |
-| RF-15 Reanudación exacta | | | | | | | | | | | | | X | | | | | | | | | | |  |  |  |  |  | X |  |  |
-| RF-16 Encolado notificaciones | | | | | | | | X | | | | | | | | | | | | | | X | |  |  |  |  |  |  |  | X |
-| RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |  |  |  |  |
+| RF | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N5-03 | CDU - N6-02 | CDU - N6-03 | CDU - N7-03 |
+|-----|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------ | ------ | ------ | ------ | ------ | ------ |
+| RF-01 Registro usuarios | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-02 Login local + JWT | | X | X | | | | X | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-03 Límite 5 perfiles | | | | X | | X | | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-04 Trigger auditoría | X | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |
+| RF-05 Despliegue planes | | | | | | | X | | X | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-06 Cobro recurrente | | | | | | | | X | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-07 Autogestión suscripción | | | | | | | | | X | X | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-08 Búsqueda multicriterio | | | | | | | | | | | | X | | | X | | | | | | | | |  |  |  |  |  |
+| RF-09 Ficha técnica | | | | | | | | | | | | | | X | | | | | | | | | |  |  |  |  |  |
+| RF-10 Calificación contenido | | | | | | | | | | | | | | | | X | | | | | | | |  |  |  |  |  |
+| RF-11 % Recomendación | | | | | | | | | | | | | | | | | X |  | | | | | |  |  |  |  |  |
+| RF-12 Conversión moneda | | | | | | | X | | | | | | | | | | | | X | | | | |  |  |  |  |  |
+| RF-13 Caché Redis FX | | | | | | | | | | | | | | | | | | | | X | | | |  | X |  |  |  |
+| RF-14 Registro timestamp | | | | | | | | | | | | | X | | | | | | | | X | | |  |  | X |  |  |
+| RF-15 Reanudación exacta | | | | | | | | | | | | | X | | | | | | | | | | |  |  |  | X |  |
+| RF-16 Encolado notificaciones | | | | | | | | X | | | | | | | | | | | | | | X | |  |  |  |  | X |
+| RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |  |
 
 
 ### 3.3 Matriz: Stakeholders vs. Casos de Uso {#3.3-matriz:-stakeholders-vs.-casos-de-uso}
@@ -996,19 +955,19 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 ### Matriz: Stakeholders vs. Casos de Uso
 
 
-| Stakeholder | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N4-05 | CDU - N5-03 | CDU - N5-04 | CDU - N6-02 | CDU - N6-03 | CDU - N6-04 | CDU - N7-03 |
-|------------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|-------- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| ST-01 Usuario Invitado | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |  |  |  |
-| ST-02 Usuario Registrado | | X | X | | | | X | X | | | X | | X | X | | X | X |  | X | | X | | |  |  |  |  |  |  |  |  |
-| ST-03 Usuario Suscriptor | | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | |  |  |  |  | X | X |  |  |
-| ST-05 API de Divisas | | | | | | | | | | | | | | | | | | | X | X | | | |  |  | X |  |  |  |  |  |
-| ST-06 Servidor SMTP | | | | | | | | | | | | | | | | | | | | | | X | X |  |  |  |  |  |  |  |  |
-| ST-07 Juan Pablo (SA) | X | X | | X | | | | X | X | | X | X | X | | | X | | X | | | | X | |  |  |  |  |  |  |  |  |
-| ST-08 Ing. SRE / Arquitecto | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X |
+| Stakeholder | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N5-03 | CDU - N6-02 | CDU - N6-03 | CDU - N7-03 |
+|------------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|-------- | ------ | ------ | ------ | ------ | ------ |
+| ST-01 Usuario Invitado | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| ST-02 Usuario Registrado | | X | X | | | | X | X | | | X | | X | X | | X | X |  | X | | X | | |  |  |  |  |  |
+| ST-03 Usuario Suscriptor | | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | |  |  | X | X |  |
+| ST-05 API de Divisas | | | | | | | | | | | | | | | | | | | X | X | | | |  | X |  |  |  |
+| ST-06 Servidor SMTP | | | | | | | | | | | | | | | | | | | | | | X | X |  |  |  |  |  |
+| ST-07 Juan Pablo (SA) | X | X | | X | | | | X | X | | X | X | X | | | X | | X | | | | X | |  |  |  |  |  |
+| ST-08 Ing. SRE / Arquitecto | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X |
 
 ----
 
-> **Nota (Fase 2):** Los casos de uso nuevos de Fase 2 (`N4-04`, `N4-05`, `N5-03`, `N5-04`, `N6-02`, `N6-03`, `N6-04`, `N7-03`) se agregaron como columnas en las matrices 3.2 y 3.3. Las relaciones de los casos de uso de **reportes / panel de administración** con **nuevos Requerimientos Funcionales de Fase 2** y con un **stakeholder "Administrador"** dedicado quedan pendientes de la actualización de requisitos/stakeholders de Fase 2; provisionalmente, los casos de uso administrativos se asocian al stakeholder Arquitecto/SRE (ST-08).
+> **Nota (Fase 2):** Los requerimientos funcionales de Fase 2 se formalizaron como **RF-18 a RF-25** (§2.4.1) y los no funcionales como **EAC-04 y EAC-05** (§2.4.2). Se incorporó el stakeholder dedicado **Administrador (ST-04)** al catálogo (§2.2) y a las matrices (§3.1 y §3.5). La trazabilidad del Administrador y de los RF de Fase 2 con los casos de uso del Panel de Administración (`CDU-N8-01` a `CDU-N8-06`) y de estrenos (`CDU-N7-03`) se documenta en la **§3.5 Trazabilidad de Fase 2**.
 
 
 ### 3.4 Matriz: Requerimientos vs. Requerimientos (Dependencias de ejecución) {#3.4-matriz:-requerimientos-vs.-requerimientos-(dependencias-de-ejecución)}
@@ -1035,6 +994,35 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | RF-16 Encolado notificaciones | | | | | X | | | | | | | | | | | — | |
 | RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | X | — |
 ----
+
+### 3.5 Trazabilidad de Fase 2 (Administrador · RF-18+ · CDU-N8) {#3.5-trazabilidad-de-fase-2}
+
+Esta sección formaliza las relaciones de Fase 2 que en la primera entrega quedaron pendientes: el stakeholder **Administrador (ST-04)**, los requerimientos **RF-18 a RF-25** y los casos de uso del Panel de Administración (**CDU-N8-01** a **CDU-N8-06**) y de estrenos (**CDU-N7-03**).
+
+#### Matriz: Administrador (ST-04) vs. Casos de Uso de Fase 2
+
+| Caso de Uso | Nombre | Administrador (ST-04) |
+|---|---|:--:|
+| CDU-N8-01 | Iniciar Sesión como Administrador | X |
+| CDU-N8-02 | Agregar Nuevo Contenido (Película/Serie) | X |
+| CDU-N8-03 | Actualizar/Editar Metadatos | X |
+| CDU-N8-04 | Eliminar Título | X |
+| CDU-N8-05 | Programar/Calendarizar Estreno | X |
+| CDU-N8-06 | Generar Reporte de Auditoría (CSV/PDF) | X |
+| CDU-N7-03 | Programar/Calendarizar Estreno (notificación) | X |
+
+#### Matriz: Requerimientos de Fase 2 (RF-18..RF-25) vs. Casos de Uso
+
+| RF | Descripción | Casos de Uso asociados |
+|---|---|---|
+| RF-18 | Panel de Administración protegido por rol | CDU-N8-01 |
+| RF-19 | Agregar nuevo contenido | CDU-N8-02 |
+| RF-20 | Actualizar/editar metadatos y portadas | CDU-N8-03 |
+| RF-21 | Eliminar contenido (Soft-Delete + auditoría) | CDU-N8-04, CDU-N4-04 |
+| RF-22 | Programar/calendarizar estreno | CDU-N8-05, CDU-N7-03 |
+| RF-23 | Multimedia en GCS (URLs firmadas) | CDU-N3-02, CDU-N8-02 |
+| RF-24 | Auditoría transaccional por triggers | CDU-N4-04, CDU-N8-04 |
+| RF-25 | Reporte de auditoría exportable (.csv/PDF) | CDU-N8-06 |
 
 ## **4\. Fase 2: Espacio de la Solución Conceptual (Nivel PIM)** {#4.-fase-2:-espacio-de-la-solución-conceptual-(nivel-pim)}
 

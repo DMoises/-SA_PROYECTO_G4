@@ -780,7 +780,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | **Precondiciones** | Sesión activa como Administrador. Los archivos multimedia deben cumplir los formatos permitidos. |
 | **Post Condiciones** | El nuevo contenido queda registrado en la base de datos y los archivos en GCS. |
 | **Flujo principal** | 1. El Administrador llena el formulario de metadatos (título, sinopsis, etc.). 2. Sube archivo de video y portada. 3. El sistema guarda los metadatos en la base de datos (catalog-service). 4. El sistema guarda los archivos en Google Cloud Storage (GCS). |
-| **Flujos alternos** | **FA1 — GCS Upload Fail:** FA1.1 El bucket rechaza el archivo por timeout o token HMAC inválido (Error 500). FA1.2 Se notifica al administrador del fallo en la subida. **FA2 — DB Timeout:** FA2.1 El microservicio catalog-service no responde. FA2.2 La operación falla. |
+| **Flujos alternos** | **FA1 — Fallo de GCS:** FA1.1 El bucket rechaza la operación por timeout, o catalog-service no logra firmar la Signed URL por un fallo de **Workload Identity** o por permisos insuficientes del Service Account de GCP (Error 500). FA1.2 Se notifica al administrador del fallo en la subida. **FA2 — DB Timeout:** FA2.1 El microservicio catalog-service no responde. FA2.2 La operación falla. |
 | **Reglas de negocio** | Todo contenido debe tener metadatos completos y archivos multimedia válidos. |
 | **Reglas de calidad** | La subida de archivos debe ser resiliente y manejar archivos grandes sin bloquear el frontend. |
 
@@ -1376,7 +1376,7 @@ En el proyecto se usa `ClusterIP` para servicios gRPC como `auth-service`, `bill
 
 * **Dónde se aplicó**: Manifiestos base en `k8s/base/configmap.yaml` y `k8s/base/secrets.yaml`, con referencias desde los Deployments de microservicios, bases de datos y API Gateway.
 
-* **Cómo se aplicó**: Las variables no sensibles se gestionan mediante `ConfigMap`, mientras que credenciales, contraseñas, secretos JWT, datos SMTP, Redis y accesos a Google Cloud Storage se gestionan mediante un `Secret` de tipo `Opaque`.
+* **Cómo se aplicó**: Las variables no sensibles se gestionan mediante `ConfigMap`, mientras que credenciales, contraseñas, secretos JWT, datos SMTP y Redis se gestionan mediante un `Secret` de tipo `Opaque`. El acceso a Google Cloud Storage **no usa llaves** (ni HMAC ni JSON): `catalog-service` firma las Signed URLs v4 mediante **Workload Identity**, vinculando su ServiceAccount de Kubernetes (`catalog-gcs-sa`) con un Service Account de GCP (`quetxal-catalog-gcs@…`) que posee los roles `iam.serviceAccountTokenCreator` (firmar) y `storage.objectViewer` (leer el bucket).
 
 Estructura base de ConfigMap:
 
@@ -1407,13 +1407,24 @@ Estructura base de Secret sin credenciales explícitas:
       AUTH_DB_PASSWORD: "${AUTH_DB_PASSWORD}"
       JWT_SECRET: "${JWT_SECRET}"
       REDIS_PASSWORD: "${REDIS_PASSWORD}"
-      GCS_ACCESS_KEY: "${GCS_ACCESS_KEY}"
-      GCS_SECRET_KEY: "${GCS_SECRET_KEY}"
-      GCS_BUCKET_NAME: "${GCS_BUCKET_NAME}"
+      GCS_BUCKET_NAME: "${GCS_BUCKET_NAME}"   # nombre del bucket; la firma de Signed URLs usa Workload Identity (sin llaves HMAC/JSON)
 
 Durante el pipeline de CD, GitHub Actions toma los secretos almacenados en el repositorio y genera temporalmente `k8s/base/secrets-injected.yaml` mediante `envsubst`. Luego aplica ese manifiesto al clúster con `kubectl apply`.
 
 * **Por qué se aplicó**: Esta estrategia cumple con la restricción de no escribir credenciales directamente en los YAML. Además, permite cambiar credenciales o endpoints sin modificar el código fuente de los microservicios. Kubernetes inyecta los valores en tiempo de ejecución usando `configMapRef` y `secretKeyRef`.
+
+### 8.4 Asignación de Recursos (Requests/Limits) y Persistencia
+
+* **Dónde se aplicó**: Bloque `resources` de cada Deployment en `k8s/microservices/*.yaml`, `k8s/api-gateway.yaml` y `k8s/databases/*.yaml`.
+
+* **Cómo se aplicó**: Se realizó *right-sizing* de CPU para que toda la topología quepa en los nodos disponibles del clúster y ningún Pod quede en estado `Pending` por falta de CPU asignable:
+
+  * Microservicios y API Gateway: `requests.cpu: 10m`, `limits.cpu: 150m` (memoria `64–128Mi` / `128–256Mi`).
+  * Bases de datos PostgreSQL y Redis: `requests.cpu: 25m`, `limits.cpu: 250m` (memoria `128Mi` / `256Mi`).
+
+* **Estrategia de persistencia**: Las bases de datos usan `strategy: Recreate` (no RollingUpdate) y **no declaran volúmenes persistentes** (sin `PersistentVolumeClaim`): los datos viven en la capa efímera del contenedor y **no persisten entre reinicios de Pod**. La carga de esquemas, funciones, triggers y seed se ejecuta en el arranque del contenedor. Es una decisión de alcance para el entorno de evaluación; un entorno productivo usaría `PersistentVolumeClaim` con discos gestionados.
+
+* **Por qué se aplicó**: El *right-sizing* de CPU evita Pods `Pending` por sobre-reserva, y `Recreate` evita que dos instancias de una misma base de datos coexistan compitiendo por el estado mientras se reemplazan, dado que no hay volumen compartido.
 
 ---
 
@@ -1458,21 +1469,35 @@ En el caso del `api-gateway`, el manifiesto usa porcentajes:
 
 Con `replicas: 2`, Kubernetes redondea `maxSurge` hacia arriba y `maxUnavailable` hacia abajo. Por ello, operativamente puede crear 1 Pod adicional y mantener 0 Pods indisponibles durante el despliegue.
 
+**Justificación matemática formal:**
+
+Sean `R` = réplicas (2), `S` = `maxSurge` y `U` = `maxUnavailable`. Durante un RollingUpdate, Kubernetes garantiza en todo instante:
+
+* Pods disponibles ≥ `R − U` = `2 − 0` = **2** (100% de la capacidad nominal; nunca cae por debajo del estado deseado).
+* Pods totales simultáneos ≤ `R + S` = `2 + 1` = **3** (150% transitorio: el margen donde arranca el Pod nuevo antes de retirar uno antiguo).
+* Disponibilidad mínima `D_min = (R − U) / R = (2 − 0) / 2 = 1.0` = **100%**.
+
+Para el `api-gateway`, que define los parámetros en porcentaje sobre `R = 2`: `S = ⌈0.25 × 2⌉ = ⌈0.5⌉ = 1` y `U = ⌊0.25 × 2⌋ = ⌊0.5⌋ = 0`, equivalentes a los valores absolutos `1`/`0`. Como `U = 0` en toda la malla, en ningún punto del despliegue la capacidad servible baja del 100% nominal, lo que garantiza que las transmisiones de video activas no se interrumpen.
+
 * **Por qué se aplicó**: Esta configuración permite despliegues progresivos sin apagar completamente el servicio. Para Quetxal TV, esto garantiza que los usuarios puedan seguir navegando el catálogo, autenticándose y consumiendo contenido multimedia mientras se reemplazan gradualmente los Pods de la versión anterior por los de la nueva versión.
 
 ### 9.2 Rollback Automatizado
 
 * **Dónde se aplicó**: Pipeline de despliegue en `.github/workflows/deploy-k8s.yml`.
 
-* **Cómo se aplicó**: Después de aplicar los manifiestos con `kubectl apply`, el pipeline ejecuta una verificación del estado del rollout con:
+* **Cómo se aplicó**: Después de aplicar los manifiestos con `kubectl apply`, el pipeline verifica el rollout en **dos fases** para evitar rollbacks en falso (un microservicio puede arrancar antes de que su base de datos termine de recrearse): primero espera a las bases de datos y luego a los microservicios, con timeouts diferenciados:
 
-    kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=60s
+    # 1) Bases de datos (se recrean con estrategia Recreate)
+    kubectl rollout status deployment/$DB -n quetxal-tv-prod --timeout=180s
+    # 2) Microservicios (timeout amplio: un redeploy de toda la malla puede tardar)
+    kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=240s
 
 El arreglo `SERVICES` definido en el workflow contiene los Deployments principales del entorno:
 
     auth-service
     billing-service
     catalog-service
+    rating-service
     frontend
     fx-service
     history-service

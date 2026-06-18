@@ -122,12 +122,20 @@ jobs:
 
     - name: Verify Deployment Success (Rollout Status)
       run: |
-        kubectl rollout status deployment/auth-service -n quetxal-tv-prod --timeout=60s
-        # (Idealmente hacer esto para cada servicio crítico)
+        # Monitoreamos el estado de rollout para todos los servicios
+        SERVICES=("auth-service" "billing-service" "catalog-service" "frontend" "fx-service" "history-service" "notification-service")
+        for SERVICE in "${SERVICES[@]}"; do
+          echo "Verificando estado de $SERVICE..."
+          kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=60s
+        done
         
     - name: Automatic Rollback on Failure
       if: failure()
       run: |
         echo "🚨 Falla detectada en el despliegue. Iniciando Rollback automático..."
-        kubectl rollout undo deployment/auth-service -n quetxal-tv-prod
+        SERVICES=("auth-service" "billing-service" "catalog-service" "frontend" "fx-service" "history-service" "notification-service")
+        for SERVICE in "${SERVICES[@]}"; do
+          echo "Revirtiendo $SERVICE..."
+          kubectl rollout undo deployment/$SERVICE -n quetxal-tv-prod || true
+        done
         exit 1

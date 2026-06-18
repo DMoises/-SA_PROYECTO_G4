@@ -1345,6 +1345,8 @@ Estructura base aplicada en los manifiestos:
                   name: quetxal-secrets
                   key: AUTH_DB_NAME
 
+> **Nota sobre la imagen (versionado):** En los manifiestos del repositorio la imagen aparece como `tu-registro/quetxal-<servicio>:latest` (plantilla). Durante el despliegue, el pipeline de CD **no usa `:latest`**: reescribe la referencia al usuario real del registro y la **pinea al tag de versión semántica** (`<usuario>/quetxal-<servicio>:vX.Y.Z`) tomado del release. Así cada despliegue corresponde a una versión inmutable y `kubectl rollout undo` puede revertir a una versión estable concreta.
+
 * **Por qué se aplicó**: El uso de Deployments permite administrar el ciclo de vida de los Pods de forma declarativa. Kubernetes puede crear, reemplazar o reiniciar Pods automáticamente según el estado deseado. Al usar `replicas: 2`, la malla de servicios mantiene alta disponibilidad, ya que si una instancia falla, otra puede continuar atendiendo solicitudes mientras Kubernetes recupera la réplica perdida.
 
 ### 8.2 Services: ClusterIP vs. NodePort vs. LoadBalancer

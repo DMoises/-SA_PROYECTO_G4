@@ -1,0 +1,117 @@
+@startuml
+!define RECTANGLE class
+
+skinparam node {
+    BackgroundColor White
+    BorderColor DarkSlateGray
+}
+skinparam component {
+    BackgroundColor LightBlue
+    BorderColor Blue
+}
+skinparam database {
+    BackgroundColor LightYellow
+    BorderColor Orange
+}
+
+title "Arquitectura del Clúster de Kubernetes - Quetxal TV"
+
+node "Google Kubernetes Engine (GKE) Cluster" {
+    node "Worker Nodes (Pool)" {
+        package "Namespace: quetxal-tv-prod" {
+            
+            node "Ingress Controller" {
+                [quetxal-ingress] as Ingress
+                note right of Ingress
+                  Host: api.quetxal.tv -> api-gateway (8080)
+                  Host: www.quetxal.tv -> frontend-service (80)
+                end note
+            }
+            
+            frame "Capa de Presentación y API" {
+                [api-gateway\n(Deployment)] as APIGW
+                note right of APIGW
+                  Requests: CPU 10m, Mem 128Mi
+                  Limits: CPU 250m, Mem 256Mi
+                end note
+
+                [frontend\n(Deployment)] as Frontend
+                note right of Frontend
+                  Requests: CPU 10m, Mem 128Mi
+                  Limits: CPU 250m, Mem 256Mi
+                end note
+            }
+            
+            frame "Capa de Microservicios\n(Requests: CPU 10m, Mem 64Mi | Limits: CPU 150m, Mem 128Mi)" {
+                [auth-service] as AuthSvc
+                [catalog-service] as CatalogSvc
+                [billing-service] as BillingSvc
+                [fx-service] as FXSvc
+                [history-service] as HistorySvc
+                [notification-service] as NotifSvc
+            }
+            
+            frame "Capa de Persistencia" {
+                database "auth-db" as AuthDB
+                database "catalog-db" as CatalogDB
+                database "fx-db" as FXDB
+                database "history-db" as HistoryDB
+                database "notification-db" as NotifDB
+                database "rating-db" as RatingDB
+                database "subscription-db" as SubDB
+                
+                note right of SubDB
+                  Bases de Datos Relacionales/NoSQL
+                  Requests: CPU 100m, Mem 128Mi
+                  Limits: CPU 250m, Mem 256Mi
+                end note
+                
+                database "redis" as RedisDB
+                note bottom of RedisDB
+                  Requests: CPU 50m, Mem 64Mi
+                  Limits: CPU 100m, Mem 128Mi
+                end note
+            }
+        }
+    }
+}
+
+cloud "Capa Externa" {
+    [API Externa de Monedas] as ExtFX
+    [Servicio de Correos (SMTP)] as ExtSMTP
+    database "Bucket GCS\n(Google Cloud Storage)" as GCS
+}
+
+actor "Cliente Web/Móvil\n(Navegador/App)" as Cliente
+
+Cliente --> Ingress : Peticiones HTTP(S)
+Cliente --> GCS : Streaming Multimedia (URLs Firmadas)
+
+note "Descarga SPA/Archivos Estáticos" as NoteSPA
+Ingress .. NoteSPA
+NoteSPA ..> Frontend : www.quetxal.tv
+
+note "Peticiones AJAX/REST" as NoteAPI
+Ingress .. NoteAPI
+NoteAPI ..> APIGW : api.quetxal.tv
+
+APIGW --> AuthSvc : gRPC :50051
+APIGW --> CatalogSvc : gRPC :50055
+APIGW --> BillingSvc : gRPC :50052
+APIGW --> FXSvc : gRPC :50053
+APIGW --> HistorySvc : gRPC :50057
+APIGW --> NotifSvc : gRPC :50054
+
+AuthSvc --> AuthDB : TCP :5432
+CatalogSvc --> CatalogDB : TCP :5432
+CatalogSvc --> RatingDB : TCP :5432
+BillingSvc --> SubDB : TCP :5432
+FXSvc --> FXDB : TCP :5432
+FXSvc --> RedisDB : TCP :6379
+FXSvc --> ExtFX : REST/HTTP
+HistorySvc --> HistoryDB : TCP :5432
+NotifSvc --> NotifDB : TCP :5432
+NotifSvc --> ExtSMTP : SMTP/API
+CatalogSvc --> GCS : Subida/HMAC
+
+@enduml

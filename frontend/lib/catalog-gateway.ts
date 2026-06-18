@@ -26,6 +26,7 @@ interface EpisodioApi {
   numero: number
   titulo: string
   duracion_min: number
+  video_url?: string
 }
 interface TemporadaApi {
   numero: number
@@ -44,6 +45,7 @@ interface FichaApi {
   reparto: MiembroReparto[]
   temporadas: TemporadaApi[]
   portada_url?: string
+  video_url?: string
 }
 
 // El catalogo no almacena imagenes; usamos placeholders deterministas por id.
@@ -93,6 +95,7 @@ export function fichaToContent(f: FichaApi): ContentDetalle {
       description: '',
       duration: `${e.duracion_min}m`,
       thumbnail: thumb(`${f.contenido_id}-t${t.numero}-e${e.numero}`),
+      videoUrl: e.video_url || undefined,
     })),
   )
   const cast: CastMember[] = reparto.map((r, idx) => ({
@@ -117,6 +120,7 @@ export function fichaToContent(f: FichaApi): ContentDetalle {
     description: f.sinopsis || '',
     cast,
     matchPercentage: 0,
+    videoUrl: f.video_url || undefined,
     episodesList,
   }
 }

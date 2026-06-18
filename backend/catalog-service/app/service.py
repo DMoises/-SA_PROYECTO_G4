@@ -64,6 +64,7 @@ def _agrupar_temporadas(filas: list[dict[str, Any]]) -> list[dict[str, Any]]:
             indice[num] = {"numero": num, "episodios": []}
             temporadas.append(indice[num])
         indice[num]["episodios"].append(
-            {"numero": f["episodio"], "titulo": f["titulo"], "duracion_min": f["duracion_min"]}
+            {"numero": f["episodio"], "titulo": f["titulo"],
+             "duracion_min": f["duracion_min"], "video_url": f.get("video_url")}
         )
     return temporadas

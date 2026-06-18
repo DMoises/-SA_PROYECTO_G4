@@ -331,24 +331,28 @@ export async function GET(
     const season = searchParams.get('season')
     const episode = searchParams.get('episode')
 
-    let dbVideoUrl: string | null = null
+    // La URL del video viaja por el API Gateway dentro de la ficha tecnica
+    // (el catalog-service la firma como Signed URL de GCS). NO se llama al admin
+    // HTTP :8086 directo -> se respeta el gateway como unico punto de entrada.
+    let content: Awaited<ReturnType<typeof fetchFicha>> = null
     try {
-      const adminUrl = process.env.CATALOG_ADMIN_URL || 
-        ((process.env.GATEWAY_URL || '').includes('api-gateway') ? 'http://catalog-service:8086' : 'http://localhost:8086')
-      
-      let fetchUrl = `${adminUrl}/admin/videos/${id}`
-      if (season && episode) {
-        fetchUrl = `${adminUrl}/admin/videos/${id}/temporadas/${season}/episodios/${episode}`
-      }
-      
-      console.log('Fetching video URL from:', fetchUrl)
-      const adminRes = await fetch(fetchUrl, { cache: 'no-store' })
-      if (adminRes.ok) {
-        const adminData = await adminRes.json()
-        dbVideoUrl = adminData.video_url
-      }
+      content = await fetchFicha(id)
     } catch (err) {
-      console.warn('Could not fetch video URL from catalog-service admin:', err)
+      console.warn('No se pudo obtener la ficha para reproduccion:', err)
+    }
+
+    let dbVideoUrl: string | null = null
+    if (content) {
+      if (season && episode) {
+        const ep = content.episodesList?.find(
+          e =>
+            e.seasonNumber === Number(season) &&
+            e.episodeNumber === Number(episode)
+        )
+        dbVideoUrl = ep?.videoUrl ?? null
+      } else {
+        dbVideoUrl = content.videoUrl ?? null
+      }
     }
 
     let videoUrl = dbVideoUrl || ''
@@ -379,17 +383,12 @@ export async function GET(
 
     let tipo = 'pelicula'
     let nombre = 'Reproduciendo contenido'
-    try {
-      const content = await fetchFicha(id)
-      if (content) {
-        tipo = content.type === 'series' ? 'serie' : 'pelicula'
-        nombre = content.title
-        if (season && episode) {
-          nombre += ` - T${season}:E${episode}`
-        }
+    if (content) {
+      tipo = content.type === 'series' ? 'serie' : 'pelicula'
+      nombre = content.title
+      if (season && episode) {
+        nombre += ` - T${season}:E${episode}`
       }
-    } catch (err) {
-      console.warn('Could not fetch metadata for playback response:', err)
     }
 
     return NextResponse.json({

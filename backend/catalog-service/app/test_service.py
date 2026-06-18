@@ -19,23 +19,23 @@ class TestCatalogService(unittest.TestCase):
 
     def test_agrupar_temporadas_helper(self):
         filas = [
-            {"temporada": 1, "episodio": 1, "titulo": "Piloto", "duracion_min": 45},
-            {"temporada": 1, "episodio": 2, "titulo": "El Regreso", "duracion_min": 42},
-            {"temporada": 2, "episodio": 1, "titulo": "Nuevo Comienzo", "duracion_min": 48},
+            {"temporada": 1, "episodio": 1, "titulo": "Piloto", "duracion_min": 45, "video_url": "videos/s1e1.mp4"},
+            {"temporada": 1, "episodio": 2, "titulo": "El Regreso", "duracion_min": 42, "video_url": "videos/s1e2.mp4"},
+            {"temporada": 2, "episodio": 1, "titulo": "Nuevo Comienzo", "duracion_min": 48, "video_url": "videos/s2e1.mp4"},
         ]
         resultado = _agrupar_temporadas(filas)
         esperado = [
             {
                 "numero": 1,
                 "episodios": [
-                    {"numero": 1, "titulo": "Piloto", "duracion_min": 45},
-                    {"numero": 2, "titulo": "El Regreso", "duracion_min": 42},
+                    {"numero": 1, "titulo": "Piloto", "duracion_min": 45, "video_url": "videos/s1e1.mp4"},
+                    {"numero": 2, "titulo": "El Regreso", "duracion_min": 42, "video_url": "videos/s1e2.mp4"},
                 ]
             },
             {
                 "numero": 2,
                 "episodios": [
-                    {"numero": 1, "titulo": "Nuevo Comienzo", "duracion_min": 48},
+                    {"numero": 1, "titulo": "Nuevo Comienzo", "duracion_min": 48, "video_url": "videos/s2e1.mp4"},
                 ]
             }
         ]

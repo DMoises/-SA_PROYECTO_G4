@@ -18,6 +18,7 @@ data:
   FX_SERVICE_ADDR: "fx-service:50053"
   NOTIFICATION_SERVICE_ADDR: "notification-service:50054"
   CATALOG_SERVICE_ADDR: "catalog-service:50055"
+  RATING_SERVICE_ADDR: "rating-service:50056"
   HISTORY_SERVICE_ADDR: "history-service:50057"
   
   # DB Internal Hosts & Ports
@@ -28,6 +29,7 @@ data:
   CATALOG_DB_HOST: "catalog-db"
   CATALOG_DB_PORT_INTERNAL: "5432"
   RATING_DB_HOST: "rating-db" # Segun compose
+  RATING_DB_PORT_INTERNAL: "5432"
   FX_DB_HOST: "fx-db"
   FX_DB_PORT: "5432"
   HISTORY_DB_HOST: "history-db"

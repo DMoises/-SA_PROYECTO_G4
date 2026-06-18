@@ -1166,6 +1166,7 @@ La arquitectura **combina deliberadamente dos estilos de comunicación** según 
 
 ![Vista Física](./assets/Diagramas%20Proyecto%201-Diagrama%20de%20Despliegue.drawio.png)
 
+![Diagrama de Despliegue Kubernetes](./assets/Diagramas_Proyecto_2_Despliegue_Kubernetes.drawio.png)
 ### **5.2 Justificación Tecnológica (Gobernanza)** {#5.2-justificación-tecnológica-(gobernanza)}
 
 Esta seccion fundamenta las decisiones tomadas para la asignacion de recursos en el Nivel PSM (Modelo Especifico de la Plataforma) y el Nivel ISM (Modelo Especifico de Implementacion). Toda tecnologia seleccionada esta estrictamente subordinada a la resolucion de los Drivers Arquitectonicos (Requerimientos Funcionales, Escenarios de Calidad y Restricciones) definidos en la Fase 1\.

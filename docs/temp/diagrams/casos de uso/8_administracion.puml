@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E1F5FE
+  BorderColor #0277BD
+  ArrowColor #01579B
+}
+skinparam note {
+  BackgroundColor #FFF9C4
+  BorderColor #FBC02D
+}
+
+title CDU Expandido: 8. Panel de Administración (Nivel PIM/CIM)
+
+actor "Administrador" as admin
+
+package "Módulo 8: Panel de Administración (Catálogo y CRUD)" {
+  usecase "CDU-N8-01: Iniciar Sesión como Administrador" as loginAdmin
+  usecase "CDU-N8-02: Agregar Nuevo Contenido (Película/Serie)" as addContent
+  usecase "CDU-N8-03: Actualizar/Editar Metadatos" as editContent
+  usecase "CDU-N8-04: Eliminar Título" as deleteContent
+  usecase "CDU-N8-05: Programar/Calendarizar Estreno" as scheduleContent
+  usecase "CDU-N8-06: Generar Reporte de Auditoría (CSV/PDF)" as generateReport
+}
+
+admin --> loginAdmin
+admin --> addContent
+admin --> editContent
+admin --> deleteContent
+admin --> scheduleContent
+admin --> generateReport
+
+note "Narrativa Expandida: Agregar Nuevo Contenido\n**Flujo Principal:**\n1. Admin llena formulario de metadatos.\n2. Sube archivo de video y portada.\n3. Sistema guarda metadatos en DB y archivos en GCS.\n**Excepciones Técnicas:**\n- *GCS Upload Fail:* El bucket rechaza el archivo por timeout o token HMAC inválido. (Error 500).\n- *DB Timeout:* El microservicio catalog-service no responde." as noteAdd
+noteAdd .. addContent
+
+note "Narrativa Expandida: Programar Estreno\n**Flujo Principal:**\n1. Admin selecciona un contenido oculto.\n2. Define fecha y hora de visibilidad.\n3. El sistema actualiza el estado a 'Programado'.\n**Excepciones Técnicas:**\n- *Validación Fallida:* La fecha es en el pasado o formato inválido (Error 400)." as noteSchedule
+noteSchedule .. scheduleContent
+
+note "Narrativa Expandida: Eliminar Título\n**Flujo Principal:**\n1. Admin confirma la eliminación.\n2. Sistema ejecuta Soft-Delete o borra registros y lanza trigger de auditoría.\n**Excepciones Técnicas:**\n- *Restricción de Integridad:* Fallo en DB si hay historial atado sin borrado en cascada (Error 409)." as noteDelete
+noteDelete .. deleteContent
+
+note "Narrativa Expandida: Generar Reporte\n**Flujo Principal:**\n1. Admin filtra por fecha.\n2. Sistema consulta tabla de auditoría.\n3. Genera y descarga archivo .csv o PDF.\n**Excepciones Técnicas:**\n- *Memory Limit:* Consulta muy grande sobrecarga el microservicio. Se debe paginar o abortar." as noteReport
+noteReport .. generateReport
+
+@enduml

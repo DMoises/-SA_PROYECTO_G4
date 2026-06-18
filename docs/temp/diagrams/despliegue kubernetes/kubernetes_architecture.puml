@@ -29,10 +29,11 @@ node "Google Kubernetes Engine (GKE) Cluster" {
             }
             
             frame "Capa de Presentación y API" {
-                [api-gateway\n(Deployment)] as APIGW
+                [api-gateway\n(Deployment + Contratos Proto)] as APIGW
                 note right of APIGW
                   Requests: CPU 10m, Mem 128Mi
                   Limits: CPU 250m, Mem 256Mi
+                  **Seguridad: Valida JWT**
                 end note
 
                 [frontend\n(Deployment)] as Frontend
@@ -42,8 +43,11 @@ node "Google Kubernetes Engine (GKE) Cluster" {
                 end note
             }
             
-            frame "Capa de Microservicios\n(Requests: CPU 10m, Mem 64Mi | Limits: CPU 150m, Mem 128Mi)" {
+            frame "Capa de Microservicios\n(Requests: CPU 10m, Mem 64Mi | Limits: CPU 150m, Mem 128Mi)\nComunicación vía gRPC + Contratos Proto" {
                 [auth-service] as AuthSvc
+                note left of AuthSvc
+                  **Seguridad: Emite JWT**
+                end note
                 [catalog-service] as CatalogSvc
                 [billing-service] as BillingSvc
                 [fx-service] as FXSvc
@@ -91,7 +95,7 @@ note "Descarga SPA/Archivos Estáticos" as NoteSPA
 Ingress .. NoteSPA
 NoteSPA ..> Frontend : www.quetxal.tv
 
-note "Peticiones AJAX/REST" as NoteAPI
+note "Peticiones AJAX/REST\n(Header: Bearer JWT)" as NoteAPI
 Ingress .. NoteAPI
 NoteAPI ..> APIGW : api.quetxal.tv
 

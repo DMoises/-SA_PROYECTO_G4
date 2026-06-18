@@ -164,11 +164,20 @@ jobs:
 
     - name: Verify Deployment Success (Rollout Status)
       run: |
-        # Monitoreamos el estado de rollout para todos los servicios
+        # 1) Primero las bases de datos y redis: los microservicios dependen de ellas,
+        #    y en un redeploy completo tardan en quedar listas (sin esto, los servicios
+        #    se chequean mientras su DB aun se recrea y el rollout da timeout en falso).
+        DATABASES=("auth-db" "catalog-db" "rating-db" "fx-db" "history-db" "notification-db" "subscription-db" "redis")
+        for DB in "${DATABASES[@]}"; do
+          echo "Esperando base de datos $DB..."
+          kubectl rollout status deployment/$DB -n quetxal-tv-prod --timeout=180s
+        done
+        # 2) Luego los microservicios. Timeout amplio (240s): un redeploy de toda la malla
+        #    tarda mucho mas de 60s y 60s disparaba un Rollback en falso.
         SERVICES=("auth-service" "billing-service" "catalog-service" "frontend" "fx-service" "history-service" "notification-service")
         for SERVICE in "${SERVICES[@]}"; do
           echo "Verificando estado de $SERVICE..."
-          kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=60s
+          kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=240s
         done
         
     - name: Automatic Rollback on Failure

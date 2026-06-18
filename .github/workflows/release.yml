@@ -1,0 +1,161 @@
+name: Release - Build & Push Versión Semántica (vX.Y.Z)
+
+# Se dispara SOLO al tocar release: en cada merge a la rama `release`.
+# La versión sale del archivo VERSION del repo (versionamiento vía pipeline, no manual).
+# Los push del día a día a develop/main siguen usando :latest/:sha en los otros workflows.
+on:
+  push:
+    branches:
+      - release
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión semántica a publicar (ej. v2.0.0). Vacío = usar el archivo VERSION'
+        required: false
+
+permissions:
+  contents: write   # necesario para crear y publicar el Tag git de la versión
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Resolver versión semántica
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="$(tr -d '[:space:]' < VERSION)"
+          fi
+          if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "❌ ERROR: '$VERSION' no es SemVer válido (formato esperado vX.Y.Z)"; exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "✅ Publicando release $VERSION"
+        shell: bash
+
+      - name: Validar Secretos de Docker Hub
+        run: |
+          : "${{ secrets.DOCKERHUB_USERNAME }}" || { echo "❌ ERROR: DOCKERHUB_USERNAME no configurado en los secretos de GitHub"; exit 1; }
+          : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "❌ ERROR: DOCKERHUB_TOKEN no configurado en los secretos de GitHub"; exit 1; }
+        shell: bash
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Autenticación en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # =========================================================
+      # CAPA DE PRESENTACIÓN: Frontend
+      # =========================================================
+      - name: Build y Push -> Frontend
+        run: |
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="${USER}/quetxal-frontend"
+          echo "🎨 Empaquetando Frontend ${VERSION}"
+          docker buildx build --push -f frontend/Dockerfile \
+            -t ${REPO}:${VERSION} \
+            -t ${REPO}:latest \
+            ./frontend
+
+      # =========================================================
+      # CAPA PERIMETRAL: API Gateway
+      # =========================================================
+      - name: Build y Push -> API Gateway
+        if: hashFiles('backend/api-gateway/Dockerfile') != ''
+        run: |
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="${USER}/quetxal-api-gateway"
+          echo "🛡️ Empaquetando API Gateway ${VERSION}"
+          docker buildx build --push -f backend/api-gateway/Dockerfile \
+            -t ${REPO}:${VERSION} \
+            -t ${REPO}:latest \
+            ./backend/api-gateway
+
+      # =========================================================
+      # CAPA LÓGICA: Microservicios Backend Políglotas
+      # =========================================================
+      - name: Build y Push -> Microservicios Backend
+        run: |
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          for service_dir in backend/*/; do
+            service_name=$(basename "$service_dir")
+            if [ "$service_name" != "api-gateway" ] && [ -f "${service_dir}Dockerfile" ]; then
+              REPO="${USER}/quetxal-${service_name}"
+              echo "⚙️ Empaquetando ${service_name} ${VERSION}"
+              docker buildx build --push -f ${service_dir}Dockerfile \
+                -t ${REPO}:${VERSION} \
+                -t ${REPO}:latest \
+                ./${service_dir}
+            fi
+          done
+
+      # =========================================================
+      # CAPA DE PERSISTENCIA: Bases de Datos Políglotas
+      # =========================================================
+      - name: Build y Push -> Bases de Datos
+        run: |
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          DATABASES=("auth" "subscription" "catalog" "rating" "fx" "history" "notification")
+          for db in "${DATABASES[@]}"; do
+            if [ -f "database/${db}/Dockerfile" ]; then
+              REPO="${USER}/quetxal-${db}-db"
+              echo "🗄️ Empaquetando DB ${db} ${VERSION}"
+              docker buildx build --push -f database/${db}/Dockerfile \
+                -t ${REPO}:${VERSION} \
+                -t ${REPO}:latest \
+                ./database/${db}
+            else
+              echo "⏭️ Omitiendo ${db}: Dockerfile no encontrado"
+            fi
+          done
+
+      # =========================================================
+      # CAPA DE OPTIMIZACIÓN: Redis Cache
+      # =========================================================
+      - name: Build y Push -> Redis Cache
+        if: hashFiles('cache/Dockerfile') != ''
+        run: |
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="${USER}/quetxal-redis-cache"
+          echo "⚡ Empaquetando Redis Cache ${VERSION}"
+          docker buildx build --push -f cache/Dockerfile \
+            -t ${REPO}:${VERSION} \
+            -t ${REPO}:latest \
+            ./cache
+
+      # =========================================================
+      # ETIQUETADO: crear el Tag git de la versión desde el pipeline
+      # =========================================================
+      - name: Crear y publicar Tag de versión
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "ℹ️ El Tag $VERSION ya existe, se omite la creación"
+          else
+            git tag -a "$VERSION" -m "Release $VERSION"
+            git push origin "$VERSION"
+            echo "🏷️ Tag $VERSION creado y publicado"
+          fi
+
+      - name: Dictamen Final del Auditor Técnico
+        run: |
+          echo "✅ Release ${{ steps.version.outputs.version }} publicado en Docker Hub (todas las imágenes quetxal-*) y Tag git creado"

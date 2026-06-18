@@ -616,7 +616,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N6-02: Consultar Historial de Reproducción
 - CDU-N6-03: Reanudar Reproducción
 
-![Módulo 6](../assets/f2/historial.png)  <br/><br/>
+![Módulo 6](assets/f2/historial.png)  <br/><br/>
 
 
 
@@ -1026,9 +1026,6 @@ Esta sección formaliza las relaciones de Fase 2 que en la primera entrega queda
 
 ## **4\. Fase 2: Espacio de la Solución Conceptual (Nivel PIM)** {#4.-fase-2:-espacio-de-la-solución-conceptual-(nivel-pim)}
 
-<div align="center">
-  <img src="../ProyectoSA-NoOficial/assets/Diagramas Proyecto 1-Vista 4+1.svg" alt="Modelo 4+1" width="900"/>
-</div>
 
 
 ### **4.1 Vista de Escenarios (+1)** {#4.1-vista-de-escenarios-(+1)}
@@ -1182,11 +1179,15 @@ A continuación, se detalla el Modelo Entidad-Relación y los componentes implem
 
 Flujos de trabajo de los procesos de negocio.
 
-**1. Registro y Pago:**
-![1_registro_y_pago.puml](https://www.plantuml.com/plantuml/png/bLRTRYCr5BwVfpWI5qcaXNOB1JPpmIPfMegsgwZ9mcLruZcPcCxOaUr95IWFmmFq0l40IEJ5EBOdOJ9DbwMLsjG-lz_tdUE-jGwDgye2BYJc1aky6mWdrpB3ZEpTe7BBkmdcEd7I5RGtWeoWOGUVmotbqZgZJzxfNAfNyCDFirSmhQmmSYNazay56_21O62tJqeOhNIIs7kfLiW10KCmju5V4-2l8OhxtEXAPIDTQ0EVZR-zF1-_YNVQP6JgyxFnDnTVdeNpWJ7weJv-FJmVdvqclpKos0TP5gXebw4PvStOVpVEPqifxXLP2p7sp7T_gPNRnJ__-dpauoUFeqAISWJTI-x9aSfwZqa0DP4BwFxzruol2KJ5HWWceeGPVjS3joG5tVUwnodwroetP1bOTDfwU6jJdVhRiLfldn2iBgIGhihQ1e-3oJLSeQC7t3nwXrlAf94v0OBdyEI39GDJCcifA3hmwUwWzeYbGMKhD5835rSWpD6IpnRg2fu-b8MBOV0Q6TftfRrTxNqynnL3OT1uSO1Kt0eMqBtLHHyk3L4lZNKuRHG66xuM4TuqeO8BwKwtJnwkewWtK1JQ6D8iES6tXblO_e4l0bbunNuAYXy7SCXY_v_exNgDf6zWYNRfpLjLFy_r8nOyUI0CPQGyZ1IYHyMD6gSH2U7GjWJNoFxzR3Q1hqvVf-7u1MZP_gQY892IbCMVGr_4CsUY7nloxmEMzem7ChiZhPXEb6NKjowuOzlO4BtqiAws0a8EkKZYp-EJrnyK9GgglJq9Mc0nvO2OSuZ-b0eIGcescF0sy8MqbXGTKSZABoucnGTDEVE1JbXqZeoW5S_tYfpS1Lf7ZXRIn7qPVEkTeE-vD6PdlVsTZNHx6RIPWGyAMGBQo5yeIp-Y_o3ONOFuhx8zEGVKy22OodcReImAgVATl21qdzzEHkaUw9P9QDaFBymCiXH4xFYTHngwWz7r1JFPdnWj_2ZQGtWNlEahW_5FwP5JhF7-2Civ1sI1OHRso84RGYUyDjX96-Nu8UfVyRXbBpfkm3LAJ8_sCgdcJ3M7M3EY6ZgsceS8Za7yObKPmLD9MSUBwOPV1DOH30qJoBfF5jhSnwbv5ZT8cIKV-Jz0QiCRiq7msUbfFNgj_TFSGBpMLdx-i3KIdpAmeguYPdy6Ra1sFtkgedMS7lzkCaMYgAJP0ToP62fbLNQYVKOEnJB009YZLB6YGvpgQiPAw68FSwkA62vwlzTEBfWHJy1pF6rLqdznbHuidnKFkcDwCAxMy3BmfpcZnc5uHazuPEHSDsi8QJD-wgStiyc-WJ0RTGIceV7MxQ5W-7b1cfoIj_oH_x5A_W4=)
+**1. Actividades de usuario:**
+<div align="center">
+  <img src="./docs/img/modelo4vistas/Flujosusuario.png" alt="Modelo 4+1" width="900"/>
+</div>
 
-**2. Consumo de Video:**
-![2_consumo_video.puml](https://www.plantuml.com/plantuml/png/XLNHRjis57tNLrna3xM15acQTiDiOAiZnqs7DGWI9tiCM8csxooH0aavTPT-p3uWJ_k00SkFxP2KLBbfDXimPFBUmyDppxrwOvqmhYuBch9O6b6AcqdcUCEvoAMzIRMoTQblhZcNEd7i2ja5KYwf5qilQ58xgHnd8kE7lnJzyjlyELsB0ljnOKiDdayDa3IuT4QAajLoc2HspQeIm2OHSDsM_aW8dsEHhPT6rofFTQ4DVNToD7ivcyOzRN9fclN3rz-_JW_2-iGOVTii7qnV_J0vJ3xtJh2tN1P2oVQ4FigF9_xRMv-lE5ihQIsz3AjpByHCAxTxxESakKiBXWQI1ZE3VQdouLqID4v6bxAGMSPQ2QeLLT8ikF1ArBOMXlKu6HtNDXEKXKJEeSwvB1xkixeGfEbI6fP3H9qRQGFAteMiZCxhZCqUra_Kvk5UaDK5P-pgt6FRLbwFwYio1iV9-JjwAvoy5TkxPFGEfvbCLaw04whNb6eJ2aSBDh7K8PSNDFZdxxbUIqKe-URXJmJfduVaLbWPdEaXz1bTIASD-9tEv-Vqwk2GhfIetKeR_YJpCIA-gL98pDcq6Wagz9ALZqT08WkB-Ck7-t34DSHOm6cK5e9B2uA5PuW0I6YuYhTu5lmfdWqzIEI-in-tlwB_-097DDFc0-Uv36oUv8_CzxM4v89AdOk2zjxBtpN-kPegc8syzMWZ3RH3SbVdlOZgRudV_Zs1UA9CxRmQQGXt-rt7U4TiE9CKohwyE4yRhNYHnD_axb4m2XwQi01cAPt8XTDHlareo2rTNVmQ_gVJCs-MvbYQ7jC-fI9RWPslayMLEw6-86q9bbp2ePg4DnQZFmQMINvat7auVeBJ8w3d3O-UWxVak8Hoegm8ucQn1eyDtVG1E5I-6i87jtKQFz6Yw08u7vR_v1DZLu6H9n1ryUspemnaB863-E9BIhGLfY7o4DZnnR4BRTQjks9m2pr8LxLQsoODuCFeXz5L70m8mqEW1ipEDJ4eXs3PAg2JM0fMOHLyf73XCI2b49ME3iZA9OQejgDkgn6hgWjKR70gCQa-87NeRzvLifiTRLRti2jzTrwS-g4Zjt1au-294iKM4yRkdy8CscnR0tmB-AkG7ZYwjf73iImhtQdlHsPeCSZKZ5SHOlyBVthSWtuBmS5x5VPWXrZ_HlrGt75FNxfTCLw8VghmilQHC9EcjfSmLzZsMld5JsVw_-P7M_9ArDOF_OobYHSAaEDs9lIAjc0LYRRbsZ46iD5KPYcJDtZ4Ypxv5m==)
+**2. Actividades del administrador:**
+<div align="center">
+  <img src="./docs/img/modelo4vistas/Flujoadmin.png" alt="Modelo 4+1" width="900"/>
+</div>
 
 #### **4.3.2 Diagramas de Secuencia:**  {#4.3.2-diagramas-de-secuencia:}
 
@@ -1250,7 +1251,7 @@ Justificación de Gobernanza: Para dar cumplimiento a los Drivers de Restricció
 3. Inclusión del componente de Middleware JWT adherido al API Gateway en la Capa de Entrada.  
 4. Definición explícita de los motores de persistencia, incluyendo PostgreSQL y la capa en memoria de Redis para el servicio financiero.
 
-![Diagrama de Componentes](./assets/Diagramas%20Proyecto%201-Componentes%20PSM.drawio.png)
+![Diagrama de Componentes](assets/DiagramaComponentes.png)
 
 ### **4.5 Análisis Estructural: Arquitectura Síncrona vs. Asíncrona** {#4.5-análisis-estructural:-arquitectura-síncrona-vs.-asíncrona}
 
@@ -1289,7 +1290,7 @@ La arquitectura **combina deliberadamente dos estilos de comunicación** según 
 
 ### **5.1 Vista Física (Despliegue)** {#5.1-vista-física-(despliegue)}
 
-![Vista Física](./assets/Diagramas%20Proyecto%201-Diagrama%20de%20Despliegue.drawio.png)
+![Vista Física](./assets/Fisicadespliegue.png)
 
 ![Diagrama de Despliegue Kubernetes](./assets/Diagramas_Proyecto_2_Despliegue_Kubernetes.drawio.png)
 ### **5.2 Justificación Tecnológica (Gobernanza)** {#5.2-justificación-tecnológica-(gobernanza)}

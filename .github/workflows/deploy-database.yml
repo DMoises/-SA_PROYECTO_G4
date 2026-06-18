@@ -165,6 +165,9 @@ jobs:
 
           echo "=== Recent logs (tail 50) ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" logs --tail=50
+
+          echo "=== Limpieza de sistema Docker para optimizar almacenamiento ==="
+          docker system prune -af || true
           EOF
 
       - name: Health check - Validate database connectivity

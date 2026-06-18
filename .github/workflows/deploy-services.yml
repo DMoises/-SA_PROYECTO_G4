@@ -157,6 +157,9 @@ jobs:
 
           echo "=== Service logs (last 30 lines) ==="
           docker-compose -f docker-compose.services.yml --env-file .env.cloud logs --tail=30
+
+          echo "=== Limpieza de sistema Docker para optimizar almacenamiento ==="
+          docker system prune -af || true
           EOF
 
       - name: Verify connectivity to Gateway

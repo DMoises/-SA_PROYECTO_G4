@@ -1162,7 +1162,324 @@ API Gateway como Punto de Entrada Unico (Go) Que: Se implementa un enrutador per
 *   **¿Por qué?**: JWT provee autenticación "Stateless" (sin estado), ideal para sistemas distribuidos ya que no satura una base de datos centralizada validando cada petición. Los Secrets de Kubernetes cifran la información en etcd.
 *   **¿Para qué?**: JWT se utiliza para afirmar la identidad del usuario en el API Gateway y propagar dichos claims firmados hacia la red interna de microservicios. Adicionalmente, se prohibió el hardcoding; por lo tanto, los ConfigMaps inyectan la configuración genérica, mientras que los Secrets de K8s resguardan y montan de forma segura las credenciales de BD y llaves privadas en tiempo de ejecución de los Pods.
 
-### **5.4 Aplicación de Principios SOLID (Nivel ISM)** {#5.3-aplicación-de-principios-solid-(nivel-ism)}
+
+### 5.4 Manifiestos y Estrategias Operativas de Kubernetes
+---
+
+## 8. Manifiestos y Configuraciones de Objetos de Kubernetes
+
+Los objetos de Kubernetes se organizaron en manifiestos declarativos YAML para separar infraestructura base, bases de datos, microservicios, API Gateway e Ingress. Esta organización permite que el pipeline de CD despliegue el entorno de producción de forma repetible, controlada y versionada.
+
+### 8.1 Deployments: Réplicas y Alta Disponibilidad
+
+* **Dónde se aplicó**: Manifiestos de Deployments en `k8s/microservices/*.yaml`, `k8s/databases/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Cada microservicio principal se definió como un objeto `Deployment`, indicando el número de réplicas, la imagen del contenedor, puertos internos, variables de entorno, recursos de CPU/memoria y sondas de salud. En los microservicios y frontend se configuraron `replicas: 2`, permitiendo que existan dos instancias activas del mismo componente.
+
+Estructura base aplicada en los manifiestos:
+
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: auth-service
+      namespace: quetxal-tv-prod
+      labels:
+        app: auth-service
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: auth-service
+      template:
+        metadata:
+          labels:
+            app: auth-service
+        spec:
+          containers:
+          - name: auth-service
+            image: tu-registro/quetxal-auth-service:latest
+            ports:
+            - containerPort: 50051
+              name: grpc
+            envFrom:
+            - configMapRef:
+                name: quetxal-config
+            env:
+            - name: AUTH_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: quetxal-secrets
+                  key: AUTH_DB_NAME
+
+* **Por qué se aplicó**: El uso de Deployments permite administrar el ciclo de vida de los Pods de forma declarativa. Kubernetes puede crear, reemplazar o reiniciar Pods automáticamente según el estado deseado. Al usar `replicas: 2`, la malla de servicios mantiene alta disponibilidad, ya que si una instancia falla, otra puede continuar atendiendo solicitudes mientras Kubernetes recupera la réplica perdida.
+
+### 8.2 Services: ClusterIP vs. NodePort vs. LoadBalancer
+
+* **Dónde se aplicó**: Objetos `Service` definidos en los manifiestos de `k8s/microservices/*.yaml`, `k8s/databases/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Los servicios internos del clúster se declararon como `ClusterIP`. Este tipo de Service permite descubrimiento interno entre componentes sin exponer cada microservicio directamente a internet.
+
+Estructura base aplicada en los manifiestos:
+
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: auth-service
+      namespace: quetxal-tv-prod
+    spec:
+      type: ClusterIP
+      selector:
+        app: auth-service
+      ports:
+      - port: 50051
+        targetPort: 50051
+
+En el proyecto se usa `ClusterIP` para servicios gRPC como `auth-service`, `billing-service`, `catalog-service`, `fx-service`, `history-service` y `notification-service`. También se usa `ClusterIP` para bases de datos PostgreSQL, Redis y el `api-gateway`.
+
+* **Por qué se aplicó**: Se eligió `ClusterIP` porque los microservicios, bases de datos y caché no deben exponerse públicamente. El acceso externo se concentra mediante el recurso `Ingress`, definido en `k8s/ingress.yaml`, que enruta el tráfico hacia los servicios correspondientes. Esta decisión evita usar `NodePort` o `LoadBalancer` por componente, reduciendo superficie de ataque y manteniendo la comunicación interna controlada dentro del namespace `quetxal-tv-prod`.
+
+### 8.3 ConfigMaps y Secrets: Abstracción y Seguridad
+
+* **Dónde se aplicó**: Manifiestos base en `k8s/base/configmap.yaml` y `k8s/base/secrets.yaml`, con referencias desde los Deployments de microservicios, bases de datos y API Gateway.
+
+* **Cómo se aplicó**: Las variables no sensibles se gestionan mediante `ConfigMap`, mientras que credenciales, contraseñas, secretos JWT, datos SMTP, Redis y accesos a Google Cloud Storage se gestionan mediante un `Secret` de tipo `Opaque`.
+
+Estructura base de ConfigMap:
+
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: quetxal-config
+      namespace: quetxal-tv-prod
+    data:
+      AUTH_SERVICE_ADDR: "auth-service:50051"
+      BILLING_SERVICE_ADDR: "billing-service:50052"
+      FX_SERVICE_ADDR: "fx-service:50053"
+      NOTIFICATION_SERVICE_ADDR: "notification-service:50054"
+      CATALOG_SERVICE_ADDR: "catalog-service:50055"
+      HISTORY_SERVICE_ADDR: "history-service:50057"
+
+Estructura base de Secret sin credenciales explícitas:
+
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: quetxal-secrets
+      namespace: quetxal-tv-prod
+    type: Opaque
+    stringData:
+      AUTH_DB_NAME: "${AUTH_DB_NAME}"
+      AUTH_DB_USER: "${AUTH_DB_USER}"
+      AUTH_DB_PASSWORD: "${AUTH_DB_PASSWORD}"
+      JWT_SECRET: "${JWT_SECRET}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      GCS_ACCESS_KEY: "${GCS_ACCESS_KEY}"
+      GCS_SECRET_KEY: "${GCS_SECRET_KEY}"
+      GCS_BUCKET_NAME: "${GCS_BUCKET_NAME}"
+
+Durante el pipeline de CD, GitHub Actions toma los secretos almacenados en el repositorio y genera temporalmente `k8s/base/secrets-injected.yaml` mediante `envsubst`. Luego aplica ese manifiesto al clúster con `kubectl apply`.
+
+* **Por qué se aplicó**: Esta estrategia cumple con la restricción de no escribir credenciales directamente en los YAML. Además, permite cambiar credenciales o endpoints sin modificar el código fuente de los microservicios. Kubernetes inyecta los valores en tiempo de ejecución usando `configMapRef` y `secretKeyRef`.
+
+---
+
+## 9. Estrategia Operativa de Despliegue Zero-Downtime
+
+La estrategia de despliegue busca que las nuevas versiones de Quetxal TV puedan publicarse sin interrumpir el acceso de los usuarios al frontend, catálogo, autenticación, historial, pagos, calificaciones y servicios internos.
+
+### 9.1 Rollout Estándar y Estrategia RollingUpdate
+
+* **Dónde se aplicó**: Bloque `strategy.rollingUpdate` en los Deployments ubicados en `k8s/microservices/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Los microservicios y el frontend usan `replicas: 2` junto con la estrategia `RollingUpdate`.
+
+Estructura base aplicada:
+
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+
+Matemáticamente, para los microservicios con `replicas: 2`:
+
+* `maxSurge: 1`: Kubernetes puede crear temporalmente 1 Pod adicional por encima del número deseado de réplicas. Es decir, durante el despliegue pueden existir hasta 3 Pods: 2 antiguos estables y 1 nuevo en proceso de arranque.
+* `maxUnavailable: 0`: Kubernetes no puede dejar indisponible ningún Pod durante la actualización. Un Pod antiguo solo puede ser reemplazado cuando el nuevo Pod ya pasó su `readinessProbe` y está en estado `Ready`.
+
+Flujo operativo del RollingUpdate:
+
+* Estado inicial: 2 Pods estables ejecutando la versión anterior.
+* Kubernetes crea 1 Pod adicional con la nueva versión.
+* El nuevo Pod debe pasar su `readinessProbe`.
+* Cuando el nuevo Pod está `Ready`, Kubernetes puede retirar 1 Pod antiguo.
+* El proceso se repite hasta que todos los Pods ejecutan la nueva versión.
+
+En el caso del `api-gateway`, el manifiesto usa porcentajes:
+
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+
+Con `replicas: 2`, Kubernetes redondea `maxSurge` hacia arriba y `maxUnavailable` hacia abajo. Por ello, operativamente puede crear 1 Pod adicional y mantener 0 Pods indisponibles durante el despliegue.
+
+* **Por qué se aplicó**: Esta configuración permite despliegues progresivos sin apagar completamente el servicio. Para Quetxal TV, esto garantiza que los usuarios puedan seguir navegando el catálogo, autenticándose y consumiendo contenido multimedia mientras se reemplazan gradualmente los Pods de la versión anterior por los de la nueva versión.
+
+### 9.2 Rollback Automatizado
+
+* **Dónde se aplicó**: Pipeline de despliegue en `.github/workflows/deploy-k8s.yml`.
+
+* **Cómo se aplicó**: Después de aplicar los manifiestos con `kubectl apply`, el pipeline ejecuta una verificación del estado del rollout con:
+
+    kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=60s
+
+El arreglo `SERVICES` definido en el workflow contiene los Deployments principales del entorno:
+
+    auth-service
+    billing-service
+    catalog-service
+    frontend
+    fx-service
+    history-service
+    notification-service
+
+Si alguno de estos Deployments no completa el rollout dentro del tiempo configurado, el paso falla. Esto puede ocurrir si la nueva versión no arranca correctamente, si los Pods quedan en estado no disponible o si entran en fallos como `CrashLoopBackOff`.
+
+Ante una falla, GitHub Actions activa el bloque condicionado con `if: failure()` y ejecuta automáticamente:
+
+    kubectl rollout undo deployment/$SERVICE -n quetxal-tv-prod
+
+Este comando indica a Kubernetes que restaure el Deployment hacia la revisión estable anterior.
+
+* **Por qué se aplicó**: El rollback automatizado reduce el Tiempo Medio de Recuperación (MTTR). En lugar de requerir intervención manual para diagnosticar y revertir un despliegue defectuoso, el pipeline detecta la falla del rollout y ejecuta la reversión de forma automática, manteniendo la continuidad operativa del entorno en GKE.
+
+---
+
+## 10. Monitoreo de Salud de la Aplicación (Health Checks)
+
+Los manifiestos incluyen sondas de Kubernetes para monitorear la disponibilidad y vitalidad de los componentes desplegados. Estas sondas permiten que Kubernetes decida cuándo un Pod puede recibir tráfico y cuándo debe ser reiniciado.
+
+### 10.1 Readiness Probe
+
+* **Dónde se aplicó**: Bloques `readinessProbe` en los contenedores definidos en `k8s/microservices/*.yaml`, `k8s/databases/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Se configuraron distintos tipos de readiness según el componente:
+
+Microservicios gRPC:
+
+    readinessProbe:
+      tcpSocket:
+        port: 50051
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+API Gateway:
+
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+Frontend:
+
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 3000
+      initialDelaySeconds: 15
+      periodSeconds: 10
+
+PostgreSQL:
+
+    readinessProbe:
+      exec:
+        command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+Redis:
+
+    readinessProbe:
+      exec:
+        command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+* **Por qué se aplicó**: La `Readiness Probe` evita que Kubernetes envíe tráfico a Pods que todavía no están listos. Esto es clave durante despliegues RollingUpdate, porque un Pod nuevo solo reemplaza a uno antiguo cuando ya está marcado como `Ready`.
+
+### 10.2 Liveness Probe
+
+* **Dónde se aplicó**: Bloques `livenessProbe` en los contenedores definidos en los manifiestos Kubernetes del proyecto.
+
+* **Cómo se aplicó**: Se configuraron sondas de vitalidad según el tipo de componente:
+
+Microservicios gRPC:
+
+    livenessProbe:
+      tcpSocket:
+        port: 50051
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+API Gateway:
+
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+Frontend:
+
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 3000
+      initialDelaySeconds: 30
+      periodSeconds: 20
+
+PostgreSQL:
+
+    livenessProbe:
+      exec:
+        command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+Redis:
+
+    livenessProbe:
+      exec:
+        command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+* **Por qué se aplicó**: La `Liveness Probe` permite a Kubernetes detectar contenedores que dejaron de responder correctamente. Si la sonda falla repetidamente, Kubernetes reinicia el Pod afectado, aplicando un mecanismo de auto-recuperación sin intervención manual.
+
+### 10.3 Relación entre Health Checks y Zero-Downtime
+
+Las sondas de salud son parte central de la estrategia Zero-Downtime. Durante un RollingUpdate, Kubernetes no considera disponible un Pod nuevo hasta que su `readinessProbe` sea exitosa. Esto permite que los Pods antiguos sigan atendiendo tráfico mientras los nuevos terminan de iniciar.
+
+La combinación de:
+
+* `replicas: 2`
+* `maxSurge: 1`
+* `maxUnavailable: 0`
+* `readinessProbe`
+* `livenessProbe`
+* `kubectl rollout status`
+* `kubectl rollout undo`
+
+permite que el despliegue sea progresivo, observable y reversible. De esta forma, el sistema mantiene disponibilidad durante actualizaciones y puede regresar automáticamente a una versión estable si la nueva versión presenta fallos.
+
+
+
+
+### **5.5 Aplicación de Principios SOLID (Nivel ISM)** {#5.3-aplicación-de-principios-solid-(nivel-ism)}
 
 Quetxal TV es una plataforma de streaming construida como **microservicios políglotas**
 (Go, Python y TypeScript) que se comunican por **gRPC** detrás de un **API Gateway**.

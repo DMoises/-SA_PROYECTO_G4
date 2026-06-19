@@ -60,7 +60,7 @@ export default function LoginPage() {
       {/* Header */}
       <header className="relative z-10 px-4 py-6 md:px-8 lg:px-16">
         <Link href="/" className="flex items-center">
-          <span className="text-3xl font-bold text-primary md:text-4xl">QUETXAL</span>
+          <span className="text-3xl font-bold text-primary md:text-4xl">Calificación</span>
           <span className="text-3xl font-light text-foreground md:text-4xl">TV</span>
         </Link>
       </header>

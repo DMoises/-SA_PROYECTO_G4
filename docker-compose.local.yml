@@ -219,6 +219,8 @@ services:
       COOKIE_SECURE: "false"        # true en cloud (HTTPS)
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       HISTORY_SERVICE_ADDR: history-service:50057
+      WATCHPARTY_SERVICE_ADDR: watchparty-service:50059
+      WATCHPARTY_WS_ADDR: watchparty-service:8085
     ports:
       - "8080:8080"   
     depends_on:
@@ -227,6 +229,7 @@ services:
       - catalog-service
       - rating-service
       - history-service
+      - watchparty-service
     networks: [quetxal-net]
 
   # notification-service
@@ -285,6 +288,17 @@ services:
       CATALOG_DB_NAME: ${CATALOG_DB_NAME}
       CATALOG_DB_USER: ${CATALOG_DB_USER}
       CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      AUTH_DB_HOST: auth-db
+      AUTH_DB_PORT_INTERNAL: 5432
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTH_DB_USER: ${AUTH_DB_USER}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      SUBSCRIPTION_DB_HOST: subscription-db
+      SUBSCRIPTION_DB_PORT: 5432
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
     ports:
       - "50055:50055"
       - "8086:8086"     # admin HTTP (solo LOCAL para depuracion directa)
@@ -320,10 +334,28 @@ services:
     environment:
       PORT: 50057
       DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@history-db:5432/${HISTORY_DB_NAME}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET}
+      SUBSCRIPTION_DB_URL: postgres://${SUBSCRIPTION_DB_USER}:${SUBSCRIPTION_DB_PASSWORD}@subscription-db:5432/${SUBSCRIPTION_DB_NAME}?sslmode=disable
     ports:
       - "50057:50057"
     depends_on:
       history-db:
+        condition: service_healthy
+    networks: [quetxal-net]
+
+  watchparty-service:
+    build: ./backend/watchparty-service
+    container_name: quetxal-watchparty-service
+    environment:
+      PORT: 50059
+      WS_PORT: 8085
+      JWT_SECRET: ${JWT_SECRET}
+      SUBSCRIPTION_DB_URL: postgres://${SUBSCRIPTION_DB_USER}:${SUBSCRIPTION_DB_PASSWORD}@subscription-db:5432/${SUBSCRIPTION_DB_NAME}?sslmode=disable
+    ports:
+      - "50059:50059"
+      - "8085:8085"
+    depends_on:
+      subscription-db:
         condition: service_healthy
     networks: [quetxal-net]
               

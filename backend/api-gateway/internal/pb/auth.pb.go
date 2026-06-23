@@ -363,6 +363,7 @@ type CrearPerfilRequest struct {
 	Nombre        string                 `protobuf:"bytes,2,opt,name=nombre,proto3" json:"nombre,omitempty"`
 	EsInfantil    bool                   `protobuf:"varint,3,opt,name=es_infantil,json=esInfantil,proto3" json:"es_infantil,omitempty"`
 	Idioma        string                 `protobuf:"bytes,4,opt,name=idioma,proto3" json:"idioma,omitempty"` // 'es' | 'en' | 'pt' | 'fr'
+	Pin           string                 `protobuf:"bytes,5,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -425,12 +426,20 @@ func (x *CrearPerfilRequest) GetIdioma() string {
 	return ""
 }
 
+func (x *CrearPerfilRequest) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
+}
+
 type PerfilResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Nombre        string                 `protobuf:"bytes,2,opt,name=nombre,proto3" json:"nombre,omitempty"`
 	EsInfantil    bool                   `protobuf:"varint,3,opt,name=es_infantil,json=esInfantil,proto3" json:"es_infantil,omitempty"`
 	Idioma        string                 `protobuf:"bytes,4,opt,name=idioma,proto3" json:"idioma,omitempty"`
+	Pin           string                 `protobuf:"bytes,5,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -493,6 +502,13 @@ func (x *PerfilResponse) GetIdioma() string {
 	return ""
 }
 
+func (x *PerfilResponse) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
+}
+
 type EditarPerfilRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UsuarioId     string                 `protobuf:"bytes,1,opt,name=usuario_id,json=usuarioId,proto3" json:"usuario_id,omitempty"`
@@ -500,6 +516,7 @@ type EditarPerfilRequest struct {
 	Nombre        string                 `protobuf:"bytes,3,opt,name=nombre,proto3" json:"nombre,omitempty"`
 	EsInfantil    bool                   `protobuf:"varint,4,opt,name=es_infantil,json=esInfantil,proto3" json:"es_infantil,omitempty"`
 	Idioma        string                 `protobuf:"bytes,5,opt,name=idioma,proto3" json:"idioma,omitempty"`
+	Pin           string                 `protobuf:"bytes,6,opt,name=pin,proto3" json:"pin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -565,6 +582,13 @@ func (x *EditarPerfilRequest) GetEsInfantil() bool {
 func (x *EditarPerfilRequest) GetIdioma() string {
 	if x != nil {
 		return x.Idioma
+	}
+	return ""
+}
+
+func (x *EditarPerfilRequest) GetPin() string {
+	if x != nil {
+		return x.Pin
 	}
 	return ""
 }
@@ -841,20 +865,22 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\n" +
 	"usuario_id\x18\x02 \x01(\tR\tusuarioId\x12\x10\n" +
 	"\x03rol\x18\x03 \x01(\tR\x03rol\x12\x14\n" +
-	"\x05email\x18\x04 \x01(\tR\x05email\"\x84\x01\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\"\x96\x01\n" +
 	"\x12CrearPerfilRequest\x12\x1d\n" +
 	"\n" +
 	"usuario_id\x18\x01 \x01(\tR\tusuarioId\x12\x16\n" +
 	"\x06nombre\x18\x02 \x01(\tR\x06nombre\x12\x1f\n" +
 	"\ves_infantil\x18\x03 \x01(\bR\n" +
 	"esInfantil\x12\x16\n" +
-	"\x06idioma\x18\x04 \x01(\tR\x06idioma\"q\n" +
+	"\x06idioma\x18\x04 \x01(\tR\x06idioma\x12\x10\n" +
+	"\x03pin\x18\x05 \x01(\tR\x03pin\"\x83\x01\n" +
 	"\x0ePerfilResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06nombre\x18\x02 \x01(\tR\x06nombre\x12\x1f\n" +
 	"\ves_infantil\x18\x03 \x01(\bR\n" +
 	"esInfantil\x12\x16\n" +
-	"\x06idioma\x18\x04 \x01(\tR\x06idioma\"\xa2\x01\n" +
+	"\x06idioma\x18\x04 \x01(\tR\x06idioma\x12\x10\n" +
+	"\x03pin\x18\x05 \x01(\tR\x03pin\"\xb4\x01\n" +
 	"\x13EditarPerfilRequest\x12\x1d\n" +
 	"\n" +
 	"usuario_id\x18\x01 \x01(\tR\tusuarioId\x12\x1b\n" +
@@ -862,7 +888,8 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\x06nombre\x18\x03 \x01(\tR\x06nombre\x12\x1f\n" +
 	"\ves_infantil\x18\x04 \x01(\bR\n" +
 	"esInfantil\x12\x16\n" +
-	"\x06idioma\x18\x05 \x01(\tR\x06idioma\"6\n" +
+	"\x06idioma\x18\x05 \x01(\tR\x06idioma\x12\x10\n" +
+	"\x03pin\x18\x06 \x01(\tR\x03pin\"6\n" +
 	"\x15ListarPerfilesRequest\x12\x1d\n" +
 	"\n" +
 	"usuario_id\x18\x01 \x01(\tR\tusuarioId\"M\n" +

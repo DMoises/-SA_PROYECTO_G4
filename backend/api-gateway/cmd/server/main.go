@@ -54,6 +54,13 @@ func main() {
 	}
 	defer ratingClient.Close()
 
+	// Cliente gRPC al watchparty-service.
+	watchPartyClient, err := clients.NewWatchPartyClient(cfg.WatchPartyServiceAddr)
+	if err != nil {
+		log.Fatalf("no se pudo conectar al watchparty-service: %v", err)
+	}
+	defer watchPartyClient.Close()
+
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
 	adminMW := middleware.AdminOnly
@@ -63,6 +70,7 @@ func main() {
 	ratingH := handlers.NewRatingHandler(ratingClient)
 	historyH := handlers.NewHistoryHandler(historyClient)
 	adminH := handlers.NewAdminHandler(cfg)
+	watchPartyH := handlers.NewWatchPartyHandler(watchPartyClient, cfg.WatchPartyWSAddr)
 	mux := http.NewServeMux()
 
 	// Salud (util para healthcheck de Docker / GCP).
@@ -120,8 +128,13 @@ func main() {
 	mux.Handle("GET /history/{perfilId}", authMW(http.HandlerFunc(historyH.GetHistory)))
 	mux.Handle("GET /history/{perfilId}/resume/{contenidoId}", authMW(http.HandlerFunc(historyH.GetResume)))
 
-	// CORS envuelve todo el router.
-	handler := middleware.CORS(cfg.CORSOrigin)(mux)
+	// Watch Party endpoints
+	mux.Handle("POST /watchparty/rooms", authMW(http.HandlerFunc(watchPartyH.CrearSala)))
+	mux.Handle("GET /watchparty/rooms/{code}", authMW(http.HandlerFunc(watchPartyH.ValidarSala)))
+	mux.Handle("GET /ws/watchparty/{code}", authMW(http.HandlerFunc(watchPartyH.ProxyWebSocket)))
+
+	// Propagacion de cabeceras y CORS envuelven todo el router.
+	handler := middleware.CORS(cfg.CORSOrigin)(middleware.PropagateHeaders(mux))
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,

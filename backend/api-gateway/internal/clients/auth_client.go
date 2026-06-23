@@ -19,7 +19,11 @@ type AuthClient struct {
 // Usa credenciales 'insecure' porque es trafico interno entre servicios
 // dentro de la red de Docker (sin TLS).
 func NewAuthClient(addr string) (*AuthClient, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(MetadataForwardingInterceptor),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -42,9 +46,15 @@ func (c *AuthClient) ValidarToken(ctx context.Context, token string) (*pb.Valida
 	return c.cli.ValidarToken(ctx, &pb.ValidarTokenRequest{Token: token})
 }
 
-func (c *AuthClient) CrearPerfil(ctx context.Context, usuarioID, nombre, idioma string, esInfantil bool) (*pb.PerfilResponse, error) {
+func (c *AuthClient) CrearPerfil(ctx context.Context, usuarioID, nombre, idioma string, esInfantil bool, pin string) (*pb.PerfilResponse, error) {
 	return c.cli.CrearPerfil(ctx, &pb.CrearPerfilRequest{
-		UsuarioId: usuarioID, Nombre: nombre, Idioma: idioma, EsInfantil: esInfantil,
+		UsuarioId: usuarioID, Nombre: nombre, Idioma: idioma, EsInfantil: esInfantil, Pin: pin,
+	})
+}
+
+func (c *AuthClient) EditarPerfil(ctx context.Context, usuarioID, perfilID, nombre, idioma string, esInfantil bool, pin string) (*pb.PerfilResponse, error) {
+	return c.cli.EditarPerfil(ctx, &pb.EditarPerfilRequest{
+		UsuarioId: usuarioID, PerfilId: perfilID, Nombre: nombre, Idioma: idioma, EsInfantil: esInfantil, Pin: pin,
 	})
 }
 

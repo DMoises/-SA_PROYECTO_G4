@@ -50,7 +50,7 @@ func Auth(auth *clients.AuthClient) func(http.Handler) http.Handler {
 	}
 }
 
-// extraerToken busca el JWT primero en la cookie session y luego en Authorization.
+// extraerToken busca el JWT primero en la cookie session, luego en Authorization, y finalmente en el query parameter token.
 func extraerToken(r *http.Request) string {
 	if cookie, err := r.Cookie("session"); err == nil && cookie.Value != "" {
 		return cookie.Value
@@ -58,6 +58,9 @@ func extraerToken(r *http.Request) string {
 	header := r.Header.Get("Authorization")
 	if strings.HasPrefix(header, "Bearer ") {
 		return strings.TrimPrefix(header, "Bearer ")
+	}
+	if qToken := r.URL.Query().Get("token"); qToken != "" {
+		return qToken
 	}
 	return ""
 }

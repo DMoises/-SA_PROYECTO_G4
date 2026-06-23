@@ -2,18 +2,22 @@
 
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
-import { Play, Plus, ThumbsUp, ThumbsDown, Share2, Download, Check, ChevronDown } from 'lucide-react'
+import { Play, Plus, ThumbsUp, ThumbsDown, Share2, Download, Check, ChevronDown, Users } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { ContentCarousel } from '@/components/content-carousel'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Content, Episode } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { getResume } from '@/lib/history'
+import { getMySubscription } from '@/lib/api/billing'
+import { crearSala } from '@/lib/api/watchparty'
+import { useRouter } from 'next/navigation'
 
 type ContentDetalle = Content & { episodesList?: Episode[] }
 
 export default function ContentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const router = useRouter()
   const [content, setContent] = useState<ContentDetalle | null>(null)
   const [related, setRelated] = useState<Content[]>([])
   const [loading, setLoading] = useState(true)
@@ -25,6 +29,8 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
     episodio?: number
     segundo_exacto?: number
   } | null>(null)
+  const [isPremium, setIsPremium] = useState(false)
+  const [creatingParty, setCreatingParty] = useState(false)
 
   // Campos opcionales: proto3-JSON omite los que valen 0 (p. ej. porcentaje 0%).
   const [recomendacion, setRecomendacion] = useState<{
@@ -56,10 +62,46 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
     } catch {}
   }, [id])
 
+  // Consultar suscripción activa para saber si habilitamos Watch Party
+  useEffect(() => {
+    getMySubscription()
+      .then(sub => {
+        const nombrePlan = sub?.nombre_plan ?? sub?.nombrePlan
+        setIsPremium(nombrePlan === 'Premium')
+      })
+      .catch(() => setIsPremium(false))
+  }, [])
+
+  async function handleCrearWatchParty() {
+    try {
+      setCreatingParty(true)
+      const res = await crearSala(id)
+      if (res.codigo_sala) {
+        router.push(`/watchparty/${res.codigo_sala}`)
+      }
+    } catch (err) {
+      console.error('Error al crear sala de watch party:', err)
+      alert('No se pudo crear la sala de Watch Party. Inténtalo de nuevo.')
+    } finally {
+      setCreatingParty(false)
+    }
+  }
+
   // Ficha tecnica real (via gateway: /api/catalog/{id} -> /catalog/contenido/{id}).
   useEffect(() => {
     setLoading(true)
-    fetch(`/api/catalog/${id}`)
+    const headers: Record<string, string> = {}
+    const stored = localStorage.getItem('selectedProfile')
+    if (stored) {
+      try {
+        const profile = JSON.parse(stored)
+        if (profile?.id) {
+          headers['X-Profile-Id'] = profile.id
+        }
+      } catch {}
+    }
+
+    fetch(`/api/catalog/${id}`, { headers })
       .then(r => (r.ok ? r.json() : null))
       .then((c: ContentDetalle | null) => setContent(c))
       .catch(() => setContent(null))
@@ -216,6 +258,18 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
                 <Play className="h-5 w-5 fill-current" />
                 {resumeData ? 'Reanudar' : 'Reproducir'}
               </Link>
+              {isPremium && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 border-primary/50 text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                  onClick={handleCrearWatchParty}
+                  disabled={creatingParty}
+                >
+                  <Users className="h-5 w-5" />
+                  {creatingParty ? 'Iniciando...' : 'Iniciar Watch Party'}
+                </Button>
+              )}
               <Button
                 size="lg"
                 variant="secondary"

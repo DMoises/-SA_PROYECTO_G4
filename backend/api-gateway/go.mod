@@ -3,12 +3,13 @@ module github.com/grupo4/quetxaltv-gateway
 go 1.22
 
 require (
+	github.com/lib/pq v1.12.3
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.2
 )
 
 require (
-	github.com/lib/pq v1.12.3 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect

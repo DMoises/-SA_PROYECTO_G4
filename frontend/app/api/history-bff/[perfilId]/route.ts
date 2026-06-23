@@ -15,6 +15,7 @@ export async function GET(
     const authorization = request.headers.get('authorization')
     if (cookie) headers.set('cookie', cookie)
     if (authorization) headers.set('authorization', authorization)
+    headers.set('x-profile-id', perfilId)
 
     console.log(`BFF fetching history from gateway: ${GATEWAY_URL}/history/${perfilId}`)
 
@@ -38,7 +39,7 @@ export async function GET(
     const richItems = await Promise.all(
       items.map(async (item) => {
         try {
-          const content = await fetchFicha(item.contenido_id)
+          const content = await fetchFicha(item.contenido_id, headers)
           if (!content) return null
 
           let subtext = ''

@@ -249,14 +249,16 @@ func (r *PostgresUsuarioRepo) CrearPerfil(
 			usuario_id,
 			nombre,
 			es_infantil,
-			idioma
+			idioma,
+			pin
 		)
-		VALUES ($1, $2, $3, $4)
+		VALUES ($1, $2, $3, $4, COALESCE(NULLIF($5, ''), '1234'))
 		RETURNING id`,
 		p.UsuarioID,
 		p.Nombre,
 		p.EsInfantil,
 		p.Idioma,
+		p.Pin,
 	).Scan(&id)
 
 	if err != nil {
@@ -298,12 +300,14 @@ func (r *PostgresUsuarioRepo) EditarPerfil(
 		SET
 			nombre = $1,
 			es_infantil = $2,
-			idioma = $3
-		WHERE id = $4
-		  AND usuario_id = $5`,
+			idioma = $3,
+			pin = COALESCE(NULLIF($4, ''), '1234')
+		WHERE id = $5
+		  AND usuario_id = $6`,
 		p.Nombre,
 		p.EsInfantil,
 		p.Idioma,
+		p.Pin,
 		p.ID,
 		p.UsuarioID,
 	)
@@ -335,7 +339,8 @@ func (r *PostgresUsuarioRepo) ListarPerfiles(
 			usuario_id,
 			nombre,
 			es_infantil,
-			idioma
+			idioma,
+			pin
 		FROM perfiles
 		WHERE usuario_id = $1
 		ORDER BY nombre`,
@@ -359,6 +364,7 @@ func (r *PostgresUsuarioRepo) ListarPerfiles(
 			&p.Nombre,
 			&p.EsInfantil,
 			&p.Idioma,
+			&p.Pin,
 		); err != nil {
 			return nil, err
 		}

@@ -26,12 +26,40 @@ class Config:
         # Permite desactivar la firma (passthrough total) sin tocar codigo.
         self.gcs_enabled = _env("GCS_ENABLED", "true").lower() in ("1", "true", "yes", "on")
 
+        # Envs for auth/subscription DBs (for interceptor validations)
+        self.jwt_secret = _env("JWT_SECRET", "merequetengue")
+        self.auth_db_host = _env("AUTH_DB_HOST", "auth-db")
+        self.auth_db_port = _env("AUTH_DB_PORT_INTERNAL", "5432")
+        self.auth_db_name = _env("AUTH_DB_NAME", "auth_db")
+        self.auth_db_user = _env("AUTH_DB_USER", "auth_user")
+        self.auth_db_password = _env("AUTH_DB_PASSWORD", "")
+
+        self.sub_db_host = _env("SUBSCRIPTION_DB_HOST", "subscription-db")
+        self.sub_db_port = _env("SUBSCRIPTION_DB_PORT_INTERNAL", "5432")
+        self.sub_db_name = _env("SUBSCRIPTION_DB_NAME", "subscription_db")
+        self.sub_db_user = _env("SUBSCRIPTION_DB_USER", "subscription_user")
+        self.sub_db_password = _env("SUBSCRIPTION_DB_PASSWORD", "")
+
     @property
     def dsn(self) -> str:
         # Trafico interno en la red de Docker: sin TLS (sslmode disable).
         return (
             f"host={self.db_host} port={self.db_port} dbname={self.db_name} "
             f"user={self.db_user} password={self.db_password} sslmode=disable"
+        )
+
+    @property
+    def auth_dsn(self) -> str:
+        return (
+            f"host={self.auth_db_host} port={self.auth_db_port} dbname={self.auth_db_name} "
+            f"user={self.auth_db_user} password={self.auth_db_password} sslmode=disable"
+        )
+
+    @property
+    def sub_dsn(self) -> str:
+        return (
+            f"host={self.sub_db_host} port={self.sub_db_port} dbname={self.sub_db_name} "
+            f"user={self.sub_db_user} password={self.sub_db_password} sslmode=disable"
         )
 
 

@@ -137,11 +137,12 @@ type ItemCartelera struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ContenidoId   string                 `protobuf:"bytes,1,opt,name=contenido_id,json=contenidoId,proto3" json:"contenido_id,omitempty"`
 	Titulo        string                 `protobuf:"bytes,2,opt,name=titulo,proto3" json:"titulo,omitempty"`
-	Tipo          string                 `protobuf:"bytes,3,opt,name=tipo,proto3" json:"tipo,omitempty"`
+	Tipo          string                 `protobuf:"bytes,3,opt,name=tipo,proto3" json:"tipo,omitempty"` // pelicula | serie
 	Anio          int32                  `protobuf:"varint,4,opt,name=anio,proto3" json:"anio,omitempty"`
-	Clasificacion string                 `protobuf:"bytes,5,opt,name=clasificacion,proto3" json:"clasificacion,omitempty"`
-	Generos       string                 `protobuf:"bytes,6,opt,name=generos,proto3" json:"generos,omitempty"`
-	Categorias    string                 `protobuf:"bytes,7,opt,name=categorias,proto3" json:"categorias,omitempty"`
+	Clasificacion string                 `protobuf:"bytes,5,opt,name=clasificacion,proto3" json:"clasificacion,omitempty"` // TP | +7 | +13 | +16 | +18
+	Generos       string                 `protobuf:"bytes,6,opt,name=generos,proto3" json:"generos,omitempty"`             // lista separada por coma
+	Categorias    string                 `protobuf:"bytes,7,opt,name=categorias,proto3" json:"categorias,omitempty"`       // lista separada por coma
+	PortadaUrl    string                 `protobuf:"bytes,8,opt,name=portada_url,json=portadaUrl,proto3" json:"portada_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -221,6 +222,13 @@ func (x *ItemCartelera) GetGeneros() string {
 func (x *ItemCartelera) GetCategorias() string {
 	if x != nil {
 		return x.Categorias
+	}
+	return ""
+}
+
+func (x *ItemCartelera) GetPortadaUrl() string {
+	if x != nil {
+		return x.PortadaUrl
 	}
 	return ""
 }
@@ -317,7 +325,7 @@ type MiembroReparto struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Actor         string                 `protobuf:"bytes,1,opt,name=actor,proto3" json:"actor,omitempty"`
 	Personaje     string                 `protobuf:"bytes,2,opt,name=personaje,proto3" json:"personaje,omitempty"`
-	Rol           string                 `protobuf:"bytes,3,opt,name=rol,proto3" json:"rol,omitempty"`
+	Rol           string                 `protobuf:"bytes,3,opt,name=rol,proto3" json:"rol,omitempty"` // protagonista | secundario
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -378,6 +386,7 @@ type Episodio struct {
 	Numero        int32                  `protobuf:"varint,1,opt,name=numero,proto3" json:"numero,omitempty"`
 	Titulo        string                 `protobuf:"bytes,2,opt,name=titulo,proto3" json:"titulo,omitempty"`
 	DuracionMin   int32                  `protobuf:"varint,3,opt,name=duracion_min,json=duracionMin,proto3" json:"duracion_min,omitempty"`
+	VideoUrl      string                 `protobuf:"bytes,4,opt,name=video_url,json=videoUrl,proto3" json:"video_url,omitempty"` // Signed URL de GCS (vacio si no hay video)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -431,6 +440,13 @@ func (x *Episodio) GetDuracionMin() int32 {
 		return x.DuracionMin
 	}
 	return 0
+}
+
+func (x *Episodio) GetVideoUrl() string {
+	if x != nil {
+		return x.VideoUrl
+	}
+	return ""
 }
 
 type Temporada struct {
@@ -489,15 +505,17 @@ type FichaTecnicaResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ContenidoId   string                 `protobuf:"bytes,1,opt,name=contenido_id,json=contenidoId,proto3" json:"contenido_id,omitempty"`
 	Titulo        string                 `protobuf:"bytes,2,opt,name=titulo,proto3" json:"titulo,omitempty"`
-	Tipo          string                 `protobuf:"bytes,3,opt,name=tipo,proto3" json:"tipo,omitempty"`
+	Tipo          string                 `protobuf:"bytes,3,opt,name=tipo,proto3" json:"tipo,omitempty"` // pelicula | serie
 	Sinopsis      string                 `protobuf:"bytes,4,opt,name=sinopsis,proto3" json:"sinopsis,omitempty"`
 	Anio          int32                  `protobuf:"varint,5,opt,name=anio,proto3" json:"anio,omitempty"`
 	Clasificacion string                 `protobuf:"bytes,6,opt,name=clasificacion,proto3" json:"clasificacion,omitempty"`
 	DuracionMin   int32                  `protobuf:"varint,7,opt,name=duracion_min,json=duracionMin,proto3" json:"duracion_min,omitempty"`
-	Generos       string                 `protobuf:"bytes,8,opt,name=generos,proto3" json:"generos,omitempty"`
-	Categorias    string                 `protobuf:"bytes,9,opt,name=categorias,proto3" json:"categorias,omitempty"`
+	Generos       string                 `protobuf:"bytes,8,opt,name=generos,proto3" json:"generos,omitempty"`       // lista separada por coma
+	Categorias    string                 `protobuf:"bytes,9,opt,name=categorias,proto3" json:"categorias,omitempty"` // lista separada por coma
 	Reparto       []*MiembroReparto      `protobuf:"bytes,10,rep,name=reparto,proto3" json:"reparto,omitempty"`
-	Temporadas    []*Temporada           `protobuf:"bytes,11,rep,name=temporadas,proto3" json:"temporadas,omitempty"`
+	Temporadas    []*Temporada           `protobuf:"bytes,11,rep,name=temporadas,proto3" json:"temporadas,omitempty"` // solo si tipo = serie
+	PortadaUrl    string                 `protobuf:"bytes,12,opt,name=portada_url,json=portadaUrl,proto3" json:"portada_url,omitempty"`
+	VideoUrl      string                 `protobuf:"bytes,13,opt,name=video_url,json=videoUrl,proto3" json:"video_url,omitempty"` // Signed URL de GCS para peliculas
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -609,6 +627,20 @@ func (x *FichaTecnicaResponse) GetTemporadas() []*Temporada {
 	return nil
 }
 
+func (x *FichaTecnicaResponse) GetPortadaUrl() string {
+	if x != nil {
+		return x.PortadaUrl
+	}
+	return ""
+}
+
+func (x *FichaTecnicaResponse) GetVideoUrl() string {
+	if x != nil {
+		return x.VideoUrl
+	}
+	return ""
+}
+
 var File_proto_catalog_proto protoreflect.FileDescriptor
 
 const file_proto_catalog_proto_rawDesc = "" +
@@ -621,7 +653,7 @@ const file_proto_catalog_proto_rawDesc = "" +
 	"\tcategoria\x18\x02 \x01(\tR\tcategoria\x12\x16\n" +
 	"\x06genero\x18\x03 \x01(\tR\x06genero\x12\x14\n" +
 	"\x05actor\x18\x04 \x01(\tR\x05actor\x12\x12\n" +
-	"\x04tipo\x18\x05 \x01(\tR\x04tipo\"\xd2\x01\n" +
+	"\x04tipo\x18\x05 \x01(\tR\x04tipo\"\xf3\x01\n" +
 	"\rItemCartelera\x12!\n" +
 	"\fcontenido_id\x18\x01 \x01(\tR\vcontenidoId\x12\x16\n" +
 	"\x06titulo\x18\x02 \x01(\tR\x06titulo\x12\x12\n" +
@@ -631,7 +663,9 @@ const file_proto_catalog_proto_rawDesc = "" +
 	"\ageneros\x18\x06 \x01(\tR\ageneros\x12\x1e\n" +
 	"\n" +
 	"categorias\x18\a \x01(\tR\n" +
-	"categorias\"D\n" +
+	"categorias\x12\x1f\n" +
+	"\vportada_url\x18\b \x01(\tR\n" +
+	"portadaUrl\"D\n" +
 	"\x11CarteleraResponse\x12/\n" +
 	"\x05items\x18\x01 \x03(\v2\x19.catalog.v1.ItemCarteleraR\x05items\"8\n" +
 	"\x13FichaTecnicaRequest\x12!\n" +
@@ -639,14 +673,15 @@ const file_proto_catalog_proto_rawDesc = "" +
 	"\x0eMiembroReparto\x12\x14\n" +
 	"\x05actor\x18\x01 \x01(\tR\x05actor\x12\x1c\n" +
 	"\tpersonaje\x18\x02 \x01(\tR\tpersonaje\x12\x10\n" +
-	"\x03rol\x18\x03 \x01(\tR\x03rol\"]\n" +
+	"\x03rol\x18\x03 \x01(\tR\x03rol\"z\n" +
 	"\bEpisodio\x12\x16\n" +
 	"\x06numero\x18\x01 \x01(\x05R\x06numero\x12\x16\n" +
 	"\x06titulo\x18\x02 \x01(\tR\x06titulo\x12!\n" +
-	"\fduracion_min\x18\x03 \x01(\x05R\vduracionMin\"W\n" +
+	"\fduracion_min\x18\x03 \x01(\x05R\vduracionMin\x12\x1b\n" +
+	"\tvideo_url\x18\x04 \x01(\tR\bvideoUrl\"W\n" +
 	"\tTemporada\x12\x16\n" +
 	"\x06numero\x18\x01 \x01(\x05R\x06numero\x122\n" +
-	"\tepisodios\x18\x02 \x03(\v2\x14.catalog.v1.EpisodioR\tepisodios\"\x85\x03\n" +
+	"\tepisodios\x18\x02 \x03(\v2\x14.catalog.v1.EpisodioR\tepisodios\"\xc3\x03\n" +
 	"\x14FichaTecnicaResponse\x12!\n" +
 	"\fcontenido_id\x18\x01 \x01(\tR\vcontenidoId\x12\x16\n" +
 	"\x06titulo\x18\x02 \x01(\tR\x06titulo\x12\x12\n" +
@@ -663,7 +698,10 @@ const file_proto_catalog_proto_rawDesc = "" +
 	" \x03(\v2\x1a.catalog.v1.MiembroRepartoR\areparto\x125\n" +
 	"\n" +
 	"temporadas\x18\v \x03(\v2\x15.catalog.v1.TemporadaR\n" +
-	"temporadas2\x9a\x02\n" +
+	"temporadas\x12\x1f\n" +
+	"\vportada_url\x18\f \x01(\tR\n" +
+	"portadaUrl\x12\x1b\n" +
+	"\tvideo_url\x18\r \x01(\tR\bvideoUrl2\x9a\x02\n" +
 	"\x0eCatalogService\x12X\n" +
 	"\x11ExplorarCartelera\x12$.catalog.v1.ExplorarCarteleraRequest\x1a\x1d.catalog.v1.CarteleraResponse\x12T\n" +
 	"\x0fBuscarContenido\x12\".catalog.v1.BuscarContenidoRequest\x1a\x1d.catalog.v1.CarteleraResponse\x12X\n" +

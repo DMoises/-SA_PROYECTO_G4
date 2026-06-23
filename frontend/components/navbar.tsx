@@ -21,6 +21,7 @@ const navLinks = [
   { href: '/browse/series', label: 'Series' },
   { href: '/browse/movies', label: 'Peliculas' },
   { href: '/browse/new', label: 'Novedades' },
+  { href: '/watchparty', label: 'Watch Party' },
 ]
 
 export function Navbar() {

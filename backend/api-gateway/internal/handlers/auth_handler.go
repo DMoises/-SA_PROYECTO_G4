@@ -103,12 +103,13 @@ func (h *AuthHandler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		Nombre     string `json:"nombre"`
 		EsInfantil bool   `json:"es_infantil"`
 		Idioma     string `json:"idioma"`
+		Pin        string `json:"pin"`
 	}
 	if !decode(w, r, &body) {
 		return
 	}
 	// usuario_id viene del token validado, NO del body (seguridad).
-	resp, err := h.auth.CrearPerfil(r.Context(), usuarioID(r), body.Nombre, body.Idioma, body.EsInfantil)
+	resp, err := h.auth.CrearPerfil(r.Context(), usuarioID(r), body.Nombre, body.Idioma, body.EsInfantil, body.Pin)
 	if err != nil {
 		writeGRPCError(w, err)
 		return

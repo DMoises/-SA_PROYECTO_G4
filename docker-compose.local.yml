@@ -285,6 +285,17 @@ services:
       CATALOG_DB_NAME: ${CATALOG_DB_NAME}
       CATALOG_DB_USER: ${CATALOG_DB_USER}
       CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      AUTH_DB_HOST: auth-db
+      AUTH_DB_PORT_INTERNAL: 5432
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTH_DB_USER: ${AUTH_DB_USER}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      SUBSCRIPTION_DB_HOST: subscription-db
+      SUBSCRIPTION_DB_PORT: 5432
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
     ports:
       - "50055:50055"
       - "8086:8086"     # admin HTTP (solo LOCAL para depuracion directa)
@@ -320,6 +331,8 @@ services:
     environment:
       PORT: 50057
       DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@history-db:5432/${HISTORY_DB_NAME}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET}
+      SUBSCRIPTION_DB_URL: postgres://${SUBSCRIPTION_DB_USER}:${SUBSCRIPTION_DB_PASSWORD}@subscription-db:5432/${SUBSCRIPTION_DB_NAME}?sslmode=disable
     ports:
       - "50057:50057"
     depends_on:

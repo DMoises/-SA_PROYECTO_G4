@@ -17,6 +17,7 @@ func NewBillingClient(addr string) (*BillingClient, error) {
 	conn, err := grpc.NewClient(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(MetadataForwardingInterceptor),
 	)
 
 	if err != nil {

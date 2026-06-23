@@ -26,10 +26,12 @@ CREATE TABLE perfiles (
     nombre      VARCHAR(50)   NOT NULL,
     es_infantil BOOLEAN       NOT NULL DEFAULT FALSE,
     idioma      idioma_perfil NOT NULL DEFAULT 'es',
+    pin         VARCHAR(4)    NOT NULL DEFAULT '1234',
 
     CONSTRAINT fk_perfiles_usuario FOREIGN KEY (usuario_id)
         REFERENCES usuarios (id) ON DELETE CASCADE,
-    CONSTRAINT uq_perfil_nombre UNIQUE (usuario_id, nombre)
+    CONSTRAINT uq_perfil_nombre UNIQUE (usuario_id, nombre),
+    CONSTRAINT chk_perfil_pin CHECK (pin ~ '^\d{4}$')
 );
 
 

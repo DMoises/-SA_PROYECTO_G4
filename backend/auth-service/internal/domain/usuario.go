@@ -68,4 +68,5 @@ type Perfil struct {
 	Nombre     string
 	EsInfantil bool
 	Idioma     string
+	Pin        string
 }

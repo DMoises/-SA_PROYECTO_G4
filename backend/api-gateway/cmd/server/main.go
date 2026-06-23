@@ -120,8 +120,8 @@ func main() {
 	mux.Handle("GET /history/{perfilId}", authMW(http.HandlerFunc(historyH.GetHistory)))
 	mux.Handle("GET /history/{perfilId}/resume/{contenidoId}", authMW(http.HandlerFunc(historyH.GetResume)))
 
-	// CORS envuelve todo el router.
-	handler := middleware.CORS(cfg.CORSOrigin)(mux)
+	// Propagacion de cabeceras y CORS envuelven todo el router.
+	handler := middleware.CORS(cfg.CORSOrigin)(middleware.PropagateHeaders(mux))
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,

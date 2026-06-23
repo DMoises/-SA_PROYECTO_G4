@@ -17,6 +17,7 @@ from .gcs import MediaStorage
 from .handler import CatalogHandler
 from .pb import catalog_pb2 as pb
 from .pb import catalog_pb2_grpc as pb_grpc
+from .interceptor import SecurityInterceptor
 from .repository import CatalogRepository
 from .service import CatalogService
 
@@ -32,8 +33,12 @@ def serve() -> None:
     media = MediaStorage(cfg)
     handler = CatalogHandler(service, media)
 
-    # Servidor gRPC (lectura publica via gateway).
-    grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    # Servidor gRPC (lectura publica via gateway, protegida por interceptor de seguridad).
+    security_interceptor = SecurityInterceptor(cfg)
+    grpc_server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=10),
+        interceptors=[security_interceptor]
+    )
     pb_grpc.add_CatalogServiceServicer_to_server(handler, grpc_server)
 
     service_names = (

@@ -213,10 +213,12 @@ func (s *AuthService) CrearPerfil(
 	nombre string,
 	idioma string,
 	esInfantil bool,
+	pin string,
 ) (*domain.Perfil, error) {
 	usuarioID = strings.TrimSpace(usuarioID)
 	nombre = strings.TrimSpace(nombre)
 	idioma = strings.TrimSpace(idioma)
+	pin = strings.TrimSpace(pin)
 
 	if usuarioID == "" || nombre == "" {
 		return nil, domain.ErrDatosInvalidos
@@ -231,6 +233,7 @@ func (s *AuthService) CrearPerfil(
 		Nombre:     nombre,
 		EsInfantil: esInfantil,
 		Idioma:     idioma,
+		Pin:        pin,
 	}
 
 	id, err := s.repo.CrearPerfil(ctx, p)
@@ -251,11 +254,13 @@ func (s *AuthService) EditarPerfil(
 	nombre string,
 	idioma string,
 	esInfantil bool,
+	pin string,
 ) (*domain.Perfil, error) {
 	usuarioID = strings.TrimSpace(usuarioID)
 	perfilID = strings.TrimSpace(perfilID)
 	nombre = strings.TrimSpace(nombre)
 	idioma = strings.TrimSpace(idioma)
+	pin = strings.TrimSpace(pin)
 
 	if usuarioID == "" ||
 		perfilID == "" ||
@@ -273,6 +278,7 @@ func (s *AuthService) EditarPerfil(
 		Nombre:      nombre,
 		EsInfantil: esInfantil,
 		Idioma:      idioma,
+		Pin:         pin,
 	}
 
 	if err := s.repo.EditarPerfil(ctx, perfil); err != nil {

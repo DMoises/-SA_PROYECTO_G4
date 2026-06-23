@@ -6,3 +6,4 @@ psycopg[binary]==3.2.3
 psycopg-pool==3.2.4
 # GCS para servir multimedia (videos/portadas) con Signed URLs v4 via ADC.
 google-cloud-storage==2.18.2
+PyJWT==2.10.1

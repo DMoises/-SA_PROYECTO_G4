@@ -57,12 +57,14 @@ message CrearPerfilRequest {
   string nombre = 2;
   bool es_infantil = 3;
   string idioma = 4; // 'es' | 'en' | 'pt' | 'fr'
+  string pin = 5;
 }
 message PerfilResponse {
   string id = 1;
   string nombre = 2;
   bool es_infantil = 3;
   string idioma = 4;
+  string pin = 5;
 }
 
 message EditarPerfilRequest {
@@ -71,6 +73,7 @@ message EditarPerfilRequest {
   string nombre = 3;
   bool es_infantil = 4;
   string idioma = 5;
+  string pin = 6;
 }
 
 message ListarPerfilesRequest {

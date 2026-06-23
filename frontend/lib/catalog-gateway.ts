@@ -140,9 +140,10 @@ export async function buscarContenido(params: URLSearchParams): Promise<Content[
   return (items || []).map(itemToContent)
 }
 
-export async function fetchFicha(id: string): Promise<ContentDetalle | null> {
+export async function fetchFicha(id: string, customHeaders?: HeadersInit): Promise<ContentDetalle | null> {
   const r = await fetch(`${GATEWAY_URL}/catalog/contenido/${encodeURIComponent(id)}`, {
     cache: 'no-store',
+    headers: customHeaders,
   })
   if (!r.ok) return null // 404 (no existe) o id malformado -> tratamos como no encontrado
   const f: FichaApi = await r.json()

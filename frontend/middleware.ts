@@ -20,12 +20,14 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/browse') ||
     pathname.startsWith('/profiles') ||
     pathname.startsWith('/account') ||
-    pathname.startsWith('/admin')
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/watchparty')
 
   const isUserPath =
     pathname.startsWith('/browse') ||
     pathname.startsWith('/profiles') ||
-    pathname.startsWith('/account')
+    pathname.startsWith('/account') ||
+    pathname.startsWith('/watchparty')
 
   const isAuthPath = pathname === '/login' || pathname === '/register'
 
@@ -71,6 +73,7 @@ export const config = {
     '/profiles/:path*',
     '/account/:path*',
     '/admin/:path*',
+    '/watchparty/:path*',
     '/login',
     '/register',
   ],

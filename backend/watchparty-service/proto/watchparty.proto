@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package watchparty.v1;
+
+option go_package = "github.com/grupo4/quetxaltv-watchparty/internal/pb;pb";
+
+service WatchPartyService {
+  rpc CrearSala(CrearSalaRequest) returns (SalaResponse);
+  rpc ValidarSala(ValidarSalaRequest) returns (ValidarSalaResponse);
+}
+
+message CrearSalaRequest {
+  string usuario_id = 1;
+  string contenido_id = 2;
+}
+
+message SalaResponse {
+  string codigo_sala = 1;
+  string contenido_id = 2;
+  string creador_id = 3;
+}
+
+message ValidarSalaRequest {
+  string codigo_sala = 1;
+}
+
+message ValidarSalaResponse {
+  bool existe = 1;
+  string contenido_id = 2;
+}

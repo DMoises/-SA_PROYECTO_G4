@@ -26,6 +26,8 @@ type Config struct {
 	CORSOrigin          string // origen permitido (el frontend)
 	HistoryServiceAddr  string // direccion gRPC del history-service
 	CatalogAdminHTTPAddr string // direccion HTTP del servidor admin del catalog-service
+	WatchPartyServiceAddr string // direccion gRPC del watchparty-service
+	WatchPartyWSAddr      string // direccion WebSocket/HTTP del watchparty-service
 
 	// DB configs
 	AuthDB         DBConfig
@@ -57,6 +59,8 @@ func Load() *Config {
 		CORSOrigin:          getEnv("CORS_ORIGIN", "http://localhost:3000"),
 		HistoryServiceAddr:  getEnv("HISTORY_SERVICE_ADDR", "history-service:50057"),
 		CatalogAdminHTTPAddr: getEnv("CATALOG_ADMIN_HTTP_ADDR", "http://catalog-service:8086"),
+		WatchPartyServiceAddr: getEnv("WATCHPARTY_SERVICE_ADDR", "watchparty-service:50059"),
+		WatchPartyWSAddr:      getEnv("WATCHPARTY_WS_ADDR", "watchparty-service:8085"),
 
 		AuthDB: DBConfig{
 			Host:     authHost,

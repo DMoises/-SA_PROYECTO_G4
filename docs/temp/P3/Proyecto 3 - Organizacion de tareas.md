@@ -9,7 +9,7 @@
 * **Documentación y Evidencia:** Lo no documentado no se califica. **Obligatorio incluir capturas de pantalla** en los manuales de Terraform, Ansible, ELK, Grafana y Locust.
 * **Restricciones:** No usar Supabase/Prisma. Los sistemas Cloud solo se pueden dar de baja DESPUÉS de la calificación. Solo despliegue mediante CI/CD, NO manual.
 * **Entregables de Repositorio:** Archivos crudos de documentación subidos al repo (no el diagrama no será válido si no están). Agregar colaborador **Samashoas** al repositorio. Tag de versión **V2.0.0** obligatorio.
-* **Variables de entorno:** Uso obligatorio de archivos **.env** para información sensible (URLs, contraseñas, IPs, etc.). No subir al repositorio.
+* **Variables de entorno:** Uso de archivos **.env** para información sensible. No subir al repositorio. *(Nota: Es una buena práctica implementada en la T10, no una exigencia directa del enunciado de Fase 3).*
 * **Entrega:** Medio de entrega **UEDI**. Fecha límite **29 de Junio a las 09:00 AM**.
 * **Descarga de contenido:** Según el enunciado oficial, la descarga es **únicamente para Plan Estándar** (bloqueada para Plan Básico **y** Plan Premium).
 
@@ -36,9 +36,11 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 
 ### **📦 Alcance del sistema (Desarrollo Full Stack)**
 
+> **Nota sobre componentes heredados:** Herramientas como **Redis** y **Google Cloud Storage (GCS)**, aunque son obligatorias en la matriz de herramientas, ya fueron implementadas en las Fases 1 y 2 (ej. GCS vía Workload Identity). Su integración se mantiene, pero no requieren una nueva tarea de desarrollo desde cero.
+
 | Tarea | Descripción | Responsable | Estado |
 | ----- | ----------- | ----------- | ------ |
-| 1. Interceptores gRPC y Seguridad Base | **Backend:** Implementar interceptores gRPC para validar token JWT, roles y planes (Estándar/Premium). Es **requisito** para los otros módulos. | — | 🔴 Pendiente |
+| 1. Interceptores gRPC y Seguridad Base | **Backend:** Implementar interceptores gRPC para validar token JWT, roles, planes (Estándar/Premium) y **políticas de Control Parental**. Es **requisito** para los otros módulos. | — | 🔴 Pendiente |
 | 2. Control Parental (Full Stack) | **Backend:** Restringir contenido según clasificación (Apta todo público, PG-13, R). **Frontend:** UI para configurar PIN de 4 dígitos y solicitarlo antes de reproducir contenido no apto. | — | 🔴 Pendiente |
 | 3. Motor Inteligente de Recomendación (Full Stack) | **Backend:** Implementar algoritmo Netflix (Filtrado Colaborativo usuarios/ítems o Recomendación Basada en Contenido/Géneros). **Frontend:** Sección dinámica "Recomendados para ti" según historial y calificaciones previas del perfil. | — | 🔴 Pendiente |
 | 4. Watch Party (Full Stack) | **Backend:** Salas en tiempo real vía WebSockets. Solo usuarios **Premium** pueden iniciar/crear sala; cualquier usuario puede unirse con enlace/código. **Frontend:** Interfaz sincronizada y generación de enlace de invitación. | — | 🔴 Pendiente |
@@ -86,7 +88,7 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 | 18. Manual Stack ELK | Arquitectura de recolección de logs (ES/Logstash/Kibana) + flujo de inyección de agentes. **Capturas obligatorias de Kibana** mostrando logs indexados. | — | 🔴 Pendiente |
 | 19. Manual Prometheus & Grafana | Modelo de monitoreo por scraping + guía de despliegue de exporters. **Capturas obligatorias de Dashboards de Grafana** con telemetría viva. | — | 🔴 Pendiente |
 | 20. Manual de Locust y Algoritmo de Recomendación | Diseño matemático/lógico del algoritmo de recomendación Netflix + documentación de Locust con **capturas de resultados** de escenarios de estrés. | — | 🔴 Pendiente |
-| 21. Actualización de Diagramas | Diagrama de Arquitectura Alto Nivel (con monitoreo), Modelo 4+1 actualizado, Flujo CI/CD con testing, Casos de Uso extendidos, Documento de justificación de herramientas. | — | 🔴 Pendiente |
+| 21. Actualización de Diagramas | Diagrama de Arquitectura Alto Nivel (con monitoreo), Modelo 4+1 actualizado, Flujo CI/CD con testing, Casos de Uso **del Administrador** (con narrativas expandidas y flujos de excepción técnicos), Documento de justificación de herramientas. | — | 🔴 Pendiente |
 | 22. Archivos Finales de Configuración | Dockerfiles por servicio, Docker Compose (local y nube), Manifiestos K8s, Archivos de configuración pipeline CI/CD y scripts. **Cargar archivos crudos al repositorio.** | — | 🔴 Pendiente |
 | 23. Presentación Final (Demo 20 mins) | Preparación de slides con: Problema Inicial, Toma de Decisiones (justificación de matriz políglota, IaC, observabilidad, sesiones, BD externas) y Solución Final (demo del ecosistema). Participación **obligatoria de todos** los integrantes. | — | 🔴 Pendiente |
 

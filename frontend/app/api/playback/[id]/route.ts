@@ -3,7 +3,7 @@ import {
   NextResponse,
 } from 'next/server'
 import { getVideoForContent } from '@/lib/server/content-videos'
-import { fetchFicha } from '@/lib/catalog-gateway'
+import { fichaToContent, type ContentDetalle } from '@/lib/catalog-gateway'
 
 const GATEWAY_URL =
   process.env.GATEWAY_URL ||
@@ -334,9 +334,53 @@ export async function GET(
     // La URL del video viaja por el API Gateway dentro de la ficha tecnica
     // (el catalog-service la firma como Signed URL de GCS). NO se llama al admin
     // HTTP :8086 directo -> se respeta el gateway como unico punto de entrada.
-    let content: Awaited<ReturnType<typeof fetchFicha>> = null
+    //
+    // Reenviamos identidad + Control Parental: el interceptor gRPC del
+    // catalog-service bloquea (PERMISSION_DENIED -> 403) el contenido no apto
+    // para perfiles infantiles salvo que se envie el PIN correcto.
+    const perfilId = request.headers.get('x-profile-id')
+    const parentalPin = request.headers.get('x-parental-pin')
+
+    const catalogHeaders = new Headers()
+    if (cookie) catalogHeaders.set('cookie', cookie)
+    if (authorization) catalogHeaders.set('authorization', authorization)
+    if (perfilId) catalogHeaders.set('x-profile-id', perfilId)
+    if (parentalPin) catalogHeaders.set('x-parental-pin', parentalPin)
+
+    let content: ContentDetalle | null = null
     try {
-      content = await fetchFicha(id)
+      const fichaRes = await fetch(
+        `${GATEWAY_URL}/catalog/contenido/${encodeURIComponent(id)}`,
+        { method: 'GET', headers: catalogHeaders, cache: 'no-store' },
+      )
+
+      // Control Parental: el gateway traduce PERMISSION_DENIED a 403. La
+      // suscripcion ya se valido arriba; distinguimos por el mensaje si el 403
+      // proviene del Control Parental (perfil infantil + contenido no apto) o de
+      // otra politica. Si es Control Parental, el front abrira un modal y
+      // reintentara enviando el PIN en la cabecera X-Parental-Pin.
+      if (fichaRes.status === 403) {
+        const detalle = await fichaRes.json().catch(() => null)
+        const mensaje = String(detalle?.error || '')
+        const esControlParental = /pin|parental|perfil/i.test(mensaje)
+
+        return NextResponse.json(
+          {
+            error:
+              mensaje ||
+              'Este contenido no es apto. Introduce el PIN de Control Parental.',
+            code: esControlParental
+              ? 'PARENTAL_PIN_REQUIRED'
+              : 'SUBSCRIPTION_REQUIRED',
+          },
+          { status: 403 },
+        )
+      }
+
+      if (fichaRes.ok) {
+        const ficha = await fichaRes.json()
+        content = fichaToContent(ficha)
+      }
     } catch (err) {
       console.warn('No se pudo obtener la ficha para reproduccion:', err)
     }

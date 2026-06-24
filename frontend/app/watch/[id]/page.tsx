@@ -2,6 +2,7 @@
 
 import {
   use,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -12,6 +13,7 @@ import YouTube from 'react-youtube'
 import {
   ArrowLeft,
   LockKeyhole,
+  ShieldAlert,
 } from 'lucide-react'
 import {
   getResume,
@@ -33,6 +35,7 @@ type EstadoAcceso =
   | 'permitido'
   | 'sin-suscripcion'
   | 'sin-sesion'
+  | 'requiere-pin'
   | 'error'
 
 function formatDuracion(segundos: number): string {
@@ -79,6 +82,14 @@ export default function WatchPage({
 
   const [duracionSegundos, setDuracionSegundos] =
     useState(0)
+
+  // Control Parental: modal para capturar el PIN de 4 dígitos.
+  const [mostrarModalPin, setMostrarModalPin] =
+    useState(false)
+  const [pinInput, setPinInput] = useState('')
+  const [pinError, setPinError] = useState('')
+  const [verificandoPin, setVerificandoPin] =
+    useState(false)
 
   /*
    * Detecta si el componente continúa montado.
@@ -138,19 +149,26 @@ export default function WatchPage({
   }, [])
 
   /*
-   * Comprueba la suscripción antes de obtener
-   * el identificador del video.
+   * Solicita la URL del video al BFF de reproducción.
+   * - Siempre envía X-Profile-Id para que el Control Parental sepa qué perfil
+   *   está reproduciendo.
+   * - Si se pasa un PIN, lo envía en X-Parental-Pin para desbloquear contenido
+   *   no apto en perfiles infantiles (reintento desde el modal).
    */
-  useEffect(() => {
-    if (!perfilCargado || !perfilId) {
-      return
-    }
+  const solicitarVideo = useCallback(
+    async (pin?: string, signal?: AbortSignal) => {
+      if (!perfilId) return
 
-    const controller = new AbortController()
+      const esReintentoConPin =
+        typeof pin === 'string' && pin.length > 0
 
-    async function verificarAcceso() {
-      setEstadoAcceso('verificando')
-      setVideo(null)
+      if (esReintentoConPin) {
+        setVerificandoPin(true)
+        setPinError('')
+      } else {
+        setEstadoAcceso('verificando')
+        setVideo(null)
+      }
 
       try {
         let fetchUrl = `/api/playback/${encodeURIComponent(contenidoId)}`
@@ -161,15 +179,20 @@ export default function WatchPage({
           fetchUrl += `?${queryParams.toString()}`
         }
 
-        const respuesta = await fetch(
-          fetchUrl,
-          {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store',
-            signal: controller.signal,
-          }
-        )
+        const headers: Record<string, string> = {
+          'X-Profile-Id': perfilId,
+        }
+        if (esReintentoConPin) {
+          headers['X-Parental-Pin'] = pin as string
+        }
+
+        const respuesta = await fetch(fetchUrl, {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+          headers,
+          signal,
+        })
 
         const data = await respuesta
           .json()
@@ -177,11 +200,27 @@ export default function WatchPage({
 
         if (respuesta.status === 401) {
           setEstadoAcceso('sin-sesion')
+          setMostrarModalPin(false)
           return
         }
 
         if (respuesta.status === 403) {
+          if (data?.code === 'PARENTAL_PIN_REQUIRED') {
+            // Perfil infantil + contenido no apto: se requiere el PIN.
+            setEstadoAcceso('requiere-pin')
+            setMostrarModalPin(true)
+            if (esReintentoConPin) {
+              // El PIN enviado fue incorrecto.
+              setPinError(
+                data?.error ||
+                  'PIN de Control Parental incorrecto. Inténtalo de nuevo.'
+              )
+            }
+            return
+          }
+
           setEstadoAcceso('sin-suscripcion')
+          setMostrarModalPin(false)
           return
         }
 
@@ -205,8 +244,12 @@ export default function WatchPage({
           return
         }
 
+        // Acceso concedido (con o sin PIN): cerramos el modal y reproducimos.
         setVideo(data)
         setEstadoAcceso('permitido')
+        setMostrarModalPin(false)
+        setPinInput('')
+        setPinError('')
       } catch (error) {
         if (
           error instanceof DOMException &&
@@ -221,23 +264,54 @@ export default function WatchPage({
         )
 
         if (componenteMontadoRef.current) {
-          setEstadoAcceso('error')
+          if (esReintentoConPin) {
+            setPinError(
+              'No se pudo verificar el PIN. Inténtalo de nuevo.'
+            )
+          } else {
+            setEstadoAcceso('error')
+          }
+        }
+      } finally {
+        if (esReintentoConPin) {
+          setVerificandoPin(false)
         }
       }
+    },
+    [contenidoId, perfilId, season, episode]
+  )
+
+  /*
+   * Comprueba el acceso al montar y cuando cambia el contenido o el perfil.
+   */
+  useEffect(() => {
+    if (!perfilCargado || !perfilId) {
+      return
     }
 
-    verificarAcceso()
+    const controller = new AbortController()
+    solicitarVideo(undefined, controller.signal)
 
     return () => {
       controller.abort()
     }
   }, [
-    contenidoId,
     perfilCargado,
     perfilId,
-    season,
-    episode,
+    solicitarVideo,
   ])
+
+  /*
+   * Envía el PIN capturado en el modal y reintenta la reproducción.
+   */
+  const handlePinSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!/^\d{4}$/.test(pinInput)) {
+      setPinError('Ingresa los 4 dígitos del PIN.')
+      return
+    }
+    solicitarVideo(pinInput)
+  }
 
   /*
    * Reinicia el reproductor cuando cambia
@@ -614,6 +688,35 @@ export default function WatchPage({
 
       {perfilCargado &&
         perfilId &&
+        estadoAcceso === 'requiere-pin' &&
+        !mostrarModalPin && (
+          <div className="mx-auto max-w-lg rounded-lg border border-white/10 bg-white/5 p-8 text-center">
+            <ShieldAlert className="mx-auto mb-4 h-10 w-10 text-amber-400" />
+
+            <h2 className="text-xl font-semibold">
+              Control Parental
+            </h2>
+
+            <p className="mt-2 text-sm text-white/60">
+              Este contenido no es apto para el perfil
+              infantil. Introduce el PIN para
+              reproducirlo.
+            </p>
+
+            <button
+              onClick={() => {
+                setPinError('')
+                setMostrarModalPin(true)
+              }}
+              className="mt-5 inline-flex rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/90"
+            >
+              Introducir PIN
+            </button>
+          </div>
+        )}
+
+      {perfilCargado &&
+        perfilId &&
         estadoAcceso ===
           'sin-sesion' && (
           <div className="mx-auto max-w-lg rounded-lg border border-white/10 bg-white/5 p-8 text-center">
@@ -720,6 +823,80 @@ export default function WatchPage({
             </div>
           </div>
         )}
+
+      {/* Modal de Control Parental: solicita el PIN de 4 dígitos */}
+      {mostrarModalPin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-sm rounded-xl border border-white/10 bg-neutral-900 p-6 shadow-2xl">
+            <div className="mb-4 flex items-center gap-3">
+              <ShieldAlert className="h-6 w-6 text-amber-400" />
+              <h2 className="text-lg font-semibold text-white">
+                Control Parental
+              </h2>
+            </div>
+
+            <p className="mb-5 text-sm text-white/60">
+              Este contenido no es apto para el perfil
+              infantil. Introduce el PIN de 4 dígitos
+              para continuar.
+            </p>
+
+            <form
+              onSubmit={handlePinSubmit}
+              className="space-y-4"
+            >
+              <input
+                type="password"
+                inputMode="numeric"
+                autoFocus
+                value={pinInput}
+                onChange={e =>
+                  setPinInput(
+                    e.target.value
+                      .replace(/\D/g, '')
+                      .slice(0, 4)
+                  )
+                }
+                placeholder="••••"
+                maxLength={4}
+                className="w-full rounded-md border border-white/15 bg-black/40 px-4 py-3 text-center text-2xl tracking-[0.6em] text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none"
+              />
+
+              {pinError && (
+                <p className="text-sm text-red-400">
+                  {pinError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMostrarModalPin(false)
+                    setPinInput('')
+                    setPinError('')
+                  }}
+                  className="h-11 flex-1 rounded-md border border-white/15 text-sm font-medium text-white/80 transition hover:bg-white/10"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    verificandoPin ||
+                    pinInput.length !== 4
+                  }
+                  className="h-11 flex-1 rounded-md bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+                >
+                  {verificandoPin
+                    ? 'Verificando...'
+                    : 'Desbloquear'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -9,7 +9,8 @@ import { useAuth } from '@/lib/auth-context'
 interface Perfil {
   id: string
   nombre: string
-  esInfantil: boolean
+  esInfantil?: boolean
+  es_infantil?: boolean
   idioma: string
 }
 
@@ -46,7 +47,11 @@ export default function ProfilesPage() {
   const handleProfileSelect = (profileId: string) => {
     const perfil = perfiles.find(p => p.id === profileId)
     if (perfil) {
-      localStorage.setItem('selectedProfile', JSON.stringify({ id: perfil.id, nombre: perfil.nombre }))
+      const esInfantil = perfil.es_infantil ?? perfil.esInfantil ?? false
+      localStorage.setItem(
+        'selectedProfile',
+        JSON.stringify({ id: perfil.id, nombre: perfil.nombre, esInfantil }),
+      )
     }
     router.push('/browse')
   }
@@ -112,7 +117,7 @@ export default function ProfilesPage() {
                 </div>
 
                 {/* Kids Badge */}
-                {perfil.esInfantil && (
+                {(perfil.es_infantil ?? perfil.esInfantil) && (
                   <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-blue-600 px-2 py-0.5 text-xs font-bold text-white">
                     KIDS
                   </span>

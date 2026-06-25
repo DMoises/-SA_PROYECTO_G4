@@ -7,6 +7,7 @@ import { ArrowLeft, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/auth-context'
+import { useKidsGuard } from '@/lib/use-kids-guard'
 
 interface PageProps {
   params: Promise<{
@@ -26,6 +27,8 @@ export default function EditProfilePage({ params }: PageProps) {
   const router = useRouter()
   const { id } = use(params)
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  // Un perfil infantil no puede editar/eliminar perfiles.
+  useKidsGuard()
 
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [nombre, setNombre] = useState('')

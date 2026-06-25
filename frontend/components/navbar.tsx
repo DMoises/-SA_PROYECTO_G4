@@ -33,6 +33,8 @@ export function Navbar() {
   const [otherProfiles, setOtherProfiles] = useState<any[]>([])
   const [profileColor, setProfileColor] = useState('from-primary to-primary/70')
   const [isMainProfile, setIsMainProfile] = useState(false)
+  // Los perfiles infantiles no pueden administrar perfiles, cuenta ni suscripcion.
+  const [isKidsProfile, setIsKidsProfile] = useState(false)
 
   const profileColors = [
     'from-primary to-primary/70',
@@ -43,7 +45,11 @@ export function Navbar() {
   ]
 
   const handleProfileSelect = (profile: any) => {
-    localStorage.setItem('selectedProfile', JSON.stringify({ id: profile.id, nombre: profile.nombre }))
+    const esInfantil = profile.es_infantil ?? profile.esInfantil ?? false
+    localStorage.setItem(
+      'selectedProfile',
+      JSON.stringify({ id: profile.id, nombre: profile.nombre, esInfantil }),
+    )
     window.location.href = '/browse'
   }
 
@@ -76,6 +82,8 @@ export function Navbar() {
           const currentIndex = allProfiles.findIndex((p: any) => p.id === currentId)
           if (currentIndex !== -1) {
             setProfileColor(profileColors[currentIndex % profileColors.length])
+            const actual = allProfiles[currentIndex]
+            setIsKidsProfile(actual?.es_infantil ?? actual?.esInfantil ?? false)
           }
           setOtherProfiles(allProfiles.map((p: any, index: number) => ({...p, originalIndex: index})).filter((p: any) => p.id !== currentId));
         } else {
@@ -168,21 +176,26 @@ export function Navbar() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem render={<Link href="/profiles/manage" />}>
-                Administrar perfiles
-              </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/account" />}>
-                Cuenta
-              </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/account/plans" />}>
-                Mi suscripcion
-              </DropdownMenuItem>
-              {user?.rol === 'admin' && (
-                <DropdownMenuItem render={<Link href="/admin" />}>
-                  Panel de administración
-                </DropdownMenuItem>
+              {/* Los perfiles infantiles no acceden a administracion de cuenta/perfiles. */}
+              {!isKidsProfile && (
+                <>
+                  <DropdownMenuItem render={<Link href="/profiles/manage" />}>
+                    Administrar perfiles
+                  </DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/account" />}>
+                    Cuenta
+                  </DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/account/plans" />}>
+                    Mi suscripcion
+                  </DropdownMenuItem>
+                  {user?.rol === 'admin' && (
+                    <DropdownMenuItem render={<Link href="/admin" />}>
+                      Panel de administración
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                </>
               )}
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
                 Cerrar sesion
               </DropdownMenuItem>

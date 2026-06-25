@@ -215,7 +215,7 @@ func TestCrearPerfil(t *testing.T) {
 			},
 		}
 		svc := NewAuthService(repoMock, jwtMgr, notifMock)
-		p, err := svc.CrearPerfil(context.Background(), "usr-123", "MiPerfil", "es", false)
+		p, err := svc.CrearPerfil(context.Background(), "usr-123", "MiPerfil", "es", false, "1234")
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
@@ -231,7 +231,7 @@ func TestCrearPerfil(t *testing.T) {
 			},
 		}
 		svc := NewAuthService(repoMock, jwtMgr, notifMock)
-		_, err := svc.CrearPerfil(context.Background(), "usr-123", "MiPerfil", "es", false)
+		_, err := svc.CrearPerfil(context.Background(), "usr-123", "MiPerfil", "es", false, "1234")
 		if !errors.Is(err, domain.ErrLimitePerfiles) {
 			t.Errorf("se esperaba ErrLimitePerfiles, se obtuvo: %v", err)
 		}
@@ -251,17 +251,17 @@ func TestEditarPerfil(t *testing.T) {
 	svc := NewAuthService(repoMock, jwtMgr, nil)
 
 	t.Run("Editar perfil exitoso", func(t *testing.T) {
-		p, err := svc.EditarPerfil(context.Background(), "usr-123", "prof-123", "NuevoNombre", "en", true)
+		p, err := svc.EditarPerfil(context.Background(), "usr-123", "prof-123", "NuevoNombre", "en", true, "4321")
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}
-		if p.Nombre != "NuevoNombre" || p.Idioma != "en" || !p.EsInfantil {
+		if p.Nombre != "NuevoNombre" || p.Idioma != "en" || !p.EsInfantil || p.Pin != "4321" {
 			t.Errorf("campos no actualizados correctamente")
 		}
 	})
 
 	t.Run("Editar perfil invalido", func(t *testing.T) {
-		_, err := svc.EditarPerfil(context.Background(), "usr-123", "prof-123", "", "en", true)
+		_, err := svc.EditarPerfil(context.Background(), "usr-123", "prof-123", "", "en", true, "4321")
 		if !errors.Is(err, domain.ErrDatosInvalidos) {
 			t.Errorf("se esperaba ErrDatosInvalidos")
 		}

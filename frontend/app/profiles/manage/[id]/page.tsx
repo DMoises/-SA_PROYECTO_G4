@@ -19,18 +19,21 @@ interface Perfil {
   nombre: string
   esInfantil: boolean
   idioma: string
+  pin?: string
 }
 
 export default function EditProfilePage({ params }: PageProps) {
   const router = useRouter()
   const { id } = use(params)
   const { isAuthenticated, isLoading: authLoading } = useAuth()
-  
+
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [nombre, setNombre] = useState('')
   const [esInfantil, setEsInfantil] = useState(false)
   const [idioma, setIdioma] = useState('es')
-  
+  const [pin, setPin] = useState('')
+  const [pinOriginal, setPinOriginal] = useState('')
+
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -54,12 +57,19 @@ export default function EditProfilePage({ params }: PageProps) {
             // check if the current profile being edited is the main profile
             setIsMainProfile(id === allProfiles[0].id)
             
-            const p = allProfiles.find((p: Perfil) => p.id === id)
+            const p = allProfiles.find((p: any) => p.id === id)
             if (p) {
-              setPerfil(p)
+              // El gateway serializa en snake_case (es_infantil, pin); dejamos
+              // un fallback a camelCase por si la forma cambia.
+              const kids = p.es_infantil ?? p.esInfantil ?? false
+              const lang = p.idioma ?? 'es'
+              const currentPin = p.pin ?? p.Pin ?? ''
+              setPerfil({ id: p.id, nombre: p.nombre, esInfantil: kids, idioma: lang, pin: currentPin })
               setNombre(p.nombre)
-              setEsInfantil(p.esInfantil)
-              setIdioma(p.idioma)
+              setEsInfantil(kids)
+              setIdioma(lang)
+              setPin(currentPin)
+              setPinOriginal(currentPin)
             } else {
               setError('Perfil no encontrado')
             }
@@ -76,13 +86,28 @@ export default function EditProfilePage({ params }: PageProps) {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Para perfiles infantiles validamos el PIN de Control Parental (4 digitos)
+    // y lo enviamos junto al resto del perfil para que el backend lo persista.
+    if (esInfantil && !/^\d{4}$/.test(pin)) {
+      setError('El PIN de Control Parental debe tener exactamente 4 dígitos.')
+      return
+    }
+
     setIsSaving(true)
 
     try {
+      const payload: Record<string, unknown> = { nombre }
+      if (esInfantil) {
+        payload.es_infantil = esInfantil
+        payload.idioma = idioma
+        payload.pin = pin
+      }
+
       const res = await fetch(`/api/profiles/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre }),
+        body: JSON.stringify(payload),
       })
 
       if (res.ok) {
@@ -210,6 +235,27 @@ export default function EditProfilePage({ params }: PageProps) {
             </div>
           </label>
 
+          {esInfantil && (
+            <div>
+              <label className="mb-2 block text-sm font-medium text-foreground">
+                PIN de Control Parental (4 dígitos)
+              </label>
+              <Input
+                type="password"
+                inputMode="numeric"
+                placeholder="Ej: 1234"
+                value={pin}
+                onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                className="h-14 bg-input text-foreground placeholder:text-muted-foreground tracking-[0.5em]"
+                maxLength={4}
+                autoComplete="off"
+              />
+              <p className="mt-2 text-sm text-muted-foreground">
+                Se solicitará este PIN para reproducir contenido no apto para niños.
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-col gap-4 pt-4">
             <div className="flex gap-4">
               <Button
@@ -223,7 +269,12 @@ export default function EditProfilePage({ params }: PageProps) {
               <Button
                 type="submit"
                 className="h-12 flex-1 font-semibold"
-                disabled={isSaving || !nombre.trim() || !perfil || nombre === perfil.nombre}
+                disabled={
+                  isSaving ||
+                  !nombre.trim() ||
+                  !perfil ||
+                  (nombre === perfil.nombre && pin === pinOriginal)
+                }
               >
                 {isSaving ? 'Guardando...' : 'Guardar'}
               </Button>

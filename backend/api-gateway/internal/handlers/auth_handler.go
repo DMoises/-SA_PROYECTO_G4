@@ -135,11 +135,32 @@ func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Nombre string `json:"nombre"`
+		Nombre     string `json:"nombre"`
+		EsInfantil bool   `json:"es_infantil"`
+		Idioma     string `json:"idioma"`
+		Pin        string `json:"pin"`
 	}
 	if !decode(w, r, &body) {
 		return
 	}
+
+	// Si la peticion incluye un PIN (Control Parental), se edita el perfil
+	// completo via EditarPerfil para persistir el PIN. En caso contrario se
+	// mantiene la ruta liviana (solo nombre) por compatibilidad con quienes
+	// solo renombran un perfil (p. ej. /account/personal).
+	if strings.TrimSpace(body.Pin) != "" {
+		resp, err := h.auth.EditarPerfil(
+			r.Context(), usuarioID(r), profileID,
+			body.Nombre, body.Idioma, body.EsInfantil, body.Pin,
+		)
+		if err != nil {
+			writeGRPCError(w, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, resp)
+		return
+	}
+
 	resp, err := h.auth.ActualizarPerfil(r.Context(), profileID, usuarioID(r), body.Nombre)
 	if err != nil {
 		writeGRPCError(w, err)
@@ -240,6 +261,8 @@ func writeGRPCError(w http.ResponseWriter, err error) {
 		httpCode = http.StatusConflict // 409
 	case codes.Unauthenticated:
 		httpCode = http.StatusUnauthorized // 401
+	case codes.PermissionDenied:
+		httpCode = http.StatusForbidden // 403 (planes, descargas y Control Parental)
 	case codes.NotFound:
 		httpCode = http.StatusNotFound // 404
 	case codes.InvalidArgument:

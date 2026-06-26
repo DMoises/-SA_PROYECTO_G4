@@ -7,13 +7,13 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/auth-context'
-import { useKidsGuard } from '@/lib/use-kids-guard'
+import { useAdminGuard } from '@/lib/use-admin-guard'
 
 export default function AddProfilePage() {
   const router = useRouter()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
-  // Un perfil infantil no puede crear nuevos perfiles.
-  useKidsGuard()
+  // Solo el perfil administrador puede crear nuevos perfiles.
+  useAdminGuard()
   const [nombre, setNombre] = useState('')
   const [esInfantil, setEsInfantil] = useState(false)
   const [idioma, setIdioma] = useState('es')

@@ -116,6 +116,13 @@ export default function ProfilesPage() {
                   </div>
                 </div>
 
+                {/* Badge administrador: el primer perfil (creado en el registro). */}
+                {index === 0 && (
+                  <span className="absolute -top-1 left-1/2 -translate-x-1/2 rounded bg-amber-500 px-2 py-0.5 text-xs font-bold text-white">
+                    ADMIN
+                  </span>
+                )}
+
                 {/* Kids Badge */}
                 {(perfil.es_infantil ?? perfil.esInfantil) && (
                   <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-blue-600 px-2 py-0.5 text-xs font-bold text-white">

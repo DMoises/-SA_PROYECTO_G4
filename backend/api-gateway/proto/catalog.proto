@@ -10,6 +10,11 @@ service CatalogService {
   rpc ExplorarCartelera(ExplorarCarteleraRequest) returns (CarteleraResponse);
   rpc BuscarContenido(BuscarContenidoRequest) returns (CarteleraResponse);
   rpc ObtenerFichaTecnica(FichaTecnicaRequest) returns (FichaTecnicaResponse);
+  rpc ObtenerRecomendaciones(ObtenerRecomendacionesRequest) returns (CarteleraResponse);
+}
+
+message ObtenerRecomendacionesRequest {
+  string perfil_id = 1;
 }
 
 message ExplorarCarteleraRequest {}

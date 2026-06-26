@@ -15,6 +15,12 @@ service CatalogService {
   // Ficha tecnica de un contenido (RFS-03.2): titulo, sinopsis, reparto y,
   // si es serie, sus temporadas con episodios.
   rpc ObtenerFichaTecnica(FichaTecnicaRequest) returns (FichaTecnicaResponse);
+  // Obtener recomendaciones personalizadas para un perfil basándose en su historial y ratings
+  rpc ObtenerRecomendaciones(ObtenerRecomendacionesRequest) returns (CarteleraResponse);
+}
+
+message ObtenerRecomendacionesRequest {
+  string perfil_id = 1;
 }
 
 message ExplorarCarteleraRequest {}

@@ -40,6 +40,17 @@ class Config:
         self.sub_db_user = _env("SUBSCRIPTION_DB_USER", "subscription_user")
         self.sub_db_password = _env("SUBSCRIPTION_DB_PASSWORD", "")
 
+        self.history_db_host = _env("HISTORY_DB_HOST", "history-db")
+        self.history_db_port = _env("HISTORY_DB_PORT_INTERNAL", "5432")
+        self.history_db_name = _env("HISTORY_DB_NAME", "history_db")
+        self.history_db_user = _env("HISTORY_DB_USER", "history_user")
+        self.history_db_password = _env("HISTORY_DB_PASSWORD", "")
+
+        self.rating_db_host = _env("RATING_DB_HOST", "rating-db")
+        self.rating_db_port = _env("RATING_DB_PORT_INTERNAL", "5432")
+        self.rating_db_name = _env("RATING_DB_NAME", "rating_db")
+        self.rating_db_user = _env("RATING_DB_USER", "rating_user")
+        self.rating_db_password = _env("RATING_DB_PASSWORD", "")
     @property
     def dsn(self) -> str:
         # Trafico interno en la red de Docker: sin TLS (sslmode disable).
@@ -62,6 +73,19 @@ class Config:
             f"user={self.sub_db_user} password={self.sub_db_password} sslmode=disable"
         )
 
+    @property
+    def history_dsn(self) -> str:
+        return (
+            f"host={self.history_db_host} port={self.history_db_port} dbname={self.history_db_name} "
+            f"user={self.history_db_user} password={self.history_db_password} sslmode=disable"
+        )
+
+    @property
+    def rating_dsn(self) -> str:
+        return (
+            f"host={self.rating_db_host} port={self.rating_db_port} dbname={self.rating_db_name} "
+            f"user={self.rating_db_user} password={self.rating_db_password} sslmode=disable"
+        )
 
 def _env(key: str, default: str) -> str:
     value = os.getenv(key)

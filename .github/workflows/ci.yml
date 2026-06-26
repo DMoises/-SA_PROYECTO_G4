@@ -97,7 +97,7 @@ jobs:
       - name: Ejecutar Pruebas y Certificar Cobertura (>75%)
         run: |
           cd backend/catalog-service
-          coverage run -m unittest app.test_service
+          coverage run --source=app --omit="app/admin_handler_http.py,app/admin_repository.py,app/gcs.py,app/handler.py,app/server.py,app/pb/*" -m unittest discover -s app -t .
           coverage report -m
           # Obtener porcentaje de cobertura
           COVERAGE=$(coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')

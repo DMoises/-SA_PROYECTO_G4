@@ -184,6 +184,23 @@ export function Navbar() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
+<<<<<<< HEAD
+              <DropdownMenuItem render={<Link href="/profiles/manage" />}>
+                Administrar perfiles
+              </DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/account" />}>
+                Cuenta
+              </DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/account/plans" />}>
+                Mi suscripcion
+              </DropdownMenuItem>
+              {user?.rol === 'admin' && (
+                <DropdownMenuItem render={<Link href="/admin" />}>
+                  Panel de administración
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+=======
               {/* Solo el perfil administrador accede a administracion de cuenta/perfiles. */}
               {isMainProfile && (
                 <>
@@ -204,6 +221,7 @@ export function Navbar() {
                   <DropdownMenuSeparator />
                 </>
               )}
+>>>>>>> origin/develop
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
                 Cerrar sesion
               </DropdownMenuItem>

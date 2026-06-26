@@ -44,3 +44,7 @@ func (c *CatalogClient) ObtenerFichaTecnica(ctx context.Context, contenidoID str
 	ctx = context.WithValue(ctx, CtxContenidoID, contenidoID)
 	return c.cli.ObtenerFichaTecnica(ctx, &pb.FichaTecnicaRequest{ContenidoId: contenidoID})
 }
+
+func (c *CatalogClient) ObtenerRecomendaciones(ctx context.Context, perfilID string) (*pb.CarteleraResponse, error) {
+	return c.cli.ObtenerRecomendaciones(ctx, &pb.ObtenerRecomendacionesRequest{PerfilId: perfilID})
+}

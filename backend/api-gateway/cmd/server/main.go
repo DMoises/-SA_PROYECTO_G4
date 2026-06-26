@@ -120,6 +120,18 @@ func main() {
 	mux.Handle("GET /catalog/admin/generos", adminChain(catalogAdminH.ListarGeneros))
 	mux.Handle("GET /catalog/admin/categorias", adminChain(catalogAdminH.ListarCategorias))
 
+	// Rutas de administracion del catalogo (requieren sesion + rol admin).
+	adminChain := func(h http.HandlerFunc) http.Handler {
+		return authMW(adminMW(http.HandlerFunc(h)))
+	}
+	mux.Handle("GET /catalog/admin/contenidos", adminChain(catalogAdminH.ListarContenidos))
+	mux.Handle("POST /catalog/admin/contenidos", adminChain(catalogAdminH.CrearContenido))
+	mux.Handle("GET /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ObtenerContenido))
+	mux.Handle("PUT /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ActualizarContenido))
+	mux.Handle("DELETE /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.EliminarContenido))
+	mux.Handle("GET /catalog/admin/generos", adminChain(catalogAdminH.ListarGeneros))
+	mux.Handle("GET /catalog/admin/categorias", adminChain(catalogAdminH.ListarCategorias))
+
 	// Rutas de calificaciones (rating). Calificar requiere sesion (RFS-04.1);
 	// el % de recomendacion es publico.
 	mux.Handle("POST /ratings", authMW(http.HandlerFunc(ratingH.Calificar)))

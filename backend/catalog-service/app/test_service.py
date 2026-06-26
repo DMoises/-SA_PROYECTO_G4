@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from . import errors
+from .config import Config
 from .service import CatalogService, _limpiar, _agrupar_temporadas
 
 
@@ -188,6 +189,34 @@ class TestCatalogService(unittest.TestCase):
         idx_nueva = titulos.index("Nueva Accion")
         idx_visto = titulos.index("Visto Accion")
         self.assertLess(idx_nueva, idx_visto)
+
+
+class TestConfig(unittest.TestCase):
+    """Cubre la construccion de DSNs y la lectura de variables de entorno,
+    incluidas las conexiones a auth_db y subscription_db que usa el
+    interceptor de Control Parental."""
+
+    def test_dsn_catalogo(self):
+        cfg = Config()
+        dsn = cfg.dsn
+        self.assertIn("dbname=", dsn)
+        self.assertIn("host=", dsn)
+        self.assertIn("sslmode=disable", dsn)
+
+    def test_dsn_auth_y_subscripcion(self):
+        cfg = Config()
+        # El DSN debe construirse con los nombres de cada base de datos.
+        self.assertIn(cfg.auth_db_name, cfg.auth_dsn)
+        self.assertIn(cfg.sub_db_name, cfg.sub_dsn)
+        self.assertIn("sslmode=disable", cfg.auth_dsn)
+        self.assertIn("sslmode=disable", cfg.sub_dsn)
+
+    def test_valores_por_defecto(self):
+        cfg = Config()
+        self.assertTrue(cfg.jwt_secret)
+        self.assertIsInstance(cfg.admin_http_port, int)
+        self.assertIsInstance(cfg.gcs_enabled, bool)
+        self.assertGreater(cfg.gcs_signed_url_ttl_seconds, 0)
 
 
 if __name__ == "__main__":

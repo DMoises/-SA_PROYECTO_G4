@@ -7,13 +7,17 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/auth-context'
+import { useAdminGuard } from '@/lib/use-admin-guard'
 
 export default function AddProfilePage() {
   const router = useRouter()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  // Solo el perfil administrador puede crear nuevos perfiles.
+  useAdminGuard()
   const [nombre, setNombre] = useState('')
   const [esInfantil, setEsInfantil] = useState(false)
   const [idioma, setIdioma] = useState('es')
+  const [pin, setPin] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -25,13 +29,27 @@ export default function AddProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // El PIN de Control Parental solo aplica a perfiles infantiles y debe
+    // tener exactamente 4 digitos. Si no se indica, el backend usa '1234'.
+    if (esInfantil && pin && !/^\d{4}$/.test(pin)) {
+      setError('El PIN de Control Parental debe tener exactamente 4 digitos.')
+      return
+    }
+
     setIsLoading(true)
 
     try {
       const res = await fetch('/api/profiles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, es_infantil: esInfantil, idioma }),
+        body: JSON.stringify({
+          nombre,
+          es_infantil: esInfantil,
+          idioma,
+          // Solo se envia el PIN para perfiles infantiles.
+          ...(esInfantil && pin ? { pin } : {}),
+        }),
       })
 
       if (res.ok) {
@@ -124,6 +142,28 @@ export default function AddProfilePage() {
               </p>
             </div>
           </label>
+
+          {esInfantil && (
+            <div>
+              <label className="mb-2 block text-sm font-medium text-foreground">
+                PIN de Control Parental (4 dígitos)
+              </label>
+              <Input
+                type="password"
+                inputMode="numeric"
+                placeholder="Ej: 1234"
+                value={pin}
+                onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                className="h-14 bg-input text-foreground placeholder:text-muted-foreground tracking-[0.5em]"
+                maxLength={4}
+                autoComplete="off"
+              />
+              <p className="mt-2 text-sm text-muted-foreground">
+                Se solicitará este PIN para reproducir contenido no apto para niños.
+                Si lo dejas vacío, se usará <span className="font-semibold">1234</span> por defecto.
+              </p>
+            </div>
+          )}
 
           <div className="flex gap-4 pt-4">
             <Button

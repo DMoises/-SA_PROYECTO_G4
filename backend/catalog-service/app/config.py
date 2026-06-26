@@ -51,7 +51,6 @@ class Config:
         self.rating_db_name = _env("RATING_DB_NAME", "rating_db")
         self.rating_db_user = _env("RATING_DB_USER", "rating_user")
         self.rating_db_password = _env("RATING_DB_PASSWORD", "")
-
     @property
     def dsn(self) -> str:
         # Trafico interno en la red de Docker: sin TLS (sslmode disable).
@@ -87,7 +86,6 @@ class Config:
             f"host={self.rating_db_host} port={self.rating_db_port} dbname={self.rating_db_name} "
             f"user={self.rating_db_user} password={self.rating_db_password} sslmode=disable"
         )
-
 
 def _env(key: str, default: str) -> str:
     value = os.getenv(key)

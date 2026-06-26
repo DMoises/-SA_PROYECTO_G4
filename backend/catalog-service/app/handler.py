@@ -28,7 +28,6 @@ class CatalogHandler(pb_grpc.CatalogServiceServicer):
             request.actor, request.tipo
         )
         return pb.CarteleraResponse(items=[self._item(i) for i in items])
-
     def ObtenerRecomendaciones(self, request, context):
         try:
             items = self.service.obtener_recomendaciones(request.perfil_id)

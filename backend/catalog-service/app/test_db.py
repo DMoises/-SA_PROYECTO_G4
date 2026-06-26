@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from .db import Database
 
 class TestDatabase(unittest.TestCase):
-    @patch("psycopg_pool.ConnectionPool")
+    @patch("app.db.ConnectionPool")
     def test_database_queries(self, mock_pool_cls):
         mock_pool = MagicMock()
         mock_pool_cls.return_value = mock_pool

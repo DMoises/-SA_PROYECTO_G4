@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import YouTube from 'react-youtube'
 import {
   ArrowLeft,
@@ -14,13 +15,17 @@ import {
 } from 'lucide-react'
 import {
   getResume,
+  getHistory,
   saveProgress,
 } from '@/lib/history'
 
 interface PlaybackVideo {
   contenidoId: string
   youtubeId: string
+  videoUrl: string
+  isVideoUrl: boolean
   nombre: string
+  tipo: string
 }
 
 type EstadoAcceso =
@@ -30,12 +35,25 @@ type EstadoAcceso =
   | 'sin-sesion'
   | 'error'
 
+function formatDuracion(segundos: number): string {
+  if (!Number.isFinite(segundos) || segundos <= 0) return ''
+  const total = Math.floor(segundos)
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+}
+
 export default function WatchPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
+  const searchParams = useSearchParams()
+  const season = searchParams.get('season')
+  const episode = searchParams.get('episode')
 
   const contenidoId = id
 
@@ -58,6 +76,9 @@ export default function WatchPage({
 
   const [video, setVideo] =
     useState<PlaybackVideo | null>(null)
+
+  const [duracionSegundos, setDuracionSegundos] =
+    useState(0)
 
   /*
    * Detecta si el componente continúa montado.
@@ -132,8 +153,16 @@ export default function WatchPage({
       setVideo(null)
 
       try {
+        let fetchUrl = `/api/playback/${encodeURIComponent(contenidoId)}`
+        const queryParams = new URLSearchParams()
+        if (season) queryParams.set('season', season)
+        if (episode) queryParams.set('episode', episode)
+        if (queryParams.toString()) {
+          fetchUrl += `?${queryParams.toString()}`
+        }
+
         const respuesta = await fetch(
-          `/api/playback/${encodeURIComponent(contenidoId)}`,
+          fetchUrl,
           {
             method: 'GET',
             credentials: 'include',
@@ -164,7 +193,7 @@ export default function WatchPage({
         }
 
         if (
-          !data?.youtubeId ||
+          !data?.videoUrl ||
           !data?.contenidoId
         ) {
           throw new Error(
@@ -206,6 +235,8 @@ export default function WatchPage({
     contenidoId,
     perfilCargado,
     perfilId,
+    season,
+    episode,
   ])
 
   /*
@@ -217,16 +248,29 @@ export default function WatchPage({
     resumeProcesadoRef.current = false
     playerRef.current = null
     setPlayerReady(false)
-  }, [contenidoId, video?.youtubeId])
+  }, [contenidoId, video?.videoUrl, season, episode])
 
   /*
    * Recupera el progreso guardado.
+   */
+  /*
+   * Recupera el progreso guardado para YouTube.
    */
   async function onReady(event: any) {
     const player = event.target
 
     playerRef.current = player
     setPlayerReady(true)
+
+    try {
+      const d =
+        typeof player.getDuration === 'function'
+          ? player.getDuration()
+          : 0
+      if (d > 0) setDuracionSegundos(d)
+    } catch {
+      /* la duración se actualizará luego en el intervalo de progreso */
+    }
 
     if (
       !perfilId ||
@@ -238,21 +282,30 @@ export default function WatchPage({
     progresoCargadoRef.current = true
 
     try {
-      console.log('Buscando progreso:', {
+      console.log('Buscando progreso de YouTube:', {
         perfil_id: perfilId,
         contenido_id: contenidoId,
-        youtube_video_id:
-          video?.youtubeId,
+        season,
+        episode,
       })
 
-      const progreso = await getResume(
-        perfilId,
-        contenidoId
-      )
+      let segundoGuardado = 0
+      const historyItems = await getHistory(perfilId)
+      if (Array.isArray(historyItems)) {
+        const currentItem = historyItems.find(item => 
+          item.contenido_id === contenidoId && 
+          (item.tipo === 'pelicula' || 
+           (item.temporada === (season ? parseInt(season) : null) && 
+            item.episodio === (episode ? parseInt(episode) : null)))
+        )
+        if (currentItem) {
+          segundoGuardado = Number(currentItem.segundo_exacto ?? 0)
+        }
+      }
 
       console.log(
-        'Progreso recuperado:',
-        progreso
+        'Progreso YouTube recuperado:',
+        segundoGuardado
       )
 
       if (
@@ -263,15 +316,7 @@ export default function WatchPage({
         return
       }
 
-      const segundoGuardado = Number(
-        progreso?.segundo_exacto ?? 0
-      )
-
       if (segundoGuardado <= 0) {
-        console.log(
-          'No existe progreso anterior para este contenido'
-        )
-
         return
       }
 
@@ -300,11 +345,11 @@ export default function WatchPage({
         )
 
         console.log(
-          `Video reanudado en el segundo ${segundoGuardado}`
+          `YouTube reanudado en el segundo ${segundoGuardado}`
         )
       } catch (error) {
         console.warn(
-          'No se pudo mover el video al progreso guardado:',
+          'No se pudo mover YouTube al progreso guardado:',
           error
         )
       }
@@ -312,13 +357,94 @@ export default function WatchPage({
       progresoCargadoRef.current = false
 
       console.error(
-        'No se pudo recuperar el progreso:',
+        'No se pudo recuperar el progreso de YouTube:',
         error
       )
     } finally {
       if (
         componenteMontadoRef.current &&
         playerRef.current === player
+      ) {
+        resumeProcesadoRef.current = true
+      }
+    }
+  }
+
+  /*
+   * Recupera el progreso guardado para Video Nativo (GCS/MP4).
+   */
+  async function handleNativeVideoReady(videoElement: HTMLVideoElement) {
+    playerRef.current = videoElement
+    setPlayerReady(true)
+
+    if (
+      Number.isFinite(videoElement.duration) &&
+      videoElement.duration > 0
+    ) {
+      setDuracionSegundos(videoElement.duration)
+    }
+
+    if (
+      !perfilId ||
+      progresoCargadoRef.current
+    ) {
+      return
+    }
+
+    progresoCargadoRef.current = true
+
+    try {
+      console.log('Buscando progreso de Video Nativo:', {
+        perfil_id: perfilId,
+        contenido_id: contenidoId,
+        season,
+        episode,
+      })
+
+      let segundoGuardado = 0
+      const historyItems = await getHistory(perfilId)
+      if (Array.isArray(historyItems)) {
+        const currentItem = historyItems.find(item => 
+          item.contenido_id === contenidoId && 
+          (item.tipo === 'pelicula' || 
+           (item.temporada === (season ? parseInt(season) : null) && 
+            item.episodio === (episode ? parseInt(episode) : null)))
+        )
+        if (currentItem) {
+          segundoGuardado = Number(currentItem.segundo_exacto ?? 0)
+        }
+      }
+
+      console.log(
+        'Progreso Video Nativo recuperado:',
+        segundoGuardado
+      )
+
+      if (
+        !componenteMontadoRef.current ||
+        playerRef.current !== videoElement
+      ) {
+        progresoCargadoRef.current = false
+        return
+      }
+
+      if (segundoGuardado <= 0) {
+        return
+      }
+
+      videoElement.currentTime = segundoGuardado
+      console.log(`Video nativo reanudado en el segundo ${segundoGuardado}`)
+    } catch (error) {
+      progresoCargadoRef.current = false
+
+      console.error(
+        'No se pudo recuperar el progreso de Video Nativo:',
+        error
+      )
+    } finally {
+      if (
+        componenteMontadoRef.current &&
+        playerRef.current === videoElement
       ) {
         resumeProcesadoRef.current = true
       }
@@ -344,13 +470,18 @@ export default function WatchPage({
       if (!resumeProcesadoRef.current) return
 
       try {
+        const isHTML5 = video?.isVideoUrl
         const currentTime = Math.floor(
-          player.getCurrentTime()
+          isHTML5 ? player.currentTime : player.getCurrentTime()
         )
 
         const duration = Math.floor(
-          player.getDuration()
+          isHTML5 ? player.duration : player.getDuration()
         )
+
+        if (duration > 0) {
+          setDuracionSegundos(duration)
+        }
 
         if (
           !duration ||
@@ -362,15 +493,20 @@ export default function WatchPage({
         await saveProgress({
           perfil_id: perfilId,
           contenido_id: contenidoId,
-          tipo: 'pelicula',
+          tipo: (video?.tipo as 'pelicula' | 'serie') || 'pelicula',
           segundo_exacto: currentTime,
           duracion_total: duration,
+          temporada: season ? parseInt(season) : undefined,
+          episodio: episode ? parseInt(episode) : undefined,
         })
 
         console.log('Progreso guardado:', {
           contenido_id: contenidoId,
+          tipo: video?.tipo,
           segundo_exacto: currentTime,
           duracion_total: duration,
+          temporada: season,
+          episodio: episode,
         })
       } catch (error) {
         console.error(
@@ -387,6 +523,9 @@ export default function WatchPage({
     perfilId,
     contenidoId,
     estadoAcceso,
+    video,
+    season,
+    episode,
   ])
 
   return (
@@ -399,9 +538,15 @@ export default function WatchPage({
         Volver al detalle
       </Link>
 
-      <h1 className="mb-5 text-2xl font-bold">
-        Reproduciendo contenido
+      <h1 className="mb-2 text-2xl font-bold">
+        {video ? `Reproduciendo: ${video.nombre}` : 'Reproduciendo contenido'}
       </h1>
+
+      {duracionSegundos > 0 && (
+        <p className="mb-5 text-sm text-white/60">
+          Duración: {formatDuracion(duracionSegundos)}
+        </p>
+      )}
 
       {!perfilCargado && (
         <p className="text-sm text-white/60">
@@ -509,10 +654,6 @@ export default function WatchPage({
           'permitido' &&
         video && (
           <div>
-            <p className="mb-4 text-sm text-white/60">
-              {video.nombre}
-            </p>
-
             {!playerReady && (
               <p className="mb-3 text-sm text-white/60">
                 Preparando reproductor...
@@ -520,36 +661,62 @@ export default function WatchPage({
             )}
 
             <div className="mx-auto aspect-video w-full max-w-6xl overflow-hidden rounded-lg bg-black shadow-2xl">
-              <YouTube
-                key={`${contenidoId}-${perfilId}-${video.youtubeId}`}
-                videoId={video.youtubeId}
-                onReady={onReady}
-                onError={(event) => {
-                  setPlayerReady(true)
+              {video.isVideoUrl ? (
+                <video
+                  key={`${contenidoId}-${perfilId}-${video.videoUrl}`}
+                  src={video.videoUrl}
+                  controls
+                  autoPlay
+                  onPlay={(e) => {
+                    const videoEl = e.currentTarget
+                    handleNativeVideoReady(videoEl)
+                  }}
+                  onLoadedMetadata={(e) => {
+                    const videoEl = e.currentTarget
+                    handleNativeVideoReady(videoEl)
+                  }}
+                  onCanPlay={(e) => {
+                    const videoEl = e.currentTarget
+                    handleNativeVideoReady(videoEl)
+                  }}
+                  onError={() => {
+                    setPlayerReady(true)
+                    console.error('Error del reproductor de video nativo (GCS): No se pudo cargar el archivo de video')
+                  }}
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <YouTube
+                  key={`${contenidoId}-${perfilId}-${video.youtubeId}`}
+                  videoId={video.youtubeId}
+                  onReady={onReady}
+                  onError={(event) => {
+                    setPlayerReady(true)
 
-                  console.error(
-                    'Error del reproductor de YouTube:',
-                    {
-                      codigo: event.data,
-                      contenido_id:
-                        contenidoId,
-                      video_id:
-                        video.youtubeId,
-                    }
-                  )
-                }}
-                opts={{
-                  width: '100%',
-                  height: '100%',
-                  playerVars: {
-                    autoplay: 0,
-                    playsinline: 1,
-                    rel: 0,
-                  },
-                }}
-                className="h-full w-full"
-                iframeClassName="h-full w-full"
-              />
+                    console.error(
+                      'Error del reproductor de YouTube:',
+                      {
+                        codigo: event.data,
+                        contenido_id:
+                          contenidoId,
+                        video_id:
+                          video.youtubeId,
+                      }
+                    )
+                  }}
+                  opts={{
+                    width: '100%',
+                    height: '100%',
+                    playerVars: {
+                      autoplay: 1,
+                      playsinline: 1,
+                      rel: 0,
+                    },
+                  }}
+                  className="h-full w-full"
+                  iframeClassName="h-full w-full"
+                />
+              )}
             </div>
           </div>
         )}

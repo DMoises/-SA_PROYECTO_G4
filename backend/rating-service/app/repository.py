@@ -29,6 +29,7 @@ class RatingRepository:
                     SET tipo = EXCLUDED.tipo, valor = EXCLUDED.valor, creada_en = now()
                 """,
                 {"perfil": perfil_id, "contenido": contenido_id, "tipo": tipo, "valor": valor},
+                current_user=perfil_id,
             )
         except psycopg.errors.CheckViolation as e:
             raise errors.DatosInvalidos("valor fuera de rango para el tipo de calificacion") from e

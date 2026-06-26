@@ -37,6 +37,10 @@ const nextConfig = {
         source: '/api/history/:path*',
         destination: `${gatewayUrl}/history/:path*`,
       },
+      {
+        source: '/api/watchparty/:path*',
+        destination: `${gatewayUrl}/watchparty/:path*`,
+      },
     ]
   },
 }

@@ -21,6 +21,7 @@ const navLinks = [
   { href: '/browse/series', label: 'Series' },
   { href: '/browse/movies', label: 'Peliculas' },
   { href: '/browse/new', label: 'Novedades' },
+  { href: '/watchparty', label: 'Watch Party' },
 ]
 
 export function Navbar() {
@@ -40,6 +41,11 @@ export function Navbar() {
     'from-yellow-500 to-yellow-700',
     'from-purple-500 to-purple-700',
   ]
+
+  const handleProfileSelect = (profile: any) => {
+    localStorage.setItem('selectedProfile', JSON.stringify({ id: profile.id, nombre: profile.nombre }))
+    window.location.href = '/browse'
+  }
 
   const handleLogout = async () => {
     await logout()
@@ -146,7 +152,11 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-card">
               {otherProfiles.map((profile, i) => (
-                <DropdownMenuItem key={profile.id} render={<Link href="/profiles" />}>
+                <DropdownMenuItem
+                  key={profile.id}
+                  onClick={() => handleProfileSelect(profile)}
+                  className="cursor-pointer"
+                >
                   <div className="flex items-center gap-3">
                     <div className={`flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br ${
                       profileColors[profile.originalIndex % profileColors.length]
@@ -158,19 +168,18 @@ export function Navbar() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              {isMainProfile && (
-                <DropdownMenuItem render={<Link href="/profiles/manage" />}>
-                  Administrar perfiles
-                </DropdownMenuItem>
-              )}
-              {isMainProfile && (
-                <DropdownMenuItem render={<Link href="/account" />}>
-                  Cuenta
-                </DropdownMenuItem>
-              )}
-              {isMainProfile && (
-                <DropdownMenuItem render={<Link href="/account/plans" />}>
-                  Mi suscripcion
+              <DropdownMenuItem render={<Link href="/profiles/manage" />}>
+                Administrar perfiles
+              </DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/account" />}>
+                Cuenta
+              </DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/account/plans" />}>
+                Mi suscripcion
+              </DropdownMenuItem>
+              {user?.rol === 'admin' && (
+                <DropdownMenuItem render={<Link href="/admin" />}>
+                  Panel de administración
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />

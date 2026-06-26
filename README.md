@@ -24,15 +24,16 @@
      - Módulo 1: Gestión de Autenticación y Perfiles (CDU-N1-01 a N1-08)
      - Módulo 2: Gestión de Suscripciones (CDU-N2-01 a N2-05)
      - Módulo 3: Catálogo y Consumo de Contenido (CDU-N3-01 a N3-04)
-     - Módulo 4: Sistema de Calificaciones y Recomendaciones (CDU-N4-01 a N4-03)
-     - Módulo 5: Servicio Financiero FX (CDU-N5-01 a N5-02)
-     - Módulo 6: Historial de Reproducción (CDU-N6-01)
-     - Módulo 7: Notificaciones por Correo Electrónico (CDU-N7-01 a N7-02)
+     - Módulo 4: Sistema de Calificaciones y Recomendaciones (CDU-N4-01 a N4-04)
+     - Módulo 5: Servicio Financiero FX (CDU-N5-01 a N5-03)
+     - Módulo 6: Historial de Reproducción (CDU-N6-01 a N6-03)
+     - Módulo 7: Notificaciones por Correo Electrónico (CDU-N7-01 a N7-03)
 3. [Gobernanza y Entrelazamiento — Matrices de Trazabilidad](#3.-gobernanza-y-entrelazamiento-(matrices-de-trazabilidad))
    - [3.1 Matriz: Stakeholders vs. Requerimientos Funcionales](#3.1-matriz:-stakeholders-vs.-requerimientos-funcionales)
    - [3.2 Matriz: Requerimientos Funcionales vs. Casos de Uso](#3.2-matriz:-requerimientos-funcionales-vs.-casos-de-uso)
    - [3.3 Matriz: Stakeholders vs. Casos de Uso](#3.3-matriz:-stakeholders-vs.-casos-de-uso)
    - [3.4 Matriz: Requerimientos vs. Requerimientos (Dependencias de ejecución)](#3.4-matriz:-requerimientos-vs.-requerimientos-(dependencias-de-ejecución))
+   - [3.5 Trazabilidad de Fase 2 (Administrador · RF-18+ · CDU-N8)](#3.5-trazabilidad-de-fase-2)
 4. [Fase 2: Espacio de la Solución Conceptual (Nivel PIM)](#4.-fase-2:-espacio-de-la-solución-conceptual-(nivel-pim))
    - [4.1 Vista de Escenarios (+1)](#4.1-vista-de-escenarios-(+1))
    - [4.2 Vista Lógica y Estilos Arquitectónicos](#4.2-vista-lógica-y-estilos-arquitectónicos)
@@ -41,6 +42,7 @@
    - [4.3 Vista de Procesos](#4.3-vista-de-procesos)
      - [4.3.1 Diagramas de Actividades](#4.3.1-diagramas-de-actividades:)
      - [4.3.2 Diagramas de Secuencia](#4.3.2-diagramas-de-secuencia:)
+     - [4.3.3 Diagrama de Flujo](#4.3.3-diagrama-de-flujo:)
    - [4.4 Vista de Desarrollo (Componentes)](#4.4-vista-de-desarrollo-(componentes))
      - [4.4.1 Diagrama de Componentes](#4.4.1-diagrama-de-componentes:)
    - [4.5 Análisis Estructural: Arquitectura Síncrona vs. Asíncrona](#4.5-análisis-estructural:-arquitectura-síncrona-vs.-asíncrona)
@@ -65,10 +67,10 @@ Para establecer los límites del sistema sin involucrar decisiones tecnológicas
 
 * **2.1.1 Core del Negocio (Caso de Uso Nivel 0):**  
   Definimos el alcance global mediante un único proceso unificado denominado *"Gestionar Autenticación, Catálogo y Suscripciones de Quetxal TV"*. Este núcleo encapsula la entrega de valor principal: permitir a los usuarios consumir contenido multimedia bajo un modelo de suscripción financiera segura.  
-  ![Core de Negocio](https://www.plantuml.com/plantuml/png/TL9BRXin3Dth5CHqOoy2D0K2eq5W9Fu1NQHmCKdGHJQiXfwoqOW6nN4T53rCpz0Zv6AH9dQQJRMI7j_Zvr6NoL2jxu8Bj34m0UNskq73IjvOeaiF7BUesC4M_GEsLDjZ82XXZ6sWDuG-aST4yCj1FhDCRrNwsCmbYCAxvUdgRBLyYOasf0Vy_OV9PBOOy2jL-Nc4Jyyc7sVkjtF6bYjUIqD1e26OOv9KBhT9pc4kIlaHu3ErubbWzAKdssE0cxknS-WjPwjkKu-QWtMVlF8sOnLWAYthaNAr_bIIBdZ7AOT6gw_Z-tXnKNCowX2MUoEDCfqEmit-AAj9TrpgrjStw_yBKcTRvrvjWshf9HsO_ngk1lEEHbPhbHsHGcrAs75iIuDtt91aUty8BB8wDdWVHuUvF3_zZV2OBRAdFq5Q6G_5VVQeE5d6XPEJwG30ELHpYQdlAB-ZKUH6ihQbL3QFu7kAXfKRo4MrsRzgWY4ORr_suB7xnlA6M8Ojr0K5QX6Y66_OOtOfKggSkwJOv4_t30==)  
+  ![Core de Negocio](./assets/f2/core.png)  
 * **2.1.2 Primera Descomposición (Procesos de Negocio):**   
   Para hacer el sistema manejable y preparar la segregación de los futuros microservicios, descompusimos el Core en 7 procesos de negocio lógicos:  
-  ![Primera Descomposición](https://www.plantuml.com/plantuml/png/TPFDZjD03CVlUGghN42Ygtv7H5MrfTr03riLielsm6KqSOEroKmqCocj40_3C_08-s9uaWOAP7EoRF_iyT_EjNN2kAh8Wnpt3fm6GzaN1oaPb8wq2kmZgL8OKK0fvAF8C76d7C67XSfol4YeB4fX4Ru5mDzRJi-ChbIwqhasy2AEupUhIHFJ9aNJ-gTXF0nh_z8O_VNilfbDXuD1y3rmvBZXpb21Hi0QhTH5gIr9Ulgf8WveYLPRI16sc6b96bvkwO0vh3Qthu90ICVrUlUs4ePZIMMbeP9zFH3MFzgqASlTnbTPqu4iX-A7pse-JyWwB0JS71qQfHUB6jiVMoX1Sw2KhUJsRlSyO0jN1i5PG-XzgD0THGvtdw3VDKBlh6AhQM-rlk_l1iC8tg5rVdAVlAmSAaTIr5gyXWGjxmmjd627PayvshfvEUmgDlgxs5aO-Rk2oFGP7tNXuuX7B7bNJNTVOYNSquzSPxh1nbtO98ADOcM4RB0JKpdjwo5yvmQTTA7J26gr_OfZKa99GiFcGyDCkvXP1Ezv8TeGgyrF_8YbqMdLD6-uMHSNydG5sNQohNR_lJ7aumpy_K2_l_0Q_x575_RumfvSs3C-Xn5SNR4vXGZcSr8ohr9SB09s-1G-idBOP8J_PeoUyOSrML_RDQgKV-rV)
+  ![Primera Descomposición](./assets/f2/primeraDescomposicion.png)
 
 
 ### **2.2 Catálogo de Stakeholders y Responsabilidades** {#2.2-catálogo-de-stakeholders-y-responsabilidades}
@@ -81,6 +83,7 @@ Identificamos a los interesados clave del proyecto para garantizar que las preoc
 | **Juan Pablo (Auxiliar SA)** | Representante de la Alta Dirección / Evaluador Técnico. | • Aprobar la visión, el alcance del sistema y el DDA. • Imponer los Drivers de Restricción Técnica (Uso de GCP, Backend Políglota, Docker, Redis, cero ORMs). |
 | **Ingeniero SRE / Arquitecto** | Líder del diseño estructural y orquestador de infraestructura. | • Definir el patrón *Database per Microservice*. • Diseñar las Vistas Lógica, de Procesos y Despliegue. • Gobernar el flujo de CI/CD y despliegue físico en GCP. |
 | **Dev Team (Desarrolladores)** | Ingenieros encargados de la implementación (Nivel ISM). | • Programar la lógica en Go, Python y TypeScript respetando contratos gRPC. • Implementar Funciones, Vistas y *Stored Procedures* en SQL nativo. |
+| **Administrador (Operador de Plataforma)** | Operador interno responsable de la gestión de contenido y de la cartelera desde el Panel de Administración (Fase 2). | • Ejecutar el CRUD del catálogo (películas/series) y la carga de portadas/video a GCS. • Programar y calendarizar estrenos. • Consultar y exportar reportes (auditoría y de negocio). • Operar siempre bajo control de acceso por rol Administrador (JWT/Cookies). |
 
 ### **2.3 Características del Sistema Priorizadas** {#2.3-características-del-sistema-priorizadas}
 
@@ -123,6 +126,14 @@ Estos drivers definen las características operacionales exactas que el sistema 
 | **RF-15** | Historial (Go) | El sistema debe consultar el último registro de tiempo del perfil activo para reanudar el flujo de video exactamente en la marca de tiempo donde se dejó. | Alta |
 | **RF-16** | Notificaciones (TS) | El sistema debe encolar de forma asíncrona, mediante el patrón Outbox, los mensajes de confirmación de registro y los recibos de cobro de suscripción. | Baja |
 | **RF-17** | Notificaciones (TS) | El sistema debe despachar las alertas de nuevas publicaciones de contenido hacia el servidor SMTP configurado sin bloquear el hilo principal de ejecución. | Baja |
+| **RF-18** | Administración (Python) | El sistema debe exponer un Panel de Administración web protegido por rol de Administrador (validación JWT/Cookies en el API Gateway) para gestionar el catálogo y la cartelera desde el frontend. | Alta |
+| **RF-19** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador agregar nuevo contenido (películas/series) con sus metadatos y portadas. | Alta |
+| **RF-20** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador actualizar/editar los metadatos y portadas de contenido existente. | Alta |
+| **RF-21** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador eliminar contenido mediante borrado lógico (Soft-Delete), dejando rastro en la bitácora de auditoría. | Alta |
+| **RF-22** | Administración / Catálogo (Python) | El sistema debe permitir al Administrador programar/calendarizar la fecha de estreno que controla la visibilidad del contenido en la cartelera. | Media |
+| **RF-23** | Almacenamiento / GCS (Python) | El sistema debe desacoplar la multimedia pesada (portadas y video) hacia Buckets de Google Cloud Storage y servirla al frontend mediante URLs firmadas. | Alta |
+| **RF-24** | Auditoría (Transversal · SQL nativo) | El sistema debe registrar automáticamente, mediante triggers en el motor de base de datos, toda operación INSERT/UPDATE/DELETE (usuario responsable, timestamp, tabla afectada, estado anterior y estado nuevo) en una tabla exclusiva de auditoría por microservicio. | Alta |
+| **RF-25** | Reportes / Administración | El sistema debe generar y exportar el reporte de auditoría del Panel de Administración en formatos `.csv` y PDF, accesible únicamente al rol Administrador. | Media |
 
 #### 2.4.2 Drivers de Atributos de Calidad (Escenarios EAC): {#2.4.2-drivers-de-atributos-de-calidad-(escenarios-eac):}
 
@@ -133,6 +144,8 @@ Los Requerimientos No Funcionales se formalizan a través de Escenarios de Atrib
 | **EAC-01** | Rendimiento / Eficiencia | **Fuente:** Módulo de Suscripciones (TS). **Estímulo:** Solicita el tipo de cambio de divisas para procesar un cobro. **Entorno:** Día de estrenos con picos altos de concurrencia y transacciones financieras. **Artefacto:** Módulo Financiero FX Cache (Redis). **Respuesta:** El sistema intercepta la petición y recupera la tasa de cambio directamente desde la memoria temporal, evitando la latencia de red. **Medida:** Latencia de resolución y entrega menor a 50 milisegundos. |
 | **EAC-02** | Disponibilidad / Tolerancia a Fallos | **Fuente:** Caída interna del sistema. **Estímulo:** Caída abrupta del motor de BD de Calificaciones o del servicio de Notificaciones. **Entorno:** Momento normal de operación de streaming de video. **Artefacto:** Arquitectura de Microservicios. **Respuesta:** El sistema aísla la falla mediante separación estricta de dominios; el Gateway rechaza las acciones del servicio caído de forma controlada sin afectar el catálogo ni bloquear la reproducción principal de video. **Medida:** El usuario continúa su visualización sin interrupciones perceptibles, manteniendo una disponibilidad global del 99.5%. |
 | **EAC-03** | Seguridad (Autorización) | **Fuente:** Cliente (Frontend Web/Mobile) o atacante externo. **Estímulo:** Intento de acceso a un endpoint protegido (ej. modificar perfil o cobro) en la red interna. **Entorno:** Internet público (Zona Desmilitarizada DMZ). **Artefacto:** API Gateway (Enrutador de borde). **Respuesta:** El Gateway intercepta la petición, exige la presencia de un Token JWT y valida matemáticamente su firma antes de enrutar. **Medida:** Rechazo absoluto (HTTP 401 Unauthorized) del 100% de las peticiones que carezcan de un token válido y firmado. |
+| **EAC-04** | Disponibilidad / Despliegue (Zero-Downtime) · *Fase 2* | **Fuente:** Pipeline de CD (rama `release`). **Estímulo:** Despliegue de una nueva versión de imágenes a GKE. **Entorno:** Usuarios consumiendo streaming de video en producción. **Artefacto:** Deployments de Kubernetes con estrategia RollingUpdate (`maxUnavailable=0`, `maxSurge=1`). **Respuesta:** El clúster actualiza los Pods de forma progresiva sin cortar las transmisiones activas y ejecuta rollback automático (`kubectl rollout undo`) si un Pod entra en `CrashLoopBackOff`. **Medida:** Cero Pods indisponibles durante el rollout; el servicio se mantiene disponible y la reversión ante fallo de arranque es automática. |
+| **EAC-05** | Integridad / Trazabilidad (Auditoría) · *Fase 2* | **Fuente:** Cualquier microservicio con base de datos relacional. **Estímulo:** Operación transaccional (INSERT/UPDATE/DELETE) sobre una tabla operacional. **Entorno:** Operación normal y ante intentos de fraude o fallas. **Artefacto:** Triggers de auditoría en el motor PostgreSQL. **Respuesta:** Cada cambio queda registrado de forma inmutable en la tabla exclusiva de auditoría con usuario responsable, timestamp y estados anterior/nuevo, dentro de la misma transacción del negocio. **Medida:** 100% de las operaciones transaccionales auditadas; ningún cambio queda sin rastro. |
 
 #### 2.4.3 Drivers de Restricción: {#2.4.3-drivers-de-restricción:}
 
@@ -162,7 +175,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N1-08: Seleccionar Perfil
 
 
-![Módulo 1](https://www.plantuml.com/plantuml/png/ZLJBJXin5DtxAwwcctQHYAHDWH6AW31KMO2gHgoHPL-cLpZso0zQLFMh-0H-3Cyp8MEfdPtFupwEhJbtdbiVjeefVF3W3LWgVtgGP55uCfgvHz8LjtmB5HUFlCIDVrO8DSrrgN1F41mAxX3-C83BA2wj2LgkZ38MFXGdrulYj6QCbMWxT5uSNtsUH_J2MlEh0sUNYs9-nFxkbUR2HoPP-Bhv3WiFDJpvEExgwWwAtnNNagJ9OJQ5R-WylRvea0WNmQFs9BXea6VuZlQ153huU4jFg62rlld4M3j4TkS2jsHW4vomL4Ki0-x03ST3uGyioNdBfMc4TZWU2jVwYNmle-x0M1SyP3UlBp8e0xCSrhAUM7APDQdqqMTnqSdjR78K9NrR6zccVbCsYFj-09iopcDjJOAYpQ6hy-XjofIaKvOlEQpGsgJ319-oBAB5OdHKJTAzGTHOIlyrXqB6E0uDs80fnt5qADgI7diwEEKwoM632eM8JtzaT3icFYpMNn1C9iltiRBT5VTa6ruIhoCQ4sqKOxpRE47qQx7TItpVFOdNtST4stsCTzqJnD1zFmcOJdVz8OUpCz921OdB9HlWJhENxbZPpFDVodR2VqlPEMfP__ZU00==)
+![Módulo 1](./assets/f2/identidad.png)
 
 
 
@@ -291,10 +304,10 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 - CDU-N2-01: Adquirir Plan de Suscripción
 - CDU-N2-02: Procesar Cobro Recurrente
-- CDU-N2-04: Actualizar Plan de Suscripción
-- CDU-N2-05: Cancelar Suscripción Activa
+- CDU-N2-03: Actualizar Plan de Suscripción
+- CDU-N2-04: Cancelar Suscripción Activa
 
-![Módulo 2](https://www.plantuml.com/plantuml/png/VLB1JXin4BtxAqRBfJqaIY9Ir5KKGRT9nG64Yl81WpriBHmx7TiKYlWgFe4Vw-nsDu4eucJvpPltverz6XDoockd7DqcI07OrhyI6CkaamrUnJlhDyYuXWtgEwpfEZqwWgQCldRqXf0ZQOm4JmhWcv1h3jcRAhZ0SBHSBhzMnqqbi27kqUd9SdmYw1bp-DE1Yo_JyMYadbMoIQogxojOF6pG6sj22PCX_A2OxEkB1qDmdQDckz4oAqNuT6dloK5rVl5PATH9v8fLpCWsm4-gRKoC9XI0KHBqrtrY9obOIupRgrBT3g2uU7qnsGMObEydADhq_IOAcNrmEHcCnYMScT_PicMuSlX-SadI6c77E2GWFbSSD4LagC8DDt5qPYQVg6tM0kB1rcFnrYcZit_n0tT3KMUH2uSqfYLKw3KvKNZRsIZRU_m_GKUGXrExvS9WCDybs-sonNUUUuKkpJxQEwXU48R3dWmbp6RMQvSDpUTgAzrIjlo6H0-9l16EEfMp-Vp_00==)  <br/><br/>
+![Módulo 2](./assets/f2/suscripciones.png)  <br/><br/>
 
 ### Especificación CDU-N2-01 — Adquirir Plan de Suscripción
 
@@ -335,7 +348,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | Campo | Descripción |
 |---|---|
 | **Nombre** | Actualizar Plan de Suscripción |
-| **Código** | CDU-N2-04 |
+| **Código** | CDU-N2-03 |
 | **Actores** | Usuario Suscriptor |
 | **Descripción** | Permite al Usuario Suscriptor cambiar su plan activo por uno de mayor (upgrade) o menor (downgrade) valor. Este caso de uso extiende a CDU-N2-01. El cambio de plan puede implicar un cobro prorrateado o un crédito según la política de facturación. |
 | **Precondiciones** | El usuario debe tener sesión activa con JWT válido. El usuario debe tener una suscripción activa. El nuevo plan seleccionado debe ser diferente al plan actual. |
@@ -352,7 +365,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | Campo | Descripción |
 |---|---|
 | **Nombre** | Cancelar Suscripción Activa |
-| **Código** | CDU-N2-05 |
+| **Código** | CDU-N2-04 |
 | **Actores** | Usuario Suscriptor |
 | **Descripción** | Permite al Usuario Suscriptor cancelar su suscripción activa en QuetxalTV. La cancelación puede ser inmediata o al final del período facturado actual, según la política del sistema. El acceso a contenido se mantiene hasta el fin del período pagado. |
 | **Precondiciones** | El usuario debe tener sesión activa con JWT válido. El usuario debe tener una suscripción con estado "Activa". Solo el perfil administrador puede cancelar la suscripción. |
@@ -371,7 +384,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N3-03: Consultar Ficha Técnica y Reparto
 - CDU-N3-04: Gestionar Filtros
 
-![Módulo 3](https://www.plantuml.com/plantuml/png/VLBBRjim4BppAnRgfJtOYEC6HeN0IAtOGG_E8OyFM90RXGYj5PPaaw38n-JOSp_1FnPIaQiaC7AIE3iSpWnvuWDAY1kd7Dq420nYwzi0nWhfOBbH_iusBGfke4LzXpLTXaT7aCVOr8xU4A8dZPxWZm9O978j71jJiME1Byl9wcYrp1CMGzAZ1uUpsU8qeJz5-7u7JevcFnRgIQbWGpghEhs6vKEBZR66IvYEeSAmVNPSCpn2nOsF6uQlv_OtEQX-hRyfXJeafUBQHnJBS46rzK7GS07ea_dTyYFnCdejjarOH_J_bqhryQ5OR_-Pw1YcvNiVgKXo95Xq1UpAA9BxqVbqT30fSuWK46NWWg4S851ZUs_KS_P979OfIIjiehOox8DrTC5ko5Ziu-qu-qIoxLoPIpSFAwjl4QwsVtLZDQOKIJzvUxLoauVx9BwNS4O-FuzEmWLXt-_e_lFL3Ht3Q3GVOWsLVeg_oQ0w7p0U3smeuVYO7b9yCv-h_jHF62Vfan_v2m==)  <br/><br/>
+![Módulo 3](./assets/f2/catalogo.png)  <br/><br/>
 
 
 
@@ -450,24 +463,25 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 
 
-- CDU-N4-01: Emitir Calificación
-- CDU-N4-02: Ver Porcentaje de Recomendación Global
-- CDU-N4-03: Consultar % Global de Recomendación
+- CDU-N4-01: Emitir/Actualizar Calificación
+- CDU-N4-02: Consultar % de Recomendación
+- CDU-N4-03: Consultar mi Calificación actual
+- CDU-N4-04: Registrar en Bitácora de Auditoría (Trigger)
 
-![Módulo 4](https://www.plantuml.com/plantuml/png/RLBDJW8n4BxtAIPhJFG00K4F6q9GN8m7Y97WVToMTKAttRHTH8rFnIFmOivk-3MSDltcc--dtO4Fw4APQw7LF42mu2Zx2239gJIGDS8lo1JeC8S2qmLcQXg-j89gZ2RJweXGUfMYL_0Z01wOd3bR6ZcqsZgu68r6dQHLJQoJoctHvEwstQhGU-VivoduAqIWm5x3nnaagmAD96bZw3PXIZwe747o43NDASMKmoeFLnDQAWt3v_6r49W6rejclaH75gQbJnqLZ4M0lehhXDYsWcYyMSjIM-Z6_pKh5vkNXYJAg6wtQnfnjCQassYrOqXo2kJW3Ra3RsxMfdPPrcTtRkacXh6LjTF97hmujIIir_CTuPn0XwDQuqlDZmYNyAJjE-egxgjARQwCFCv1V0kQlbc9BxRg3er6Vn_l01nuUszeDlTCYA7NKwl0wls-40F-yk_p1m==)  <br/><br/>
+![Módulo 4](./assets/f2/calificaciones.png)  <br/><br/>
 
 
 
 ---
 
-### Especificación CDU-N4-01 — Emitir Calificación
+### Especificación CDU-N4-01 — Emitir/Actualizar Calificación
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Emitir Calificación |
+| **Nombre** | Emitir/Actualizar Calificación |
 | **Código** | CDU-N4-01 |
 | **Actores** | Usuario Suscriptor |
-| **Descripción** | Permite al Usuario Suscriptor emitir una calificación discreta de 1 a 5 estrellas sobre un título específico del catálogo que haya visualizado. La calificación queda registrada en el rating-service y alimenta el cálculo del porcentaje de recomendación global (CDU-N4-02). |
+| **Descripción** | Permite al Usuario Suscriptor calificar un título del catálogo mediante **estrella (1 a 5)** o **pulgar (positivo/negativo)**. La operación es un *upsert*: emitir y modificar son la **misma** operación (`INSERT ... ON CONFLICT (perfil_id, contenido_id) DO UPDATE` en el `rating-service`), con un único voto por par `(perfil_id, contenido_id)`. El RPC `Calificar` devuelve el % de recomendación recalculado mediante la función SQL nativa (CDU-N4-02). |
 | **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. El usuario debe tener una suscripción activa. El contenido a calificar debe existir en el catálogo. |
 | **Post Condiciones** | La calificación del usuario queda registrada o actualizada para el par `(perfil_id, contenido_id)`. El porcentaje de recomendación global del contenido se actualiza (o se recalcula al ser consultado). |
 | **Flujo principal** | 1. El Usuario Suscriptor accede a la ficha técnica de un contenido (CDU-N3-03). 2. El sistema muestra el selector de calificación (1 a 5 estrellas) con la calificación previa del usuario si existe. 3. El usuario selecciona la cantidad de estrellas que desea asignar (1 a 5). 4. El usuario confirma su calificación. 5. El sistema envía la calificación al rating-service: POST/PUT `/rating/{contenido_id}` con el valor seleccionado. 6. El rating-service registra o actualiza la calificación asociada al `perfil_id` activo y al `contenido_id`. 7. El sistema devuelve HTTP 200/201 con la confirmación. 8. La interfaz actualiza visualmente la calificación del usuario y el porcentaje de recomendación global. |
@@ -477,11 +491,11 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
-### Especificación CDU-N4-02 — Ver Porcentaje de Recomendación Global
+### Especificación CDU-N4-02 — Consultar % de Recomendación
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Ver Porcentaje de Recomendación Global |
+| **Nombre** | Consultar % de Recomendación |
 | **Código** | CDU-N4-02 |
 | **Actores** | Usuario Registrado, Usuario Suscriptor |
 | **Descripción** | Permite a cualquier usuario autenticado consultar el porcentaje de recomendación global de un título, calculado a partir de todas las calificaciones emitidas por los usuarios de la plataforma. El cálculo se delega a una Función SQL nativa en el motor de base de datos del rating-service. |
@@ -495,30 +509,49 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 ---
 
 
-### Especificación CDU-N4-03 — Consultar % Global de Recomendación
+### Especificación CDU-N4-03 — Consultar mi Calificación actual
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Consultar % Global de Recomendación |
+| **Nombre** | Consultar mi Calificación actual |
 | **Código** | CDU-N4-03 |
-| **Actores** | Usuario Registrado, Usuario Suscriptor |
-| **Descripción** | Permite a cualquier usuario autenticado consultar un resumen del porcentaje de recomendación de múltiples títulos del catálogo de forma simultánea. A diferencia de CDU-N4-02 (que muestra el porcentaje de un título específico), este caso de uso presenta una vista agregada de los porcentajes de recomendación globales del catálogo, facilitando el descubrimiento de contenido mejor valorado. El cálculo de cada porcentaje se delega a la Función SQL nativa del rating-service. |
-| **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. El catálogo debe tener al menos un título con calificaciones registradas. |
-| **Post Condiciones** | Se presenta al usuario la lista de contenidos con sus respectivos porcentajes de recomendación global, ordenados por puntuación descendente. |
-| **Flujo principal** | 1. El usuario autenticado accede a la sección de recomendaciones o al ranking del catálogo. 2. El sistema solicita al rating-service los porcentajes de recomendación: GET `/rating/resumen`. 3. El rating-service invoca la Función SQL `calcular_porcentaje_recomendacion(contenido_id)` para cada título del catálogo que tenga calificaciones. 4. La función SQL calcula el promedio ponderado de calificaciones y lo convierte a porcentaje (0-100%). 5. El rating-service retorna la lista de títulos ordenada por porcentaje de recomendación descendente. 6. El sistema cruza los datos con el catalog-service para complementar la información (título, imagen de portada, género). 7. El sistema presenta el ranking con cada título y su porcentaje de recomendación global. 8. El usuario puede seleccionar cualquier título para ver su ficha técnica completa (CDU-N3-03) o reproducirlo (CDU-N3-02). |
-| **Flujos alternos** | **FA1 — Ningún título tiene calificaciones aún:** FA1.1 El rating-service devuelve lista vacía. FA1.2 El sistema muestra un mensaje informativo: "Aún no hay suficientes calificaciones para mostrar recomendaciones." **FA2 — Error al invocar el rating-service:** FA2.1 El sistema muestra un error genérico. FA2.2 Se ofrece al usuario recargar la página. FA2.3 El catálogo principal (CDU-N3-01) sigue disponible sin interrupciones (fallo aislado). **FA3 — JWT expirado al consultar:** FA3.1 El API Gateway devuelve HTTP 401. FA3.2 El sistema redirige al usuario a `/login`. |
-| **Reglas de negocio** | El cálculo del porcentaje de recomendación para cada título se ejecuta obligatoriamente mediante la Función SQL nativa del motor de base de datos (no en código de aplicación). Los porcentajes son públicos y visibles para todos los usuarios autenticados (Registrados y Suscriptores). Solo se muestran títulos que tengan al menos una calificación registrada. El fallo del rating-service no debe impedir el acceso al resto de la plataforma (tolerancia a fallos). |
-| **Reglas de calidad** | El listado de recomendaciones debe cargarse en menos de 3 segundos. Cada entrada debe mostrar el porcentaje de recomendación de forma visual (barra de progreso o indicador numérico). La lista debe ordenarse de mayor a menor porcentaje para facilitar el descubrimiento de contenido destacado. El sistema debe manejar de forma resiliente la ausencia del rating-service sin degradar la experiencia de navegación principal. |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite al Usuario Suscriptor consultar la calificación que **él mismo** asignó a un contenido (tipo y valor), para que la interfaz pueda resaltarla. Implementado por el RPC `ObtenerCalificacionUsuario(perfil_id, contenido_id)` del `rating-service`, que lee la tabla `calificacion_usuario`. |
+| **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. El contenido consultado debe existir en el catálogo. |
+| **Post Condiciones** | Se devuelve la calificación del perfil para ese contenido: `{existe, tipo, valor}` (o `existe=false` si el perfil aún no lo ha calificado). |
+| **Flujo principal** | 1. El usuario abre la ficha técnica de un contenido (CDU-N3-03). 2. El sistema solicita al rating-service la calificación del perfil activo: `ObtenerCalificacionUsuario(perfil_id, contenido_id)`. 3. El rating-service consulta la tabla `calificacion_usuario` por el par `(perfil_id, contenido_id)`. 4. Si existe, retorna `{tipo, valor}`; si no, retorna `existe=false`. 5. La interfaz resalta la estrella/pulgar previamente seleccionado (o muestra el selector vacío). |
+| **Flujos alternos** | **FA1 — El perfil aún no ha calificado el contenido:** FA1.1 El servicio devuelve `existe=false`. FA1.2 La UI muestra el selector sin resaltar. **FA2 — Error al invocar el rating-service:** FA2.1 El campo de calificación se muestra neutro. FA2.2 El resto de la ficha técnica se muestra normalmente (fallo aislado). |
+| **Reglas de negocio** | La consulta es por `perfil_id`, no por cuenta: cada perfil ve su propia calificación. Es una operación de solo lectura. Mantiene la consistencia entre lo que el usuario emitió (CDU-N4-01) y lo que ve en la UI. |
+| **Reglas de calidad** | La consulta debe completarse en menos de 1 segundo. El valor mostrado debe coincidir exactamente con la última calificación emitida por el perfil. |
 
 ---
+
+### Especificación CDU-N4-04 — Registrar en Bitácora de Auditoría (Trigger) · *Fase 2*
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Registrar en Bitácora de Auditoría (Trigger) |
+| **Código** | CDU-N4-04 |
+| **Actores** | Sistema (Trigger de Base de Datos) |
+| **Descripción** | Caso de uso transversal de Fase 2. Cada `INSERT`/`UPDATE` sobre la tabla `calificacion_usuario` (provocado por CDU-N4-01) **dispara automáticamente** un trigger que registra el evento en la tabla exclusiva de **bitácora de auditoría**: usuario responsable, timestamp exacto, tabla afectada, estado anterior y estado nuevo. Es incluido (`<<include>>`) por CDU-N4-01. |
+| **Precondiciones** | Deben existir la tabla de bitácora de auditoría y el trigger asociado en `rating_db`. |
+| **Post Condiciones** | Se crea un registro inmutable en la bitácora de auditoría con el cambio realizado. |
+| **Flujo principal** | 1. CDU-N4-01 ejecuta el `INSERT`/`UPDATE` sobre `calificacion_usuario`. 2. El trigger de auditoría captura los valores `OLD` y `NEW` de la fila. 3. El trigger inserta una fila en la bitácora con `{usuario_responsable, timestamp, tabla, estado_anterior, estado_nuevo}`. 4. La transacción de calificación se confirma junto con su registro de auditoría. |
+| **Flujos alternos** | **FA1 — La operación es un INSERT (primera calificación):** FA1.1 El `estado_anterior` se registra como nulo/vacío. **FA2 — Falla la escritura en la bitácora:** FA2.1 La transacción completa hace rollback (atomicidad): no hay cambio sin auditoría. |
+| **Reglas de negocio** | La auditoría es **automática** mediante trigger; no es invocable por ningún actor humano. Aplica a toda operación transaccional (`INSERT`/`UPDATE`) sobre tablas relacionales. Los registros de auditoría son inmutables. |
+| **Reglas de calidad** | El trigger no debe añadir latencia perceptible a la operación de calificación. La bitácora debe garantizar trazabilidad completa para auditorías contra fallas o fraudes. |
+
+---
+
 
 ### Módulo 5: Servicio Financiero FX
 
 - CDU-N5-01: Calcular Tarifa en Moneda Local
 - CDU-N5-02: Consultar Tasa de Cambio Actual
+- CDU-N5-03: Utilizar Tasa de Cambio de Respaldo
 
 
-![Módulo 5](https://www.plantuml.com/plantuml/png/RPB1QXin48RlUefXUqaEDd5WCJLcYRss8L27KZVWGoyJQRmLaIKpajoKqgVg8_J5Ehjuksd9JVFhctz6FxgB2JdberEE3WbI0BRDrmJ6CkbaWrVnsVeJCXxXXFeP6zgbxuwWlKRVE7e5v4WQ8y4F1R0KkE6GlQc32mplrfDDkLctDu4DyKMzkPrEbojH5ypXMozEokdxfVgfaaqogbuzmlhbXDvO4sPGZc57VBRQ1jXOZrvROZdkuUh1dib1VR-zLWfr4g_YCMPa8JzHOsDYDA40ZB9-N_uFxdBKR4-YTM3yM_RWukCz68ALFTiemDLcV_t5p-SxyQCZogQ9s8UgwjeFBqfTSeDY-_kNoIv0ENlrWdtHvTLdLyXhHm_bw6OoWngTpWuPFijc1mJoi0sU3CA7eD5r0_I5USlYLYo2ZzcbpYDYktUDnoUPkz0fznOz8uch8HWOZQh1ViZXNxq_m7XS3KumW_dSUksoeQfIWzxsIYPtv4txwVu0)  <br/><br/>
+![Módulo 5](./assets/f2/servicio_fx.png)  <br/><br/>
 
 
 ---
@@ -554,15 +587,36 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | **Flujos alternos** | **FA1 — Tasa encontrada en caché Redis (ruta óptima):** FA1.1 El sistema retorna la tasa en menos de 50ms. FA1.2 No se realiza ninguna llamada a la API externa. **FA2 — API de Divisas externa no disponible:** FA2.1 El sistema no puede actualizar el caché. FA2.2 Si existe una tasa expirada en Redis, el sistema la retorna como fallback. FA2.3 Si no existe ninguna tasa, se retorna error al solicitante. FA2.4 El fx-service gestiona el fallback a USD. |
 | **Reglas de negocio** | El caché Redis mitiga la latencia y reduce la dependencia de la API externa. El TTL del caché debe balancear frescura de datos vs. carga sobre la API externa. El sistema debe funcionar con un caché ligeramente expirado antes de fallar completamente (tolerancia a fallos). |
 | **Reglas de calidad** | La consulta con caché activo debe completarse en menos de 50ms (EAC-01). La consulta a la API externa no debe superar los 3 segundos de timeout. El sistema debe registrar los tiempos de respuesta para monitoreo de SLA. |
+
 ---
+
+### Especificación CDU-N5-03 — Utilizar Tasa de Cambio de Respaldo
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Utilizar Tasa de Cambio de Respaldo |
+| **Código** | CDU-N5-03 |
+| **Actores** | API de Divisas (FX) «Sistema Externo» |
+| **Descripción** | Extiende (`<<extend>>`) a CDU-N5-02. Cuando la API de Divisas externa no está disponible o no devuelve la tasa, el `fx-service` usa como **respaldo** la última tasa almacenada en **PostgreSQL** (`_obtener_tasa_con_respaldo`). Garantiza la resiliencia del cálculo de precios ante fallos del proveedor externo. |
+| **Precondiciones** | El caché Redis no tiene la tasa o está expirada, y la consulta al proveedor externo falló (`ProveedorFXNoDisponible` o `TasaNoEncontrada`). |
+| **Post Condiciones** | Se retorna la tasa de respaldo obtenida de PostgreSQL. Si tampoco existe respaldo vigente, se retorna el error "No existe tasa externa ni tasa de respaldo vigente". |
+| **Flujo principal** | 1. CDU-N5-02 no encuentra la tasa en Redis. 2. El fx-service intenta obtenerla del proveedor externo. 3. El proveedor falla o no la tiene. 4. El fx-service consulta `repo.obtener_tasa(origen, destino)` en PostgreSQL. 5. Si existe, retorna la tasa de respaldo (y se cachea). |
+| **Flujos alternos** | **FA1 — No existe tasa de respaldo en PostgreSQL:** FA1.1 El servicio lanza `TasaNoEncontrada`. FA1.2 La capa superior gestiona el fallback (ej. mostrar precios en USD). |
+| **Reglas de negocio** | El respaldo es un mecanismo interno de resiliencia, no invocable por un usuario. La prioridad de fuentes es: caché Redis → API externa → PostgreSQL (respaldo). |
+| **Reglas de calidad** | El respaldo debe permitir seguir mostrando precios aunque la API externa esté caída. La conmutación a respaldo debe ser transparente para el usuario. |
+
+---
+
 
 ### Módulo 6: Historial de Reproducción
 
 
 
 - CDU-N6-01: Registrar Progreso de Visualización
+- CDU-N6-02: Consultar Historial de Reproducción
+- CDU-N6-03: Reanudar Reproducción
 
-![Módulo 6](https://www.plantuml.com/plantuml/png/JP7DJa8n48NtVOh9TQEBQm03AWk3m3MwW1W83p1fn-k4qjvCM_oBJyKZy68M0iAovtpDEISp214bffLLbjuYH0_2zNi4mq8widSgBDarABY21lKIQvh7Bqkmiz7Lbiw054XZ8FXH0CCCr-AJCoDllS15TVVKhUvtZXT3Sb0xrUtuffFLHn7_SH3RmsxLQQbV5JdcgD5u0TLdWywmyNteNSCpX-Y5qO8Xc54ZtYIjURjnS3dbDLaOlKokb4ATCIWM8Q6mXtaAMhZ9MW4O8Fm_bJfiWsAotPXaFVJwy2g-5WeUw1HOxCSTXnQvMZdjbQrsFzUeCoGeq1p_vN9hpjcMlt7VRXyhHp0FLASEK9OFPzw0dDcTvGy=)  <br/><br/>
+![Módulo 6](assets/f2/historial.png)  <br/><br/>
 
 
 
@@ -585,26 +639,62 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
+### Especificación CDU-N6-02 — Consultar Historial de Reproducción
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Consultar Historial de Reproducción |
+| **Código** | CDU-N6-02 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite al Usuario Suscriptor consultar la lista de contenidos de su historial reciente ("Seguir viendo") con su porcentaje visto. Implementado por el RPC `GetHistory(perfil_id)` del `history-service`. |
+| **Precondiciones** | El usuario debe tener sesión activa con JWT válido y un perfil seleccionado. |
+| **Post Condiciones** | Se devuelve la lista de items del historial del perfil con su progreso (`segundo_exacto`, `duracion_total`, `porcentaje_visto`, `actualizado_en`). |
+| **Flujo principal** | 1. El usuario accede a la sección "Seguir viendo" / su historial. 2. El sistema solicita al history-service: `GetHistory(perfil_id)`. 3. El history-service consulta su base de datos y retorna los items del perfil ordenados por más reciente. 4. El sistema cruza con el catalog-service para complementar (título, portada). 5. La interfaz presenta el historial con el progreso de cada contenido. |
+| **Flujos alternos** | **FA1 — El perfil no tiene historial:** FA1.1 Se devuelve lista vacía. FA1.2 La UI muestra "Aún no has reproducido contenido". **FA2 — Error al invocar el history-service:** FA2.1 La sección se muestra vacía sin afectar el resto de la navegación (fallo aislado). |
+| **Reglas de negocio** | El historial es por `perfil_id`, independiente entre perfiles de la misma cuenta. Es una operación de solo lectura. |
+| **Reglas de calidad** | El historial debe cargarse en menos de 2 segundos. El progreso debe mostrarse de forma visual (barra de avance). |
+
+---
+
+### Especificación CDU-N6-03 — Reanudar Reproducción
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Reanudar Reproducción |
+| **Código** | CDU-N6-03 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite obtener el punto exacto (temporada, episodio, segundo) donde el perfil dejó un contenido, para reanudar la reproducción desde ahí. Implementado por el RPC `GetResume(perfil_id, contenido_id)` del `history-service`; es consumido por la reproducción (CDU-N3-02). |
+| **Precondiciones** | El usuario debe tener sesión activa con perfil seleccionado. Debe existir un registro de progreso previo para el par `(perfil_id, contenido_id)`. |
+| **Post Condiciones** | Se devuelve el `HistoryItem` con el punto exacto de reanudación; la reproducción inicia desde ese timestamp. |
+| **Flujo principal** | 1. El usuario selecciona un contenido para reproducir (CDU-N3-02). 2. El sistema solicita `GetResume(perfil_id, contenido_id)` al history-service. 3. El history-service retorna el último punto guardado (temporada, episodio, segundo_exacto). 4. El reproductor inicia desde ese punto exacto. |
+| **Flujos alternos** | **FA1 — No existe progreso previo:** FA1.1 El history-service no retorna punto. FA1.2 La reproducción inicia desde el segundo 0. **FA2 — Error al invocar el history-service:** FA2.1 La reproducción inicia desde el inicio (fallo aislado, no bloquea). |
+| **Reglas de negocio** | La reanudación es por `perfil_id`. El punto de reanudación corresponde al último progreso registrado por CDU-N6-01. |
+| **Reglas de calidad** | La obtención del punto de reanudación no debe retrasar perceptiblemente el inicio de la reproducción (< 1 segundo). |
+
+---
+
+
 
 ### Módulo 7: Notificaciones por Correo Electrónico
 
-- CDU-N7-01: Generar Notificación
+- CDU-N7-01: Encolar Notificación
 - CDU-N7-02: Servir Correo Electrónico
+- CDU-N7-03: Programar/Calendarizar Estreno
 
 
-![Módulo 7](https://www.plantuml.com/plantuml/png/RLBBJiCm4BpxArRX0eTMBQzAKHLHqe8uj484RbmiUmaMZXsjdG92_Qf-0Z_6DatBGvmYpywiPyQv255IR2ehB3v5Y1x8bCyHj25KqNWdmejnjIHPGItLYoonYEyMOJEMhhJuWz04L38WV0Y0IoQNv1kdSsyzmS7ivEhuQhgPUD987JeyEp_B1unEYFnh1mwcfwF9KAn4D96logSFC7khfTD6-nH6VLZuQ9wCaeeDOe2QHRadGW-72xD42_dD_4W8gI9FaeVGI38Uxh0q8PBKFW4PEC7k-9TOD46HgHbhYM5_t14Bf2Lx8IZczxUFRZmkU1DMacr69EUpR2kiOYr4Lniayy-rRgo7KGeJYnIPySw-gyQrKJxNBcchszMOSF3UOjGR35EuHeSawKVobiuhoktaFzrn2gtJVJipowz6h3Hgsm6wfM7jIeZlDg3No_PRlxF_WhilzFjPjmDI68-DKxRHc6MY0pUQjeKBT7hpbtq1)  <br/><br/>
+![Módulo 7](./assets/f2/notificaciones.png)  <br/><br/>
 
 
 ---
 
-### Especificación CDU-N7-01 — Generar Notificación
+### Especificación CDU-N7-01 — Encolar Notificación
 
 | Campo | Descripción |
 |---|---|
-| **Nombre** | Generar Notificación |
+| **Nombre** | Encolar Notificación |
 | **Código** | CDU-N7-01 |
-| **Actores** | Usuario Registrado, Usuario Suscriptor |
-| **Descripción** | El notification-service genera y encola un mensaje de notificación transaccional (confirmación de registro, recibo de cobro, alerta de nuevo contenido) utilizando el patrón Outbox para garantizar la entrega eventual sin bloquear el hilo principal de ejecución. Incluye CDU-N7-02 para el despacho efectivo del correo. |
+| **Actores** | Servicios Internos (Auth / Billing / Catálogo) |
+| **Descripción** | Los **microservicios internos** (auth-service, billing-service, catalog-service) — **no el usuario** — invocan al `notification-service` vía gRPC `EncolarCorreo(usuario_id, tipo, destinatario, datos)` para encolar un correo transaccional (tipos `registro`, `recibo`, `nuevo_contenido`) usando el patrón **Outbox**. El envío efectivo lo realiza un worker en segundo plano (CDU-N7-02). El usuario es el *receptor*, no el iniciador. |
 | **Precondiciones** | Debe haberse producido un evento de negocio que requiera notificación: registro de nuevo usuario, cobro procesado, o publicación de nuevo contenido. El notification-service debe estar operativo. El correo del destinatario debe ser válido y estar disponible en el payload del evento. |
 | **Post Condiciones** | El mensaje de notificación queda encolado en la base de datos del notification-service (tabla Outbox) con estado "Pendiente". El proceso de despacho (CDU-N7-02) procesa la cola de forma asíncrona. |
 | **Flujo principal** | 1. Un microservicio origen (auth-service o billing-service) produce un evento de negocio que requiere notificación. 2. El microservicio invoca al notification-service mediante gRPC: `EncolarCorreo(UsuarioId, Tipo, Destinatario, Datos)`. 3. El notification-service recibe la solicitud y crea un registro en su tabla Outbox con estado "Pendiente". 4. El notification-service devuelve confirmación de encolado al microservicio origen. 5. El notification-service desencadena CDU-N7-02 para procesar la cola de forma asíncrona. 6. Los tipos de notificación soportados son: `registro`, `cobro_exitoso`, `cobro_fallido`, `cancelacion`, `nuevo_contenido`. |
@@ -628,6 +718,142 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | **Flujos alternos** | **FA1 — Servidor SMTP no disponible (timeout):** FA1.1 El notification-service captura el error de conexión. FA1.2 El registro Outbox se actualiza a estado "Fallido" con el detalle del error. FA1.3 El sistema puede reintentar el envío en el siguiente ciclo de procesamiento. **FA2 — Dirección de correo del destinatario inválida:** FA2.1 El servidor SMTP rechaza el correo con error SMTP apropiado. FA2.2 El registro se marca como "Fallido". FA2.3 No se realizan más reintentos para este registro. **FA3 — Plantilla de correo no encontrada para el tipo indicado:** FA3.1 El sistema registra el error en logs. FA3.2 El registro Outbox se marca como "Fallido". |
 | **Reglas de negocio** | El despacho de correos es estrictamente asíncrono y no bloquea ningún otro proceso del sistema. Cada registro Outbox se procesa una vez; los reintentos están controlados para evitar spam. El servidor SMTP y las credenciales se configuran exclusivamente mediante variables de entorno (nunca en código fuente). Los correos fallidos se registran con el error para análisis posterior. |
 | **Reglas de calidad** | El despacho asíncrono no debe añadir latencia perceptible al flujo de negocio principal (EAC-02). Los correos deben seguir plantillas HTML estilizadas con la identidad visual de QuetxalTV. El tiempo entre el encolado y el envío efectivo no debe superar 60 segundos en condiciones normales. El sistema debe registrar métricas de tasa de entrega exitosa vs. fallida. |
+
+---
+
+### Especificación CDU-N7-03 — Programar/Calendarizar Estreno · *Fase 2*
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Programar/Calendarizar Estreno |
+| **Código** | CDU-N7-03 |
+| **Actores** | Administrador |
+| **Descripción** | Caso de uso de Fase 2 que conecta el Panel de Administración con las notificaciones. El Administrador programa/calendariza el estreno de nuevo contenido; al activarse el estreno, el catalog-service **dispara** (`<<trigger>>`) la notificación de tipo `nuevo_contenido` (CDU-N7-01) hacia los usuarios. |
+| **Precondiciones** | El usuario debe tener rol de Administrador y sesión activa. El contenido a estrenar debe estar cargado en el catálogo. |
+| **Post Condiciones** | El estreno queda calendarizado; al cumplirse la fecha, se encola la notificación `nuevo_contenido` y el contenido pasa a estar visible en la cartelera. |
+| **Flujo principal** | 1. El Administrador define la fecha/hora de estreno de un contenido desde el Panel de Administración. 2. El sistema registra el estreno programado (Trigger/Disparador). 3. Al cumplirse la fecha, el catalog-service invoca `EncolarCorreo(tipo=nuevo_contenido)` en el notification-service (CDU-N7-01). 4. El contenido se publica en la cartelera y los usuarios reciben la alerta de estreno. |
+| **Flujos alternos** | **FA1 — El Administrador cancela o reprograma el estreno antes de la fecha:** FA1.1 Se actualiza/elimina el disparador programado. **FA2 — Usuario sin rol de Administrador:** FA2.1 El API Gateway rechaza con HTTP 403. |
+| **Reglas de negocio** | Solo el Administrador puede programar estrenos. El disparo de la notificación `nuevo_contenido` es automático al activarse el estreno. La calendarización es parte del CRUD del catálogo (Fase 2). |
+| **Reglas de calidad** | El estreno debe reflejarse en la cartelera y disparar las alertas de forma oportuna respecto a la fecha programada. |
+
+
+---
+
+## Módulo 8: Panel de Administrador
+
+- CDU-N8-01: Iniciar Sesión como Administrador
+- CDU-N8-02: Agregar Nuevo Contenido (Película/Serie)
+- CDU-N8-03: Actualizar/Editar Metadatos
+- CDU-N8-04: Eliminar Título
+- CDU-N8-05: Programar/Calendarizar Estreno
+- CDU-N8-06: Generar Reporte de Auditoría (CSV/PDF)
+
+![Módulo 8](./assets/f2/admin.png)  <br/><br/>
+
+---
+
+### Especificación CDU-N8-01 — Iniciar Sesión como Administrador
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Iniciar Sesión como Administrador |
+| **Código** | CDU-N8-01 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador autenticarse en el Panel de Administración de Quetxal TV. |
+| **Precondiciones** | El usuario debe tener credenciales de administrador válidas. |
+| **Post Condiciones** | Sesión de administrador iniciada con un token de acceso válido. |
+| **Flujo principal** | 1. El Administrador accede a la pantalla de login del panel. 2. Ingresa sus credenciales. 3. El sistema valida las credenciales y el rol de Administrador. 4. El sistema emite el JWT y redirige al dashboard. |
+| **Flujos alternos** | **FA1 — Credenciales inválidas:** FA1.1 El sistema rechaza el acceso. FA1.2 Muestra mensaje de error. |
+| **Reglas de negocio** | Solo los usuarios con rol explícito de 'Administrador' pueden acceder a este panel. |
+| **Reglas de calidad** | El proceso de autenticación debe ser seguro y rápido (< 2 segundos). |
+
+---
+
+### Especificación CDU-N8-02 — Agregar Nuevo Contenido (Película/Serie)
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Agregar Nuevo Contenido (Película/Serie) |
+| **Código** | CDU-N8-02 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador agregar un nuevo título al catálogo. Involucra llenar un formulario con metadatos y subir archivos multimedia. |
+| **Precondiciones** | Sesión activa como Administrador. Los archivos multimedia deben cumplir los formatos permitidos. |
+| **Post Condiciones** | El nuevo contenido queda registrado en la base de datos y los archivos en GCS. |
+| **Flujo principal** | 1. El Administrador llena el formulario de metadatos (título, sinopsis, etc.). 2. Sube archivo de video y portada. 3. El sistema guarda los metadatos en la base de datos (catalog-service). 4. El sistema guarda los archivos en Google Cloud Storage (GCS). |
+| **Flujos alternos** | **FA1 — Fallo de GCS:** FA1.1 El bucket rechaza la operación por timeout, o catalog-service no logra firmar la Signed URL por un fallo de **Workload Identity** o por permisos insuficientes del Service Account de GCP (Error 500). FA1.2 Se notifica al administrador del fallo en la subida. **FA2 — DB Timeout:** FA2.1 El microservicio catalog-service no responde. FA2.2 La operación falla. |
+| **Reglas de negocio** | Todo contenido debe tener metadatos completos y archivos multimedia válidos. |
+| **Reglas de calidad** | La subida de archivos debe ser resiliente y manejar archivos grandes sin bloquear el frontend. |
+
+---
+
+### Especificación CDU-N8-03 — Actualizar/Editar Metadatos
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Actualizar/Editar Metadatos |
+| **Código** | CDU-N8-03 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador modificar la información descriptiva de un título existente en el catálogo. |
+| **Precondiciones** | Sesión activa como Administrador. El contenido debe existir. |
+| **Post Condiciones** | Los metadatos del título se actualizan en la base de datos. |
+| **Flujo principal** | 1. El Administrador busca y selecciona un contenido. 2. Modifica los campos necesarios en el formulario de edición. 3. Guarda los cambios. 4. El sistema actualiza la base de datos del catalog-service. |
+| **Flujos alternos** | **FA1 — Datos inválidos:** FA1.1 El sistema detecta campos obligatorios faltantes o con formato incorrecto. FA1.2 Muestra error de validación. |
+| **Reglas de negocio** | Las actualizaciones de metadatos deben reflejarse inmediatamente en el catálogo. |
+| **Reglas de calidad** | El tiempo de actualización en base de datos debe ser < 2 segundos. |
+
+---
+
+### Especificación CDU-N8-04 — Eliminar Título
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Eliminar Título |
+| **Código** | CDU-N8-04 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador remover un título del catálogo. La eliminación ejecuta un borrado lógico (Soft-Delete) o físico con un trigger de auditoría. |
+| **Precondiciones** | Sesión activa como Administrador. El contenido debe existir. |
+| **Post Condiciones** | El contenido deja de estar disponible en el catálogo y se registra en la auditoría. |
+| **Flujo principal** | 1. El Administrador selecciona un título y elige la opción de eliminar. 2. El Administrador confirma la eliminación. 3. El sistema ejecuta el Soft-Delete o borra los registros. 4. El sistema lanza el trigger de auditoría para registrar el cambio. |
+| **Flujos alternos** | **FA1 — Restricción de Integridad:** FA1.1 Falla en la base de datos si hay historial atado sin borrado en cascada (Error 409). FA1.2 El sistema informa que no se puede eliminar el título. |
+| **Reglas de negocio** | Se debe requerir confirmación antes de eliminar. La acción debe dejar rastro en la auditoría. |
+| **Reglas de calidad** | La eliminación debe mantener la integridad referencial en todo momento. |
+
+---
+
+### Especificación CDU-N8-05 — Programar/Calendarizar Estreno
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Programar/Calendarizar Estreno |
+| **Código** | CDU-N8-05 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador establecer una fecha futura en la que un contenido oculto pasará a ser visible en el catálogo. |
+| **Precondiciones** | Sesión activa como Administrador. El contenido debe estar en estado oculto o borrador. |
+| **Post Condiciones** | El contenido queda en estado "Programado" y se hará visible en la fecha especificada. |
+| **Flujo principal** | 1. El Administrador selecciona un contenido oculto. 2. Define la fecha y hora de visibilidad. 3. El sistema actualiza el estado a "Programado". 4. En la fecha definida, el sistema lo hace visible. |
+| **Flujos alternos** | **FA1 — Validación Fallida:** FA1.1 La fecha definida es en el pasado o tiene formato inválido. FA1.2 El sistema rechaza la solicitud (Error 400). |
+| **Reglas de negocio** | El contenido programado no debe ser visible para usuarios finales hasta alcanzar la fecha/hora exacta. |
+| **Reglas de calidad** | El servicio encargado de publicar el contenido debe ser preciso y no tener desfases significativos. |
+
+---
+
+### Especificación CDU-N8-06 — Generar Reporte de Auditoría (CSV/PDF)
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Generar Reporte de Auditoría (CSV/PDF) |
+| **Código** | CDU-N8-06 |
+| **Actores** | Administrador |
+| **Descripción** | Permite al Administrador generar y descargar un archivo (CSV o PDF) con el registro histórico de las acciones realizadas en el panel (ej. eliminaciones, ediciones). |
+| **Precondiciones** | Sesión activa como Administrador. Deben existir registros de auditoría. |
+| **Post Condiciones** | El administrador recibe un archivo con el reporte. |
+| **Flujo principal** | 1. El Administrador define los filtros, como el rango de fechas. 2. El sistema consulta la tabla de auditoría en la base de datos. 3. El sistema genera el archivo en el formato seleccionado (.csv o PDF). 4. Se inicia la descarga del archivo. |
+| **Flujos alternos** | **FA1 — Memory Limit:** FA1.1 La consulta es muy grande y sobrecarga el microservicio. FA1.2 El sistema debe paginar o abortar la operación notificando al Administrador. |
+| **Reglas de negocio** | Solo el Administrador tiene permiso para generar y visualizar reportes de auditoría. |
+| **Reglas de calidad** | La generación del reporte no debe afectar el rendimiento general del sistema. |
+
+
+
 ---
 
 ## **3\. Gobernanza y Entrelazamiento (Matrices de Trazabilidad)** {#3.-gobernanza-y-entrelazamiento-(matrices-de-trazabilidad)}
@@ -642,6 +868,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | ST-01 | Usuario Invitado | Usuario externo no autenticado |
 | ST-02 | Usuario Registrado | Usuario autenticado sin suscripción activa |
 | ST-03 | Usuario Suscriptor | Usuario autenticado con suscripción activa |
+| ST-04 | Administrador | Operador interno de la plataforma; gestiona catálogo, estrenos y reportes desde el Panel de Administración (Fase 2) |
 | ST-05 | API de Divisas (FX) | Sistema externo de tipo de cambio |
 | ST-06 | Servidor SMTP | Infraestructura de correo transaccional |
 | ST-07 | Juan Pablo (Auxiliar SA) | Autoridad de negocio / patrocinador del proyecto |
@@ -684,38 +911,43 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | CDU - N3-02 | Reproducir Contenido |
 | CDU - N3-03 | Consultar Ficha Técnica |
 | CDU - N3-04 | Gestionar Filtros |
-| CDU - N4-01 | Emitir Calificación |
-| CDU - N4-02 | Ver % Recomendación |
-| CDU - N4-03 | Consultar % Global de Recomendación |
+| CDU - N4-01 | Emitir/Actualizar Calificación |
+| CDU - N4-02 | Consultar % de Recomendación |
+| CDU - N4-03 | Consultar mi Calificación actual |
+| CDU - N4-04 | Registrar en Bitácora de Auditoría (Trigger) · Fase 2 |
 | CDU - N5-01 | Calcular Tarifa Local |
 | CDU - N5-02 | Consultar Tasa de Cambio |
+| CDU - N5-03 | Utilizar Tasa de Cambio de Respaldo |
 | CDU - N6-01 | Registrar Progreso |
-| CDU - N7-01 | Generar Notificación |
+| CDU - N6-02 | Consultar Historial de Reproducción |
+| CDU - N6-03 | Reanudar Reproducción |
+| CDU - N7-01 | Encolar Notificación |
 | CDU - N7-02 | Servir Correo Electrónico |
+| CDU - N7-03 | Programar/Calendarizar Estreno · Fase 2 |
 
 ----
 
 ### Matriz: Requerimientos Funcionales vs. Casos de Uso
 
-| RF | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 |
-|-----|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|
-| RF-01 Registro usuarios | X | | | | | | | | | | | | | | | | | | | | | | |
-| RF-02 Login local + JWT | | X | X | | | | X | | | | | | | | | | | | | | | | |
-| RF-03 Límite 5 perfiles | | | | X | | X | | | | | | | | | | | | | | | | | |
-| RF-04 Trigger auditoría | X | | | | | | | | | | | | | | | | | | | | | | |
-| RF-05 Despliegue planes | | | | | | | X | | X | | | | | | | | | | | | | | |
-| RF-06 Cobro recurrente | | | | | | | | X | | | | | | | | | | | | | | | |
-| RF-07 Autogestión suscripción | | | | | | | | | X | X | | | | | | | | | | | | | |
-| RF-08 Búsqueda multicriterio | | | | | | | | | | | | X | | | X | | | | | | | | |
-| RF-09 Ficha técnica | | | | | | | | | | | | | | X | | | | | | | | | |
-| RF-10 Calificación contenido | | | | | | | | | | | | | | | | X | | | | | | | |
-| RF-11 % Recomendación | | | | | | | | | | | | | | | | | X | X | | | | | |
-| RF-12 Conversión moneda | | | | | | | X | | | | | | | | | | | | X | | | | |
-| RF-13 Caché Redis FX | | | | | | | | | | | | | | | | | | | | X | | | |
-| RF-14 Registro timestamp | | | | | | | | | | | | | X | | | | | | | | X | | |
-| RF-15 Reanudación exacta | | | | | | | | | | | | | X | | | | | | | | | | |
-| RF-16 Encolado notificaciones | | | | | | | | X | | | | | | | | | | | | | | X | |
-| RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | | | | | | | | X |
+| RF | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N5-03 | CDU - N6-02 | CDU - N6-03 | CDU - N7-03 |
+|-----|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------ | ------ | ------ | ------ | ------ | ------ |
+| RF-01 Registro usuarios | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-02 Login local + JWT | | X | X | | | | X | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-03 Límite 5 perfiles | | | | X | | X | | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-04 Trigger auditoría | X | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |
+| RF-05 Despliegue planes | | | | | | | X | | X | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-06 Cobro recurrente | | | | | | | | X | | | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-07 Autogestión suscripción | | | | | | | | | X | X | | | | | | | | | | | | | |  |  |  |  |  |
+| RF-08 Búsqueda multicriterio | | | | | | | | | | | | X | | | X | | | | | | | | |  |  |  |  |  |
+| RF-09 Ficha técnica | | | | | | | | | | | | | | X | | | | | | | | | |  |  |  |  |  |
+| RF-10 Calificación contenido | | | | | | | | | | | | | | | | X | | | | | | | |  |  |  |  |  |
+| RF-11 % Recomendación | | | | | | | | | | | | | | | | | X |  | | | | | |  |  |  |  |  |
+| RF-12 Conversión moneda | | | | | | | X | | | | | | | | | | | | X | | | | |  |  |  |  |  |
+| RF-13 Caché Redis FX | | | | | | | | | | | | | | | | | | | | X | | | |  | X |  |  |  |
+| RF-14 Registro timestamp | | | | | | | | | | | | | X | | | | | | | | X | | |  |  | X |  |  |
+| RF-15 Reanudación exacta | | | | | | | | | | | | | X | | | | | | | | | | |  |  |  | X |  |
+| RF-16 Encolado notificaciones | | | | | | | | X | | | | | | | | | | | | | | X | |  |  |  |  | X |
+| RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | | | | | | | | X |  |  |  |  |  |
 
 
 ### 3.3 Matriz: Stakeholders vs. Casos de Uso {#3.3-matriz:-stakeholders-vs.-casos-de-uso}
@@ -723,17 +955,19 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 ### Matriz: Stakeholders vs. Casos de Uso
 
 
-| Stakeholder | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 |
-|------------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|
-| ST-01 Usuario Invitado | X | | | | | | | | | | | | | | | | | | | | | | |
-| ST-02 Usuario Registrado | | X | X | | | | X | X | | | X | | X | X | | X | X | X | X | | X | | |
-| ST-03 Usuario Suscriptor | | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | |
-| ST-05 API de Divisas | | | | | | | | | | | | | | | | | | | X | X | | | |
-| ST-06 Servidor SMTP | | | | | | | | | | | | | | | | | | | | | | X | X |
-| ST-07 Juan Pablo (SA) | X | X | | X | | | | X | X | | X | X | X | | | X | | X | | | | X | |
-| ST-08 Ing. SRE / Arquitecto | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X |
+| Stakeholder | CDU - N1-01 | CDU - N1-02 | CDU - N1-04 | CDU - N1-05 | CDU - N1-06 | CDU - N1-07 | CDU - N1-08 | CDU - N2-01 | CDU - N2-02 | CDU - N2-04 | CDU - N2-05 | CDU - N3-01 | CDU - N3-02 | CDU - N3-03 | CDU - N3-04 | CDU - N4-01 | CDU - N4-02 | CDU - N4-03 | CDU - N5-01 | CDU - N5-02 | CDU - N6-01 | CDU - N7-01 | CDU - N7-02 | CDU - N4-04 | CDU - N5-03 | CDU - N6-02 | CDU - N6-03 | CDU - N7-03 |
+|------------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|-------- | ------ | ------ | ------ | ------ | ------ |
+| ST-01 Usuario Invitado | X | | | | | | | | | | | | | | | | | | | | | | |  |  |  |  |  |
+| ST-02 Usuario Registrado | | X | X | | | | X | X | | | X | | X | X | | X | X |  | X | | X | | |  |  |  |  |  |
+| ST-03 Usuario Suscriptor | | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | |  |  | X | X |  |
+| ST-05 API de Divisas | | | | | | | | | | | | | | | | | | | X | X | | | |  | X |  |  |  |
+| ST-06 Servidor SMTP | | | | | | | | | | | | | | | | | | | | | | X | X |  |  |  |  |  |
+| ST-07 Juan Pablo (SA) | X | X | | X | | | | X | X | | X | X | X | | | X | | X | | | | X | |  |  |  |  |  |
+| ST-08 Ing. SRE / Arquitecto | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X | X |
 
 ----
+
+> **Nota (Fase 2):** Los requerimientos funcionales de Fase 2 se formalizaron como **RF-18 a RF-25** (§2.4.1) y los no funcionales como **EAC-04 y EAC-05** (§2.4.2). Se incorporó el stakeholder dedicado **Administrador (ST-04)** al catálogo (§2.2) y a las matrices (§3.1 y §3.5). La trazabilidad del Administrador y de los RF de Fase 2 con los casos de uso del Panel de Administración (`CDU-N8-01` a `CDU-N8-06`) y de estrenos (`CDU-N7-03`) se documenta en la **§3.5 Trazabilidad de Fase 2**.
 
 
 ### 3.4 Matriz: Requerimientos vs. Requerimientos (Dependencias de ejecución) {#3.4-matriz:-requerimientos-vs.-requerimientos-(dependencias-de-ejecución)}
@@ -761,14 +995,85 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | RF-17 Envío correo SMTP | | | | | | | | | | | | | | | | X | — |
 ----
 
+### 3.5 Trazabilidad de Fase 2 (Administrador · RF-18+ · CDU-N8) {#3.5-trazabilidad-de-fase-2}
+
+Esta sección formaliza las relaciones de Fase 2 que en la primera entrega quedaron pendientes: el stakeholder **Administrador (ST-04)**, los requerimientos **RF-18 a RF-25** y los casos de uso del Panel de Administración (**CDU-N8-01** a **CDU-N8-06**) y de estrenos (**CDU-N7-03**).
+
+#### Matriz: Administrador (ST-04) vs. Casos de Uso de Fase 2
+
+| Caso de Uso | Nombre | Administrador (ST-04) |
+|---|---|:--:|
+| CDU-N8-01 | Iniciar Sesión como Administrador | X |
+| CDU-N8-02 | Agregar Nuevo Contenido (Película/Serie) | X |
+| CDU-N8-03 | Actualizar/Editar Metadatos | X |
+| CDU-N8-04 | Eliminar Título | X |
+| CDU-N8-05 | Programar/Calendarizar Estreno | X |
+| CDU-N8-06 | Generar Reporte de Auditoría (CSV/PDF) | X |
+| CDU-N7-03 | Programar/Calendarizar Estreno (notificación) | X |
+
+#### Matriz: Requerimientos de Fase 2 (RF-18..RF-25) vs. Casos de Uso
+
+| RF | Descripción | Casos de Uso asociados |
+|---|---|---|
+| RF-18 | Panel de Administración protegido por rol | CDU-N8-01 |
+| RF-19 | Agregar nuevo contenido | CDU-N8-02 |
+| RF-20 | Actualizar/editar metadatos y portadas | CDU-N8-03 |
+| RF-21 | Eliminar contenido (Soft-Delete + auditoría) | CDU-N8-04, CDU-N4-04 |
+| RF-22 | Programar/calendarizar estreno | CDU-N8-05, CDU-N7-03 |
+| RF-23 | Multimedia en GCS (URLs firmadas) | CDU-N3-02, CDU-N8-02 |
+| RF-24 | Auditoría transaccional por triggers | CDU-N4-04, CDU-N8-04 |
+| RF-25 | Reporte de auditoría exportable (.csv/PDF) | CDU-N8-06 |
+
 ## **4\. Fase 2: Espacio de la Solución Conceptual (Nivel PIM)** {#4.-fase-2:-espacio-de-la-solución-conceptual-(nivel-pim)}
 
-<div align="center">
-  <img src="../ProyectoSA-NoOficial/assets/Diagramas Proyecto 1-Vista 4+1.svg" alt="Modelo 4+1" width="900"/>
-</div>
 
 
 ### **4.1 Vista de Escenarios (+1)** {#4.1-vista-de-escenarios-(+1)}
+
+### Vista general
+<div align="center">
+  <img src="./docs/img/modelo4vistas/vista4+1.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Vista Logica
+<div align="center">
+  <img src="./docs/img/modelo4vistas/vistaLogica.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Administradir
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/admin.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Invitador
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/invitado.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Registrado
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/registrado.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Suscriptor
+<div align="center">
+  <img src="./docs/img/modelo4vistas/suscriptor.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Vista +1
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/v+1.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Vista de Despliegue
+<div align="center">
+  <img src="./docs/img/modelo4vistas/despliegue.png" alt="Modelo 4+1" width="900"/>
+</div>
+
 
 *Casos de uso críticos que validan la arquitectura.*
 
@@ -779,39 +1084,94 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 ----
 ### **4.2 Vista Lógica y Estilos Arquitectónicos** {#4.2-vista-lógica-y-estilos-arquitectónicos}
 
+
+#### 4.2.1 Diagrama de Bloques de Alto Nivel:
+
+<div align="center">
+  <img src="./assets/DiagramaAltoNivelF2.svg" alt="" width="900"/>
+</div>
+
 #### 4.2.2 Frontera Lógica de Datos (Diagramas ER Desacoplados): {#4.2.2-frontera-lógica-de-datos-(diagramas-er-desacoplados):}
 
-*Obligatorio: Un esquema por cada microservicio, sin llaves foráneas cruzadas y con Triggers/SPs modelados visualmente.*
+**Justificación Arquitectónica: ¿Por qué y para qué se definieron estos componentes?**
 
-Cada microservicio expone su propio esquema (patrón *Database per Microservice*, RES-02): **sin llaves foráneas físicas entre dominios** (las referencias cruzadas son lógicas, por `id`), y con sus **vistas, triggers, funciones y stored procedures** modelados (RES-04). A continuación, el ER de cada dominio por separado:
+
+*   **Tablas Aisladas:** 
+    *   **¿Por qué?** Para garantizar la cohesión funcional y el desacoplamiento de los microservicios.
+    *   **¿Para qué?** Para que cada equipo o servicio pueda escalar, modificar y migrar sus esquemas de forma independiente sin afectar o romper el código de otros dominios. Las referencias cruzadas se manejan lógicamente mediante `id` (ej. el `usuario_id` en Calificaciones existe sin FK real hacia Identidad).
+*   **Funciones y Procedimientos Almacenados (SPs):**
+    *   **¿Por qué?** Para encapsular lógica transaccional compleja o cálculos intensivos (ej. cobros recurrentes, actualización de tasas FX, encolado de correos Outbox) que requieren estricta atomicidad a nivel de datos (ACID).
+    *   **¿Para qué?** Para centralizar el procesamiento pesado en el motor de BD, reduciendo la latencia de transferencia de datos por la red y evitando que los microservicios manejen lógicas de reversión de transacciones complejas manualmente.
+*   **Triggers (Disparadores):**
+    *   **¿Por qué?** Porque la restricción técnica **RES-04** exige un registro infalible de todo cambio en el sistema para cumplimiento normativo y auditorías.
+    *   **¿Para qué?** Para interceptar eventos de modificación (`INSERT`, `UPDATE`, `DELETE`) de forma automática, poblando las tablas de `auditoria_transaccional` o recalculando métricas de manera "silenciosa", garantizando que incluso si un desarrollador olvida auditar desde el microservicio, la base de datos lo hará obligatoriamente.
+*   **Vistas:**
+    *   **¿Por qué?** Para abstraer consultas recurrentes de múltiples uniones o filtrados lógicos de estado.
+    *   **¿Para qué?** Para proveer interfaces de lectura limpias y seguras hacia los workers (ej. la `vista_buzon_pendiente` para el envío de correos), mejorando el rendimiento de lectura y ocultando la complejidad del modelo base al código de la aplicación.
+
+A continuación, se detalla el Modelo Entidad-Relación y los componentes implementados de forma independiente para cada uno de los 7 dominios:
 
 **Dominio 1 — Identidad (Go) · IdentityDB**
 
-<p align="center"><img src="assets/er/er-1-identidad.png" width="860" alt="ER — Identidad"/></p>
+* **Tablas:** auditoria_transaccional, auditoria_usuarios, perfiles, usuarios
+* **Funciones:** trg_fn_audit_credenciales, trg_fn_auditar_transaccion, trg_fn_limite_perfiles, trg_fn_timestamp
+* **Triggers:** trg_AuditCredenciales, trg_audit_perfiles, trg_audit_usuarios, trg_limite_perfiles, trg_timestamp_usuarios
+
+<p align="center"><img src="assets/f2/db/identidad.png" width="860" alt="ER — Identidad"/></p>
 
 **Dominio 2 — Suscripciones (TypeScript) · BillingDB**
 
-<p align="center"><img src="assets/er/er-2-suscripciones.png" width="860" alt="ER — Suscripciones"/></p>
+* **Tablas:** auditoria_transaccional, pagos, planes, suscripciones
+* **Funciones:** trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_ProcesarRenovacion
+* **Triggers:** trg_audit_pagos, trg_audit_planes, trg_audit_suscripciones
+
+<p align="center"><img src="assets/f2/db/suscripciones.png" width="860" alt="ER — Suscripciones"/></p>
 
 **Dominio 3 — Catálogo (Python) · CatalogDB**
 
-<p align="center"><img src="assets/er/er-3-catalogo.png" width="860" alt="ER — Catálogo"/></p>
+* **Tablas:** actores, auditoria_transaccional, categorias, contenido, contenido_categoria, contenido_genero, episodios, generos, reparto, temporadas
+* **Funciones:** trg_fn_auditar_transaccion, trg_fn_validar_temporada
+* **Triggers:** trg_audit_actores, trg_audit_categorias, trg_audit_contenido, trg_audit_contenido_categoria, trg_audit_contenido_genero, trg_audit_episodios, trg_audit_generos, trg_audit_reparto, trg_audit_temporadas, trg_validar_temporada
+
+<p align="center"><img src="assets/f2/db/catalogo.png" width="860" alt="ER — Catálogo"/></p>
 
 **Dominio 4 — Calificaciones (Python) · RatingsDB**
 
-<p align="center"><img src="assets/er/er-4-calificaciones.png" width="860" alt="ER — Calificaciones"/></p>
+* **Tablas:** auditoria_transaccional, calificacion_usuario, resumen_recomendacion
+* **Funciones:** fn_RecalcularPorcentaje, fn_es_positiva, trg_fn_auditar_transaccion, trg_fn_refrescar_resumen
+* **Triggers:** trg_audit_calificacion_usuario, trg_audit_resumen_recomendacion, trg_refrescar_resumen
+
+<p align="center"><img src="assets/f2/db/calificaciones.png" width="860" alt="ER — Calificaciones"/></p>
 
 **Dominio 5 — Servicio FX (Python) · FXDB + Redis**
 
-<p align="center"><img src="assets/er/er-5-fx.png" width="860" alt="ER — Servicio FX"/></p>
+* **Tablas:** auditoria_transaccional, monedas, tipos_cambio
+* **Funciones:** fn_convertir, trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_actualizar_tasa
+* **Triggers:** trg_audit_monedas, trg_audit_tipos_cambio
+
+<p align="center"><img src="assets/f2/db/servicio_fx.png" width="860" alt="ER — Servicio FX"/></p>
 
 **Dominio 6 — Historial (Go) · HistoryDB**
 
-<p align="center"><img src="assets/er/er-6-historial.png" width="860" alt="ER — Historial"/></p>
+* **Tablas:** auditoria_transaccional, progreso_reproduccion
+* **Vistas:** vw_historial_reciente
+* **Funciones:** fn_porcentaje_visto, trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_guardar_progreso
+* **Triggers:** trg_audit_progreso_reproduccion
+
+<p align="center"><img src="assets/f2/db/historial.png" width="860" alt="ER — Historial"/></p>
 
 **Dominio 7 — Notificaciones (TypeScript) · NotificationDB**
 
-<p align="center"><img src="assets/er/er-7-notificaciones.png" width="860" alt="ER — Notificaciones"/></p>
+* **Tablas:** auditoria_transaccional, buzon_salida
+* **Vistas:** vista_buzon_pendiente
+* **Funciones:** trg_fn_auditar_transaccion
+* **Procedimientos Almacenados:** sp_encolar_correo
+* **Triggers:** trg_audit_buzon_salida
+
+<p align="center"><img src="assets/f2/db/notificaciones.png" width="860" alt="ER — Notificaciones"/></p>
 
 ### **4.3 Vista de Procesos** {#4.3-vista-de-procesos}
 
@@ -819,24 +1179,64 @@ Cada microservicio expone su propio esquema (patrón *Database per Microservice*
 
 Flujos de trabajo de los procesos de negocio.
 
-**1. Registro y Pago:**
-![1_registro_y_pago.puml](https://www.plantuml.com/plantuml/png/bLRTRYCr5BwVfpWI5qcaXNOB1JPpmIPfMegsgwZ9mcLruZcPcCxOaUr95IWFmmFq0l40IEJ5EBOdOJ9DbwMLsjG-lz_tdUE-jGwDgye2BYJc1aky6mWdrpB3ZEpTe7BBkmdcEd7I5RGtWeoWOGUVmotbqZgZJzxfNAfNyCDFirSmhQmmSYNazay56_21O62tJqeOhNIIs7kfLiW10KCmju5V4-2l8OhxtEXAPIDTQ0EVZR-zF1-_YNVQP6JgyxFnDnTVdeNpWJ7weJv-FJmVdvqclpKos0TP5gXebw4PvStOVpVEPqifxXLP2p7sp7T_gPNRnJ__-dpauoUFeqAISWJTI-x9aSfwZqa0DP4BwFxzruol2KJ5HWWceeGPVjS3joG5tVUwnodwroetP1bOTDfwU6jJdVhRiLfldn2iBgIGhihQ1e-3oJLSeQC7t3nwXrlAf94v0OBdyEI39GDJCcifA3hmwUwWzeYbGMKhD5835rSWpD6IpnRg2fu-b8MBOV0Q6TftfRrTxNqynnL3OT1uSO1Kt0eMqBtLHHyk3L4lZNKuRHG66xuM4TuqeO8BwKwtJnwkewWtK1JQ6D8iES6tXblO_e4l0bbunNuAYXy7SCXY_v_exNgDf6zWYNRfpLjLFy_r8nOyUI0CPQGyZ1IYHyMD6gSH2U7GjWJNoFxzR3Q1hqvVf-7u1MZP_gQY892IbCMVGr_4CsUY7nloxmEMzem7ChiZhPXEb6NKjowuOzlO4BtqiAws0a8EkKZYp-EJrnyK9GgglJq9Mc0nvO2OSuZ-b0eIGcescF0sy8MqbXGTKSZABoucnGTDEVE1JbXqZeoW5S_tYfpS1Lf7ZXRIn7qPVEkTeE-vD6PdlVsTZNHx6RIPWGyAMGBQo5yeIp-Y_o3ONOFuhx8zEGVKy22OodcReImAgVATl21qdzzEHkaUw9P9QDaFBymCiXH4xFYTHngwWz7r1JFPdnWj_2ZQGtWNlEahW_5FwP5JhF7-2Civ1sI1OHRso84RGYUyDjX96-Nu8UfVyRXbBpfkm3LAJ8_sCgdcJ3M7M3EY6ZgsceS8Za7yObKPmLD9MSUBwOPV1DOH30qJoBfF5jhSnwbv5ZT8cIKV-Jz0QiCRiq7msUbfFNgj_TFSGBpMLdx-i3KIdpAmeguYPdy6Ra1sFtkgedMS7lzkCaMYgAJP0ToP62fbLNQYVKOEnJB009YZLB6YGvpgQiPAw68FSwkA62vwlzTEBfWHJy1pF6rLqdznbHuidnKFkcDwCAxMy3BmfpcZnc5uHazuPEHSDsi8QJD-wgStiyc-WJ0RTGIceV7MxQ5W-7b1cfoIj_oH_x5A_W4=)
+**1. Actividades de usuario:**
+<div align="center">
+  <img src="./docs/img/modelo4vistas/Flujosusuario.png" alt="Modelo 4+1" width="900"/>
+</div>
 
-**2. Consumo de Video:**
-![2_consumo_video.puml](https://www.plantuml.com/plantuml/png/XLNHRjis57tNLrna3xM15acQTiDiOAiZnqs7DGWI9tiCM8csxooH0aavTPT-p3uWJ_k00SkFxP2KLBbfDXimPFBUmyDppxrwOvqmhYuBch9O6b6AcqdcUCEvoAMzIRMoTQblhZcNEd7i2ja5KYwf5qilQ58xgHnd8kE7lnJzyjlyELsB0ljnOKiDdayDa3IuT4QAajLoc2HspQeIm2OHSDsM_aW8dsEHhPT6rofFTQ4DVNToD7ivcyOzRN9fclN3rz-_JW_2-iGOVTii7qnV_J0vJ3xtJh2tN1P2oVQ4FigF9_xRMv-lE5ihQIsz3AjpByHCAxTxxESakKiBXWQI1ZE3VQdouLqID4v6bxAGMSPQ2QeLLT8ikF1ArBOMXlKu6HtNDXEKXKJEeSwvB1xkixeGfEbI6fP3H9qRQGFAteMiZCxhZCqUra_Kvk5UaDK5P-pgt6FRLbwFwYio1iV9-JjwAvoy5TkxPFGEfvbCLaw04whNb6eJ2aSBDh7K8PSNDFZdxxbUIqKe-URXJmJfduVaLbWPdEaXz1bTIASD-9tEv-Vqwk2GhfIetKeR_YJpCIA-gL98pDcq6Wagz9ALZqT08WkB-Ck7-t34DSHOm6cK5e9B2uA5PuW0I6YuYhTu5lmfdWqzIEI-in-tlwB_-097DDFc0-Uv36oUv8_CzxM4v89AdOk2zjxBtpN-kPegc8syzMWZ3RH3SbVdlOZgRudV_Zs1UA9CxRmQQGXt-rt7U4TiE9CKohwyE4yRhNYHnD_axb4m2XwQi01cAPt8XTDHlareo2rTNVmQ_gVJCs-MvbYQ7jC-fI9RWPslayMLEw6-86q9bbp2ePg4DnQZFmQMINvat7auVeBJ8w3d3O-UWxVak8Hoegm8ucQn1eyDtVG1E5I-6i87jtKQFz6Yw08u7vR_v1DZLu6H9n1ryUspemnaB863-E9BIhGLfY7o4DZnnR4BRTQjks9m2pr8LxLQsoODuCFeXz5L70m8mqEW1ipEDJ4eXs3PAg2JM0fMOHLyf73XCI2b49ME3iZA9OQejgDkgn6hgWjKR70gCQa-87NeRzvLifiTRLRti2jzTrwS-g4Zjt1au-294iKM4yRkdy8CscnR0tmB-AkG7ZYwjf73iImhtQdlHsPeCSZKZ5SHOlyBVthSWtuBmS5x5VPWXrZ_HlrGt75FNxfTCLw8VghmilQHC9EcjfSmLzZsMld5JsVw_-P7M_9ArDOF_OobYHSAaEDs9lIAjc0LYRRbsZ46iD5KPYcJDtZ4Ypxv5m==)
+**2. Actividades del administrador:**
+<div align="center">
+  <img src="./docs/img/modelo4vistas/Flujoadmin.png" alt="Modelo 4+1" width="900"/>
+</div>
 
 #### **4.3.2 Diagramas de Secuencia:**  {#4.3.2-diagramas-de-secuencia:}
 
 Intercambio dinámico de mensajes y sincronización.
 
 **1. Usuario Invitado:**
-![1_secuencias_usuario_invitado.puml](https://www.plantuml.com/plantuml/png/ZLJRRjf047tVhnYbBo0L0QdKIoIY06wgI2X5qAYFQB07CuhPTNVNqAZgn_GR-WdviOwDpSM9fNfVHZjdpvmvizuRvz7wR9D0m1XRtE1YJc56EcHSFBWCBPl5dTwonyWeppwX0n8Y0bU1eGCb70vmvHvPfoXOM6Bu65kJwMXi4cFXJVzplauGZdxaJ0I_5CWtjDRizjZlQ_PKR4vuHHFMD38s8jkOhTVwS3jy7tmgC5FfbaDEKVlNIKu1_yTpQxIlimn3R-ph1OfKyva6dt90W1wNw1gwFsJh31_7-Jh3rCl_Fft3MaQtOnt32XD79vc8LfWbB_fLc0k7Y_huBm1TTIUKIe-6mSLmUWTVqDCEdmfK6TT0cL_3dEoMGofG-OPIKTb32GX6PHsomKYfmK3gUzBUvBVp7hSKOyZFVpKC1afL4ZlNLKcuAl4868OalW8c4A9__fEOs801rgB8g0hVaRCLpHMywrt2Z2As57fe5H7710WJ4xE6hYHZTjuQICKYCTINVutBDRKBlGU892hcrZXuwDptExr-krduzEly6tHHNEZQWaF4jsY3dBo559tRoJsHYEoAatqRcBIFZLmNXWfFF9kEAnLeNp9eirbQMko9H7DnhB0XzxnmK29vHq1dj3MGbJDlnfrhKYMWSvGq8xbI6Ykg1KVmL9wIk99mviQXWHcvr4YbXf5TzlemjYIvA9zOwJtzP6-SaRPPnh0NPa_cT4CwabTI_GC=)
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/invitado.png" alt="Modelo 4+1" width="900"/>
+</div>
 
 **2. Usuario Registrado:**
-![2_secuencias_usuario_registrado.puml](https://www.plantuml.com/plantuml/png/ZLRDSjis4BxpANRS2pMrnhBJD8rdt8b4IMvQEz5OJfER1W9N4iOGmGAatBJJX-apv9QhNomB4AG8MOej7IXYl_txzWTwOmgcYt8jOIZOKhCrcqsHbvXnmMOVJCcqKBCRN0fJQ9Qgg125n0OBAOAfuT05hm0jXSZSYIndX8OvutTBhSeiJPHK6duu7Tbl2s7mBsiBuTy8wDFNMjrNs8yhKQ0xl18Bl18P3fHEKH-KxlfwDUx_F7pjC1FAM72HiwpORwGDU9wTiSgANIjzNYYztu4J7TOvm9C535d1vimSoBwHxbhu9R7V0BFh_hzs7LPKkdkHBM71fC6M9CK5A-MZV2Dc0uUZnmrm1CpKVH55-POoEEfFti8bA_2UVNOe_ti7L1OhcABU28uEPGz2I48PIRKCKFui10w4b3QfDj2VXS3nfm0p_XIAtwb2B0HdXL1P07I2A4eznJxwuS2JW7euQ0dhkBtSlmQGEc8FyQy4YIukB1EOKLICYuSl6No62Ug5a6WWJeOVkkzEEt1n4KLrJRg_rWp3EKpUJs_XX55u9-HJP13ZcWbv33apvfwQgnFLOD9pQPp3ycQIm9M5FqOx246hB0dy9vCYPHgunjJj1nUOrrini-f47jlTUdZ_HsF8drnYXfhC_Fxnrek2F5mqDsXobH5VCUCSZPaLwWwpLWOkheg5SpZhzSWF_EXCxcVdSbIJaslbAVqD6KsSEOS1Ceqke7qSNOiqbNIcqVFbURYr8SLEQKyQJWgRX_y9IsDoY7fXjtLTvRZqwrdiepyXGcXGYRdSu_VGxGpQ9TvWzb4SUAsvFa3kTObsxXk3a0gB5tDht3RjwE-SrePlMV9CNKzPgwNoJVlYEqthoiAhCQ6dBb1IRpnHX3R_RMWzVPvR7vTEQhDn9weXM_GEjPpM86QsP5jvDx1DT5begipMMf1Ju--PnFA6h_pXwrmAhWwGzTQ6HjNLI3sSbboqmgsvxlRE3at9JxqNC5PwJanIPyOtT3CBr0ZJqd0jygf-jFN5XdLSOHFQVVyqgoY0LTxEZi4zN_hdgoVNqxnQToUvP9cXKQGr2x5zePO_XhNAC6KpgJYJmIJMIzDNzXAB2UbCh7fKomX6IzuZ4YPvAQb7A905YqF31Ei6HYkK9NE3T2ca39YF1PpAraUOaaPEQLQG9uQdWXBlRRkUnfVTtcddMRIPSkwAOAyfqn3tFQeIZIIRjlHe2bgKDVUFw-pgYjUGbRXXO5eLZxR0aBiztTEsx-vFWetMeg1-nGrrC3Lhe6LZJAddAcnBoLt4clfGQrGmaiWBJGeq8MJX-dRIEL0ORzrc-yGCdlLEFKKfnFqLhGl0vizDOqTfAiyRp5BwLnrz0m==)
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/registrado.png" alt="Modelo 4+1" width="900"/>
+</div>
 
 **3. Usuario Suscriptor:**
-![3_secuencias_usuario_suscriptor.puml](https://www.plantuml.com/plantuml/png/ZLRDRjj64BxlKmmS19004t9S86aDk8WbEQgQs1Oak-dD69CZUMkAgowNSX8Z3v37w3FabgjUh4DoLznLp3ZMmTJkDt_VDpFKwzoWDiKoXQ74XSObNiyeBYYB9LvVvGLggQvdHHvhkJ9A2oDDIbii90IvWqC4rW0y0v7VoMo5Z8ORZEyMMXLPCb2fql3inMdvyH0v_Llw8dWGm7ydMglx6ll-LXgg3j_9ERsJ6VMLJaYttkx6UlNcvENmjmepuOfbB5UOcSUT-82Vy_D6PMRNoqdCzJyUeBfgjsdXgGGCqU0DvYtLRsztFVmwA3y1PZVyPr-7MqpKlSmMCCSq9-yceJaMwNVr2YmJXxtl6s0FC7Tz8SIgeGpsJYPZ6A6XU_nOeUpp3gWmjp0ZlPOnLQZo88Jy8NCEz350sRCGE4LJrkJZwgCGrfTfkekpPo7mN1avbp6xK5c0hYw4I2pLJOh3lf_TiEz1R78MKNyB02ujYx1V6IAEZs5AAwsI8exbvci6P2D8JA4p65v5vx_iG_N_PHUEZuLmEaM_EzRX24Qdbz2xhLFhFQn8psKwJZxtDEN5adeFCOjEcKmK7mfdnXugYOxWJ2P9ocUQZc0ndGpWBqnbWlfItL7M-VFzPLTKo2W8Mjt2UlCVOxb1FBUEC-jjH6PQ9T9ncUs3br5NE7nZEkopyK1bENSiQjXyIurSAc2c5boJ4Wqi2kBPfx6X9NHoMl0SAQ0FPOzxOO8oF9Ec1aOueezWd77VO8_JOMKttn1q85b2EI_JfSmAe-1lfrfqSDXjKMjoCVFaiZNbstolNRxjZCvmJHDhzpYf-s2zjR8xuinOunulheBb_iGqFqdlvii7QLGBaNvIhFUArQCMHWyF3k3YBNGiNC6YIeQrYcopHmSlkjLu33YtSb8TrsLNr4MsZqDDiAu6aNaDQ5aZxxw0Mpk-bbeNJxVnQXrOgwrznUcOIzPbmoh0XjROBq5iuP4VEonJqu8frfYWU3pGbDXfNAJi_Nb9YgPOBIbBVXZZlA0rpv3ICMK6_w6jwu2yQUDAPKv7wDJ6pxjFA7fMK9auPxKbeEp1KiaHtpWHxLkchhQUc4ExvrxzOCzDhbZNctfzzlBYfdvLSPvvBqR-zP4-iTpylUP3tOBUza3fQ-RvxtI5mpJmIWblVBY-ieKHwbpuMJJ8A0XpyTRtLxrq-FHqAOraFslMHq4d86bWVM9Nr73Fhdg1QPuChKd1QKgnqMmZuzB9sUN4IpwWi_RvaxCQPECgH5wkl15ov8unn3g_vixXtwJYVm==)
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/suscriptor.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+**4. Usuario Suscriptor:**
+<div align="center">
+  <img src="./docs/img/modelo4vistas/admin.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+#### **4.3.3 Diagrama de flujo:**  {#4.3.3-diagrama-de-flujo:}
+<div align="center">
+  <img src="assets/Diagrama_flujo_CICD_QuetxalTV_Proyecto2.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+## Justificación del diseño del pipeline CI/CD
+
+El pipeline CI/CD de Quetxal TV fue diseñado para automatizar la validación, construcción y despliegue de la plataforma, reduciendo errores manuales y asegurando que cada cambio pase por controles antes de llegar a la nube.
+
+En la fase de Integración Continua se separaron los jobs por tecnología: Go, TypeScript/NestJS y Python. Esto permite probar cada microservicio con sus propias herramientas y detectar con mayor facilidad en qué stack ocurre un error. Además, cada job ejecuta pruebas unitarias y valida una cobertura mínima del 75%, deteniendo el pipeline si no se cumple el umbral requerido.
+
+Después de las pruebas, el pipeline construye y publica imágenes Docker para los servicios de la aplicación. Esto permite versionar cada componente y mantener trazabilidad entre el código, la imagen generada y el despliegue realizado.
+
+El flujo de despliegue se divide por ramas. La rama `develop` despliega automáticamente hacia Google Compute Engine usando Docker Compose, funcionando como ambiente de integración en la nube. La rama `release` se orienta al despliegue en Google Kubernetes Engine, aplicando manifiestos de Kubernetes, estrategia RollingUpdate, health checks y rollback automático en caso de fallos.
+
+El backup de bases de datos se maneja como un workflow separado y programado, ya que no es necesario generar respaldos en cada push. Este flujo respalda las bases PostgreSQL operacionales y excluye Redis por ser utilizado como caché.
+
+También se separó el flujo de Build & Push Database/Cache y el Deploy Database. La construcción de imágenes de bases de datos solo publica imágenes actualizadas, mientras que el despliegue de bases se ejecuta de forma manual/controlada para evitar afectar volúmenes o datos persistentes.
+
+Finalmente, el pipeline utiliza GitHub Secrets para proteger credenciales sensibles como tokens, llaves SSH, usuarios, contraseñas e información de conexión. Con esta estructura, el proceso queda organizado, seguro, trazable y alineado con una arquitectura de microservicios desplegada en la nube.
+
 
 ### **4.4 Vista de Desarrollo (Componentes)** {#4.4-vista-de-desarrollo-(componentes)}
 
@@ -849,9 +1249,10 @@ Justificación de Gobernanza: Para dar cumplimiento a los Drivers de Restricció
 1. Mapeo de contenedores Docker por cada microservicio.  
 2. Distribución del ecosistema políglota (Go, TypeScript, Python).  
 3. Inclusión del componente de Middleware JWT adherido al API Gateway en la Capa de Entrada.  
-4. Definición explícita de los motores de persistencia, incluyendo PostgreSQL y la capa en memoria de Redis para el servicio financiero.
+4. Definición explícita de los motores de persistencia, incluyendo PostgreSQL y la capa en memoria de Redis para el servicio financiero.  
+5. Inclusión de **Google Cloud Storage (bucket privado)** como almacén de objetos para la multimedia pesada (videos y portadas), consumido por el `catalog-service` mediante credenciales por defecto (ADC) y servido al cliente con URLs Firmadas v4.
 
-![Diagrama de Componentes](./assets/Diagramas%20Proyecto%201-Componentes%20PSM.drawio.png)
+![Diagrama de Componentes](assets/DiagramaComponentes.png)
 
 ### **4.5 Análisis Estructural: Arquitectura Síncrona vs. Asíncrona** {#4.5-análisis-estructural:-arquitectura-síncrona-vs.-asíncrona}
 
@@ -890,7 +1291,11 @@ La arquitectura **combina deliberadamente dos estilos de comunicación** según 
 
 ### **5.1 Vista Física (Despliegue)** {#5.1-vista-física-(despliegue)}
 
-![Vista Física](./assets/Diagramas%20Proyecto%201-Diagrama%20de%20Despliegue.drawio.png)
+![Vista Física](./assets/Fisicadespliegue.png)
+
+![Diagrama de Despliegue Kubernetes](./assets/Diagramas_Proyecto_2_Despliegue_Kubernetes.drawio.png)
+
+> **Nota (almacenamiento de objetos).** Además de las VMs/Pods y de las bases PostgreSQL por dominio, el despliegue incluye un **bucket privado de Google Cloud Storage** (`quetxal-tv-media-bucket`) como artefacto de persistencia para la multimedia pesada (videos y portadas), sacándola del sistema de archivos local de los contenedores. Los contenedores que lo consumen (p. ej. `catalog-service`) se autentican por **ADC** con la cuenta de servicio del entorno (Workload Identity en GKE / cuenta de la VM en Compute Engine); el navegador descarga la multimedia **directamente desde GCS** mediante URLs Firmadas v4 de corta duración, sin que los bytes atraviesen el API Gateway.
 
 ### **5.2 Justificación Tecnológica (Gobernanza)** {#5.2-justificación-tecnológica-(gobernanza)}
 
@@ -904,7 +1309,391 @@ Prohibicion de ORMs Magicos y Uso de SQL Nativo Que: Descartamos el uso de herra
 
 API Gateway como Punto de Entrada Unico (Go) Que: Se implementa un enrutador perimetral utilizando el ecosistema de Go. Por que: Exponer los microservicios directamente a internet viola el Atributo de Calidad de Seguridad (EAC-03) y acopla los clientes directamente a la red interna. Para que: Para centralizar la validacion de los tokens JWT, rechazar peticiones no autorizadas en la frontera de la Zona Desmilitarizada (DMZ) y actuar como un traductor de interoperabilidad que recibe peticiones HTTP/REST del cliente y las convierte en llamadas gRPC de alta velocidad para la comunicacion inter-servicios.
 
-### **5.3 Aplicación de Principios SOLID (Nivel ISM)** {#5.3-aplicación-de-principios-solid-(nivel-ism)}
+## 5.3 Toma y Justificación de Decisiones Técnicas
+
+### 2.1 Lenguajes de Programación Utilizados
+*   **¿Qué?**: Go, Python y TypeScript.
+*   **¿Por qué?**: Go ofrece un rendimiento excepcional, tiempos de compilación bajos y un manejo nativo de concurrencia sumamente eficiente. Python destaca por su agilidad en el desarrollo y un rico ecosistema de librerías para manipulación de datos. TypeScript provee tipado estático robusto sobre JavaScript, previniendo errores en tiempo de ejecución.
+*   **¿Para qué?**: Para cumplir de forma estricta con la restricción del backend políglota, delegando responsabilidades según la fortaleza de cada lenguaje: Go para servicios perimetrales de alta concurrencia, Python para la lógica de catálogos y evaluación, y TypeScript para el frontend y lógicas de dominio complejas.
+
+### 2.2 Frameworks utilizados en el desarrollo
+*   **¿Qué?**: Next.js (Frontend), NestJS (Backend TypeScript para billing), y librerías base gRPC (Go/Python).
+*   **¿Por qué?**: Next.js permite renderizado del lado del servidor (SSR) optimizando la carga inicial del cliente. NestJS impone una arquitectura limpia y modular basada en decoradores e inyección de dependencias. Para Go y Python se optó por implementaciones puras de servidores gRPC sin frameworks web pesados (como FastAPI o Gin).
+*   **¿Para qué?**: Para estandarizar el desarrollo de interfaces (Next.js), estructurar sólidamente el servicio de facturación asegurando mantenibilidad (NestJS), y garantizar comunicaciones internas de red con la menor latencia posible mediante el uso de Protocol Buffers y gRPC puro en el resto de la malla.
+
+### 2.3 Mapeo de Aplicaciones por Microservicio
+*   **¿Qué?**:
+    *   **Go**: `api-gateway`, `auth-service`, `history-service`.
+    *   **Python**: `catalog-service`, `fx-service`, `rating-service`.
+    *   **TypeScript**: `billing-service` (NestJS), `notification-service` (Node.js), `frontend` (Next.js).
+*   **¿Por qué?**: Se asignó Go a la puerta de enlace (API Gateway) y autenticación por su rapidez manejando miles de peticiones y enrutamiento seguro. Python se usó en el catálogo, reviews y conversiones de moneda por su agilidad transaccional. TypeScript se asignó a pagos y notificaciones para mantener coherencia de ecosistema y tipado fuerte en dominios sensibles.
+*   **¿Para qué?**: Para distribuir la carga cognitiva del desarrollo en el equipo y asegurar que cada dominio del negocio se resuelva de manera desacoplada con la pila tecnológica óptima.
+
+### 2.4 Herramienta de Automatización CI/CD
+*   **¿Qué?**: GitHub Actions.
+*   **¿Por qué?**: Está integrado de forma nativa en el control de versiones del repositorio, provee "Runners" administrados que no requieren infraestructura on-premise, y su configuración declarativa mediante YAML facilita la creación condicional de pipelines.
+*   **¿Para qué?**: Para orquestar la compilación automatizada de imágenes, ejecutar pruebas unitarias con un umbral de cortocircuito crítico del 75%, y bifurcar lógicamente el despliegue automático: hacia Google Compute Engine (VMs) al impactar la rama `develop`, y hacia Google Kubernetes Engine al impactar la rama `release`.
+
+### 2.5 Ecosistema de Base de Datos
+*   **¿Qué?**: PostgreSQL (Base de datos relacional) y Redis (Caché en memoria).
+*   **¿Por qué?**: PostgreSQL es un motor robusto, maduro y estrictamente transaccional (ACID) que soporta la programación de Procedimientos Almacenados y Triggers, siendo un requerimiento obligatorio de la rúbrica para la tabla de auditoría. Redis es un almacén clave-valor extremadamente rápido.
+*   **¿Para qué?**: PostgreSQL gestiona la persistencia bajo el patrón "Database per Microservice" aislando la data de cada dominio de negocio. Redis se utiliza específicamente para cachear los tipos de cambio (evitando saturar APIs externas en el `fx-service`) y acelerar consultas recurrentes.
+
+### 2.6 Servicios de Nubes Utilizados
+*   **¿Qué?**: Infraestructura de Google Cloud Platform (GCP) incluyendo GKE, Compute Engine y Google Cloud Storage (GCS).
+*   **¿Por qué?**: GCP provee un ecosistema altamente interoperable. GKE ofrece el estándar de la industria para orquestación nativa de Kubernetes. Cloud Storage es un servicio gestionado para blobs escalable y rentable.
+*   **¿Para qué?**: Google Compute Engine provee la flexibilidad de máquinas virtuales para las pruebas en `develop`. GKE orquesta la topología de producción (`release`) garantizando alta disponibilidad con estrategias de Rollout y Health Checks. Finalmente, GCS abstrae y almacena la multimedia pesada (videos y portadas) en un **bucket privado** (`quetxal-tv-media-bucket`), sacándola del sistema de archivos local. El `catalog-service` (Python, dueño del dato) genera bajo demanda **URLs Firmadas v4** (acción `read`, expiración de 2 h) y se las entrega al frontend; los bytes del video viajan **directamente del navegador a GCS** sin atravesar el API Gateway. El control de acceso se ejerce **al emitir la URL** (validación de suscripción en el BFF más la caducidad corta de la firma), no en la entrega del archivo.
+
+### 2.7 Mecanismos de Seguridad (Autenticación y Autorización)
+*   **¿Qué?**: JSON Web Tokens (JWT) a nivel lógico y ConfigMaps/Secrets a nivel de infraestructura.
+*   **¿Por qué?**: JWT provee autenticación "Stateless" (sin estado), ideal para sistemas distribuidos ya que no satura una base de datos centralizada validando cada petición. Los Secrets de Kubernetes cifran la información en etcd.
+*   **¿Para qué?**: JWT se utiliza para afirmar la identidad del usuario en el API Gateway y propagar dichos claims firmados hacia la red interna de microservicios. Adicionalmente, se prohibió el hardcoding; por lo tanto, los ConfigMaps inyectan la configuración genérica, mientras que los Secrets de K8s resguardan y montan de forma segura las credenciales de BD y llaves privadas en tiempo de ejecución de los Pods. Para el acceso a **Google Cloud Storage** no se emplean llaves estáticas (ni archivos JSON de cuenta de servicio ni llaves HMAC estilo S3): la autenticación es por **Application Default Credentials (ADC)**, tomando la **cuenta de servicio** del entorno de ejecución (Workload Identity en GKE; cuenta asociada a la VM en Compute Engine). Dicha cuenta requiere acceso de lectura al bucket y el rol `roles/iam.serviceAccountTokenCreator` para **firmar** las URLs v4 mediante la API IAM `signBlob`, sin depender de una llave privada descargada.
+
+
+### 5.4 Manifiestos y Estrategias Operativas de Kubernetes
+---
+
+## 8. Manifiestos y Configuraciones de Objetos de Kubernetes
+
+Los objetos de Kubernetes se organizaron en manifiestos declarativos YAML para separar infraestructura base, bases de datos, microservicios, API Gateway e Ingress. Esta organización permite que el pipeline de CD despliegue el entorno de producción de forma repetible, controlada y versionada.
+
+### 8.1 Deployments: Réplicas y Alta Disponibilidad
+
+* **Dónde se aplicó**: Manifiestos de Deployments en `k8s/microservices/*.yaml`, `k8s/databases/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Cada microservicio principal se definió como un objeto `Deployment`, indicando el número de réplicas, la imagen del contenedor, puertos internos, variables de entorno, recursos de CPU/memoria y sondas de salud. En los microservicios y frontend se configuraron `replicas: 2`, permitiendo que existan dos instancias activas del mismo componente.
+
+Estructura base aplicada en los manifiestos:
+
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: auth-service
+      namespace: quetxal-tv-prod
+      labels:
+        app: auth-service
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: auth-service
+      template:
+        metadata:
+          labels:
+            app: auth-service
+        spec:
+          containers:
+          - name: auth-service
+            image: tu-registro/quetxal-auth-service:latest
+            ports:
+            - containerPort: 50051
+              name: grpc
+            envFrom:
+            - configMapRef:
+                name: quetxal-config
+            env:
+            - name: AUTH_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: quetxal-secrets
+                  key: AUTH_DB_NAME
+
+> **Nota sobre la imagen (versionado):** En los manifiestos del repositorio la imagen aparece como `tu-registro/quetxal-<servicio>:latest` (plantilla). Durante el despliegue, el pipeline de CD **no usa `:latest`**: reescribe la referencia al usuario real del registro y la **pinea al tag de versión semántica** (`<usuario>/quetxal-<servicio>:vX.Y.Z`) tomado del release. Así cada despliegue corresponde a una versión inmutable y `kubectl rollout undo` puede revertir a una versión estable concreta.
+
+* **Por qué se aplicó**: El uso de Deployments permite administrar el ciclo de vida de los Pods de forma declarativa. Kubernetes puede crear, reemplazar o reiniciar Pods automáticamente según el estado deseado. Al usar `replicas: 2`, la malla de servicios mantiene alta disponibilidad, ya que si una instancia falla, otra puede continuar atendiendo solicitudes mientras Kubernetes recupera la réplica perdida.
+
+### 8.2 Services: ClusterIP vs. NodePort vs. LoadBalancer
+
+* **Dónde se aplicó**: Objetos `Service` definidos en los manifiestos de `k8s/microservices/*.yaml`, `k8s/databases/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Los servicios internos del clúster se declararon como `ClusterIP`. Este tipo de Service permite descubrimiento interno entre componentes sin exponer cada microservicio directamente a internet.
+
+Estructura base aplicada en los manifiestos:
+
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: auth-service
+      namespace: quetxal-tv-prod
+    spec:
+      type: ClusterIP
+      selector:
+        app: auth-service
+      ports:
+      - port: 50051
+        targetPort: 50051
+
+En el proyecto se usa `ClusterIP` para servicios gRPC como `auth-service`, `billing-service`, `catalog-service`, `fx-service`, `history-service` y `notification-service`. También se usa `ClusterIP` para bases de datos PostgreSQL, Redis y el `api-gateway`.
+
+* **Por qué se aplicó**: Se eligió `ClusterIP` porque los microservicios, bases de datos y caché no deben exponerse públicamente. El acceso externo se concentra mediante el recurso `Ingress`, definido en `k8s/ingress.yaml`, que enruta el tráfico hacia los servicios correspondientes. Esta decisión evita usar `NodePort` o `LoadBalancer` por componente, reduciendo superficie de ataque y manteniendo la comunicación interna controlada dentro del namespace `quetxal-tv-prod`.
+
+### 8.3 ConfigMaps y Secrets: Abstracción y Seguridad
+
+* **Dónde se aplicó**: Manifiestos base en `k8s/base/configmap.yaml` y `k8s/base/secrets.yaml`, con referencias desde los Deployments de microservicios, bases de datos y API Gateway.
+
+* **Cómo se aplicó**: Las variables no sensibles se gestionan mediante `ConfigMap`, mientras que credenciales, contraseñas, secretos JWT, datos SMTP y Redis se gestionan mediante un `Secret` de tipo `Opaque`. El acceso a Google Cloud Storage **no usa llaves** (ni HMAC ni JSON): `catalog-service` firma las Signed URLs v4 mediante **Workload Identity**, vinculando su ServiceAccount de Kubernetes (`catalog-gcs-sa`) con un Service Account de GCP (`quetxal-catalog-gcs@…`) que posee los roles `iam.serviceAccountTokenCreator` (firmar) y `storage.objectViewer` (leer el bucket).
+
+Estructura base de ConfigMap:
+
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: quetxal-config
+      namespace: quetxal-tv-prod
+    data:
+      AUTH_SERVICE_ADDR: "auth-service:50051"
+      BILLING_SERVICE_ADDR: "billing-service:50052"
+      FX_SERVICE_ADDR: "fx-service:50053"
+      NOTIFICATION_SERVICE_ADDR: "notification-service:50054"
+      CATALOG_SERVICE_ADDR: "catalog-service:50055"
+      HISTORY_SERVICE_ADDR: "history-service:50057"
+
+Estructura base de Secret sin credenciales explícitas:
+
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: quetxal-secrets
+      namespace: quetxal-tv-prod
+    type: Opaque
+    stringData:
+      AUTH_DB_NAME: "${AUTH_DB_NAME}"
+      AUTH_DB_USER: "${AUTH_DB_USER}"
+      AUTH_DB_PASSWORD: "${AUTH_DB_PASSWORD}"
+      JWT_SECRET: "${JWT_SECRET}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      GCS_BUCKET_NAME: "${GCS_BUCKET_NAME}"   # nombre del bucket; la firma de Signed URLs usa Workload Identity (sin llaves HMAC/JSON)
+
+Durante el pipeline de CD, GitHub Actions toma los secretos almacenados en el repositorio y genera temporalmente `k8s/base/secrets-injected.yaml` mediante `envsubst`. Luego aplica ese manifiesto al clúster con `kubectl apply`.
+
+* **Por qué se aplicó**: Esta estrategia cumple con la restricción de no escribir credenciales directamente en los YAML. Además, permite cambiar credenciales o endpoints sin modificar el código fuente de los microservicios. Kubernetes inyecta los valores en tiempo de ejecución usando `configMapRef` y `secretKeyRef`.
+
+### 8.4 Asignación de Recursos (Requests/Limits) y Persistencia
+
+* **Dónde se aplicó**: Bloque `resources` de cada Deployment en `k8s/microservices/*.yaml`, `k8s/api-gateway.yaml` y `k8s/databases/*.yaml`.
+
+* **Cómo se aplicó**: Se realizó *right-sizing* de CPU para que toda la topología quepa en los nodos disponibles del clúster y ningún Pod quede en estado `Pending` por falta de CPU asignable:
+
+  * Microservicios y API Gateway: `requests.cpu: 10m`, `limits.cpu: 150m` (memoria `64–128Mi` / `128–256Mi`).
+  * Bases de datos PostgreSQL y Redis: `requests.cpu: 25m`, `limits.cpu: 250m` (memoria `128Mi` / `256Mi`).
+
+* **Estrategia de persistencia**: Las bases de datos usan `strategy: Recreate` (no RollingUpdate) y **no declaran volúmenes persistentes** (sin `PersistentVolumeClaim`): los datos viven en la capa efímera del contenedor y **no persisten entre reinicios de Pod**. La carga de esquemas, funciones, triggers y seed se ejecuta en el arranque del contenedor. Es una decisión de alcance para el entorno de evaluación; un entorno productivo usaría `PersistentVolumeClaim` con discos gestionados.
+
+* **Por qué se aplicó**: El *right-sizing* de CPU evita Pods `Pending` por sobre-reserva, y `Recreate` evita que dos instancias de una misma base de datos coexistan compitiendo por el estado mientras se reemplazan, dado que no hay volumen compartido.
+
+---
+
+## 9. Estrategia Operativa de Despliegue Zero-Downtime
+
+La estrategia de despliegue busca que las nuevas versiones de Quetxal TV puedan publicarse sin interrumpir el acceso de los usuarios al frontend, catálogo, autenticación, historial, pagos, calificaciones y servicios internos.
+
+### 9.1 Rollout Estándar y Estrategia RollingUpdate
+
+* **Dónde se aplicó**: Bloque `strategy.rollingUpdate` en los Deployments ubicados en `k8s/microservices/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Los microservicios y el frontend usan `replicas: 2` junto con la estrategia `RollingUpdate`.
+
+Estructura base aplicada:
+
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+
+Matemáticamente, para los microservicios con `replicas: 2`:
+
+* `maxSurge: 1`: Kubernetes puede crear temporalmente 1 Pod adicional por encima del número deseado de réplicas. Es decir, durante el despliegue pueden existir hasta 3 Pods: 2 antiguos estables y 1 nuevo en proceso de arranque.
+* `maxUnavailable: 0`: Kubernetes no puede dejar indisponible ningún Pod durante la actualización. Un Pod antiguo solo puede ser reemplazado cuando el nuevo Pod ya pasó su `readinessProbe` y está en estado `Ready`.
+
+Flujo operativo del RollingUpdate:
+
+* Estado inicial: 2 Pods estables ejecutando la versión anterior.
+* Kubernetes crea 1 Pod adicional con la nueva versión.
+* El nuevo Pod debe pasar su `readinessProbe`.
+* Cuando el nuevo Pod está `Ready`, Kubernetes puede retirar 1 Pod antiguo.
+* El proceso se repite hasta que todos los Pods ejecutan la nueva versión.
+
+En el caso del `api-gateway`, el manifiesto usa porcentajes:
+
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+
+Con `replicas: 2`, Kubernetes redondea `maxSurge` hacia arriba y `maxUnavailable` hacia abajo. Por ello, operativamente puede crear 1 Pod adicional y mantener 0 Pods indisponibles durante el despliegue.
+
+**Justificación matemática formal:**
+
+Sean `R` = réplicas (2), `S` = `maxSurge` y `U` = `maxUnavailable`. Durante un RollingUpdate, Kubernetes garantiza en todo instante:
+
+* Pods disponibles ≥ `R − U` = `2 − 0` = **2** (100% de la capacidad nominal; nunca cae por debajo del estado deseado).
+* Pods totales simultáneos ≤ `R + S` = `2 + 1` = **3** (150% transitorio: el margen donde arranca el Pod nuevo antes de retirar uno antiguo).
+* Disponibilidad mínima `D_min = (R − U) / R = (2 − 0) / 2 = 1.0` = **100%**.
+
+Para el `api-gateway`, que define los parámetros en porcentaje sobre `R = 2`: `S = ⌈0.25 × 2⌉ = ⌈0.5⌉ = 1` y `U = ⌊0.25 × 2⌋ = ⌊0.5⌋ = 0`, equivalentes a los valores absolutos `1`/`0`. Como `U = 0` en toda la malla, en ningún punto del despliegue la capacidad servible baja del 100% nominal, lo que garantiza que las transmisiones de video activas no se interrumpen.
+
+* **Por qué se aplicó**: Esta configuración permite despliegues progresivos sin apagar completamente el servicio. Para Quetxal TV, esto garantiza que los usuarios puedan seguir navegando el catálogo, autenticándose y consumiendo contenido multimedia mientras se reemplazan gradualmente los Pods de la versión anterior por los de la nueva versión.
+
+### 9.2 Rollback Automatizado
+
+* **Dónde se aplicó**: Pipeline de despliegue en `.github/workflows/deploy-k8s.yml`.
+
+* **Cómo se aplicó**: Después de aplicar los manifiestos con `kubectl apply`, el pipeline verifica el rollout en **dos fases** para evitar rollbacks en falso (un microservicio puede arrancar antes de que su base de datos termine de recrearse): primero espera a las bases de datos y luego a los microservicios, con timeouts diferenciados:
+
+    # 1) Bases de datos (se recrean con estrategia Recreate)
+    kubectl rollout status deployment/$DB -n quetxal-tv-prod --timeout=180s
+    # 2) Microservicios (timeout amplio: un redeploy de toda la malla puede tardar)
+    kubectl rollout status deployment/$SERVICE -n quetxal-tv-prod --timeout=240s
+
+El arreglo `SERVICES` definido en el workflow contiene los Deployments principales del entorno:
+
+    auth-service
+    billing-service
+    catalog-service
+    rating-service
+    frontend
+    fx-service
+    history-service
+    notification-service
+
+Si alguno de estos Deployments no completa el rollout dentro del tiempo configurado, el paso falla. Esto puede ocurrir si la nueva versión no arranca correctamente, si los Pods quedan en estado no disponible o si entran en fallos como `CrashLoopBackOff`.
+
+Ante una falla, GitHub Actions activa el bloque condicionado con `if: failure()` y ejecuta automáticamente:
+
+    kubectl rollout undo deployment/$SERVICE -n quetxal-tv-prod
+
+Este comando indica a Kubernetes que restaure el Deployment hacia la revisión estable anterior.
+
+* **Por qué se aplicó**: El rollback automatizado reduce el Tiempo Medio de Recuperación (MTTR). En lugar de requerir intervención manual para diagnosticar y revertir un despliegue defectuoso, el pipeline detecta la falla del rollout y ejecuta la reversión de forma automática, manteniendo la continuidad operativa del entorno en GKE.
+
+---
+
+## 10. Monitoreo de Salud de la Aplicación (Health Checks)
+
+Los manifiestos incluyen sondas de Kubernetes para monitorear la disponibilidad y vitalidad de los componentes desplegados. Estas sondas permiten que Kubernetes decida cuándo un Pod puede recibir tráfico y cuándo debe ser reiniciado.
+
+### 10.1 Readiness Probe
+
+* **Dónde se aplicó**: Bloques `readinessProbe` en los contenedores definidos en `k8s/microservices/*.yaml`, `k8s/databases/*.yaml` y `k8s/api-gateway.yaml`.
+
+* **Cómo se aplicó**: Se configuraron distintos tipos de readiness según el componente:
+
+Microservicios gRPC:
+
+    readinessProbe:
+      tcpSocket:
+        port: 50051
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+API Gateway:
+
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+Frontend:
+
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 3000
+      initialDelaySeconds: 15
+      periodSeconds: 10
+
+PostgreSQL:
+
+    readinessProbe:
+      exec:
+        command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+Redis:
+
+    readinessProbe:
+      exec:
+        command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+* **Por qué se aplicó**: La `Readiness Probe` evita que Kubernetes envíe tráfico a Pods que todavía no están listos. Esto es clave durante despliegues RollingUpdate, porque un Pod nuevo solo reemplaza a uno antiguo cuando ya está marcado como `Ready`.
+
+### 10.2 Liveness Probe
+
+* **Dónde se aplicó**: Bloques `livenessProbe` en los contenedores definidos en los manifiestos Kubernetes del proyecto.
+
+* **Cómo se aplicó**: Se configuraron sondas de vitalidad según el tipo de componente:
+
+Microservicios gRPC:
+
+    livenessProbe:
+      tcpSocket:
+        port: 50051
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+API Gateway:
+
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+Frontend:
+
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 3000
+      initialDelaySeconds: 30
+      periodSeconds: 20
+
+PostgreSQL:
+
+    livenessProbe:
+      exec:
+        command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+Redis:
+
+    livenessProbe:
+      exec:
+        command: ["sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep PONG"]
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+* **Por qué se aplicó**: La `Liveness Probe` permite a Kubernetes detectar contenedores que dejaron de responder correctamente. Si la sonda falla repetidamente, Kubernetes reinicia el Pod afectado, aplicando un mecanismo de auto-recuperación sin intervención manual.
+
+### 10.3 Relación entre Health Checks y Zero-Downtime
+
+Las sondas de salud son parte central de la estrategia Zero-Downtime. Durante un RollingUpdate, Kubernetes no considera disponible un Pod nuevo hasta que su `readinessProbe` sea exitosa. Esto permite que los Pods antiguos sigan atendiendo tráfico mientras los nuevos terminan de iniciar.
+
+La combinación de:
+
+* `replicas: 2`
+* `maxSurge: 1`
+* `maxUnavailable: 0`
+* `readinessProbe`
+* `livenessProbe`
+* `kubectl rollout status`
+* `kubectl rollout undo`
+
+permite que el despliegue sea progresivo, observable y reversible. De esta forma, el sistema mantiene disponibilidad durante actualizaciones y puede regresar automáticamente a una versión estable si la nueva versión presenta fallos.
+
+
+
+
+### **5.5 Aplicación de Principios SOLID (Nivel ISM)** {#5.3-aplicación-de-principios-solid-(nivel-ism)}
 
 Quetxal TV es una plataforma de streaming construida como **microservicios políglotas**
 (Go, Python y TypeScript) que se comunican por **gRPC** detrás de un **API Gateway**.
@@ -1066,6 +1855,15 @@ Esta documentación corresponde al **RNF-06 — Mantenibilidad y calidad de cód
 > La misma separación (handler / service / repository / domain) se repite también en
 > **rating** e **history**.
 
+
+<p align="center"><img src="docs/img/solid/srp-01-admin-handler.png" width="820" height="1000" alt="SRP — Separación de Handler HTTP y Repository SQL"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_handler_http.py y admin_repository.py</code></sub></p>
+- **Dónde:** catalog-service (Panel de Administración).
+- **Cómo:** Se separó estrictamente la capa de red de la capa de datos. La clase `AdminHTTPHandler` se encarga **únicamente** de procesar las peticiones web HTTP, parsear JSON y devolver códigos de estado (200, 404, 500). Por otro lado, `AdminRepository` se encarga **únicamente** de ejecutar sentencias SQL.
+- **Por qué (cohesión):** Aislar el manejo del servidor. Si el día de mañana se cambia el framework web del panel de administración, el archivo del repositorio de datos queda intacto.
+
+
+
 ---
 
 #### OCP — Open/Closed Principle
@@ -1099,6 +1897,14 @@ El mismo mecanismo de "repositorio inyectado" hace extensibles a **catalog**, **
 **billing** (un nuevo origen de datos = una nueva clase repositorio), y el **api-gateway** se
 extiende agregando un `client` + `handler` por servicio sin tocar los existentes.
 
+
+<p align="center"><img src="docs/img/solid/ocp-01-audit-trigger.png" width="820" alt="OCP — Implementación de Triggers para Auditoría"/></p>
+<p align="center"><sub><code>database/catalog/06_audit.sql</code></sub></p>
+- **Dónde:** Nivel de Base de Datos (Auditoría Transaccional de la Fase 2).
+- **Cómo:** Para implementar la auditoría obligatoria, no se modificó el código fuente de los microservicios (el repositorio quedó **cerrado** a modificación). En su lugar, el sistema se **abrió** a la extensión mediante la inyección de Triggers en PostgreSQL que interceptan automáticamente cualquier `INSERT` o `UPDATE`.
+- **Por qué (extensibilidad):** Garantiza que la lógica de negocio no se acople al registro de auditorías, haciendo que esta capa de seguridad escale de forma automática sin reescribir código existente.
+
+
 ---
 
 #### LSP — Liskov Substitution Principle
@@ -1125,6 +1931,15 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
   por lo que el servidor gRPC lo registra y lo invoca **como si fuera la clase base**.
 - **Por qué (confiabilidad):** el framework gRPC trata a todos los handlers de forma uniforme; un
   handler mal formado no compilaría ni se registraría.
+
+
+
+<p align="center"><img src="docs/img/solid/lsp-03-admin-http-server.png" width="820" alt="LSP — AdminHTTPHandler hereda de BaseHTTPRequestHandler"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_handler_http.py</code></sub></p>
+- **Dónde:** catalog-service (Manejador de Servidor HTTP).
+- **Cómo:** La clase `AdminHTTPHandler` hereda de `BaseHTTPRequestHandler` (nativa de Python) e implementa correctamente los contratos de la clase padre (`do_GET`, `do_POST`) para manejar las rutas CRUD.
+- **Por qué (confiabilidad):** Permite que la instancia de `HTTPServer` invoque los métodos de nuestro manejador como si fuera la clase padre genérica. Al respetar las firmas, la sustitución no rompe el hilo de ejecución interno del servidor de Python.
+
 
 ---
 
@@ -1161,6 +1976,13 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
   interfaz monolítica que todos deban implementar.
 - **Por qué (modularidad):** un cliente del gateway depende únicamente de las operaciones del
   dominio que consume.
+
+
+<p align="center"><img src="docs/img/solid/isp-04-admin-repo-queries.png" width="820" alt="ISP — Consultas segregadas sin sobrecarga de datos"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_repository.py</code></sub></p>
+- **Dónde:** Consultas de metadatos en el Panel de Administración.
+- **Cómo:** Al enviar datos auxiliares (como listas de géneros o categorías), no se retorna un objeto masivo con relaciones innecesarias. Las consultas están segregadas para retornar diccionarios ligeros con exactamente lo que requiere la vista (`SELECT id, nombre`).
+- **Por qué (bajo acoplamiento):** Reduce el tamaño de la transferencia (Payload) sobre la red. El Frontend de administración solo recibe los campos que estrictamente va a utilizar para poblar sus Dropdowns.
 
 ---
 
@@ -1204,7 +2026,16 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
   dobles (`billing.service.spec.ts`).
 
 > El mismo patrón de inyección está también en **catalog/rating** (`app/server.py`: `db → repo →
-> service → handler`) y **notification** (`DatabaseService` con `DatabaseModule` `@Global`).
+> service → handler`) y **notification** (`DatabaseService` con `DatabaseModule` `@Global`).\
+
+
+<p align="center"><img src="docs/img/solid/dip-04-admin-wiring.png" width="820" alt="DIP — Inyección del Repositorio en el Handler HTTP"/></p>
+<p align="center"><sub><code>backend/catalog-service/app/admin_handler_http.py</code></sub></p>
+- **Dónde:** catalog-service, función `make_server` (Composición).
+- **Cómo:** El manejador de las peticiones web (`AdminHTTPHandler`) no instancia su propia conexión a la BD. El repositorio ya instanciado se le **inyecta** dinámicamente al crear la clase mediante parámetros (`{"repo": repo}`).
+- **Por qué (testabilidad):** Desacopla completamente el servidor HTTP de los datos. Permite que durante pruebas se pueda inyectar un repositorio simulado (Mock) en memoria sin que el servidor web lo note, facilitando el Testing Automatizado de la Fase 2.
+
+
 
 ## **6\. Conclusiones** {#6.-conclusiones}
 
@@ -1214,6 +2045,179 @@ Al aplicar el analisis del Triangulo de la Triple Restriccion, el equipo arquite
 
 Este Documento de Decision Arquitectonica (DDA) se constituye como la Linea Base oficial del proyecto. A partir de este momento, cualquier desarrollo a nivel de codigo, modificacion de base de datos o integracion futura debera subordinarse a los lineamientos aqui establecidos, demostrando que en la Ingenieria de Software, la tecnologia es unicamente el medio para alcanzar los objetivos estrategicos del negocio.
 
+## Diseño UI/UX y Guía Visual (Mockups)
+
+> **Entregable 6 (Fase 2):** *Diseño escrito del frontend, incluyendo **Mockups** (bocetos de interfaz/wireframes) de las vistas, **narrativas de uso** y **flujos de navegación**.*
+
+Los **mockups vectoriales editables** (archivos crudos `.excalidraw`) de todas las vistas de Quetxal TV están en [`docs/mocks/`](./docs/mocks). Son bocetos/wireframes hechos en Excalidraw (herramienta autorizada), no capturas, por lo que cumplen también el requisito de *archivos crudos* cargados al repositorio. Cada mockup se construyó leyendo la página real implementada en `frontend/` (la **fuente de verdad es el código**), para que la documentación coincida con el trabajo realizado.
+
+**Cómo abrir / editar:** en [excalidraw.com](https://excalidraw.com) → ☰ → *Open*, o en VS Code con la extensión *Excalidraw* (`pomdtr.excalidraw-editor`).
+
+### Guía visual
+
+| Elemento | Valor |
+|---|---|
+| Color de marca (acento/CTA) | Rojo `#e50914` |
+| Fondo de aplicación | Oscuro `#141414` / `#0b0b0b` |
+| Tarjetas / inputs | `#1c1c1c` / `#1f1f1f`, borde `#3a3a3a` |
+| Texto | Blanco `#ffffff`, secundario `#b3b3b3`, tenue `#8c8c8c` |
+| Indicador positivo (% recomendación) | Verde `#46d369` |
+| Tipografía | Hand-drawn (estilo wireframe) |
+| Marco | Ventana de navegador con barra de URL |
+
+### A. Pantallas de Usuario (Fase 1)
+
+**01. Inicio de sesión** · [`01-login.excalidraw`](./docs/mocks/01-login.excalidraw) · CDU-N1-02
+
+<div align="center"><img src="./docs/mocks/01-login.png" alt="Mockup — 01. Inicio de sesión" width="820"/></div>
+
+- **Narrativa de uso:** El usuario abre Quetxal TV y se encuentra la pantalla de inicio de sesión sobre fondo oscuro con el wordmark de marca. Ingresa correo y contraseña y pulsa *Iniciar sesión*; el API Gateway valida las credenciales y emite la sesión (JWT/Cookie). Si no recuerda su contraseña usa *¿Olvidaste tu contraseña?*, y si no tiene cuenta sigue *Suscríbete ya*.
+- **Flujo:** Landing público → **Inicio de sesión** → Selección de perfil (`/profiles`)
+
+**02. Registro de nuevo usuario** · [`02-registro.excalidraw`](./docs/mocks/02-registro.excalidraw) · CDU-N1-01
+
+<div align="center"><img src="./docs/mocks/02-registro.png" alt="Mockup — 02. Registro de nuevo usuario" width="820"/></div>
+
+- **Narrativa de uso:** Un visitante sin cuenta llega al registro. En el *Paso 1* ingresa su correo y pulsa *Continuar*; en el *Paso 2* define nombre de perfil y contraseña (validada: 6+ caracteres, una mayúscula y un número) y opcionalmente acepta ofertas. Al pulsar *Crear cuenta* el sistema crea la cuenta y lo redirige a la selección de perfiles.
+- **Flujo:** Landing / Login → **Registro (Paso 1 → Paso 2)** → Selección de perfiles (`/profiles`)
+
+**03. Selección de perfil** · [`03-seleccion-perfil.excalidraw`](./docs/mocks/03-seleccion-perfil.excalidraw) · CDU-N1-08
+
+<div align="center"><img src="./docs/mocks/03-seleccion-perfil.png" alt="Mockup — 03. Selección de perfil" width="820"/></div>
+
+- **Narrativa de uso:** Tras autenticarse, el usuario llega a *¿Quién está viendo?* y ve los perfiles de su cuenta como avatares con la inicial del nombre; los perfiles infantiles muestran la insignia *KIDS*. Al pulsar un avatar se guarda el perfil seleccionado y entra al catálogo; arriba a la derecha puede *Cerrar sesión*.
+- **Flujo:** Inicio de sesión → **Selección de perfil** → Catálogo / Browse (`/browse`)
+
+**04. Crear / Editar perfil** · [`04-gestion-perfil.excalidraw`](./docs/mocks/04-gestion-perfil.excalidraw) · CDU-N1-05/06/07
+
+<div align="center"><img src="./docs/mocks/04-gestion-perfil.png" alt="Mockup — 04. Crear / Editar perfil" width="820"/></div>
+
+- **Narrativa de uso:** El titular abre este formulario para crear o modificar un perfil (mismo layout). Ingresa el *Nombre del perfil* (máx. 30 caracteres), elige idioma y marca *Perfil infantil* para restringir el contenido; el avatar es una vista previa autogenerada con la inicial. Confirma con *Crear perfil*/*Guardar* o descarta con *Cancelar*. En edición aparece *Eliminar perfil* (pide confirmación, oculto para el perfil principal).
+- **Flujo:** Selección / Gestión de perfiles → **Crear/Editar perfil** → vuelta a la lista
+
+**05. Selección de plan de suscripción** · [`05-planes.excalidraw`](./docs/mocks/05-planes.excalidraw) · CDU-N2-01, N2-03, N5-01
+
+<div align="center"><img src="./docs/mocks/05-planes.png" alt="Mockup — 05. Selección de plan de suscripción" width="820"/></div>
+
+- **Narrativa de uso:** El usuario llega a *Elige el plan ideal para ti* y primero elige su moneda (GTQ/USD/MXN/EUR). Esa selección dispara una llamada al **FX-Service**, que convierte el `precio_base` de cada plan y devuelve el precio en moneda local mostrado en cada tarjeta. Compara los 3 planes (Básico, Estándar, Premium) y pulsa *Suscribirse*; el plan Estándar va resaltado como *Más popular*.
+- **Flujo:** Registro / Login → **Planes** → Pago / Confirmación de suscripción
+
+**06. Mi cuenta / Gestión de suscripción** · [`06-cuenta.excalidraw`](./docs/mocks/06-cuenta.excalidraw) · CDU-N2-03, N2-04
+
+<div align="center"><img src="./docs/mocks/06-cuenta.png" alt="Mockup — 06. Mi cuenta / Gestión de suscripción" width="820"/></div>
+
+- **Narrativa de uso:** El titular entra a *Cuenta* y ve las secciones reales: *Membresía y facturación* (correo, contraseña enmascarada, plan actual con precio/mes) con *Cambiar plan* (N2-03) y *Cancelar suscripción* (N2-04). Debajo, accesos a Información personal, Métodos de pago y Seguridad, el bloque de Perfiles y *Cerrar sesión en todos los dispositivos*.
+- **Flujo:** Selección de perfil / Browse → **Mi cuenta** → Cambiar plan · Personal · Pago · Seguridad
+
+**07. Home / Cartelera** · [`07-home.excalidraw`](./docs/mocks/07-home.excalidraw) · CDU-N3-01, N6-02
+
+<div align="center"><img src="./docs/mocks/07-home.png" alt="Mockup — 07. Home / Cartelera" width="820"/></div>
+
+- **Narrativa de uso:** Tras iniciar sesión y elegir perfil, el usuario llega a la cartelera (`/browse`). Arriba ve un *HERO* con el contenido destacado (título, badges, % match) y los botones *Reproducir* y *Más información*. La primera fila *Continuar viendo* reconstruye su **historial de reproducción** con barras de progreso. Luego explora los carruseles *Tendencias* y *Nuevos lanzamientos*, cada póster con su badge de coincidencia (%).
+- **Flujo:** Login / Selección de perfil → **Home / Cartelera** → Detalle (`/browse/{id}`) o Reproductor (`/watch/{id}`)
+
+**08. Catálogo de Películas** · [`08-peliculas.excalidraw`](./docs/mocks/08-peliculas.excalidraw) · CDU-N3-01, N4-02
+
+<div align="center"><img src="./docs/mocks/08-peliculas.png" alt="Mockup — 08. Catálogo de Películas" width="820"/></div>
+
+- **Narrativa de uso:** El usuario abre la pestaña *Películas* (`/browse/movies`). El sistema filtra la cartelera por `type === 'movie'` y muestra el carrusel *Todas las películas* y un carrusel por cada género detectado dinámicamente. Cada póster expone su porcentaje de recomendación (*% Match*, en verde). Hace clic en un póster para ir al detalle.
+- **Flujo:** Home → **Películas** → Detalle de contenido (`/browse/{id}`)
+
+**09. Catálogo de Series** · [`09-series.excalidraw`](./docs/mocks/09-series.excalidraw) · CDU-N3-01, N4-02
+
+<div align="center"><img src="./docs/mocks/09-series.png" alt="Mockup — 09. Catálogo de Series" width="820"/></div>
+
+- **Narrativa de uso:** Desde la navbar el usuario selecciona *Series*. La página filtra el contenido de `tipo = serie` y lo presenta bajo un hero *Series*, con un carrusel *Todas las series* y uno por género. Los pósters llevan badge de % de recomendación del rating-service. Hace clic en un póster para abrir su ficha.
+- **Flujo:** Home → **Series** → Ficha de contenido (`/browse/{id}`)
+
+**10. Búsqueda y filtros** · [`10-busqueda.excalidraw`](./docs/mocks/10-busqueda.excalidraw) · CDU-N3-04
+
+<div align="center"><img src="./docs/mocks/10-busqueda.png" alt="Mockup — 10. Búsqueda y filtros" width="820"/></div>
+
+- **Narrativa de uso:** El usuario escribe en la barra grande (*Buscar por título, género o categoría…*) y refina con los chips de filtro reales —Tipo, Categoría editorial y Género artístico— actualizándose en vivo. La grilla muestra el conteo (*Resultados (6)*) y marca con badge *NUEVO* el contenido reciente.
+- **Flujo:** Navbar (Inicio) → **Búsqueda** → Detalle de contenido (`/browse/{id}`)
+
+**11. Ficha técnica, reparto y calificación** · [`11-ficha-tecnica.excalidraw`](./docs/mocks/11-ficha-tecnica.excalidraw) · CDU-N3-03, N4-01/02/03
+
+<div align="center"><img src="./docs/mocks/11-ficha-tecnica.png" alt="Mockup — 11. Ficha técnica, reparto y calificación" width="820"/></div>
+
+- **Narrativa de uso:** El usuario abre el detalle de un título y ve el póster grande, metadatos (año, clasificación, temporadas/episodios) y el **% de recomendación global** destacado en verde (`recomendacion.porcentaje` del rating-service). Pulsa *Reproducir* y puede **calificar** (pulgar arriba/abajo, que recalcula el %). Más abajo lee la sinopsis, recorre el *Reparto* y, si es serie, los *Episodios* de la temporada seleccionada.
+- **Flujo:** Catálogo / Carrusel → **Ficha técnica** → Reproductor (`/watch/{id}`)
+
+**12. Reproductor de video** · [`12-reproductor.excalidraw`](./docs/mocks/12-reproductor.excalidraw) · CDU-N3-02, N6-01, N6-03
+
+<div align="center"><img src="./docs/mocks/12-reproductor.png" alt="Mockup — 12. Reproductor de video" width="820"/></div>
+
+- **Narrativa de uso:** El usuario reproduce el contenido casi a pantalla completa con control central de play/pausa. La barra superpuesta muestra el tiempo transcurrido sobre la **duración real** del video, calculada desde el archivo servido en **GCS** (`onLoadedMetadata`), con scrubber, volumen, calidad (HD), subtítulos y pantalla completa. Al cargar consulta el historial y **reanuda** desde el último `segundo_exacto`, persistiendo el progreso cada 10 s.
+- **Flujo:** Detalle (`/browse/{id}`) → **Reproductor (`/watch/{id}`)** → al salir, vuelta al detalle
+
+### B. Panel de Administración (Fase 2)
+
+**13. Gestión de catálogo (CRUD)** · [`13-admin-catalogo.excalidraw`](./docs/mocks/13-admin-catalogo.excalidraw) · CDU-N8-02/03/04
+
+<div align="center"><img src="./docs/mocks/13-admin-catalogo.png" alt="Mockup — 13. Gestión de catálogo (CRUD)" width="820"/></div>
+
+- **Narrativa de uso:** El administrador ve el listado completo de títulos con su tipo, año, clasificación, estado (Activo/Inactivo) y fecha de estreno. Puede filtrar con la barra de búsqueda, crear con *+ Nuevo contenido*, o usar las acciones por fila para **editar** o **eliminar** (eliminar marca el contenido como inactivo).
+- **Flujo:** Sesión de administrador → **Gestión de catálogo** → Agregar (`/admin/catalog/nuevo`) · Editar (`/admin/catalog/[id]/editar`)
+
+**14. Agregar nuevo contenido** · [`14-admin-nuevo-contenido.excalidraw`](./docs/mocks/14-admin-nuevo-contenido.excalidraw) · CDU-N8-02
+
+<div align="center"><img src="./docs/mocks/14-admin-nuevo-contenido.png" alt="Mockup — 14. Agregar nuevo contenido" width="820"/></div>
+
+- **Narrativa de uso:** El administrador completa el formulario de una nueva película o serie: Título, Tipo, Clasificación, Año, Género y Sinopsis. La **portada** y el **video** se cargan arrastrando o seleccionando el archivo, que se sube a **Google Cloud Storage**; las URLs resultantes (`portada_url`, `video_url`) quedan asociadas. Al *Guardar* se crea el contenido y vuelve al listado.
+- **Flujo:** Gestión de catálogo → **Agregar contenido** → vuelta al catálogo
+
+**15. Editar metadatos / eliminar contenido** · [`15-admin-editar-contenido.excalidraw`](./docs/mocks/15-admin-editar-contenido.excalidraw) · CDU-N8-03, N8-04
+
+<div align="center"><img src="./docs/mocks/15-admin-editar-contenido.png" alt="Mockup — 15. Editar metadatos / eliminar contenido" width="820"/></div>
+
+- **Narrativa de uso:** El administrador ve el formulario **precargado** con los metadatos existentes (Título, Tipo, Clasificación, Año, Duración, Sinopsis, Géneros, URLs de portada/video en GCS, fecha de estreno y estado *activo*). Edita lo necesario y pulsa *Guardar cambios*. El botón destructivo *Eliminar título* cubre la baja (N8-04), confirmada con un diálogo.
+- **Flujo:** Gestión de catálogo → **Editar contenido** → vuelta al catálogo
+
+**16. Programar / Calendarizar estrenos** · [`16-admin-estrenos.excalidraw`](./docs/mocks/16-admin-estrenos.excalidraw) · CDU-N8-05, N7-03
+
+<div align="center"><img src="./docs/mocks/16-admin-estrenos.png" alt="Mockup — 16. Programar / Calendarizar estrenos" width="820"/></div>
+
+- **Narrativa de uso:** El administrador selecciona un contenido del catálogo, define la **fecha y hora** de estreno y pulsa *Programar estreno*. La tabla lista cada título con su fecha, estado (Pendiente / Estrenado / Sin programar) y acciones. Al llegar la fecha el sistema **encola automáticamente la notificación de nuevo contenido** (N7-03).
+- **Flujo:** Sesión de administrador → **Estrenos** → notificación de nuevo contenido
+
+**17. Auditoría interna y reportes (CSV/PDF)** · [`17-admin-auditoria.excalidraw`](./docs/mocks/17-admin-auditoria.excalidraw) · CDU-N8-06, N4-04
+
+<div align="center"><img src="./docs/mocks/17-admin-auditoria.png" alt="Mockup — 17. Auditoría interna y reportes (CSV/PDF)" width="820"/></div>
+
+- **Narrativa de uso:** El administrador ve un resumen de métricas (total de eventos y desglose INSERT/UPDATE/DELETE) y una tabla de logs (Fecha/Hora, Acción, Tabla, Registro, Usuario). Estos registros **no se escriben desde la aplicación**: los generan **triggers** en la base de datos ante cada INSERT/UPDATE/DELETE (N4-04). Desde la misma vista descarga el reporte con *Exportar CSV* o *Exportar PDF* (N8-06).
+- **Flujo:** Sesión de administrador → **Auditoría** (`/admin`) → descarga de reporte (CSV/PDF)
+
+### Mapa de flujo de navegación (global)
+
+```
+                    ┌─────────────┐      ┌──────────────┐
+   Landing ───────► │ 01 Login    │      │ 02 Registro  │
+                    └──────┬──────┘      └──────┬───────┘
+                           │                    │
+                           ▼                    ▼
+                    ┌─────────────┐      ┌──────────────┐
+                    │ 03 Perfiles │◄────►│ 04 Crear/Edit│
+                    └──────┬──────┘      └──────────────┘
+                           ▼
+                    ┌─────────────┐   05 Planes ─► 06 Cuenta
+                    │ 07 Home     │◄──────────────────────────┐
+                    └──────┬──────┘                           │
+            ┌──────────────┼───────────────┬─────────────┐    │
+            ▼              ▼               ▼             ▼     │
+      08 Películas    09 Series      10 Búsqueda   11 Ficha ──┘
+                                                     │
+                                                     ▼
+                                              12 Reproductor
+
+   ADMIN (login con rol admin):
+           13 Catálogo ─┬─► 14 Nuevo contenido
+                        └─► 15 Editar / eliminar
+           16 Estrenos ─► (notificación de nuevo contenido)
+           17 Auditoría ─► reporte CSV / PDF
+```
+
+
 ## 7\. Archivos Crudos
 
-[https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing](https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing)   
+[https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing](https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing)   )   

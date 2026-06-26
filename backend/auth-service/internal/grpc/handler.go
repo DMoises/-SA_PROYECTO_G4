@@ -6,6 +6,7 @@ package grpcserver
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/grupo4/quetxaltv-auth/internal/domain"
 	"github.com/grupo4/quetxaltv-auth/internal/pb"
@@ -57,7 +58,7 @@ func (h *AuthHandler) ValidarToken(ctx context.Context, req *pb.ValidarTokenRequ
 }
 
 func (h *AuthHandler) CrearPerfil(ctx context.Context, req *pb.CrearPerfilRequest) (*pb.PerfilResponse, error) {
-	p, err := h.svc.CrearPerfil(ctx, req.GetUsuarioId(), req.GetNombre(), req.GetIdioma(), req.GetEsInfantil())
+	p, err := h.svc.CrearPerfil(ctx, req.GetUsuarioId(), req.GetNombre(), req.GetIdioma(), req.GetEsInfantil(), req.GetPin())
 	if err != nil {
 		return nil, aGRPC(err)
 	}
@@ -66,11 +67,12 @@ func (h *AuthHandler) CrearPerfil(ctx context.Context, req *pb.CrearPerfilReques
 		Nombre:     p.Nombre,
 		EsInfantil: p.EsInfantil,
 		Idioma:     p.Idioma,
+		Pin:        p.Pin,
 	}, nil
 }
 
 func (h *AuthHandler) EditarPerfil(ctx context.Context, req *pb.EditarPerfilRequest) (*pb.PerfilResponse, error) {
-	p, err := h.svc.EditarPerfil(ctx, req.GetUsuarioId(), req.GetPerfilId(), req.GetNombre(), req.GetIdioma(), req.GetEsInfantil())
+	p, err := h.svc.EditarPerfil(ctx, req.GetUsuarioId(), req.GetPerfilId(), req.GetNombre(), req.GetIdioma(), req.GetEsInfantil(), req.GetPin())
 	if err != nil {
 		return nil, aGRPC(err)
 	}
@@ -79,6 +81,7 @@ func (h *AuthHandler) EditarPerfil(ctx context.Context, req *pb.EditarPerfilRequ
 		Nombre:     p.Nombre,
 		EsInfantil: p.EsInfantil,
 		Idioma:     p.Idioma,
+		Pin:        p.Pin,
 	}, nil
 }
 
@@ -94,6 +97,7 @@ func (h *AuthHandler) ListarPerfiles(ctx context.Context, req *pb.ListarPerfiles
 			Nombre:     p.Nombre,
 			EsInfantil: p.EsInfantil,
 			Idioma:     p.Idioma,
+			Pin:        p.Pin,
 		})
 	}
 	return resp, nil
@@ -137,6 +141,7 @@ func aGRPC(err error) error {
 	case errors.Is(err, domain.ErrDatosInvalidos):
 		return status.Error(codes.InvalidArgument, err.Error())
 	default:
-		return status.Error(codes.Internal, "error interno")
+		log.Printf("🔥 ERROR CRÍTICO (no controlado): %v", err)
+		return status.Error(codes.Internal, "error interno del servidor")
 	}
 }

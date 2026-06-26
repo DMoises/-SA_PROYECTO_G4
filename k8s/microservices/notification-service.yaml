@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: quetxal-tv-prod
+  labels:
+    app: notification-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: notification-service
+        image: tu-registro/quetxal-notification-service:latest
+        ports:
+        - containerPort: 50054
+          name: grpc
+        envFrom:
+        - configMapRef:
+            name: quetxal-config
+        env:
+        - name: GRPC_URL
+          value: "0.0.0.0:50054"
+        - name: NOTIFICATION_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: NOTIFICATION_DB_NAME
+        - name: NOTIFICATION_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: NOTIFICATION_DB_USER
+        - name: NOTIFICATION_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: NOTIFICATION_DB_PASSWORD
+        - name: SMTP_HOST
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SMTP_HOST
+        - name: SMTP_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SMTP_USER
+        - name: SMTP_PASS
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SMTP_PASS
+        - name: SMTP_FROM
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SMTP_FROM
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "10m"
+          limits:
+            memory: "128Mi"
+            cpu: "150m"
+        readinessProbe:
+          tcpSocket:
+            port: 50054
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 50054
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: quetxal-tv-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: notification-service
+  ports:
+  - port: 50054
+    targetPort: 50054

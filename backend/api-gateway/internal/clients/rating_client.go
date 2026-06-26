@@ -14,7 +14,11 @@ type RatingClient struct {
 }
 
 func NewRatingClient(addr string) (*RatingClient, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(MetadataForwardingInterceptor),
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -15,6 +15,7 @@ interface ItemCartelera {
   clasificacion: string
   generos: string // separado por coma
   categorias: string
+  portada_url?: string
 }
 interface MiembroReparto {
   actor: string
@@ -25,6 +26,7 @@ interface EpisodioApi {
   numero: number
   titulo: string
   duracion_min: number
+  video_url?: string
 }
 interface TemporadaApi {
   numero: number
@@ -42,6 +44,8 @@ interface FichaApi {
   categorias: string
   reparto: MiembroReparto[]
   temporadas: TemporadaApi[]
+  portada_url?: string
+  video_url?: string
 }
 
 // El catalogo no almacena imagenes; usamos placeholders deterministas por id.
@@ -59,8 +63,8 @@ export function itemToContent(i: ItemCartelera): Content {
     id: i.contenido_id,
     title: i.titulo,
     type: mapTipo(i.tipo),
-    thumbnail: thumb(i.contenido_id),
-    backdrop: backdrop(i.contenido_id),
+    thumbnail: i.portada_url || thumb(i.contenido_id),
+    backdrop: i.portada_url || backdrop(i.contenido_id),
     year: i.anio,
     rating: i.clasificacion,
     genres: splitGeneros(i.generos),
@@ -91,6 +95,7 @@ export function fichaToContent(f: FichaApi): ContentDetalle {
       description: '',
       duration: `${e.duracion_min}m`,
       thumbnail: thumb(`${f.contenido_id}-t${t.numero}-e${e.numero}`),
+      videoUrl: e.video_url || undefined,
     })),
   )
   const cast: CastMember[] = reparto.map((r, idx) => ({
@@ -103,8 +108,8 @@ export function fichaToContent(f: FichaApi): ContentDetalle {
     id: f.contenido_id,
     title: f.titulo,
     type: mapTipo(f.tipo),
-    thumbnail: thumb(f.contenido_id),
-    backdrop: backdrop(f.contenido_id),
+    thumbnail: f.portada_url || thumb(f.contenido_id),
+    backdrop: f.portada_url || backdrop(f.contenido_id),
     year: f.anio,
     rating: f.clasificacion,
     duration: f.tipo === 'pelicula' && f.duracion_min ? `${f.duracion_min}m` : undefined,
@@ -115,6 +120,7 @@ export function fichaToContent(f: FichaApi): ContentDetalle {
     description: f.sinopsis || '',
     cast,
     matchPercentage: 0,
+    videoUrl: f.video_url || undefined,
     episodesList,
   }
 }
@@ -134,9 +140,10 @@ export async function buscarContenido(params: URLSearchParams): Promise<Content[
   return (items || []).map(itemToContent)
 }
 
-export async function fetchFicha(id: string): Promise<ContentDetalle | null> {
+export async function fetchFicha(id: string, customHeaders?: HeadersInit): Promise<ContentDetalle | null> {
   const r = await fetch(`${GATEWAY_URL}/catalog/contenido/${encodeURIComponent(id)}`, {
     cache: 'no-store',
+    headers: customHeaders,
   })
   if (!r.ok) return null // 404 (no existe) o id malformado -> tratamos como no encontrado
   const f: FichaApi = await r.json()

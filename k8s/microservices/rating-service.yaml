@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rating-service
+  namespace: quetxal-tv-prod
+  labels:
+    app: rating-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: rating-service
+  template:
+    metadata:
+      labels:
+        app: rating-service
+    spec:
+      containers:
+      - name: rating-service
+        image: tu-registro/quetxal-rating-service:latest
+        ports:
+        - containerPort: 50056
+          name: grpc
+        envFrom:
+        - configMapRef:
+            name: quetxal-config
+        env:
+        - name: GRPC_PORT
+          value: "50056"
+        - name: RATING_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: RATING_DB_NAME
+        - name: RATING_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: RATING_DB_USER
+        - name: RATING_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: RATING_DB_PASSWORD
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "10m"
+          limits:
+            memory: "128Mi"
+            cpu: "150m"
+        readinessProbe:
+          tcpSocket:
+            port: 50056
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 50056
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rating-service
+  namespace: quetxal-tv-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: rating-service
+  ports:
+  - port: 50056
+    targetPort: 50056
+    name: grpc

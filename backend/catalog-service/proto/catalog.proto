@@ -15,6 +15,12 @@ service CatalogService {
   // Ficha tecnica de un contenido (RFS-03.2): titulo, sinopsis, reparto y,
   // si es serie, sus temporadas con episodios.
   rpc ObtenerFichaTecnica(FichaTecnicaRequest) returns (FichaTecnicaResponse);
+  // Obtener recomendaciones personalizadas para un perfil basándose en su historial y ratings
+  rpc ObtenerRecomendaciones(ObtenerRecomendacionesRequest) returns (CarteleraResponse);
+}
+
+message ObtenerRecomendacionesRequest {
+  string perfil_id = 1;
 }
 
 message ExplorarCarteleraRequest {}
@@ -36,6 +42,7 @@ message ItemCartelera {
   string clasificacion = 5; // TP | +7 | +13 | +16 | +18
   string generos       = 6; // lista separada por coma
   string categorias    = 7; // lista separada por coma
+  string portada_url   = 8;
 }
 
 message CarteleraResponse {
@@ -56,6 +63,7 @@ message Episodio {
   int32  numero       = 1;
   string titulo       = 2;
   int32  duracion_min = 3;
+  string video_url    = 4; // Signed URL de GCS (vacio si no hay video)
 }
 
 message Temporada {
@@ -75,4 +83,7 @@ message FichaTecnicaResponse {
   string                  categorias    = 9; // lista separada por coma
   repeated MiembroReparto reparto       = 10;
   repeated Temporada      temporadas    = 11; // solo si tipo = serie
+  string                  portada_url   = 12;
+  string                  video_url     = 13; // Signed URL de GCS para peliculas
 }
+

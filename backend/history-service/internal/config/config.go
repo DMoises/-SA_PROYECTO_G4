@@ -3,8 +3,10 @@ package config
 import "os"
 
 type Config struct {
-	Port        string
-	DatabaseURL string
+	Port              string
+	DatabaseURL       string
+	JWTSecret         string
+	SubscriptionDBURL string
 }
 
 func Load() Config {
@@ -13,8 +15,15 @@ func Load() Config {
 		port = "8086"
 	}
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "merequetengue"
+	}
+
 	return Config{
-		Port:        port,
-		DatabaseURL: os.Getenv("DATABASE_URL"),
+		Port:              port,
+		DatabaseURL:       os.Getenv("DATABASE_URL"),
+		JWTSecret:         jwtSecret,
+		SubscriptionDBURL: os.Getenv("SUBSCRIPTION_DB_URL"),
 	}
 }

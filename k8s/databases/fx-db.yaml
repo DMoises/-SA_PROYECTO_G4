@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fx-db
+  namespace: quetxal-tv-prod
+  labels:
+    app: fx-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: fx-db
+  template:
+    metadata:
+      labels:
+        app: fx-db
+    spec:
+      containers:
+      - name: postgres
+        image: tu-registro/quetxal-fx-db:01ffa0c62f8d7bb18cea83fb842a33084100e6b7
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_DB_NAME
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: FX_DB_PASSWORD
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "25m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fx-db
+  namespace: quetxal-tv-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: fx-db
+  ports:
+  - port: 5432
+    targetPort: 5432

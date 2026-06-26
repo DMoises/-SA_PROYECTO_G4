@@ -10,11 +10,47 @@ import os
 class Config:
     def __init__(self) -> None:
         self.grpc_port = _env("GRPC_PORT", "50053")
+        self.admin_http_port = int(_env("CATALOG_ADMIN_HTTP_PORT", "8086"))
         self.db_host = _env("CATALOG_DB_HOST", "catalog-db")
         self.db_port = _env("CATALOG_DB_PORT_INTERNAL", "5432")  # puerto INTERNO de postgres
         self.db_name = _env("CATALOG_DB_NAME", "catalog_db")
         self.db_user = _env("CATALOG_DB_USER", "catalog_user")
         self.db_password = _env("CATALOG_DB_PASSWORD", "")
+
+        # --- Google Cloud Storage (multimedia: videos y portadas) ---
+        # Auth por ADC (cuenta de servicio de la VM/Pod): sin llaves JSON ni HMAC.
+        self.gcs_bucket = _env("GCS_BUCKET_NAME", "quetxal-tv-media-bucket")
+        self.gcs_project = _env("GCS_PROJECT_ID", "quetxal-tv-498705")
+        # TTL de las Signed URLs v4 (por defecto 2h, como pide la tarea).
+        self.gcs_signed_url_ttl_seconds = int(_env("GCS_SIGNED_URL_TTL", "7200"))
+        # Permite desactivar la firma (passthrough total) sin tocar codigo.
+        self.gcs_enabled = _env("GCS_ENABLED", "true").lower() in ("1", "true", "yes", "on")
+
+        # Envs for auth/subscription DBs (for interceptor validations)
+        self.jwt_secret = _env("JWT_SECRET", "merequetengue")
+        self.auth_db_host = _env("AUTH_DB_HOST", "auth-db")
+        self.auth_db_port = _env("AUTH_DB_PORT_INTERNAL", "5432")
+        self.auth_db_name = _env("AUTH_DB_NAME", "auth_db")
+        self.auth_db_user = _env("AUTH_DB_USER", "auth_user")
+        self.auth_db_password = _env("AUTH_DB_PASSWORD", "")
+
+        self.sub_db_host = _env("SUBSCRIPTION_DB_HOST", "subscription-db")
+        self.sub_db_port = _env("SUBSCRIPTION_DB_PORT_INTERNAL", "5432")
+        self.sub_db_name = _env("SUBSCRIPTION_DB_NAME", "subscription_db")
+        self.sub_db_user = _env("SUBSCRIPTION_DB_USER", "subscription_user")
+        self.sub_db_password = _env("SUBSCRIPTION_DB_PASSWORD", "")
+
+        self.history_db_host = _env("HISTORY_DB_HOST", "history-db")
+        self.history_db_port = _env("HISTORY_DB_PORT_INTERNAL", "5432")
+        self.history_db_name = _env("HISTORY_DB_NAME", "history_db")
+        self.history_db_user = _env("HISTORY_DB_USER", "history_user")
+        self.history_db_password = _env("HISTORY_DB_PASSWORD", "")
+
+        self.rating_db_host = _env("RATING_DB_HOST", "rating-db")
+        self.rating_db_port = _env("RATING_DB_PORT_INTERNAL", "5432")
+        self.rating_db_name = _env("RATING_DB_NAME", "rating_db")
+        self.rating_db_user = _env("RATING_DB_USER", "rating_user")
+        self.rating_db_password = _env("RATING_DB_PASSWORD", "")
 
     @property
     def dsn(self) -> str:
@@ -22,6 +58,34 @@ class Config:
         return (
             f"host={self.db_host} port={self.db_port} dbname={self.db_name} "
             f"user={self.db_user} password={self.db_password} sslmode=disable"
+        )
+
+    @property
+    def auth_dsn(self) -> str:
+        return (
+            f"host={self.auth_db_host} port={self.auth_db_port} dbname={self.auth_db_name} "
+            f"user={self.auth_db_user} password={self.auth_db_password} sslmode=disable"
+        )
+
+    @property
+    def sub_dsn(self) -> str:
+        return (
+            f"host={self.sub_db_host} port={self.sub_db_port} dbname={self.sub_db_name} "
+            f"user={self.sub_db_user} password={self.sub_db_password} sslmode=disable"
+        )
+
+    @property
+    def history_dsn(self) -> str:
+        return (
+            f"host={self.history_db_host} port={self.history_db_port} dbname={self.history_db_name} "
+            f"user={self.history_db_user} password={self.history_db_password} sslmode=disable"
+        )
+
+    @property
+    def rating_dsn(self) -> str:
+        return (
+            f"host={self.rating_db_host} port={self.rating_db_port} dbname={self.rating_db_name} "
+            f"user={self.rating_db_user} password={self.rating_db_password} sslmode=disable"
         )
 
 

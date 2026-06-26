@@ -31,7 +31,10 @@ func main() {
 		log.Fatalf("no se pudo escuchar en el puerto %s: %v", cfg.Port, err)
 	}
 
-	grpcServer := grpc.NewServer()
+	authInterceptor := historyserver.NewAuthInterceptor(cfg.JWTSecret, cfg.SubscriptionDBURL)
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(authInterceptor.UnaryServerInterceptor()),
+	)
 	pb.RegisterHistoryServiceServer(grpcServer, srv)
 
 	log.Printf("history-service gRPC escuchando en :%s", cfg.Port)

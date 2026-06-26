@@ -10,6 +10,11 @@ service CatalogService {
   rpc ExplorarCartelera(ExplorarCarteleraRequest) returns (CarteleraResponse);
   rpc BuscarContenido(BuscarContenidoRequest) returns (CarteleraResponse);
   rpc ObtenerFichaTecnica(FichaTecnicaRequest) returns (FichaTecnicaResponse);
+  rpc ObtenerRecomendaciones(ObtenerRecomendacionesRequest) returns (CarteleraResponse);
+}
+
+message ObtenerRecomendacionesRequest {
+  string perfil_id = 1;
 }
 
 message ExplorarCarteleraRequest {}
@@ -25,11 +30,12 @@ message BuscarContenidoRequest {
 message ItemCartelera {
   string contenido_id  = 1;
   string titulo        = 2;
-  string tipo          = 3;
+  string tipo          = 3; // pelicula | serie
   int32  anio          = 4;
-  string clasificacion = 5;
-  string generos       = 6;
-  string categorias    = 7;
+  string clasificacion = 5; // TP | +7 | +13 | +16 | +18
+  string generos       = 6; // lista separada por coma
+  string categorias    = 7; // lista separada por coma
+  string portada_url   = 8;
 }
 
 message CarteleraResponse {
@@ -43,13 +49,14 @@ message FichaTecnicaRequest {
 message MiembroReparto {
   string actor     = 1;
   string personaje = 2;
-  string rol       = 3;
+  string rol       = 3; // protagonista | secundario
 }
 
 message Episodio {
   int32  numero       = 1;
   string titulo       = 2;
   int32  duracion_min = 3;
+  string video_url    = 4; // Signed URL de GCS (vacio si no hay video)
 }
 
 message Temporada {
@@ -60,13 +67,15 @@ message Temporada {
 message FichaTecnicaResponse {
   string                  contenido_id  = 1;
   string                  titulo        = 2;
-  string                  tipo          = 3;
+  string                  tipo          = 3; // pelicula | serie
   string                  sinopsis      = 4;
   int32                   anio          = 5;
   string                  clasificacion = 6;
   int32                   duracion_min  = 7;
-  string                  generos       = 8;
-  string                  categorias    = 9;
+  string                  generos       = 8; // lista separada por coma
+  string                  categorias    = 9; // lista separada por coma
   repeated MiembroReparto reparto       = 10;
-  repeated Temporada      temporadas    = 11;
+  repeated Temporada      temporadas    = 11; // solo si tipo = serie
+  string                  portada_url   = 12;
+  string                  video_url     = 13; // Signed URL de GCS para peliculas
 }

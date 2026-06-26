@@ -14,7 +14,11 @@ type CatalogClient struct {
 }
 
 func NewCatalogClient(addr string) (*CatalogClient, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(MetadataForwardingInterceptor),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -37,5 +41,10 @@ func (c *CatalogClient) BuscarContenido(ctx context.Context, titulo, categoria, 
 }
 
 func (c *CatalogClient) ObtenerFichaTecnica(ctx context.Context, contenidoID string) (*pb.FichaTecnicaResponse, error) {
+	ctx = context.WithValue(ctx, CtxContenidoID, contenidoID)
 	return c.cli.ObtenerFichaTecnica(ctx, &pb.FichaTecnicaRequest{ContenidoId: contenidoID})
+}
+
+func (c *CatalogClient) ObtenerRecomendaciones(ctx context.Context, perfilID string) (*pb.CarteleraResponse, error) {
+	return c.cli.ObtenerRecomendaciones(ctx, &pb.ObtenerRecomendacionesRequest{PerfilId: perfilID})
 }

@@ -2,23 +2,36 @@
 
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
-import { Play, Plus, ThumbsUp, ThumbsDown, Share2, Download, Check, ChevronDown } from 'lucide-react'
+import { Play, Plus, ThumbsUp, ThumbsDown, Share2, Download, Check, ChevronDown, Users } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { ContentCarousel } from '@/components/content-carousel'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Content, Episode } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { getResume } from '@/lib/history'
+import { getMySubscription } from '@/lib/api/billing'
+import { crearSala } from '@/lib/api/watchparty'
+import { useRouter } from 'next/navigation'
 
 type ContentDetalle = Content & { episodesList?: Episode[] }
 
 export default function ContentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const router = useRouter()
   const [content, setContent] = useState<ContentDetalle | null>(null)
   const [related, setRelated] = useState<Content[]>([])
   const [loading, setLoading] = useState(true)
   const [userRating, setUserRating] = useState<'up' | 'down' | null>(null)
   const [inMyList, setInMyList] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState(1)
+  const [resumeData, setResumeData] = useState<{
+    temporada?: number
+    episodio?: number
+    segundo_exacto?: number
+  } | null>(null)
+  const [isPremium, setIsPremium] = useState(false)
+  const [creatingParty, setCreatingParty] = useState(false)
+
   // Campos opcionales: proto3-JSON omite los que valen 0 (p. ej. porcentaje 0%).
   const [recomendacion, setRecomendacion] = useState<{
     total_votos?: number
@@ -26,10 +39,69 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
     porcentaje?: number
   } | null>(null)
 
+  // Consultar el progreso de reproducción
+  useEffect(() => {
+    const stored = localStorage.getItem('selectedProfile')
+    if (!stored) return
+
+    try {
+      const profile = JSON.parse(stored)
+      if (profile?.id) {
+        getResume(profile.id, id)
+          .then(res => {
+            if (res) {
+              setResumeData({
+                temporada: res.temporada,
+                episodio: res.episodio,
+                segundo_exacto: res.segundo_exacto,
+              })
+            }
+          })
+          .catch(err => console.error('Error fetching resume data:', err))
+      }
+    } catch {}
+  }, [id])
+
+  // Consultar suscripción activa para saber si habilitamos Watch Party
+  useEffect(() => {
+    getMySubscription()
+      .then(sub => {
+        const nombrePlan = sub?.nombre_plan ?? sub?.nombrePlan
+        setIsPremium(nombrePlan === 'Premium')
+      })
+      .catch(() => setIsPremium(false))
+  }, [])
+
+  async function handleCrearWatchParty() {
+    try {
+      setCreatingParty(true)
+      const res = await crearSala(id)
+      if (res.codigo_sala) {
+        router.push(`/watchparty/${res.codigo_sala}`)
+      }
+    } catch (err) {
+      console.error('Error al crear sala de watch party:', err)
+      alert('No se pudo crear la sala de Watch Party. Inténtalo de nuevo.')
+    } finally {
+      setCreatingParty(false)
+    }
+  }
+
   // Ficha tecnica real (via gateway: /api/catalog/{id} -> /catalog/contenido/{id}).
   useEffect(() => {
     setLoading(true)
-    fetch(`/api/catalog/${id}`)
+    const headers: Record<string, string> = {}
+    const stored = localStorage.getItem('selectedProfile')
+    if (stored) {
+      try {
+        const profile = JSON.parse(stored)
+        if (profile?.id) {
+          headers['X-Profile-Id'] = profile.id
+        }
+      } catch {}
+    }
+
+    fetch(`/api/catalog/${id}`, { headers })
       .then(r => (r.ok ? r.json() : null))
       .then((c: ContentDetalle | null) => setContent(c))
       .catch(() => setContent(null))
@@ -174,12 +246,30 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
             {/* Actions */}
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <Link
-                href={`/watch/${content.id}`}
+                href={
+                  content.type === 'series'
+                    ? (resumeData?.temporada && resumeData?.episodio
+                      ? `/watch/${content.id}?season=${resumeData.temporada}&episode=${resumeData.episodio}`
+                      : `/watch/${content.id}?season=1&episode=1`)
+                    : `/watch/${content.id}`
+                }
                 className={cn(buttonVariants({ size: 'lg' }), 'gap-2 bg-foreground text-background hover:bg-foreground/90')}
               >
                 <Play className="h-5 w-5 fill-current" />
-                Reproducir
+                {resumeData ? 'Reanudar' : 'Reproducir'}
               </Link>
+              {isPremium && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 border-primary/50 text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                  onClick={handleCrearWatchParty}
+                  disabled={creatingParty}
+                >
+                  <Users className="h-5 w-5" />
+                  {creatingParty ? 'Iniciando...' : 'Iniciar Watch Party'}
+                </Button>
+              )}
               <Button
                 size="lg"
                 variant="secondary"
@@ -255,9 +345,10 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
 
                 <div className="space-y-4">
                   {episodes.map(episode => (
-                    <div
+                    <Link
                       key={episode.id}
-                      className="group flex gap-4 rounded-lg bg-card p-4 transition-colors hover:bg-accent"
+                      href={`/watch/${content.id}?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
+                      className="group flex gap-4 rounded-lg bg-card p-4 transition-colors hover:bg-accent w-full text-left"
                     >
                       <div className="relative aspect-video w-32 flex-shrink-0 overflow-hidden rounded md:w-40">
                         <img
@@ -280,7 +371,7 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
                           {episode.description}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>

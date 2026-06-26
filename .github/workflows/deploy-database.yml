@@ -1,19 +1,11 @@
 name: Deploy Database
 
 on:
-  workflow_run:
-    workflows: ["Build and Push to Docker Hub - Database"]
-    types:
-      - completed
-    branches:
-      - develop
-      - main
   workflow_dispatch:
 
 jobs:
   deploy-database:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success')
 
     env:
       REMOTE_WORKDIR: "/home/${{ secrets.SSH_USER }}/quetxal"
@@ -48,7 +40,7 @@ jobs:
           : "${{ secrets.DOCKERHUB_TOKEN }}" || { echo "DOCKERHUB_TOKEN missing"; exit 1; }
         shell: bash
 
-      - name: Ensure remote workdir and copy compose + env.example (via Gateway)
+      - name: Ensure remote workdir and copy compose + backup script (via Gateway)
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
@@ -59,55 +51,71 @@ jobs:
 
           # Ensure remote workdir exists (via Gateway)
           ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p ${REMOTE_WORKDIR} && chown ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} ${REMOTE_WORKDIR} || true"
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "mkdir -p ${REMOTE_WORKDIR}/scripts && chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} ${REMOTE_WORKDIR} || true"
 
           # Copy docker-compose.db.yml to remote via Gateway
           scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             docker-compose.db.yml ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_COMPOSE}
 
-          # Copy .env.example to remote as base .env.cloud
+          # Copy backup-databases.sh to remote via Gateway
           scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
-            .env.example ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_ENV}
+            scripts/backup-databases.sh ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_WORKDIR}/scripts/backup-databases.sh
+
+          # Copy apply-audit-schemas.sh to remote via Gateway
+          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            scripts/apply-audit-schemas.sh ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${REMOTE_WORKDIR}/scripts/apply-audit-schemas.sh
+
+          # Set executable permissions on scripts
+          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "chmod +x ${REMOTE_WORKDIR}/scripts/backup-databases.sh ${REMOTE_WORKDIR}/scripts/apply-audit-schemas.sh"
 
 
-      - name: Create overrides file from secrets and append to remote .env.cloud
+      - name: Create env file from secrets and send to remote .env.cloud
         run: |
-          cat > /tmp/.env.overrides <<EOF
-          # Secrets overrides (appended to .env.cloud)
+          cat > /tmp/.env.cloud <<EOF
+          # Database Configuration
           AUTH_DB_NAME=${{ secrets.AUTH_DB_NAME }}
           AUTH_DB_USER=${{ secrets.AUTH_DB_USER }}
           AUTH_DB_PASSWORD=${{ secrets.AUTH_DB_PASSWORD }}
+          AUTH_DB_PORT=${{ secrets.AUTH_DB_PORT }}
 
           SUBSCRIPTION_DB_NAME=${{ secrets.SUBSCRIPTION_DB_NAME }}
           SUBSCRIPTION_DB_USER=${{ secrets.SUBSCRIPTION_DB_USER }}
           SUBSCRIPTION_DB_PASSWORD=${{ secrets.SUBSCRIPTION_DB_PASSWORD }}
+          SUBSCRIPTION_DB_PORT=${{ secrets.SUBSCRIPTION_DB_PORT }}
 
           CATALOG_DB_NAME=${{ secrets.CATALOG_DB_NAME }}
           CATALOG_DB_USER=${{ secrets.CATALOG_DB_USER }}
           CATALOG_DB_PASSWORD=${{ secrets.CATALOG_DB_PASSWORD }}
+          CATALOG_DB_PORT=${{ secrets.CATALOG_DB_PORT }}
 
           RATING_DB_NAME=${{ secrets.RATING_DB_NAME }}
           RATING_DB_USER=${{ secrets.RATING_DB_USER }}
           RATING_DB_PASSWORD=${{ secrets.RATING_DB_PASSWORD }}
+          RATING_DB_PORT=${{ secrets.RATING_DB_PORT }}
 
           FX_DB_NAME=${{ secrets.FX_DB_NAME }}
           FX_DB_USER=${{ secrets.FX_DB_USER }}
           FX_DB_PASSWORD=${{ secrets.FX_DB_PASSWORD }}
+          FX_DB_PORT=${{ secrets.FX_DB_PORT }}
 
           HISTORY_DB_NAME=${{ secrets.HISTORY_DB_NAME }}
           HISTORY_DB_USER=${{ secrets.HISTORY_DB_USER }}
           HISTORY_DB_PASSWORD=${{ secrets.HISTORY_DB_PASSWORD }}
+          HISTORY_DB_PORT=${{ secrets.HISTORY_DB_PORT }}
 
           NOTIFICATION_DB_NAME=${{ secrets.NOTIFICATION_DB_NAME }}
           NOTIFICATION_DB_USER=${{ secrets.NOTIFICATION_DB_USER }}
           NOTIFICATION_DB_PASSWORD=${{ secrets.NOTIFICATION_DB_PASSWORD }}
+          NOTIFICATION_DB_PORT=${{ secrets.NOTIFICATION_DB_PORT }}
 
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
           EOF
 
-          # Append overrides to remote .env.cloud via Gateway (no intermediate file left on Gateway)
+          # Send to remote .env.cloud via Gateway
           ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "cat >> ${REMOTE_ENV}" < /tmp/.env.overrides
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} "cat > ${REMOTE_ENV}" < /tmp/.env.cloud
 
       - name: Deploy or update databases on VM (via Gateway)
         env:
@@ -125,7 +133,7 @@ jobs:
           ENV_FILE="${WORKDIR}/.env.cloud"
 
           echo "=== Entering ${WORKDIR} ==="
-          cd "${WORKDIR}" || { echo "❌ Directory not found: ${WORKDIR}"; exit 2; }
+          cd "${WORKDIR}" || { echo " Directory not found: ${WORKDIR}"; exit 2; }
 
           echo "=== Validating docker compose file ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" config || { echo "❌ docker compose config failed"; exit 3; }
@@ -136,8 +144,8 @@ jobs:
           echo "=== Pulling images (if available) ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" pull || true
 
-          echo "=== Stopping old containers (if any) ==="
-          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" down --remove-orphans || true
+          echo "=== Stopping old containers and removing volumes ==="
+          docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" down -v --remove-orphans || true
 
           echo "=== Starting containers ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" up -d
@@ -145,11 +153,21 @@ jobs:
           echo "=== Waiting 30s for initialization ==="
           sleep 30
 
+          echo "=== Applying transactional audit schemas ==="
+          if [ -f "${WORKDIR}/scripts/apply-audit-schemas.sh" ]; then
+            bash "${WORKDIR}/scripts/apply-audit-schemas.sh"
+          else
+            echo "⚠️ apply-audit-schemas.sh script not found; skipping."
+          fi
+
           echo "=== Containers status ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" ps
 
           echo "=== Recent logs (tail 50) ==="
           docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" logs --tail=50
+
+          echo "=== Limpieza de sistema Docker para optimizar almacenamiento ==="
+          docker system prune -af || true
           EOF
 
       - name: Health check - Validate database connectivity
@@ -162,7 +180,7 @@ jobs:
           WORKDIR="/home/${{ secrets.SSH_USER }}/quetxal"
           COMPOSE_FILE="${WORKDIR}/docker-compose.db.yml"
           ENV_FILE="${WORKDIR}/.env.cloud"
-          cd "${WORKDIR}" || { echo "❌ Directory not found: ${WORKDIR}"; exit 2; }
+          cd "${WORKDIR}" || { echo " Directory not found: ${WORKDIR}"; exit 2; }
 
           echo "=== Checking PostgreSQL databases ==="
           for db in auth subscription catalog rating fx history notification; do
@@ -209,7 +227,7 @@ jobs:
       - name: Notify failure
         if: failure()
         run: |
-          echo "❌ Database deployment failed"
+          echo " Database deployment failed"
           echo "SSH to Database VM: ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}"
           echo "Check logs: docker compose -f /home/${{ secrets.SSH_USER }}/quetxal/docker-compose.db.yml logs"
           exit 1

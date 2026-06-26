@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quetxal-ingress
+  namespace: quetxal-tv-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx" # Opcional: Especifica el Ingress Controller
+    # Aquí puedes añadir configuraciones SSL/TLS y reglas de reescritura
+spec:
+  rules:
+  - host: api.quetxal.tv # El dominio que usarás para acceder al backend
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 8080
+  - host: www.quetxal.tv # El dominio para tu frontend
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80

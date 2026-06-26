@@ -77,13 +77,18 @@ services:
     environment:
       NODE_ENV: production
       GRPC_PORT: 50055
+      CATALOG_ADMIN_HTTP_PORT: 8086
       CATALOG_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
       CATALOG_DB_PORT_INTERNAL: 5434
       CATALOG_DB_NAME: ${CATALOG_DB_NAME}
       CATALOG_DB_USER: ${CATALOG_DB_USER}
       CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+      GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
+      GCS_ACCESS_KEY: ${GCS_ACCESS_KEY}
+      GCS_SECRET_KEY: ${GCS_SECRET_KEY}
     ports:
       - "50055:50055"
+      - "8086:8086"
     networks:
       - quetxal-net
 

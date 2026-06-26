@@ -54,12 +54,23 @@ func main() {
 	}
 	defer ratingClient.Close()
 
+	// Cliente gRPC al watchparty-service.
+	watchPartyClient, err := clients.NewWatchPartyClient(cfg.WatchPartyServiceAddr)
+	if err != nil {
+		log.Fatalf("no se pudo conectar al watchparty-service: %v", err)
+	}
+	defer watchPartyClient.Close()
+
 	h := handlers.NewAuthHandler(authClient, cfg)
 	authMW := middleware.Auth(authClient)
+	adminMW := middleware.AdminOnly
 	billingH := handlers.NewBillingHandler(billingClient)
 	catalogH := handlers.NewCatalogHandler(catalogClient)
+	catalogAdminH := handlers.NewCatalogAdminHandler(cfg.CatalogAdminHTTPAddr)
 	ratingH := handlers.NewRatingHandler(ratingClient)
 	historyH := handlers.NewHistoryHandler(historyClient)
+	adminH := handlers.NewAdminHandler(cfg)
+	watchPartyH := handlers.NewWatchPartyHandler(watchPartyClient, cfg.WatchPartyWSAddr)
 	mux := http.NewServeMux()
 
 	// Salud (util para healthcheck de Docker / GCP).
@@ -80,6 +91,7 @@ func main() {
 	mux.Handle("GET /auth/profiles", authMW(http.HandlerFunc(h.ListProfiles)))
 	mux.Handle("PUT /auth/profiles/{id}", authMW(http.HandlerFunc(h.UpdateProfile)))
 	mux.Handle("DELETE /auth/profiles/{id}", authMW(http.HandlerFunc(h.DeleteProfile)))
+	mux.Handle("GET /admin/audit-logs", authMW(http.HandlerFunc(adminH.GetAuditLogs)))
 
 	// Rutas de billing
 	mux.Handle("GET /billing/plans", authMW(http.HandlerFunc(billingH.GetPlans)))
@@ -90,10 +102,23 @@ func main() {
 	mux.Handle("POST /billing/plans/price", authMW(http.HandlerFunc(billingH.GetPlanPrice)))
 
 	// Rutas de catalogo (solo lectura, publicas: navegar el catalogo).
-	// Para exigir sesion (actor Suscriptor), envolver con authMW(...) como billing.
 	mux.HandleFunc("GET /catalog/cartelera", catalogH.ExplorarCartelera)
 	mux.HandleFunc("GET /catalog/buscar", catalogH.BuscarContenido)
 	mux.HandleFunc("GET /catalog/contenido/{id}", catalogH.ObtenerFichaTecnica)
+	// Recomendaciones personalizadas (requiere sesion para identificar perfil).
+	mux.Handle("GET /catalog/recomendados", authMW(http.HandlerFunc(catalogH.ObtenerRecomendaciones)))
+
+	// Rutas de administracion del catalogo (requieren sesion + rol admin).
+	adminChain := func(h http.HandlerFunc) http.Handler {
+		return authMW(adminMW(http.HandlerFunc(h)))
+	}
+	mux.Handle("GET /catalog/admin/contenidos", adminChain(catalogAdminH.ListarContenidos))
+	mux.Handle("POST /catalog/admin/contenidos", adminChain(catalogAdminH.CrearContenido))
+	mux.Handle("GET /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ObtenerContenido))
+	mux.Handle("PUT /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ActualizarContenido))
+	mux.Handle("DELETE /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.EliminarContenido))
+	mux.Handle("GET /catalog/admin/generos", adminChain(catalogAdminH.ListarGeneros))
+	mux.Handle("GET /catalog/admin/categorias", adminChain(catalogAdminH.ListarCategorias))
 
 	// Rutas de calificaciones (rating). Calificar requiere sesion (RFS-04.1);
 	// el % de recomendacion es publico.
@@ -105,8 +130,13 @@ func main() {
 	mux.Handle("GET /history/{perfilId}", authMW(http.HandlerFunc(historyH.GetHistory)))
 	mux.Handle("GET /history/{perfilId}/resume/{contenidoId}", authMW(http.HandlerFunc(historyH.GetResume)))
 
-	// CORS envuelve todo el router.
-	handler := middleware.CORS(cfg.CORSOrigin)(mux)
+	// Watch Party endpoints
+	mux.Handle("POST /watchparty/rooms", authMW(http.HandlerFunc(watchPartyH.CrearSala)))
+	mux.Handle("GET /watchparty/rooms/{code}", authMW(http.HandlerFunc(watchPartyH.ValidarSala)))
+	mux.Handle("GET /ws/watchparty/{code}", authMW(http.HandlerFunc(watchPartyH.ProxyWebSocket)))
+
+	// Propagacion de cabeceras y CORS envuelven todo el router.
+	handler := middleware.CORS(cfg.CORSOrigin)(middleware.PropagateHeaders(mux))
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,

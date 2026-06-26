@@ -17,15 +17,55 @@ import (
 // UsuarioRepository es el contrato que la capa de datos debe cumplir.
 // El servicio no sabe si detras hay PostgreSQL u otra cosa.
 type UsuarioRepository interface {
-	CrearUsuarioConPerfilInicial(ctx context.Context, u *domain.Usuario, nombrePerfil string) (string, string, error)
-	ObtenerPorEmail(ctx context.Context, email string) (*domain.Usuario, error)
-	ObtenerPorID(ctx context.Context, id string) (*domain.Usuario, error)
-	CambiarPassword(ctx context.Context, usuarioID, nuevoHash string) error
-	CrearPerfil(ctx context.Context, p *domain.Perfil) (string, error)
-	EditarPerfil(ctx context.Context, p *domain.Perfil) error
-	ListarPerfiles(ctx context.Context, usuarioID string) ([]domain.Perfil, error)
-	ActualizarPerfil(ctx context.Context, id, usuarioID, nuevoNombre string) error
-	EliminarPerfil(ctx context.Context, id, usuarioID string) error
+	CrearUsuarioConPerfilInicial(
+		ctx context.Context,
+		u *domain.Usuario,
+		nombrePerfil string,
+	) (string, string, error)
+
+	ObtenerPorEmail(
+		ctx context.Context,
+		email string,
+	) (*domain.Usuario, error)
+
+	ObtenerPorID(
+		ctx context.Context,
+		id string,
+	) (*domain.Usuario, error)
+
+	CambiarPassword(
+		ctx context.Context,
+		usuarioID string,
+		nuevoHash string,
+	) error
+
+	CrearPerfil(
+		ctx context.Context,
+		p *domain.Perfil,
+	) (string, error)
+
+	EditarPerfil(
+		ctx context.Context,
+		p *domain.Perfil,
+	) error
+
+	ListarPerfiles(
+		ctx context.Context,
+		usuarioID string,
+	) ([]domain.Perfil, error)
+
+	ActualizarPerfil(
+		ctx context.Context,
+		id string,
+		usuarioID string,
+		nuevoNombre string,
+	) error
+
+	EliminarPerfil(
+		ctx context.Context,
+		id string,
+		usuarioID string,
+	) error
 }
 
 type AuthService struct {
@@ -173,8 +213,14 @@ func (s *AuthService) CrearPerfil(
 	nombre string,
 	idioma string,
 	esInfantil bool,
+	pin string,
 ) (*domain.Perfil, error) {
-	if strings.TrimSpace(nombre) == "" {
+	usuarioID = strings.TrimSpace(usuarioID)
+	nombre = strings.TrimSpace(nombre)
+	idioma = strings.TrimSpace(idioma)
+	pin = strings.TrimSpace(pin)
+
+	if usuarioID == "" || nombre == "" {
 		return nil, domain.ErrDatosInvalidos
 	}
 
@@ -184,9 +230,10 @@ func (s *AuthService) CrearPerfil(
 
 	p := &domain.Perfil{
 		UsuarioID:  usuarioID,
-		Nombre:     strings.TrimSpace(nombre),
+		Nombre:     nombre,
 		EsInfantil: esInfantil,
 		Idioma:     idioma,
+		Pin:        pin,
 	}
 
 	id, err := s.repo.CrearPerfil(ctx, p)
@@ -199,7 +246,7 @@ func (s *AuthService) CrearPerfil(
 	return p, nil
 }
 
-// EditarPerfil modifica los campos editables del perfil.
+// EditarPerfil modifica el nombre, idioma y tipo infantil de un perfil.
 func (s *AuthService) EditarPerfil(
 	ctx context.Context,
 	usuarioID string,
@@ -207,8 +254,17 @@ func (s *AuthService) EditarPerfil(
 	nombre string,
 	idioma string,
 	esInfantil bool,
+	pin string,
 ) (*domain.Perfil, error) {
-	if strings.TrimSpace(nombre) == "" {
+	usuarioID = strings.TrimSpace(usuarioID)
+	perfilID = strings.TrimSpace(perfilID)
+	nombre = strings.TrimSpace(nombre)
+	idioma = strings.TrimSpace(idioma)
+	pin = strings.TrimSpace(pin)
+
+	if usuarioID == "" ||
+		perfilID == "" ||
+		nombre == "" {
 		return nil, domain.ErrDatosInvalidos
 	}
 
@@ -216,20 +272,20 @@ func (s *AuthService) EditarPerfil(
 		idioma = "es"
 	}
 
-	p := &domain.Perfil{
-		ID:         perfilID,
-		UsuarioID:  usuarioID,
-		Nombre:     strings.TrimSpace(nombre),
+	perfil := &domain.Perfil{
+		ID:          perfilID,
+		UsuarioID:   usuarioID,
+		Nombre:      nombre,
 		EsInfantil: esInfantil,
-		Idioma:     idioma,
+		Idioma:      idioma,
+		Pin:         pin,
 	}
 
-	err := s.repo.EditarPerfil(ctx, p)
-	if err != nil {
+	if err := s.repo.EditarPerfil(ctx, perfil); err != nil {
 		return nil, err
 	}
 
-	return p, nil
+	return perfil, nil
 }
 
 // ListarPerfiles devuelve los perfiles de la cuenta.
@@ -237,45 +293,106 @@ func (s *AuthService) ListarPerfiles(
 	ctx context.Context,
 	usuarioID string,
 ) ([]domain.Perfil, error) {
+	usuarioID = strings.TrimSpace(usuarioID)
+
+	if usuarioID == "" {
+		return nil, domain.ErrDatosInvalidos
+	}
+
 	return s.repo.ListarPerfiles(ctx, usuarioID)
 }
 
-// ActualizarPerfil modifica el nombre de un perfil.
+// ActualizarPerfil modifica solamente el nombre de un perfil.
 func (s *AuthService) ActualizarPerfil(
 	ctx context.Context,
 	id string,
 	usuarioID string,
 	nuevoNombre string,
 ) error {
-	if strings.TrimSpace(nuevoNombre) == "" {
+	id = strings.TrimSpace(id)
+	usuarioID = strings.TrimSpace(usuarioID)
+	nuevoNombre = strings.TrimSpace(nuevoNombre)
+
+	if id == "" ||
+		usuarioID == "" ||
+		nuevoNombre == "" {
 		return domain.ErrDatosInvalidos
 	}
-	return s.repo.ActualizarPerfil(ctx, id, usuarioID, strings.TrimSpace(nuevoNombre))
+
+	return s.repo.ActualizarPerfil(
+		ctx,
+		id,
+		usuarioID,
+		nuevoNombre,
+	)
 }
 
 // EliminarPerfil borra un perfil de la cuenta.
-func (s *AuthService) EliminarPerfil(ctx context.Context, id, usuarioID string) error {
-	return s.repo.EliminarPerfil(ctx, id, usuarioID)
+func (s *AuthService) EliminarPerfil(
+	ctx context.Context,
+	id string,
+	usuarioID string,
+) error {
+	id = strings.TrimSpace(id)
+	usuarioID = strings.TrimSpace(usuarioID)
+
+	if id == "" || usuarioID == "" {
+		return domain.ErrDatosInvalidos
+	}
+
+	return s.repo.EliminarPerfil(
+		ctx,
+		id,
+		usuarioID,
+	)
 }
 
 // CambiarPassword verifica la contraseña actual y actualiza el hash.
-func (s *AuthService) CambiarPassword(ctx context.Context, usuarioID, passwordActual, passwordNuevo string) error {
-	if len(passwordNuevo) < 8 {
+func (s *AuthService) CambiarPassword(
+	ctx context.Context,
+	usuarioID string,
+	passwordActual string,
+	passwordNuevo string,
+) error {
+	usuarioID = strings.TrimSpace(usuarioID)
+
+	if usuarioID == "" ||
+		passwordActual == "" ||
+		len(passwordNuevo) < 8 {
 		return domain.ErrDatosInvalidos
 	}
+
 	u, err := s.repo.ObtenerPorID(ctx, usuarioID)
 	if err != nil {
 		return err
 	}
+
 	if !u.EsLocal() {
 		return domain.ErrCuentaSoloOAuth
 	}
-	if bcrypt.CompareHashAndPassword([]byte(*u.PasswordHash), []byte(passwordActual)) != nil {
+
+	if u.PasswordHash == nil {
+		return domain.ErrCuentaSoloOAuth
+	}
+
+	if bcrypt.CompareHashAndPassword(
+		[]byte(*u.PasswordHash),
+		[]byte(passwordActual),
+	) != nil {
 		return domain.ErrCredencialesInvalidas
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(passwordNuevo), bcrypt.DefaultCost)
+
+	hash, err := bcrypt.GenerateFromPassword(
+		[]byte(passwordNuevo),
+		bcrypt.DefaultCost,
+	)
 	if err != nil {
 		return err
 	}
-	return s.repo.CambiarPassword(ctx, usuarioID, string(hash))
+
+	return s.repo.CambiarPassword(
+		ctx,
+		usuarioID,
+		string(hash),
+	)
 }

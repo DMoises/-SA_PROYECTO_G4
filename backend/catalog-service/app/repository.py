@@ -10,12 +10,52 @@ from typing import Any, Optional
 from .db import Database
 
 # Columnas que expone vw_cartelera (proyeccion de la cartelera).
-_COLS_CARTELERA = "contenido_id, titulo, tipo, anio, clasificacion, generos, categorias"
+_COLS_CARTELERA = "contenido_id, titulo, tipo, anio, clasificacion, generos, categorias, portada_url"
 
 
 class CatalogRepository:
     def __init__(self, db: Database) -> None:
         self.db = db
+
+    # Para el algoritmo de recomendacion, obtenemos el historial de progreso y votos positivos.
+    # Postgres permite hacer query a otros DSNs instanciando conexiones psycopg directas.
+    def obtener_historial_contenido_ids(self, perfil_id: str, rating_dsn: str, history_dsn: str) -> list[str]:
+        contenido_ids = []
+        try:
+            import psycopg
+            # 1. Leer del historial
+            with psycopg.connect(history_dsn) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT DISTINCT contenido_id FROM progreso_reproduccion WHERE perfil_id = %s::uuid",
+                        (perfil_id,)
+                    )
+                    contenido_ids.extend([str(row[0]) for row in cur.fetchall()])
+        except Exception as e:
+            print(f"Error al leer historial para recomendacion: {e}")
+        return contenido_ids
+
+    def obtener_votos_positivos_contenido_ids(self, perfil_id: str, rating_dsn: str) -> list[str]:
+        contenido_ids = []
+        try:
+            import psycopg
+            # 2. Leer calificaciones positivas (votos estrella >= 4 o pulgar = 1)
+            with psycopg.connect(rating_dsn) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        SELECT contenido_id FROM calificacion_usuario 
+                        WHERE perfil_id = %s::uuid AND (
+                            (tipo = 'estrella' AND valor >= 4) OR 
+                            (tipo = 'pulgar' AND valor = 1)
+                        )
+                        """,
+                        (perfil_id,)
+                    )
+                    contenido_ids.extend([str(row[0]) for row in cur.fetchall()])
+        except Exception as e:
+            print(f"Error al leer votos para recomendacion: {e}")
+        return contenido_ids
 
     # ---- Explorar: toda la cartelera activa (RFS-03 / "Explorar Cartelera") ----
     def explorar_cartelera(self) -> list[dict[str, Any]]:
@@ -69,7 +109,7 @@ class CatalogRepository:
         return self.db.fetch_one(
             """
             SELECT c.id AS contenido_id, c.titulo, c.tipo, c.sinopsis, c.anio,
-                   c.clasificacion, c.duracion_min,
+                   c.clasificacion, c.duracion_min, c.portada_url, c.video_url,
                    COALESCE(v.generos, '')    AS generos,
                    COALESCE(v.categorias, '') AS categorias
             FROM contenido c
@@ -78,6 +118,7 @@ class CatalogRepository:
             """,
             {"id": contenido_id},
         )
+
 
     def obtener_reparto(self, contenido_id: str) -> list[dict[str, Any]]:
         return self.db.fetch_all(
@@ -96,7 +137,7 @@ class CatalogRepository:
         return self.db.fetch_all(
             """
             SELECT t.numero AS temporada, e.numero AS episodio,
-                   e.titulo, e.duracion_min
+                   e.titulo, e.duracion_min, e.video_url
             FROM temporadas t
             JOIN episodios e ON e.temporada_id = t.id
             WHERE t.contenido_id = %(id)s::uuid

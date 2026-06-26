@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/navbar'
 import { HeroBanner } from '@/components/hero-banner'
 import { ContentCarousel } from '@/components/content-carousel'
+import { ContinueWatching } from '@/components/continue-watching'
+import { RecommendedForYou } from '@/components/recommended-for-you'
 import { fetchCartelera, buscarContenido } from '@/lib/catalog-gateway'
 import { Content } from '@/lib/types'
 
@@ -10,8 +12,6 @@ export const dynamic = 'force-dynamic'
 
 export default async function BrowsePage() {
   // Cartelera completa + carruseles por categoria del catalogo.
-  // ("Mi lista" y "Continuar viendo" NO se muestran: son lista/historial (RFS-06),
-  //  otro dominio, sin backend en catalogo.)
   const [cartelera, tendencias, destacados] = await Promise.all([
     fetchCartelera().catch(() => [] as Content[]),
     buscarContenido(new URLSearchParams({ categoria: 'Tendencias' })).catch(() => [] as Content[]),
@@ -39,6 +39,8 @@ export default async function BrowsePage() {
 
           {/* Carruseles de la cartelera real */}
           <div className="-mt-32 relative z-10 space-y-8 pb-16">
+            <ContinueWatching />
+            <RecommendedForYou />
             {tendencias.length > 0 && <ContentCarousel title="Tendencias" contents={tendencias} />}
             {nuevos.length > 0 && <ContentCarousel title="Nuevos lanzamientos" contents={nuevos} />}
             {movies.length > 0 && <ContentCarousel title="Peliculas" contents={movies} />}

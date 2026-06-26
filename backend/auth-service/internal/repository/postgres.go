@@ -343,7 +343,7 @@ func (r *PostgresUsuarioRepo) ListarPerfiles(
 			pin
 		FROM perfiles
 		WHERE usuario_id = $1
-		ORDER BY nombre`,
+		ORDER BY creado_en ASC, nombre ASC`,
 		usuarioID,
 	)
 

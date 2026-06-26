@@ -32,9 +32,8 @@ export function Navbar() {
   const [profileInitial, setProfileInitial] = useState('?')
   const [otherProfiles, setOtherProfiles] = useState<any[]>([])
   const [profileColor, setProfileColor] = useState('from-primary to-primary/70')
+  // Solo el perfil administrador (principal) ve administracion de cuenta/perfiles.
   const [isMainProfile, setIsMainProfile] = useState(false)
-  // Los perfiles infantiles no pueden administrar perfiles, cuenta ni suscripcion.
-  const [isKidsProfile, setIsKidsProfile] = useState(false)
 
   const profileColors = [
     'from-primary to-primary/70',
@@ -82,8 +81,6 @@ export function Navbar() {
           const currentIndex = allProfiles.findIndex((p: any) => p.id === currentId)
           if (currentIndex !== -1) {
             setProfileColor(profileColors[currentIndex % profileColors.length])
-            const actual = allProfiles[currentIndex]
-            setIsKidsProfile(actual?.es_infantil ?? actual?.esInfantil ?? false)
           }
           setOtherProfiles(allProfiles.map((p: any, index: number) => ({...p, originalIndex: index})).filter((p: any) => p.id !== currentId));
         } else {
@@ -172,12 +169,23 @@ export function Navbar() {
                       {profile.nombre.charAt(0).toUpperCase()}
                     </div>
                     <span>{profile.nombre}</span>
+                    {/* Etiquetas: administrador (perfil principal) e infantil */}
+                    {profile.originalIndex === 0 && (
+                      <span className="ml-auto rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-amber-400">
+                        Admin
+                      </span>
+                    )}
+                    {(profile.es_infantil ?? profile.esInfantil) && (
+                      <span className={`${profile.originalIndex === 0 ? 'ml-1' : 'ml-auto'} rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-blue-400`}>
+                        Niños
+                      </span>
+                    )}
                   </div>
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              {/* Los perfiles infantiles no acceden a administracion de cuenta/perfiles. */}
-              {!isKidsProfile && (
+              {/* Solo el perfil administrador accede a administracion de cuenta/perfiles. */}
+              {isMainProfile && (
                 <>
                   <DropdownMenuItem render={<Link href="/profiles/manage" />}>
                     Administrar perfiles

@@ -1,0 +1,4 @@
+---
+# Playbook maestro: provisiona toda la infraestructura de VMs.
+- import_playbook: db.yml
+- import_playbook: dev.yml

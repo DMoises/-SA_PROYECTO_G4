@@ -1,0 +1,44 @@
+---
+# Rol common: preparación base de cualquier VM (agentless, vía SSH).
+
+- name: Actualizar caché de apt
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Instalar paquetes base
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - python3
+      - htop
+      - vim
+    state: present
+
+- name: Consultar zona horaria actual
+  ansible.builtin.command: timedatectl show -p Timezone --value
+  register: current_tz
+  changed_when: false
+
+- name: Establecer zona horaria
+  ansible.builtin.command: "timedatectl set-timezone {{ timezone }}"
+  when: current_tz.stdout | trim != timezone
+
+- name: Configurar rotación de logs de contenedores Docker
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/docker-compose
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      /var/lib/docker/containers/*/*.log {
+        rotate 7
+        daily
+        compress
+        delaycompress
+        copytruncate
+        missingok
+      }

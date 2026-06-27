@@ -1,0 +1,11 @@
+---
+# Aprovisiona las VMs de desarrollo (gateway + services): Docker + repo + systemd.
+- name: Provisionar VMs de desarrollo (develop -> Compute Engine)
+  hosts: dev
+  become: true
+  vars:
+    mount_data_disk: false
+  roles:
+    - common
+    - docker
+    - dev_vm

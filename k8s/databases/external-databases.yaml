@@ -1,0 +1,221 @@
+###############################################################################
+# PERSISTENCIA AISLADA DE KUBERNETES (Fase 3, tarea 9)
+#
+# Las 7 bases Postgres y Redis YA NO corren como Pods: viven en la VM dedicada
+# de Compute Engine (quetxal-database-vm). Para que los microservicios sigan
+# conectándose por los MISMOS nombres internos (auth-db:5432, catalog-db:5432, …)
+# sin cambiar el ConfigMap ni el código, declaramos por cada base:
+#
+#   • un Service SIN selector  -> los clientes siguen usando <nombre>:5432
+#   • un Endpoints manual       -> reenvía al puerto publicado en la VM externa
+#
+# Mapeo de puertos (ver docker-compose.db.yml en la VM):
+#   auth-db:5432→5432  subscription-db:5432→5433  catalog-db:5432→5434
+#   rating-db:5432→5435  fx-db:5432→5436  history-db:5432→5437
+#   notification-db:5432→5438  redis:6379→6379
+#
+# IMPORTANTE: la IP debe coincidir con `terraform output db_internal_ip`
+# (IP interna estática reservada en terraform/db_vm.tf, por defecto 10.10.0.10).
+# El firewall quetxal-allow-gke-to-db (terraform/network.tf) permite el tráfico
+# desde los rangos de nodos/pods de GKE hacia esos puertos de la VM.
+###############################################################################
+
+# ============================ auth-db ============================
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-db
+  namespace: quetxal-tv-prod
+  labels: { app: auth-db, tier: database, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: pg
+    port: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: auth-db
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: pg
+    port: 5432
+---
+# ======================== subscription-db ========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: subscription-db
+  namespace: quetxal-tv-prod
+  labels: { app: subscription-db, tier: database, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: pg
+    port: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: subscription-db
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: pg
+    port: 5433
+---
+# ========================== catalog-db ===========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-db
+  namespace: quetxal-tv-prod
+  labels: { app: catalog-db, tier: database, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: pg
+    port: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: catalog-db
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: pg
+    port: 5434
+---
+# =========================== rating-db ===========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: rating-db
+  namespace: quetxal-tv-prod
+  labels: { app: rating-db, tier: database, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: pg
+    port: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: rating-db
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: pg
+    port: 5435
+---
+# ============================= fx-db =============================
+apiVersion: v1
+kind: Service
+metadata:
+  name: fx-db
+  namespace: quetxal-tv-prod
+  labels: { app: fx-db, tier: database, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: pg
+    port: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: fx-db
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: pg
+    port: 5436
+---
+# ========================== history-db ===========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: history-db
+  namespace: quetxal-tv-prod
+  labels: { app: history-db, tier: database, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: pg
+    port: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: history-db
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: pg
+    port: 5437
+---
+# ======================== notification-db ========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-db
+  namespace: quetxal-tv-prod
+  labels: { app: notification-db, tier: database, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: pg
+    port: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: notification-db
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: pg
+    port: 5438
+---
+# ============================= redis =============================
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: quetxal-tv-prod
+  labels: { app: redis, tier: cache, location: external-gce }
+spec:
+  type: ClusterIP
+  ports:
+  - name: redis
+    port: 6379
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: redis
+  namespace: quetxal-tv-prod
+subsets:
+- addresses:
+  - ip: 10.10.0.10
+  ports:
+  - name: redis
+    port: 6379

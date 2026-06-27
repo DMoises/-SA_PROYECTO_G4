@@ -1,0 +1,11 @@
+---
+# Aprovisiona la VM de Base de Datos: Docker + disco persistente + 7 Postgres + Redis.
+- name: Provisionar VM de Base de Datos (persistencia aislada)
+  hosts: db
+  become: true
+  vars:
+    mount_data_disk: true
+  roles:
+    - common
+    - docker
+    - db_server

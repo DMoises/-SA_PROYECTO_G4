@@ -1,0 +1,64 @@
+###############################################################################
+# Variables comunes (NO secretas) para todos los hosts.
+# Los secretos (contraseñas) van en group_vars/db_secrets.yml (gitignored,
+# idealmente cifrado con ansible-vault). Ver db_secrets.example.yml.
+###############################################################################
+
+timezone: "America/Guatemala"
+
+# Directorio de trabajo en las VMs
+app_dir: "/opt/quetxal"
+
+# Usuario de DockerHub donde están publicadas las imágenes de BD/servicios.
+dockerhub_username: "voupi"
+
+# ---------------------------------------------------------------------------
+# VM de Base de Datos
+# ---------------------------------------------------------------------------
+# IP interna estática de la VM de BD (debe calzar con terraform var.db_internal_ip
+# y con k8s/databases/external-databases.yaml).
+db_internal_ip: "10.10.0.10"
+
+# Disco persistente adjunto por Terraform (device_name = "db-data").
+db_data_device: "/dev/disk/by-id/google-db-data"
+
+# Compose de BD que vive en la raíz del repo (se copia tal cual a la VM).
+db_compose_src: "{{ playbook_dir }}/../../docker-compose.db.yml"
+
+# Nombres y usuarios de las 7 bases (deben calzar con los GitHub Secrets del
+# pipeline y con el ConfigMap de K8s). Puertos en el host: ver docker-compose.db.yml.
+auth_db_name: "quetxal_auth"
+auth_db_user: "auth_user"
+subscription_db_name: "quetxal_subscription"
+subscription_db_user: "subscription_user"
+catalog_db_name: "quetxal_catalog"
+catalog_db_user: "catalog_user"
+rating_db_name: "quetxal_rating"
+rating_db_user: "rating_user"
+fx_db_name: "quetxal_fx"
+fx_db_user: "fx_user"
+history_db_name: "quetxal_history"
+history_db_user: "history_user"
+notification_db_name: "quetxal_notification"
+notification_db_user: "notification_user"
+
+# ---------------------------------------------------------------------------
+# VMs de desarrollo (flujo develop -> Compute Engine)
+# ---------------------------------------------------------------------------
+# Repo que se clona en las VMs de desarrollo (igual que en Fase 2).
+repo_url: "https://github.com/DMoises/-SA_PROYECTO_G4.git"
+repo_branch: "develop"
+
+# IP interna de la VM de servicios (la usa el gateway para alcanzar los microservicios).
+dev_services_internal_ip: "10.10.0.3"
+
+# Direcciones gRPC internas de los microservicios (puerto:servicio según ConfigMap).
+auth_service_addr: "{{ dev_services_internal_ip }}:50051"
+billing_service_addr: "{{ dev_services_internal_ip }}:50052"
+fx_service_addr: "{{ dev_services_internal_ip }}:50053"
+notification_service_addr: "{{ dev_services_internal_ip }}:50054"
+catalog_service_addr: "{{ dev_services_internal_ip }}:50055"
+rating_service_addr: "{{ dev_services_internal_ip }}:50056"
+history_service_addr: "{{ dev_services_internal_ip }}:50057"
+catalog_admin_http_addr: "{{ dev_services_internal_ip }}:8081"
+cors_origin: "*"

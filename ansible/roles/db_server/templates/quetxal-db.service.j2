@@ -1,0 +1,16 @@
+# GENERADO por Ansible (rol db_server).
+[Unit]
+Description=Quetxal TV — Bases de datos (Postgres x7 + Redis)
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory={{ app_dir }}
+ExecStart=/usr/bin/docker compose -f docker-compose.db.yml --env-file .env up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.db.yml --env-file .env down
+User={{ ansible_user }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+# Terraform
+.terraform/
+# .terraform.lock.hcl SÍ se versiona (reproducibilidad de proveedores)
+terraform.tfvars
+*.tfstate
+*.tfstate.*
+*.tfplan
+tf.plan
+*.plan
+crash.log
+crash.*.log
+
+# Credenciales / llaves
+*.json
+!terraform.tfvars.example

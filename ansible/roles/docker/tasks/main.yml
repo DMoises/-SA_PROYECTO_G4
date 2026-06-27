@@ -1,0 +1,87 @@
+---
+# Rol docker: instala Docker CE + plugin de Compose. Opcionalmente formatea y
+# monta el disco persistente de datos en /var/lib/docker (sólo VM de BD), de modo
+# que TODOS los volúmenes de las BD vivan en el disco dedicado (persistencia
+# aislada del ciclo de vida de los contenedores).
+
+# ---------------------------------------------------------------------------
+# Disco de datos persistente (sólo cuando mount_data_disk = true)
+# ---------------------------------------------------------------------------
+- name: ¿El disco de datos ya tiene sistema de archivos?
+  ansible.builtin.command: "blkid {{ db_data_device }}"
+  register: db_disk_blkid
+  changed_when: false
+  failed_when: false
+  when: mount_data_disk | default(false)
+
+- name: Formatear disco de datos (ext4) si está vacío
+  ansible.builtin.command: "mkfs.ext4 -F {{ db_data_device }}"
+  when:
+    - mount_data_disk | default(false)
+    - db_disk_blkid.rc is defined
+    - db_disk_blkid.rc != 0
+
+- name: Crear punto de montaje /var/lib/docker
+  ansible.builtin.file:
+    path: /var/lib/docker
+    state: directory
+    mode: "0711"
+  when: mount_data_disk | default(false)
+
+- name: Registrar el disco de datos en /etc/fstab
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: "{{ db_data_device }} /var/lib/docker ext4 defaults,nofail 0 2"
+    regexp: "^{{ db_data_device | regex_escape() }}\\s"
+    state: present
+  when: mount_data_disk | default(false)
+
+- name: Montar el disco de datos en /var/lib/docker
+  ansible.builtin.shell: "mountpoint -q /var/lib/docker || mount /var/lib/docker"
+  register: mount_result
+  changed_when: "'already mounted' not in mount_result.stderr"
+  when: mount_data_disk | default(false)
+
+# ---------------------------------------------------------------------------
+# Instalación de Docker CE (repositorio oficial)
+# ---------------------------------------------------------------------------
+- name: Crear directorio de llaveros de apt
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Descargar llave GPG de Docker
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+
+- name: Agregar repositorio de Docker
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    filename: docker
+    state: present
+
+- name: Instalar Docker CE + plugin de Compose
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Habilitar y arrancar Docker
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Agregar el usuario SSH al grupo docker
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true

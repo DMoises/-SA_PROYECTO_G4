@@ -346,6 +346,9 @@ export async function GET(
     if (authorization) catalogHeaders.set('authorization', authorization)
     if (perfilId) catalogHeaders.set('x-profile-id', perfilId)
     if (parentalPin) catalogHeaders.set('x-parental-pin', parentalPin)
+    // Marca de reproduccion: activa el Control Parental en el interceptor
+    // (la visualizacion de la ficha NO lo exige).
+    catalogHeaders.set('x-playback-request', 'true')
 
     let content: ContentDetalle | null = null
     try {

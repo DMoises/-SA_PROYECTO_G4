@@ -80,12 +80,18 @@ class SecurityInterceptor(grpc.ServerInterceptor):
                 )
 
         # 3. Parental Control policies
+        # El Control Parental solo bloquea la REPRODUCCION (no la simple
+        # visualizacion de la ficha). El BFF de reproduccion marca la peticion
+        # con x-playback-request=true; las consultas de catalogo (ver detalle)
+        # no la traen, de modo que un perfil infantil puede explorar la ficha
+        # pero necesita el PIN para reproducir contenido no apto.
+        is_playback = metadata.get("x-playback-request", "false").lower() in ("true", "1", "yes")
         contenido_id = metadata.get("x-contenido-id")
         profile_id = metadata.get("x-profile-id")
         parental_pin = metadata.get("x-parental-pin")
 
-        if not contenido_id:
-            # We allow it to proceed if contenido ID is missing, but typically it should be sent
+        if not is_playback or not contenido_id:
+            # Visualizacion de ficha (o sin id de contenido): no se aplica el PIN.
             return continuation(handler_call_details)
 
         # Fetch content classification from catalog_db

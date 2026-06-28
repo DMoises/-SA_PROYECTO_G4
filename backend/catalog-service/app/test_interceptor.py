@@ -119,7 +119,8 @@ class TestSecurityInterceptor(unittest.TestCase):
                 ("authorization", "token"),
                 ("x-contenido-id", "movie-1"),
                 ("x-profile-id", "prof-1"),
-                ("x-parental-pin", "4321")
+                ("x-parental-pin", "4321"),
+                ("x-playback-request", "true")
             ]
         )
         res = self.interceptor.intercept_service(self.continuation, details)
@@ -137,7 +138,8 @@ class TestSecurityInterceptor(unittest.TestCase):
                 ("authorization", "token"),
                 ("x-contenido-id", "movie-1"),
                 ("x-profile-id", "prof-1"),
-                ("x-parental-pin", "1111") # wrong PIN
+                ("x-parental-pin", "1111"), # wrong PIN
+                ("x-playback-request", "true")
             ]
         )
         res = self.interceptor.intercept_service(self.continuation, details)
@@ -154,11 +156,29 @@ class TestSecurityInterceptor(unittest.TestCase):
             [
                 ("authorization", "token"),
                 ("x-contenido-id", "movie-1"),
-                ("x-profile-id", "prof-1") # missing X-Parental-Pin
+                ("x-profile-id", "prof-1"), # missing X-Parental-Pin
+                ("x-playback-request", "true")
             ]
         )
         res = self.interceptor.intercept_service(self.continuation, details)
         self.assertNotEqual(res, "success")
+
+        # Case D: Kids profile, non-TP content, SIN marca de reproduccion
+        # (solo viendo la ficha) -> permitido aunque no haya PIN.
+        mock_cur.fetchone.side_effect = [
+            ("Estandar",), # active subscription check
+            ("+13",),      # content classification check
+        ]
+        details = MockCallDetails(
+            "/catalog.v1.CatalogService/ObtenerFichaTecnica",
+            [
+                ("authorization", "token"),
+                ("x-contenido-id", "movie-1"),
+                ("x-profile-id", "prof-1") # sin x-playback-request ni PIN
+            ]
+        )
+        res = self.interceptor.intercept_service(self.continuation, details)
+        self.assertEqual(res, "success")
 
 if __name__ == "__main__":
     unittest.main()

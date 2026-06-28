@@ -230,10 +230,10 @@ export const mockPlans: Plan[] = [
     name: 'Estandar',
     price: 89,
     currency: 'GTQ',
-    features: ['2 pantallas a la vez', 'Calidad Full HD 1080p', 'Ver en cualquier dispositivo', 'Descargas disponibles'],
+    features: ['2 pantallas a la vez', 'Calidad Full HD 1080p', 'Ver en cualquier dispositivo'],
     quality: '1080p',
     screens: 2,
-    downloads: true,
+    downloads: false,
   },
   {
     id: 'premium',

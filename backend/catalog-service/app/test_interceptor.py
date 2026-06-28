@@ -70,7 +70,7 @@ class TestSecurityInterceptor(unittest.TestCase):
 
     @patch("psycopg.connect")
     @patch("jwt.decode")
-    def test_download_request_requires_standard_plan(self, mock_jwt, mock_connect):
+    def test_download_request_requires_premium_plan(self, mock_jwt, mock_connect):
         mock_jwt.return_value = {"usuario_id": "usr-1"}
         
         # Case A: Plan is Basico -> download rejected
@@ -88,9 +88,9 @@ class TestSecurityInterceptor(unittest.TestCase):
         res = self.interceptor.intercept_service(self.continuation, details)
         self.assertNotEqual(res, "success")
 
-        # Case B: Plan is Estandar -> download allowed (content is TP)
+        # Case B: Plan is Premium -> download allowed (content is TP)
         mock_cur.fetchone.side_effect = [
-            ("Estandar",), # sub plan query
+            ("Premium",), # sub plan query
             ("TP",)        # content classification query
         ]
         res = self.interceptor.intercept_service(self.continuation, details)

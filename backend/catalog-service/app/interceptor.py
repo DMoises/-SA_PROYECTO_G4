@@ -45,7 +45,7 @@ class SecurityInterceptor(grpc.ServerInterceptor):
         except jwt.PyJWTError as e:
             return _rpc_terminator(grpc.StatusCode.UNAUTHENTICATED, f"Token invalido: {str(e)}")
 
-        # 2. Plan check (Standard only for downloads)
+        # 2. Plan check (Premium only for downloads)
         is_download = metadata.get("x-download-request", "false").lower() in ("true", "1", "yes")
         
         # Query active plan name from subscription_db
@@ -73,10 +73,10 @@ class SecurityInterceptor(grpc.ServerInterceptor):
             return _rpc_terminator(grpc.StatusCode.PERMISSION_DENIED, "No posee una suscripcion activa")
 
         if is_download:
-            if plan_name != "Estandar":
+            if plan_name != "Premium":
                 return _rpc_terminator(
                     grpc.StatusCode.PERMISSION_DENIED, 
-                    "La descarga de contenido esta reservada exclusivamente para el Plan Estandar"
+                    "La descarga de contenido esta reservada exclusivamente para el Plan Premium"
                 )
 
         # 3. Parental Control policies

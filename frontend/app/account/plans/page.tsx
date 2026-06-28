@@ -162,7 +162,7 @@ export default function PlansPage() {
                   : plan.nombre_plan === 'Estandar'
                     ? 2
                     : 4,
-              downloads: plan.nombre_plan !== 'Basico',
+              downloads: plan.nombre_plan === 'Premium',
             }
           })
         )

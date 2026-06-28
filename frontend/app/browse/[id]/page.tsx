@@ -31,6 +31,7 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
   } | null>(null)
   const [isPremium, setIsPremium] = useState(false)
   const [creatingParty, setCreatingParty] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   // Campos opcionales: proto3-JSON omite los que valen 0 (p. ej. porcentaje 0%).
   const [recomendacion, setRecomendacion] = useState<{
@@ -84,6 +85,48 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
       alert('No se pudo crear la sala de Watch Party. Inténtalo de nuevo.')
     } finally {
       setCreatingParty(false)
+    }
+  }
+
+  async function handleDownload() {
+    try {
+      setDownloading(true)
+      const headers: Record<string, string> = {
+        'X-Download-Request': 'true'
+      }
+      const stored = localStorage.getItem('selectedProfile')
+      if (stored) {
+        try {
+          const profile = JSON.parse(stored)
+          if (profile?.id) {
+            headers['X-Profile-Id'] = profile.id
+          }
+        } catch {}
+      }
+
+      const res = await fetch(`/api/catalog/${id}`, { headers })
+      
+      if (!res.ok) {
+        if (res.status === 403 || res.status === 401) {
+           alert('La descarga de contenido esta reservada exclusivamente para el Plan Premium')
+        } else {
+           alert('Error al descargar el contenido.')
+        }
+        return
+      }
+      
+      // Simular almacenamiento local de contenido
+      const downloaded = JSON.parse(localStorage.getItem('quetxal_downloads') || '[]')
+      if (!downloaded.some((d: any) => d.id === id)) {
+        downloaded.push({ id: content?.id, title: content?.title, downloadedAt: new Date().toISOString() })
+        localStorage.setItem('quetxal_downloads', JSON.stringify(downloaded))
+      }
+      
+      alert('Descarga completada y almacenada localmente (simulada) para: ' + content?.title)
+    } catch (e) {
+      alert('Error en la descarga')
+    } finally {
+      setDownloading(false)
     }
   }
 
@@ -441,9 +484,9 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
             <div className="rounded-lg bg-card p-6">
               <h3 className="mb-4 text-lg font-semibold text-foreground">Acciones</h3>
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start gap-2">
+                <Button variant="outline" className="w-full justify-start gap-2" onClick={handleDownload} disabled={downloading}>
                   <Download className="h-4 w-4" />
-                  Descargar
+                  {downloading ? 'Descargando...' : 'Descargar'}
                 </Button>
                 <Button variant="outline" className="w-full justify-start gap-2">
                   <Share2 className="h-4 w-4" />

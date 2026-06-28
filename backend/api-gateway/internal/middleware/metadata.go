@@ -48,6 +48,11 @@ func PropagateHeaders(next http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, clients.CtxDownloadRequest, isDownload)
 		}
 
+		// 5. Extract X-Playback-Request (Control Parental: el PIN solo se exige al reproducir)
+		if isPlayback := r.Header.Get("X-Playback-Request"); isPlayback != "" {
+			ctx = context.WithValue(ctx, clients.CtxPlaybackRequest, isPlayback)
+		}
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

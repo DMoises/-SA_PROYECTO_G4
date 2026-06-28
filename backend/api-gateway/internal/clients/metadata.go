@@ -16,6 +16,7 @@ const (
 	CtxParentalPin   ctxKey = "x-parental-pin"
 	CtxContenidoID   ctxKey = "x-contenido-id"
 	CtxDownloadRequest ctxKey = "x-download-request"
+	CtxPlaybackRequest ctxKey = "x-playback-request"
 )
 
 // MetadataForwardingInterceptor transfers metadata from the context to gRPC outgoing metadata
@@ -47,6 +48,10 @@ func MetadataForwardingInterceptor(
 
 	if val, ok := ctx.Value(CtxDownloadRequest).(string); ok && val != "" {
 		md.Set("x-download-request", val)
+	}
+
+	if val, ok := ctx.Value(CtxPlaybackRequest).(string); ok && val != "" {
+		md.Set("x-playback-request", val)
 	}
 
 	if len(md) > 0 {

@@ -28,7 +28,7 @@ def serve() -> None:
     # Inyeccion de dependencias: db -> repo -> service -> handler.
     db = Database(cfg)
     repo = CatalogRepository(db)
-    service = CatalogService(repo)
+    service = CatalogService(repo, rating_dsn=cfg.rating_dsn, history_dsn=cfg.history_dsn)
     # Entrega de multimedia desde GCS (firma Signed URLs v4 para objetos privados).
     media = MediaStorage(cfg)
     handler = CatalogHandler(service, media)

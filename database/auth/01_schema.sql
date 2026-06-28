@@ -27,6 +27,9 @@ CREATE TABLE perfiles (
     es_infantil BOOLEAN       NOT NULL DEFAULT FALSE,
     idioma      idioma_perfil NOT NULL DEFAULT 'es',
     pin         VARCHAR(4)    NOT NULL DEFAULT '1234',
+    -- El perfil principal (administrador) es el creado en el registro: el de
+    -- creado_en mas antiguo. Permite ordenar los perfiles por orden de creacion.
+    creado_en   TIMESTAMPTZ   NOT NULL DEFAULT now(),
 
     CONSTRAINT fk_perfiles_usuario FOREIGN KEY (usuario_id)
         REFERENCES usuarios (id) ON DELETE CASCADE,

@@ -32,6 +32,7 @@ export function Navbar() {
   const [profileInitial, setProfileInitial] = useState('?')
   const [otherProfiles, setOtherProfiles] = useState<any[]>([])
   const [profileColor, setProfileColor] = useState('from-primary to-primary/70')
+  // Solo el perfil administrador (principal) ve administracion de cuenta/perfiles.
   const [isMainProfile, setIsMainProfile] = useState(false)
 
   const profileColors = [
@@ -43,7 +44,11 @@ export function Navbar() {
   ]
 
   const handleProfileSelect = (profile: any) => {
-    localStorage.setItem('selectedProfile', JSON.stringify({ id: profile.id, nombre: profile.nombre }))
+    const esInfantil = profile.es_infantil ?? profile.esInfantil ?? false
+    localStorage.setItem(
+      'selectedProfile',
+      JSON.stringify({ id: profile.id, nombre: profile.nombre, esInfantil }),
+    )
     window.location.href = '/browse'
   }
 
@@ -164,10 +169,22 @@ export function Navbar() {
                       {profile.nombre.charAt(0).toUpperCase()}
                     </div>
                     <span>{profile.nombre}</span>
+                    {/* Etiquetas: administrador (perfil principal) e infantil */}
+                    {profile.originalIndex === 0 && (
+                      <span className="ml-auto rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-amber-400">
+                        Admin
+                      </span>
+                    )}
+                    {(profile.es_infantil ?? profile.esInfantil) && (
+                      <span className={`${profile.originalIndex === 0 ? 'ml-1' : 'ml-auto'} rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-blue-400`}>
+                        Niños
+                      </span>
+                    )}
                   </div>
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
+<<<<<<< HEAD
               <DropdownMenuItem render={<Link href="/profiles/manage" />}>
                 Administrar perfiles
               </DropdownMenuItem>
@@ -183,6 +200,28 @@ export function Navbar() {
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
+=======
+              {/* Solo el perfil administrador accede a administracion de cuenta/perfiles. */}
+              {isMainProfile && (
+                <>
+                  <DropdownMenuItem render={<Link href="/profiles/manage" />}>
+                    Administrar perfiles
+                  </DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/account" />}>
+                    Cuenta
+                  </DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/account/plans" />}>
+                    Mi suscripcion
+                  </DropdownMenuItem>
+                  {user?.rol === 'admin' && (
+                    <DropdownMenuItem render={<Link href="/admin" />}>
+                      Panel de administración
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                </>
+              )}
+>>>>>>> origin/develop
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
                 Cerrar sesion
               </DropdownMenuItem>

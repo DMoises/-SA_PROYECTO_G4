@@ -28,6 +28,12 @@ class CatalogHandler(pb_grpc.CatalogServiceServicer):
             request.actor, request.tipo
         )
         return pb.CarteleraResponse(items=[self._item(i) for i in items])
+    def ObtenerRecomendaciones(self, request, context):
+        try:
+            items = self.service.obtener_recomendaciones(request.perfil_id)
+        except errors.DatosInvalidos as e:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(e))
+        return pb.CarteleraResponse(items=[self._item(i) for i in items])
 
     def ObtenerFichaTecnica(self, request, context):
         try:

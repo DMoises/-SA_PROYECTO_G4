@@ -45,3 +45,18 @@ func (h *CatalogHandler) ObtenerFichaTecnica(w http.ResponseWriter, r *http.Requ
 	}
 	writeJSON(w, http.StatusOK, resp)
 }
+
+// GET /catalog/recomendados?perfil_id=X -> recomendaciones personalizadas (Content-Based Filtering).
+func (h *CatalogHandler) ObtenerRecomendaciones(w http.ResponseWriter, r *http.Request) {
+	perfilID := r.URL.Query().Get("perfil_id")
+	if perfilID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "perfil_id es obligatorio"})
+		return
+	}
+	resp, err := h.catalog.ObtenerRecomendaciones(r.Context(), perfilID)
+	if err != nil {
+		writeGRPCError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, resp.GetItems())
+}

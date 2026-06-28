@@ -5,17 +5,21 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Plus, Pencil, ArrowLeft, Loader2, Trash2 } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import { useAdminGuard } from '@/lib/use-admin-guard'
 
 interface Perfil {
   id: string
   nombre: string
-  esInfantil: boolean
+  esInfantil?: boolean
+  es_infantil?: boolean
   idioma: string
 }
 
 export default function ManageProfilesPage() {
   const router = useRouter()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  // Solo el perfil administrador puede administrar perfiles.
+  useAdminGuard()
   const [perfiles, setPerfiles] = useState<Perfil[]>([])
   const [isLoadingPerfiles, setIsLoadingPerfiles] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -129,7 +133,7 @@ export default function ManageProfilesPage() {
                     <Pencil className="h-8 w-8 text-foreground" />
                   </div>
 
-                  {perfil.esInfantil && (
+                  {(perfil.es_infantil ?? perfil.esInfantil) && (
                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-blue-600 px-2 py-0.5 text-xs font-bold text-white">
                       KIDS
                     </span>

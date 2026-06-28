@@ -105,6 +105,20 @@ func main() {
 	mux.HandleFunc("GET /catalog/cartelera", catalogH.ExplorarCartelera)
 	mux.HandleFunc("GET /catalog/buscar", catalogH.BuscarContenido)
 	mux.HandleFunc("GET /catalog/contenido/{id}", catalogH.ObtenerFichaTecnica)
+	// Recomendaciones personalizadas (requiere sesion para identificar perfil).
+	mux.Handle("GET /catalog/recomendados", authMW(http.HandlerFunc(catalogH.ObtenerRecomendaciones)))
+
+	// Rutas de administracion del catalogo (requieren sesion + rol admin).
+	adminChain := func(h http.HandlerFunc) http.Handler {
+		return authMW(adminMW(http.HandlerFunc(h)))
+	}
+	mux.Handle("GET /catalog/admin/contenidos", adminChain(catalogAdminH.ListarContenidos))
+	mux.Handle("POST /catalog/admin/contenidos", adminChain(catalogAdminH.CrearContenido))
+	mux.Handle("GET /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ObtenerContenido))
+	mux.Handle("PUT /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.ActualizarContenido))
+	mux.Handle("DELETE /catalog/admin/contenidos/{id}", adminChain(catalogAdminH.EliminarContenido))
+	mux.Handle("GET /catalog/admin/generos", adminChain(catalogAdminH.ListarGeneros))
+	mux.Handle("GET /catalog/admin/categorias", adminChain(catalogAdminH.ListarCategorias))
 
 	// Rutas de administracion del catalogo (requieren sesion + rol admin).
 	adminChain := func(h http.HandlerFunc) http.Handler {

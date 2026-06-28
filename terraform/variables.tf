@@ -221,6 +221,12 @@ variable "catalog_ksa_name" {
   default     = "catalog-gcs-sa"
 }
 
+variable "gcs_bucket_name" {
+  description = "Bucket de GCS con la multimedia (portadas/video). El catalog-service en las VMs lo lee y firma URLs."
+  type        = string
+  default     = "quetxal-tv-media-bucket"
+}
+
 # ---------------------------------------------------------------------------
 # Etiquetas
 # ---------------------------------------------------------------------------

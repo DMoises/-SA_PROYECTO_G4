@@ -23,6 +23,21 @@ resource "google_project_iam_member" "vm_metric_writer" {
   member  = "serviceAccount:${google_service_account.vm_sa.email}"
 }
 
+# GCS para el catalog-service cuando corre en las VMs (usa vm_sa vía ADC):
+# firmar URLs v4 (signBlob sobre sí mismo) y leer el bucket de media. En GKE esto
+# lo cubre quetxal-catalog-gcs vía Workload Identity; en las VMs lo necesita vm_sa.
+resource "google_service_account_iam_member" "vm_sa_sign_blob" {
+  service_account_id = google_service_account.vm_sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${google_service_account.vm_sa.email}"
+}
+
+resource "google_storage_bucket_iam_member" "vm_sa_media_reader" {
+  bucket = var.gcs_bucket_name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.vm_sa.email}"
+}
+
 # ---------------------------------------------------------------------------
 # SA para los nodos de GKE (mínimo privilegio recomendado por Google)
 # ---------------------------------------------------------------------------

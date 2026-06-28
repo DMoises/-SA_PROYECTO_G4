@@ -1,0 +1,35 @@
+# Copia este archivo a terraform.tfvars y ajusta valores.
+# terraform.tfvars NO se sube al repositorio (ver .gitignore).
+
+# --- Proyecto / ubicación ---
+gcp_project_id = "quetxal-tv-498705"
+gcp_region     = "us-central1"
+gcp_zone       = "us-central1-a"
+
+# --- SSH para Ansible ---
+ssh_user            = "ubuntu"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+# Restringe el SSH a tu IP en producción:
+# ssh_source_ranges = ["TU.IP.PUBLICA/32"]
+
+# --- GKE ---
+gke_cluster_name = "quetxal-cluster"
+gke_machine_type = "e2-medium"
+gke_node_count   = 2
+gke_private_nodes = true
+
+# --- VM de Base de Datos (persistencia aislada) ---
+db_machine_type = "e2-medium"
+db_data_disk_gb = 50
+db_vm_public_ip = true
+
+# --- VMs de desarrollo (ponlas en false si te quedas sin cuota de IPs) ---
+enable_dev_vms      = true
+dev_vm_machine_type = "e2-small"
+
+# --- Workload Identity de GCS ---
+# El SA quetxal-catalog-gcs ya existe (creado en Fase 2). Déjalo en false salvo
+# que lo importes primero:
+#   terraform import 'google_service_account.gcs_sa[0]' \
+#     projects/quetxal-tv-498705/serviceAccounts/quetxal-catalog-gcs@quetxal-tv-498705.iam.gserviceaccount.com
+manage_gcs_workload_identity = false

@@ -1,0 +1,5 @@
+---
+# Config específica de la VM gateway de desarrollo (DMZ).
+vm_kind: "gateway"
+compose_file: "docker-compose.gateway.yml"
+service_name: "quetxal-gateway"

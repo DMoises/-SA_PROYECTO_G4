@@ -1,0 +1,17 @@
+# GENERADO por Ansible (rol dev_vm).
+[Unit]
+Description=Quetxal TV — {{ vm_kind }} ({{ compose_file }})
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory={{ app_dir }}
+EnvironmentFile={{ app_dir }}/.env.cloud
+ExecStart=/usr/bin/docker compose -f {{ compose_file }} --env-file .env.cloud up -d
+ExecStop=/usr/bin/docker compose -f {{ compose_file }} --env-file .env.cloud down
+User={{ ansible_user }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,70 @@
+---
+# Rol db_server: levanta las 7 Postgres + Redis en la VM dedicada vía Docker
+# Compose, reutilizando las imágenes ya publicadas en DockerHub.
+
+- name: Crear directorio de la aplicación
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0750"
+
+- name: Renderizar el archivo .env (secretos de BD)
+  ansible.builtin.template:
+    src: db.env.j2
+    dest: "{{ app_dir }}/.env"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+  no_log: true
+
+- name: Copiar docker-compose de las bases de datos
+  ansible.builtin.copy:
+    src: "{{ db_compose_src }}"
+    dest: "{{ app_dir }}/docker-compose.db.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Login en DockerHub (sólo si las imágenes son privadas)
+  ansible.builtin.command:
+    cmd: "docker login -u {{ dockerhub_username }} --password-stdin"
+    stdin: "{{ vault_dockerhub_token }}"
+  when: vault_dockerhub_token | default('') | length > 0
+  no_log: true
+  changed_when: false
+
+- name: Descargar imágenes de las bases de datos
+  ansible.builtin.command:
+    cmd: "docker compose -f docker-compose.db.yml --env-file .env pull"
+    chdir: "{{ app_dir }}"
+  register: db_pull
+  changed_when: "'Pulled' in db_pull.stderr or 'Downloaded' in db_pull.stderr"
+
+- name: Levantar las bases de datos (docker compose up -d)
+  ansible.builtin.command:
+    cmd: "docker compose -f docker-compose.db.yml --env-file .env up -d --remove-orphans"
+    chdir: "{{ app_dir }}"
+  register: db_up
+  changed_when: "'Started' in db_up.stderr or 'Created' in db_up.stderr or 'Recreated' in db_up.stderr"
+
+- name: Instalar unidad systemd para arranque en boot
+  ansible.builtin.template:
+    src: quetxal-db.service.j2
+    dest: /etc/systemd/system/quetxal-db.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Habilitar la unidad systemd de las bases de datos
+  ansible.builtin.systemd:
+    name: quetxal-db.service
+    enabled: true
+    daemon_reload: true
+
+- name: Esperar a que Postgres (auth-db) responda en el puerto 5432
+  ansible.builtin.wait_for:
+    host: "{{ db_internal_ip | default('127.0.0.1') }}"
+    port: 5432
+    timeout: 120

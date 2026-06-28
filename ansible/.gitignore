@@ -1,0 +1,7 @@
+# Inventario generado por Terraform (IPs reales)
+inventory/hosts.gen.ini
+
+# Secretos reales (¡NUNCA subir!)
+inventory/group_vars/all/secrets.yml
+inventory/group_vars/**/*.vault.yml
+*.retry

@@ -129,6 +129,9 @@ services:
     image: redis:7-alpine
     container_name: quetxal-redis
     restart: always
+    environment:
+      # Necesario para que el healthcheck pueda autenticarse dentro del contenedor.
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     command: >
       redis-server
       --requirepass ${REDIS_PASSWORD}

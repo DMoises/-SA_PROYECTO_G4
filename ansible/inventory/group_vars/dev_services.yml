@@ -1,0 +1,5 @@
+---
+# Config específica de la VM de microservicios de desarrollo (privada).
+vm_kind: "services"
+compose_file: "docker-compose.services.yml"
+service_name: "quetxal-services"

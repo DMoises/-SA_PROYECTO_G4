@@ -1,0 +1,47 @@
+---
+# Rol dev_vm: prepara el entorno de ejecución de las VMs de desarrollo
+# (gateway / services). Ansible deja la VM lista (Docker, repo, .env, systemd);
+# el despliegue de imágenes lo dispara el CI/CD (flujo develop -> Compute Engine).
+
+- name: Crear directorio de la aplicación
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0750"
+
+# Las imágenes viven en DockerHub (voupi, públicas) y el compose no tiene build
+# contexts ni volúmenes locales, así que basta copiar el archivo compose (no se
+# clona el repo, que es privado).
+- name: Copiar docker-compose del componente ({{ compose_file }})
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../{{ compose_file }}"
+    dest: "{{ app_dir }}/{{ compose_file }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Renderizar .env.cloud
+  ansible.builtin.template:
+    src: env.cloud.j2
+    dest: "{{ app_dir }}/.env.cloud"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+  no_log: true
+
+- name: Instalar unidad systemd ({{ service_name }})
+  ansible.builtin.template:
+    src: quetxal-compose.service.j2
+    dest: "/etc/systemd/system/{{ service_name }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Habilitar y arrancar la unidad systemd ({{ service_name }})
+  ansible.builtin.systemd:
+    name: "{{ service_name }}.service"
+    enabled: true
+    state: started
+    daemon_reload: true

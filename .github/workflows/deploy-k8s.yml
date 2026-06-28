@@ -146,14 +146,21 @@ jobs:
         kubectl apply -f k8s/base/configmap.yaml
         kubectl apply -f k8s/base/secrets-injected.yaml
 
-    - name: Deploy Databases and Cache
+    - name: Deploy External Database Services (Endpoints -> VM de BD)
       run: |
-        kubectl apply -f k8s/databases/
+        # Persistencia AISLADA (Fase 3): las bases YA NO corren en Pods. Esto sólo
+        # crea los Services + Endpoints que enrutan auth-db:5432, catalog-db:5432, …
+        # hacia la VM externa quetxal-database-vm.
+        kubectl apply -f k8s/databases/external-databases.yaml
 
     - name: Deploy Microservices and API Gateway
       run: |
         kubectl apply -f k8s/microservices/
         kubectl apply -f k8s/api-gateway.yaml
+
+    - name: Deploy CronJobs (mantenimiento/depuración)
+      run: |
+        kubectl apply -f k8s/cronjobs/
 
     - name: Expose Ingress Rules
       run: |
@@ -164,13 +171,16 @@ jobs:
 
     - name: Verify Deployment Success (Rollout Status)
       run: |
-        # 1) Primero las bases de datos y redis: los microservicios dependen de ellas,
-        #    y en un redeploy completo tardan en quedar listas (sin esto, los servicios
-        #    se chequean mientras su DB aun se recrea y el rollout da timeout en falso).
-        DATABASES=("auth-db" "catalog-db" "rating-db" "fx-db" "history-db" "notification-db" "subscription-db" "redis")
-        for DB in "${DATABASES[@]}"; do
-          echo "Esperando base de datos $DB..."
-          kubectl rollout status deployment/$DB -n quetxal-tv-prod --timeout=180s
+        # 1) Bases de datos EXTERNAS (VM de GCE): no hay Pods que esperar; verificamos
+        #    que cada Service tenga su Endpoint apuntando a la VM antes de seguir.
+        echo "Verificando Endpoints de las bases de datos externas..."
+        for DB in auth-db subscription-db catalog-db rating-db fx-db history-db notification-db redis; do
+          EP=$(kubectl get endpoints "$DB" -n quetxal-tv-prod -o jsonpath='{.subsets[0].addresses[0].ip}:{.subsets[0].ports[0].port}' 2>/dev/null)
+          if echo "$EP" | grep -qE '^[0-9]+\.'; then
+            echo "✓ $DB -> $EP"
+          else
+            echo "✗ $DB no tiene Endpoint hacia la VM de BD"; exit 1
+          fi
         done
         # 2) Luego los microservicios. Timeout amplio (240s): un redeploy de toda la malla
         #    tarda mucho mas de 60s y 60s disparaba un Rollback en falso.

@@ -1,0 +1,2 @@
+# Esta carpeta guarda los reportes HTML/CSV generados por Locust.
+# Los .html se versionan como evidencia (Tarea 15); los .csv se ignoran.

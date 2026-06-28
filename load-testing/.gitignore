@@ -1,0 +1,7 @@
+# Entorno virtual local
+.venv/
+venv/
+__pycache__/
+
+# Datos crudos intermedios de Locust (los HTML sí se versionan como evidencia)
+reports/*.csv

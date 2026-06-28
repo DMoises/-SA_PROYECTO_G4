@@ -1,0 +1,8 @@
+# Pruebas de carga ligera — Quetxal TV (Fase 3, Tarea 15)
+# Instalar dentro de un entorno virtual:
+#   python -m venv .venv && source .venv/bin/activate   (Linux/Mac)
+#   python -m venv .venv && .venv\Scripts\Activate.ps1   (Windows PowerShell)
+#   pip install -r requirements.txt
+
+# Locust trae como dependencias requests, gevent, flask, etc.
+locust>=2.32.0

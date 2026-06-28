@@ -1,0 +1,88 @@
+###############################################################################
+# TAREA 6 — Cronjob de Depuración (Backend)
+#
+# Tarea programada de mantenimiento que AUDITA la BD de identidad y ELIMINA
+# LÓGICAMENTE (estado -> 'eliminado') las cuentas inactivas durante un periodo
+# prefijado (INACTIVITY_DAYS).
+#
+# Conectividad: usa el Service interno `auth-db:5432`, que vía Endpoints enruta a
+# la VM de BD externa (10.10.0.10) — la misma persistencia aislada de la tarea 9.
+# Credenciales: tomadas del Secret `quetxal-secrets` (sin hardcodear).
+#
+# Inactividad: el schema de `usuarios` no tiene tabla de logins ni `ultimo_login`,
+# así que se usa la última actividad registrada GREATEST(creado_en, actualizado_en)
+# como señal. El borrado lógico dispara el trigger de auditoría existente, dejando
+# rastro en `auditoria_usuarios`.
+#
+# Periodo: INACTIVITY_DAYS (por defecto 90 días, "tiempo prudencial"). Para la
+# demo se puede bajar el valor o lanzar un Job manual:
+#   kubectl create job -n quetxal-tv-prod --from=cronjob/depuracion-cuentas depuracion-manual
+###############################################################################
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: depuracion-cuentas
+  namespace: quetxal-tv-prod
+  labels:
+    app: depuracion-cuentas
+    tier: maintenance
+spec:
+  schedule: "0 3 * * *"          # Diario 3:00 AM (zona horaria del contenedor: TZ)
+  timeZone: "America/Guatemala"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 300
+      template:
+        metadata:
+          labels:
+            app: depuracion-cuentas
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: depurador
+            image: postgres:16-alpine
+            env:
+            - name: TZ
+              value: "America/Guatemala"
+            - name: INACTIVITY_DAYS
+              value: "90"
+            - name: PGHOST
+              value: "auth-db"
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: AUTH_DB_NAME }
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: AUTH_DB_USER }
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: AUTH_DB_PASSWORD }
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              set -e
+              echo "[depuracion] $(date) inicio — umbral de inactividad: ${INACTIVITY_DAYS} dias"
+              psql -v ON_ERROR_STOP=1 -X -t -A -c \
+                "WITH depuradas AS ( \
+                   UPDATE usuarios \
+                      SET estado = 'eliminado' \
+                    WHERE estado = 'activo' \
+                      AND GREATEST(creado_en, actualizado_en) < now() - (INTERVAL '1 day' * ${INACTIVITY_DAYS}) \
+                   RETURNING id \
+                 ) \
+                 SELECT 'cuentas_depuradas=' || count(*) FROM depuradas;"
+              echo "[depuracion] $(date) fin"
+            resources:
+              requests:
+                cpu: "25m"
+                memory: "32Mi"
+              limits:
+                cpu: "100m"
+                memory: "64Mi"

@@ -158,6 +158,10 @@ jobs:
         kubectl apply -f k8s/microservices/
         kubectl apply -f k8s/api-gateway.yaml
 
+    - name: Deploy CronJobs (mantenimiento/depuración)
+      run: |
+        kubectl apply -f k8s/cronjobs/
+
     - name: Expose Ingress Rules
       run: |
         kubectl apply -f k8s/ingress.yaml

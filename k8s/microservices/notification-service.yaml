@@ -30,6 +30,11 @@ spec:
         - configMapRef:
             name: quetxal-config
         env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: JWT_SECRET
         - name: GRPC_URL
           value: "0.0.0.0:50054"
         - name: NOTIFICATION_DB_NAME

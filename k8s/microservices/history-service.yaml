@@ -30,6 +30,11 @@ spec:
         - configMapRef:
             name: quetxal-config
         env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: JWT_SECRET
         - name: PORT
           value: "50057"
         - name: HISTORY_DB_USER

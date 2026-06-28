@@ -34,6 +34,11 @@ spec:
         - configMapRef:
             name: quetxal-config
         env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: JWT_SECRET
         - name: GRPC_PORT
           value: "50055"
         - name: CATALOG_DB_NAME
@@ -51,6 +56,36 @@ spec:
             secretKeyRef:
               name: quetxal-secrets
               key: CATALOG_DB_PASSWORD
+        - name: SUBSCRIPTION_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SUBSCRIPTION_DB_NAME
+        - name: SUBSCRIPTION_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SUBSCRIPTION_DB_USER
+        - name: SUBSCRIPTION_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SUBSCRIPTION_DB_PASSWORD
+        - name: AUTH_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: AUTH_DB_NAME
+        - name: AUTH_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: AUTH_DB_USER
+        - name: AUTH_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: AUTH_DB_PASSWORD
         resources:
           requests:
             memory: "64Mi"

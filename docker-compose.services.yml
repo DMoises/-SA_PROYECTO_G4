@@ -29,6 +29,7 @@ services:
     container_name: quetxal-notification-service
     restart: always
     environment:
+      JWT_SECRET: ${JWT_SECRET:-merequetengue}
       NODE_ENV: production
       GRPC_PORT: 50054
       NOTIFICATION_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
@@ -53,6 +54,7 @@ services:
     container_name: quetxal-billing-service
     restart: always
     environment:
+      JWT_SECRET: ${JWT_SECRET:-merequetengue}
       NODE_ENV: production
       GRPC_PORT: 50052
       SUBSCRIPTION_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
@@ -75,6 +77,7 @@ services:
     container_name: quetxal-catalog-service
     restart: always
     environment:
+      JWT_SECRET: ${JWT_SECRET:-merequetengue}
       NODE_ENV: production
       GRPC_PORT: 50055
       CATALOG_ADMIN_HTTP_PORT: 8086
@@ -86,6 +89,16 @@ services:
       GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
       GCS_ACCESS_KEY: ${GCS_ACCESS_KEY}
       GCS_SECRET_KEY: ${GCS_SECRET_KEY}
+      AUTH_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      AUTH_DB_PORT_INTERNAL: 5432
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTH_DB_USER: ${AUTH_DB_USER}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      SUBSCRIPTION_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
+      SUBSCRIPTION_DB_PORT_INTERNAL: 5433
+      SUBSCRIPTION_DB_NAME: ${SUBSCRIPTION_DB_NAME}
+      SUBSCRIPTION_DB_USER: ${SUBSCRIPTION_DB_USER}
+      SUBSCRIPTION_DB_PASSWORD: ${SUBSCRIPTION_DB_PASSWORD}
     ports:
       - "50055:50055"
       - "8086:8086"
@@ -97,6 +110,7 @@ services:
     container_name: quetxal-fx-service
     restart: always
     environment:
+      JWT_SECRET: ${JWT_SECRET:-merequetengue}
       NODE_ENV: production
       GRPC_PORT: 50053
       FX_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
@@ -117,6 +131,7 @@ services:
     container_name: quetxal-rating-service
     restart: always
     environment:
+      JWT_SECRET: ${JWT_SECRET:-merequetengue}
       NODE_ENV: production
       GRPC_PORT: 50056
       RATING_DB_HOST: ${DB_VM_HOST:-127.0.0.1}
@@ -134,6 +149,7 @@ services:
     container_name: quetxal-history-service
     restart: always
     environment:
+      JWT_SECRET: ${JWT_SECRET:-merequetengue}
       NODE_ENV: production
       PORT: 50057
       DATABASE_URL: postgres://${HISTORY_DB_USER}:${HISTORY_DB_PASSWORD}@${DB_VM_HOST:-127.0.0.1}:5437/${HISTORY_DB_NAME}?sslmode=disable

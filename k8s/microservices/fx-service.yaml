@@ -30,6 +30,11 @@ spec:
         - configMapRef:
             name: quetxal-config
         env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: JWT_SECRET
         - name: GRPC_PORT
           value: "50053"
         - name: FX_DB_NAME

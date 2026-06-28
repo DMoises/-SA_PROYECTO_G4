@@ -85,3 +85,15 @@
     name: "{{ ansible_user }}"
     groups: docker
     append: true
+
+# Los workflows de CI/CD invocan `docker-compose` (v1, con guion). Como sólo
+# instalamos el plugin v2 (`docker compose`), creamos un shim que reenvía v1 -> v2.
+- name: Crear shim docker-compose (v1 -> plugin v2) para compatibilidad con CI/CD
+  ansible.builtin.copy:
+    dest: /usr/local/bin/docker-compose
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      exec docker compose "$@"

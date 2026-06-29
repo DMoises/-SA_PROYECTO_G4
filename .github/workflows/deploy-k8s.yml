@@ -162,6 +162,21 @@ jobs:
       run: |
         kubectl apply -f k8s/cronjobs/
 
+    # Controlador ingress-nginx: en un cluster nuevo (tras destroy/recreate) no existe.
+    # Lo instalamos de forma idempotente y esperamos a que el LoadBalancer esté listo,
+    # ANTES de aplicar nuestras reglas de Ingress. Versión pineada (controller-v1.11.2).
+    - name: Ensure ingress-nginx controller
+      run: |
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/cloud/deploy.yaml
+        echo "Esperando a que el webhook/controlador de ingress-nginx esté disponible..."
+        kubectl wait --namespace ingress-nginx \
+          --for=condition=Available deployment/ingress-nginx-controller \
+          --timeout=240s
+        # El job de admisión puede tardar en registrar el webhook; pequeña espera defensiva.
+        kubectl wait --namespace ingress-nginx \
+          --for=condition=Complete job/ingress-nginx-admission-create \
+          --timeout=120s || true
+
     - name: Expose Ingress Rules
       run: |
         kubectl apply -f k8s/ingress.yaml

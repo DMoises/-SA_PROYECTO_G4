@@ -14,20 +14,57 @@ jobs:
     runs-on: ubuntu-latest
     # Solo ejecutar si el despliegue fue exitoso
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    
+    # Necesario para autenticarse a GCP por Workload Identity Federation (sin llaves).
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GKE_CLUSTER: quetxal-cluster
+      GKE_ZONE: us-central1-a
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
     steps:
       - name: Checkout del Código
         uses: actions/checkout@v4
 
-      - name: Determinar Entorno Objetivo (VM vs Kubernetes)
+      # Auth a GCP por WIF (mismo método que el deploy). Permite leer las IPs VIVAS
+      # que Terraform/GCP provisionaron, en vez de depender de Secrets que quedan
+      # obsoletos tras un destroy/recreate.
+      - name: Autenticar a GCP (WIF)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Configurar gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Credenciales de GKE (kubectl)
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      - name: Determinar IP objetivo (IP viva provisionada por Terraform)
         run: |
           if [ "${{ github.event.workflow_run.name }}" = "Deploy to Kubernetes (GKE)" ]; then
-            echo "IP=${{ secrets.K8S_INGRESS_IP }}" >> $GITHUB_ENV
-            echo "🚀 Objetivo: Kubernetes GKE (Producción)"
+            # IP pública del Ingress nginx, leída directo del cluster (fuente de verdad).
+            IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller \
+                   -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)
+            [ -z "$IP" ] && IP="${{ secrets.K8S_INGRESS_IP }}"   # fallback al Secret
+            echo "🚀 Objetivo: GKE Ingress -> $IP"
           else
-            echo "IP=${{ secrets.GATEWAY_VM_IP }}" >> $GITHUB_ENV
-            echo "🚀 Objetivo: Máquina Virtual (Staging/Desarrollo)"
+            # IP pública (efímera) de la VM gateway, leída de GCE.
+            IP=$(gcloud compute instances describe quetxal-dev-gateway-vm \
+                   --zone "$GKE_ZONE" --project "$PROJECT_ID" \
+                   --format='get(networkInterfaces[0].accessConfigs[0].natIP)' 2>/dev/null || true)
+            [ -z "$IP" ] && IP="${{ secrets.GATEWAY_VM_IP }}"    # fallback al Secret
+            echo "🚀 Objetivo: VM gateway (develop) -> $IP"
           fi
+          if [ -z "$IP" ]; then
+            echo "❌ No se pudo determinar la IP objetivo (ni viva ni por Secret)"; exit 1
+          fi
+          echo "IP=$IP" >> "$GITHUB_ENV"
 
       - name: 1. Prueba de Vida - Frontend y API Gateway
         run: |

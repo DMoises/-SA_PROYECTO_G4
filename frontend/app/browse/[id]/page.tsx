@@ -115,14 +115,40 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
         return
       }
       
-      // Simular almacenamiento local de contenido
-      const downloaded = JSON.parse(localStorage.getItem('quetxal_downloads') || '[]')
+      // Simular almacenamiento local cifrado de contenido
+      const encrypt = (text: string) => {
+        return btoa(text.split('').map(c => String.fromCharCode(c.charCodeAt(0) ^ 42)).join(''));
+      };
+      
+      const decrypt = (encrypted: string) => {
+        try {
+          return atob(encrypted).split('').map(c => String.fromCharCode(c.charCodeAt(0) ^ 42)).join('');
+        } catch {
+          return '[]';
+        }
+      };
+
+      const rawDownloads = localStorage.getItem('quetxal_downloads');
+      let downloaded = [];
+      if (rawDownloads) {
+        try {
+          downloaded = JSON.parse(decrypt(rawDownloads));
+        } catch {
+          downloaded = [];
+        }
+      }
+
       if (!downloaded.some((d: any) => d.id === id)) {
-        downloaded.push({ id: content?.id, title: content?.title, downloadedAt: new Date().toISOString() })
-        localStorage.setItem('quetxal_downloads', JSON.stringify(downloaded))
+        downloaded.push({ 
+          id: content?.id, 
+          title: content?.title, 
+          downloadedAt: new Date().toISOString(),
+          simulatedVideoBlob: "ENCRYPTED_STREAM_BLOB_MOCK_" + btoa(content?.title || "")
+        });
+        localStorage.setItem('quetxal_downloads', encrypt(JSON.stringify(downloaded)));
       }
       
-      alert('Descarga completada y almacenada localmente (simulada) para: ' + content?.title)
+      alert('Descarga completada y almacenada de forma cifrada localmente para: ' + content?.title)
     } catch (e) {
       alert('Error en la descarga')
     } finally {

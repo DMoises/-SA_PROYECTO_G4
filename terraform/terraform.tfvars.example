@@ -14,7 +14,7 @@ ssh_public_key_path = "~/.ssh/id_rsa.pub"
 
 # --- GKE ---
 gke_cluster_name = "quetxal-cluster"
-gke_machine_type = "e2-standard-2"   # 2 vCPU/8GB: holgura para app + monitoreo + DaemonSet de logs
+gke_machine_type = "e2-medium"
 gke_node_count   = 2
 gke_private_nodes = true
 

@@ -43,8 +43,11 @@ resource "google_container_cluster" "primary" {
     }
   }
 
+  # Sin release channel: permite desactivar el auto-upgrade de nodos (en un canal
+  # va forzado). Evita que GKE recree un nodo a media calificación y, con el cluster
+  # ajustado, deje pods en Pending. Cambio in-place (no recrea el cluster).
   release_channel {
-    channel = "REGULAR"
+    channel = "UNSPECIFIED"
   }
 
   # Permite `terraform destroy` (requisito: destrucción declarativa).
@@ -87,6 +90,6 @@ resource "google_container_node_pool" "primary_nodes" {
 
   management {
     auto_repair  = true
-    auto_upgrade = true
+    auto_upgrade = false # desactivado: no recrear nodos automáticamente durante la calificación
   }
 }

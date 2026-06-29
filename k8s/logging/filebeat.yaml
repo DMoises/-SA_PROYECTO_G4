@@ -90,9 +90,11 @@ spec:
                   fieldPath: spec.nodeName
           securityContext:
             runAsUser: 0
+          # Request de CPU mínimo: el cluster (e2-medium) está al ~98% de requests;
+          # 10m caben en el slack. El limit permite ráfagas (la CPU es compressible).
           resources:
             requests:
-              cpu: 30m
+              cpu: 10m
               memory: 120Mi
             limits:
               cpu: 200m

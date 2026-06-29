@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: watchparty-service
+  namespace: quetxal-tv-prod
+  labels:
+    app: watchparty-service
+spec:
+  # 1 réplica a propósito: las salas de Watch Party se mantienen en memoria (WebSocket).
+  # Con varias réplicas, los miembros de una sala podrían caer en pods distintos y
+  # perder la sincronización. La validación de plan Premium se hace contra subscription-db.
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: watchparty-service
+  template:
+    metadata:
+      labels:
+        app: watchparty-service
+    spec:
+      containers:
+      - name: watchparty-service
+        image: tu-registro/quetxal-watchparty-service:latest
+        ports:
+        - containerPort: 50059
+          name: grpc
+        - containerPort: 8085
+          name: ws
+        envFrom:
+        - configMapRef:
+            name: quetxal-config
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: JWT_SECRET
+        - name: PORT
+          value: "50059"
+        - name: WS_PORT
+          value: "8085"
+        - name: SUBSCRIPTION_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SUBSCRIPTION_DB_USER
+        - name: SUBSCRIPTION_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SUBSCRIPTION_DB_PASSWORD
+        - name: SUBSCRIPTION_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: quetxal-secrets
+              key: SUBSCRIPTION_DB_NAME
+        # La BD de subscription vive en la VM externa; subscription-db:5432 es el
+        # Service (sin selector) cuyo Endpoint apunta a la VM (persistencia aislada).
+        - name: SUBSCRIPTION_DB_URL
+          value: "postgres://$(SUBSCRIPTION_DB_USER):$(SUBSCRIPTION_DB_PASSWORD)@subscription-db:5432/$(SUBSCRIPTION_DB_NAME)?sslmode=disable"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "10m"
+          limits:
+            memory: "128Mi"
+            cpu: "150m"
+        readinessProbe:
+          tcpSocket:
+            port: 50059
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 50059
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watchparty-service
+  namespace: quetxal-tv-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: watchparty-service
+  ports:
+  - name: grpc
+    port: 50059
+    targetPort: 50059
+  - name: ws
+    port: 8085
+    targetPort: 8085

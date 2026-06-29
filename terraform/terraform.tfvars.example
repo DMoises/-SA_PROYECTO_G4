@@ -33,3 +33,10 @@ dev_vm_machine_type = "e2-small"
 #   terraform import 'google_service_account.gcs_sa[0]' \
 #     projects/quetxal-tv-498705/serviceAccounts/quetxal-catalog-gcs@quetxal-tv-498705.iam.gserviceaccount.com
 manage_gcs_workload_identity = false
+
+# --- Publicar IPs de las VMs a GitHub Secrets (sobrevivir un destroy/recreate) ---
+# Si está en true, tras cada `apply` Terraform corre `gh secret set` para dejar
+# GATEWAY_VM_IP / SERVICES_VM_IP / DATABASE_VM_IP al día (la IP del gateway es
+# efímera). Requiere `gh auth login` con permiso de admin en el repo. En false (CI) no hace nada.
+# publish_ips_to_github = true
+# github_repo           = "DMoises/-SA_PROYECTO_G4"

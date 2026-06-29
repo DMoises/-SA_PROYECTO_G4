@@ -74,7 +74,7 @@ kubectl -n monitoring port-forward svc/prometheus 9090:9090
 
 Abrir `http://localhost:9090/targets` y confirmar targets `UP`.
 
-![Prometheus targets](img/prometheus-targets.png)
+![Dashboard de Grafana: panel "Targets activos" (15 UP) + CPU/memoria/red/pods](img/grafana1.png)
 
 ### 3.4 Abrir Grafana
 
@@ -143,7 +143,7 @@ Capturas obligatorias sugeridas:
 3. Dashboard de Grafana con rango `Last 30 minutes`, refresh `10s` y líneas moviéndose.
 4. Panel de red durante tráfico real contra el frontend/API Gateway.
 
-![Grafana dashboard](img/grafana-dashboard.png)
+![Telemetría viva durante tráfico de carga: pico de red y CPU en el dashboard](img/grafana2.png)
 
 ## 6. Generar tráfico para demostrar telemetría viva
 

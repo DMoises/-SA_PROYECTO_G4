@@ -26,10 +26,12 @@ spec:
           ports:
             - name: http
               containerPort: 9090
+          # Cluster muy ajustado (2x e2-medium ~98% CPU solicitada). Request mínimo
+          # para que quepa en el slack; el límite permite ráfagas (Burstable).
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 10m
+              memory: 200Mi
             limits:
               cpu: 500m
               memory: 768Mi

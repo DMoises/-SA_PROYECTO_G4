@@ -1,0 +1,24 @@
+---
+# Rol node_exporter: expone métricas de hardware/red (CPU, memoria, disco, red)
+# de la VM en el puerto 9100, para que el Prometheus del clúster GKE las scrapee
+# (job "gce-vm-node-exporters" -> 10.10.0.10/.2/.3:9100). Cumple el requisito de
+# "exporters en los servidores externos" del stack de observabilidad de métricas.
+#
+# Se ejecuta como contenedor Docker (Docker ya lo instala el rol `docker`) con
+# red e PID del host, de modo que reporte las métricas reales de la VM, no del
+# contenedor. Lo gestiona systemd para que sobreviva reinicios.
+
+- name: Instalar unidad systemd de node_exporter
+  ansible.builtin.template:
+    src: node-exporter.service.j2
+    dest: /etc/systemd/system/quetxal-node-exporter.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Habilitar y arrancar node_exporter
+  ansible.builtin.systemd:
+    name: quetxal-node-exporter.service
+    enabled: true
+    state: started
+    daemon_reload: true

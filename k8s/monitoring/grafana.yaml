@@ -133,9 +133,10 @@ spec:
           ports:
             - name: http
               containerPort: 3000
+          # Cluster muy ajustado: request mínimo de CPU para caber en el slack.
           resources:
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 128Mi
             limits:
               cpu: 500m

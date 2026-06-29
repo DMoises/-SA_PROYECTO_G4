@@ -165,7 +165,29 @@ jobs:
     - name: Expose Ingress Rules
       run: |
         kubectl apply -f k8s/ingress.yaml
-        
+
+    # Stack de Observabilidad de Métricas (Prometheus + Grafana) en la nube.
+    # Prometheus scrapea el cluster (nodos, cAdvisor, pods) y las VMs externas
+    # (node_exporter en 10.10.0.10/.2/.3:9100); Grafana muestra los dashboards de
+    # hardware y red. Es additivo (namespace 'monitoring') y NO debe tumbar la app:
+    # continue-on-error evita que un fallo aquí dispare el Rollback automático.
+    - name: Deploy Observability Stack (Prometheus + Grafana)
+      continue-on-error: true
+      env:
+        GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+      run: |
+        kubectl apply -k k8s/monitoring
+        # Password de admin de Grafana vía Secret (si está el GitHub Secret).
+        # Si no, Grafana arranca con su credencial por defecto (grafana-admin es optional).
+        if [ -n "${GRAFANA_ADMIN_PASSWORD}" ]; then
+          kubectl create secret generic grafana-admin -n monitoring \
+            --from-literal=password="${GRAFANA_ADMIN_PASSWORD}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl rollout restart deployment/grafana -n monitoring
+        fi
+        kubectl rollout status deployment/prometheus -n monitoring --timeout=150s || echo "⚠️ prometheus aún no listo"
+        kubectl rollout status deployment/grafana -n monitoring --timeout=150s || echo "⚠️ grafana aún no listo"
+
     - name: Clean up temporary secrets
       run: rm k8s/base/secrets-injected.yaml
 

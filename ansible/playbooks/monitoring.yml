@@ -1,0 +1,12 @@
+---
+# Instala node_exporter (métricas de hardware/red para Prometheus) en TODAS las
+# VMs externas: BD (10.10.0.10), gateway (10.10.0.2) y services (10.10.0.3).
+# Solo aplica el rol node_exporter — NO toca las bases de datos ni los servicios.
+# El Prometheus del clúster GKE las scrapea (job "gce-vm-node-exporters":9100).
+#
+# Uso:  ansible-playbook -i inventory/hosts.gen.ini playbooks/monitoring.yml
+- name: Observabilidad — node_exporter en las VMs externas
+  hosts: db:dev
+  become: true
+  roles:
+    - node_exporter

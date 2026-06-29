@@ -2,7 +2,6 @@ name: Scheduled Database Backup
 
 on:
   schedule:
-    # Run every day at 02:00 UTC (approx. midnight in some US timezones)
     - cron: '0 2 * * *'
   workflow_dispatch:
 
@@ -17,10 +16,10 @@ jobs:
 
       - name: Verify required secrets
         run: |
-          : "${{ secrets.SSH_KEY }}" || { echo " ERROR: SSH_KEY is missing"; exit 1; }
-          : "${{ secrets.SSH_USER }}" || { echo " ERROR: SSH_USER is missing"; exit 1; }
-          : "${{ secrets.GATEWAY_VM_IP }}" || { echo " ERROR: GATEWAY_VM_IP is missing"; exit 1; }
-          : "${{ secrets.DATABASE_VM_IP }}" || { echo " ERROR: DATABASE_VM_IP is missing"; exit 1; }
+          : "${{ secrets.SSH_KEY }}" || { echo "ERROR: SSH_KEY is missing"; exit 1; }
+          : "${{ secrets.SSH_USER }}" || { echo "ERROR: SSH_USER is missing"; exit 1; }
+          : "${{ secrets.GATEWAY_VM_IP }}" || { echo "ERROR: GATEWAY_VM_IP is missing"; exit 1; }
+          : "${{ secrets.DATABASE_VM_IP }}" || { echo "ERROR: DATABASE_VM_IP is missing"; exit 1; }
         shell: bash
 
       - name: Setup SSH key and known_hosts
@@ -29,37 +28,62 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # Add gateway host key to runner known_hosts
           ssh-keyscan -H "${{ secrets.GATEWAY_VM_IP }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-          # Best-effort: obtain DB host key from gateway and add it (avoids interactive prompt)
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} "ssh-keyscan -H ${{ secrets.DATABASE_VM_IP }}" \
+            ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            "ssh-keyscan -H ${{ secrets.DATABASE_VM_IP }}" \
             >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: Execute Backup Script on Remote VM (via Gateway)
+      - name: Upload Backup Script to Remote VM
+        run: |
+          echo "Uploading backup script to database VM..."
+
+          ssh -i ~/.ssh/id_ed25519 \
+            -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} \
+            "mkdir -p /home/${{ secrets.SSH_USER }}/quetxal/scripts"
+
+          scp -i ~/.ssh/id_ed25519 \
+            -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ./scripts/backup-databases.sh \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/scripts/backup-databases.sh
+
+          ssh -i ~/.ssh/id_ed25519 \
+            -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} \
+            "chmod +x /home/${{ secrets.SSH_USER }}/quetxal/scripts/backup-databases.sh"
+
+      - name: Execute Backup Script on Remote VM via Gateway
         run: |
           echo "Triggering backup script on database VM..."
-          ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+
+          ssh -i ~/.ssh/id_ed25519 \
+            -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} \
             "bash /home/${{ secrets.SSH_USER }}/quetxal/scripts/backup-databases.sh"
 
-      - name: Download Backup Archive from Remote VM (via Gateway)
+      - name: Download Backup Archive from Remote VM via Gateway
         run: |
           echo "Finding the latest backup file on the VM..."
-          LATEST_BACKUP=$(ssh -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+
+          LATEST_BACKUP=$(ssh -i ~/.ssh/id_ed25519 \
+            -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
             ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }} \
-            "ls -1t /home/${{ secrets.SSH_USER }}/quetxal/backups/quetxal_backup_*.tar.gz | head -n 1")
+            "ls -1t /home/${{ secrets.SSH_USER }}/quetxal/backups/quetxal_backup_*.tar.gz 2>/dev/null | head -n 1")
 
           if [ -z "${LATEST_BACKUP}" ]; then
-            echo " ERROR: No backup files found on the VM!"
+            echo "ERROR: No backup files found on the VM!"
             exit 1
           fi
 
           echo "Found latest backup file: ${LATEST_BACKUP}"
           echo "Downloading file to runner..."
-          scp -i ~/.ssh/id_ed25519 -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${LATEST_BACKUP} ./quetxal_backup_latest.tar.gz
+
+          scp -i ~/.ssh/id_ed25519 \
+            -o ProxyJump=${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.DATABASE_VM_IP }}:${LATEST_BACKUP} \
+            ./quetxal_backup_latest.tar.gz
 
       - name: Upload Backup File as Workflow Artifact
         uses: actions/upload-artifact@v4
@@ -77,5 +101,5 @@ jobs:
       - name: Notify Failure
         if: failure()
         run: |
-          echo " Database backup pipeline failed!"
+          echo "Database backup pipeline failed!"
           exit 1

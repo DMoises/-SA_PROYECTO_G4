@@ -10,11 +10,15 @@ set -euo pipefail
 
 # 1. Setup paths and directories
 USER_HOME="/home/$(whoami)"
-WORKDIR="${USER_HOME}/quetxal"
-ENV_FILE="${WORKDIR}/.env.cloud"
+WORKDIR="${USER_HOME}/quetxal"          # el workflow sube el script y descarga los backups de aquí
 BACKUP_DIR="${WORKDIR}/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 TEMP_BACKUP_DIR="${BACKUP_DIR}/temp_${TIMESTAMP}"
+
+# Las BD (compose + .env con AUTH_DB_NAME=quetxal_auth, etc.) las gestiona Ansible en
+# /opt/quetxal (Fase 3). El env legacy de Fase 2 era ~/quetxal/.env.cloud. Probamos
+# ambos para no depender de la topología.
+ENV_CANDIDATES=("/opt/quetxal/.env" "${WORKDIR}/.env.cloud" "${WORKDIR}/.env")
 
 echo "=== Starting Database Backup Process [${TIMESTAMP}] ==="
 echo "Working directory: ${WORKDIR}"
@@ -24,15 +28,24 @@ echo "Backup directory: ${BACKUP_DIR}"
 mkdir -p "${BACKUP_DIR}"
 mkdir -p "${TEMP_BACKUP_DIR}"
 
-# 2. Load environment variables for DB credentials
-if [ -f "${ENV_FILE}" ]; then
+# 2. Load environment variables for DB credentials (nombres REALES de las BD)
+ENV_FILE=""
+for candidate in "${ENV_CANDIDATES[@]}"; do
+  if [ -f "${candidate}" ]; then ENV_FILE="${candidate}"; break; fi
+done
+
+if [ -n "${ENV_FILE}" ]; then
   echo "Loading environment variables from ${ENV_FILE}..."
   # Source environment file (ignoring comments)
   set -a
   source "${ENV_FILE}"
   set +a
 else
-  echo " Warning: ${ENV_FILE} not found. Using default/fallback credentials."
+  # Sin el env, los nombres caerían a 'auth_db' (inexistente) en vez de 'quetxal_auth'.
+  # Fallar es preferible a generar un backup vacío/incorrecto en silencio.
+  echo "ERROR: no se encontró el archivo de entorno de las BD en: ${ENV_CANDIDATES[*]}"
+  rm -rf "${TEMP_BACKUP_DIR}"
+  exit 1
 fi
 
 # List of database suffixes/modules

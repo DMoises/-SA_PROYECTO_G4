@@ -1,0 +1,41 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    project: quetxal-tv
+    environment: cloud
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: host-node-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          component: gce-vm
+
+  - job_name: docker-cadvisor
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          component: docker
+
+  - job_name: quetxal-http-probes
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://host.docker.internal:8080/health
+          - http://host.docker.internal:3000/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

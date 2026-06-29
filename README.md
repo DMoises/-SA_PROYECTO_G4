@@ -50,6 +50,7 @@
    - [5.1 Vista Física (Despliegue)](#5.1-vista-física-(despliegue))
    - [5.2 Justificación Tecnológica (Gobernanza)](#5.2-justificación-tecnológica-(gobernanza))
    - [5.3 Aplicación de Principios SOLID (Nivel ISM)](#5.3-aplicación-de-principios-solid-(nivel-ism))
+   - [5.5 Manual Prometheus & Grafana](#5.5-manual-prometheus--grafana-tarea-20)
 6. [Conclusiones](#6.-conclusiones)
 7. [Archivos Crudos](#7.-archivos-crudos)
 
@@ -2035,6 +2036,186 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
 - **Cómo:** El manejador de las peticiones web (`AdminHTTPHandler`) no instancia su propia conexión a la BD. El repositorio ya instanciado se le **inyecta** dinámicamente al crear la clase mediante parámetros (`{"repo": repo}`).
 - **Por qué (testabilidad):** Desacopla completamente el servidor HTTP de los datos. Permite que durante pruebas se pueda inyectar un repositorio simulado (Mock) en memoria sin que el servidor web lo note, facilitando el Testing Automatizado de la Fase 2.
 
+
+
+### **5.5 Manual Prometheus & Grafana (Tarea 20)** {#5.5-manual-prometheus--grafana-tarea-20}
+
+> **Objetivo:** documentar el modelo de monitoreo por *scraping*, la guia de despliegue de exporters y la evidencia requerida de dashboards de Grafana con telemetria viva.  
+> **Manual extendido:** [`docs/manuales/manual-prometheus-grafana.md`](./docs/manuales/manual-prometheus-grafana.md).  
+> **Artefactos crudos:** [`k8s/monitoring/`](./k8s/monitoring), [`monitoring/`](./monitoring) y [`docker-compose.monitoring.yml`](./docker-compose.monitoring.yml).
+
+#### 5.5.1 Modelo de monitoreo por scraping
+
+Prometheus funciona bajo un modelo de recoleccion activa: en intervalos definidos consulta endpoints `/metrics`, guarda cada medicion como serie temporal y permite consultarla con PromQL. En Quetxal TV se utiliza para observar hardware, red, nodos, Pods y contenedores sin exponer los microservicios directamente a internet.
+
+```
+                 Grafana
+                    |
+                    | PromQL
+                    v
+               Prometheus
+        -----------+----------------
+        |          |               |
+ node_exporter  kubelet/cAdvisor  Prometheus self
+ CPU/Mem/Red    Pods/containers   salud del stack
+        |
+ GCE VMs + nodos GKE
+```
+
+| Componente | Rol dentro del monitoreo |
+|---|---|
+| Prometheus | Motor de scraping y base de datos de series temporales. |
+| Grafana | Visualizacion de metricas en dashboards vivos. |
+| node_exporter | Exporter de hardware: CPU, memoria, disco y red por nodo/VM. |
+| kubelet/cAdvisor | Metricas de Pods y contenedores dentro de GKE. |
+| RBAC de Prometheus | Permite descubrir nodos, Pods, endpoints y metricas internas de Kubernetes. |
+
+#### 5.5.2 Despliegue en GKE
+
+La ruta principal para calificacion en nube es Kubernetes. Los manifiestos viven en `k8s/monitoring/` y se aplican como una unidad con Kustomize.
+
+```bash
+gcloud container clusters get-credentials quetxal-cluster \
+  --zone us-central1-a \
+  --project quetxal-tv-498705
+
+kubectl apply -k k8s/monitoring
+kubectl -n monitoring get pods
+kubectl -n monitoring get svc
+```
+
+El despliegue crea:
+
+| Recurso | Descripcion |
+|---|---|
+| `Namespace monitoring` | Aisla la observabilidad de los workloads de negocio. |
+| `DaemonSet node-exporter` | Corre un exporter por cada nodo del cluster. |
+| `Deployment prometheus` | Recolecta metricas de nodos, Pods, kubelet/cAdvisor y VMs externas. |
+| `Deployment grafana` | Sirve el dashboard con datasource Prometheus preconfigurado. |
+| `ConfigMaps` | Guardan configuracion de Prometheus, datasource y dashboard. |
+
+#### 5.5.3 Acceso a Prometheus y Grafana
+
+Para revisar Prometheus:
+
+```bash
+kubectl -n monitoring port-forward svc/prometheus 9090:9090
+```
+
+Abrir:
+
+```text
+http://localhost:9090/targets
+```
+
+La pantalla `Status > Targets` debe mostrar targets `UP`, especialmente `prometheus`, `kubernetes-nodes`, `kubernetes-cadvisor`, `kubernetes-pods-annotated` y `gce-vm-node-exporters` cuando las VMs externas tengan `node_exporter` activo.
+
+Para revisar Grafana:
+
+```bash
+kubectl -n monitoring port-forward svc/grafana 3001:3000
+```
+
+Abrir:
+
+```text
+http://localhost:3001
+```
+
+Credenciales de demo:
+
+```text
+usuario: admin
+password: admin
+```
+
+El manifiesto de Grafana referencia el secreto `grafana-admin` como **opcional**. Si el secreto no existe, Grafana arranca con las credenciales de demo `admin/admin`. Para produccion no se versiona una contraseña real en el repositorio; se debe crear el secreto manualmente en el cluster antes de reiniciar Grafana:
+
+```bash
+kubectl -n monitoring create secret generic grafana-admin \
+  --from-literal=password='CAMBIAR_PASSWORD'
+
+kubectl -n monitoring rollout restart deployment/grafana
+```
+
+#### 5.5.4 Guia de despliegue de exporters
+
+En GKE, `node_exporter` se despliega como DaemonSet:
+
+```bash
+kubectl -n monitoring get daemonset node-exporter
+kubectl -n monitoring get pods -l app=node-exporter -o wide
+```
+
+Cada nodo publica metricas en el puerto `9100`. Prometheus tambien consulta kubelet/cAdvisor mediante la API interna de Kubernetes, por lo que se obtienen metricas de contenedores sin modificar cada microservicio.
+
+Para VMs externas con Docker existe una ruta alternativa:
+
+```bash
+docker compose -f docker-compose.monitoring.yml up -d
+docker ps
+```
+
+Este compose levanta:
+
+| Servicio | Puerto | Funcion |
+|---|---:|---|
+| Prometheus | `9090` | Scraping y almacenamiento de metricas. |
+| Grafana | `3001` | Dashboard de telemetria. |
+| node_exporter | `9100` | Hardware y red de la VM. |
+| cAdvisor | `8088` | Contenedores Docker. |
+| blackbox_exporter | `9115` | Probes HTTP. |
+
+Si no se desea exponer Grafana publicamente:
+
+```bash
+ssh -L 3001:localhost:3001 usuario@IP_PUBLICA_VM
+```
+
+#### 5.5.5 Dashboard de Grafana
+
+El dashboard provisionado se llama:
+
+```text
+Quetxal TV / Quetxal TV - Infraestructura y Red
+```
+
+Incluye paneles para:
+
+| Panel | Evidencia que demuestra |
+|---|---|
+| Targets activos | Prometheus esta recolectando metricas vivas. |
+| Uso de CPU por nodo/host | Carga de procesamiento en tiempo real. |
+| Uso de memoria por nodo/host | Presion de memoria de infraestructura. |
+| Trafico de red por nodo/host | Entrada y salida de red durante uso del sistema. |
+| CPU de Pods/contenedores | Consumo de recursos por workloads de la aplicacion. |
+| Uso de disco | Estado del almacenamiento de las VMs/nodos. |
+
+#### 5.5.6 Capturas obligatorias para calificacion
+
+Las evidencias deben tomarse en el entorno de nube, no en local:
+
+1. `kubectl -n monitoring get pods` mostrando Prometheus, Grafana y `node-exporter` en estado `Running`.
+2. `http://localhost:9090/targets` mostrando targets `UP`.
+3. Dashboard de Grafana con rango `Last 30 minutes` y refresco `10s`.
+4. Panel de trafico de red mientras se genera actividad real contra el frontend/API Gateway.
+5. Panel de CPU o memoria mostrando variacion durante una prueba de carga o navegacion de usuarios.
+
+Para generar telemetria visible durante la captura:
+
+```bash
+for i in {1..50}; do curl -s http://URL_PUBLICA/health >/dev/null; done
+```
+
+Tambien puede usarse Locust para elevar concurrencia y capturar cambios claros en CPU, memoria y red.
+
+#### 5.5.7 Justificacion tecnica
+
+- **Prometheus dentro de GKE:** descubre recursos internos sin exponer metricas a internet.
+- **Grafana con datasource provisionado:** evita configuracion manual durante la defensa.
+- **node_exporter como DaemonSet:** garantiza telemetria por cada nodo del cluster.
+- **cAdvisor/kubelet:** permite observar Pods y contenedores sin reescribir microservicios.
+- **Port-forward para acceso:** reduce superficie publica y mantiene la observabilidad como herramienta interna de operacion.
 
 
 ## **6\. Conclusiones** {#6.-conclusiones}

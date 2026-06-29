@@ -30,9 +30,11 @@ spec:
             - name: metrics
               containerPort: 9100
               hostPort: 9100
+          # Request mínimo (5m): node_exporter usa ~2m en reposo. Bajarlo de 20m
+          # libera ~15m por nodo para que quepa el DaemonSet de Filebeat (cluster ajustado).
           resources:
             requests:
-              cpu: 20m
+              cpu: 5m
               memory: 32Mi
             limits:
               cpu: 100m

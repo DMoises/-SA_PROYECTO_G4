@@ -105,11 +105,19 @@ terraform apply tf.plan
 
 ### 5.3 Recursos levantados (consola de GCP)
 
-> 📸 *Capturas pendientes de la consola web de GCP que evidencien los recursos creados por el IaC:*
-> - **Redes VPC** → `quetxal-vpc` con la subred y los 2 rangos secundarios
-> - **Kubernetes Engine → Clústeres** → `quetxal-cluster`
-> - **Compute Engine → Instancias** → `quetxal-database-vm` + VMs de desarrollo + nodos GKE
-> - **Compute Engine → Discos** → `quetxal-db-data` (50 GB persistentes)
+Evidencia en la nube de los recursos creados por el IaC.
+
+**Compute Engine → Instancias de VM:** las 6 VMs RUNNING — `quetxal-database-vm`, `quetxal-dev-gateway-vm`, `quetxal-dev-services-vm`, `quetxal-elk-vm` y los 2 nodos del clúster GKE:
+
+![Instancias de VM en GCP (todas RUNNING)](img/gcp1.png)
+
+**Kubernetes Engine → Cargas de trabajo:** todo el sistema desplegado en `quetxal-cluster` — microservicios (`quetxal-tv-prod`), el CronJob de depuración, el DaemonSet de Filebeat (`logging`), Prometheus/Grafana/node-exporter (`monitoring`) e ingress-nginx, todos en estado OK:
+
+![Cargas de trabajo de GKE (todas OK)](img/gcp2.png)
+
+**Sistema funcional:** el frontend de Quetxal TV servido en la IP pública del Ingress (`http://35.254.220.20`):
+
+![Quetxal TV funcionando en la nube](img/gcp3.png)
 
 ## 6. Destrucción (declarativa)
 

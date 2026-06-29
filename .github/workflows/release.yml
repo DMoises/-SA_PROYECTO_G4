@@ -4,10 +4,13 @@ name: Release - Build & Push Versión Semántica (vX.Y.Z)
 # La versión sale del archivo VERSION del repo (versionamiento vía pipeline, no manual).
 # Los push del día a día a develop/main siguen usando :latest/:sha en los otros workflows.
 on:
-  push:
+  workflow_run:
+    workflows: ["Capa de Integración y Testing (CI)"]
+    types:
+      - completed
     branches:
-      - release          # release plano: la versión sale del archivo VERSION
-      - 'release/**'      # ramas por versión: release/v2.0.1 (la versión sale del nombre)
+      - release
+      - 'release/**'
   workflow_dispatch:
     inputs:
       version:
@@ -20,10 +23,13 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
 
     steps:
       - name: Checkout del Código Fuente
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Resolver versión semántica
         id: version

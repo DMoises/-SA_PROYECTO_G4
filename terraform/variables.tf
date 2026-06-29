@@ -228,6 +228,21 @@ variable "gcs_bucket_name" {
 }
 
 # ---------------------------------------------------------------------------
+# Publicación de IPs a GitHub Actions (para que el CI sobreviva un destroy)
+# ---------------------------------------------------------------------------
+variable "publish_ips_to_github" {
+  description = "Si Terraform debe publicar las IPs de las VMs a los GitHub Secrets (GATEWAY_VM_IP, etc.) vía `gh secret set` tras cada apply. Requiere `gh` autenticado con permiso de admin en el repo, en la máquina donde corras terraform. Déjalo en false en CI."
+  type        = bool
+  default     = false
+}
+
+variable "github_repo" {
+  description = "Repositorio GitHub (owner/name) donde publicar los Secrets de IPs cuando publish_ips_to_github = true."
+  type        = string
+  default     = "DMoises/-SA_PROYECTO_G4"
+}
+
+# ---------------------------------------------------------------------------
 # Etiquetas
 # ---------------------------------------------------------------------------
 variable "common_tags" {

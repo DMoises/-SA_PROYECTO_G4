@@ -1,0 +1,120 @@
+name: Smoke Tests (Nube)
+
+on:
+  workflow_run:
+    workflows: 
+      - "Deploy Gateway"
+      - "Deploy to Kubernetes (GKE)"
+    types:
+      - completed
+
+jobs:
+  smoke-tests:
+    name: Ejecutar Pruebas de Humo (Post-Despliegue)
+    runs-on: ubuntu-latest
+    # Solo ejecutar si el despliegue fue exitoso
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout del Código
+        uses: actions/checkout@v4
+
+      - name: Determinar Entorno Objetivo (VM vs Kubernetes)
+        run: |
+          if [ "${{ github.event.workflow_run.name }}" = "Deploy to Kubernetes (GKE)" ]; then
+            echo "IP=${{ secrets.K8S_INGRESS_IP }}" >> $GITHUB_ENV
+            echo "🚀 Objetivo: Kubernetes GKE (Producción)"
+          else
+            echo "IP=${{ secrets.GATEWAY_VM_IP }}" >> $GITHUB_ENV
+            echo "🚀 Objetivo: Máquina Virtual (Staging/Desarrollo)"
+          fi
+
+      - name: 1. Prueba de Vida - Frontend y API Gateway
+        run: |
+          echo "Haciendo ping al entorno en la nube (Puerto 80)..."
+          # Se reintenta 10 veces (con espera de 5s) por si el contenedor está reiniciando
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ env.IP }}/health || true)
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "404" ]; then
+              # Si devuelve 200 (Gateway) o 404 (Frontend Next.js cargado pero ruta no existe), el servidor HTTP está vivo.
+              echo "✅ El API Gateway / Frontend está en línea (Status: $STATUS)"
+              exit 0
+            fi
+            echo "Intento $i/10: Esperando a que el entorno responda... (Status: $STATUS)"
+            sleep 5
+          done
+          echo "❌ ERROR: El entorno en la IP ${{ env.IP }} no respondió después de 50 segundos."
+          exit 1
+
+      - name: 2. Prueba de Rutas Críticas (Auth Service)
+        run: |
+          echo "Verificando el servicio de Autenticación a través del Gateway..."
+          # Simulamos una petición de login o ruta de Auth para asegurar que el ruteo interno (Gateway -> Microservicio) funciona.
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://${{ env.IP }}/api/auth/login || true)
+          # Al no mandar payload, debería devolver 400 (Bad Request) o 401 (Unauthorized), 
+          # indicando que el servicio EXISTE y validó la falta de datos.
+          # Si devuelve 502 (Bad Gateway), el microservicio está caído.
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ] || [ "$STATUS" = "000" ]; then
+             echo "❌ ERROR: Fallo crítico de conexión con el Auth Service (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Auth Service enrutado y alcanzable (Status: $STATUS)"
+          fi
+
+      - name: 3. Prueba de Catálogo y Base de Datos (Read-Only)
+        run: |
+          echo "Verificando disponibilidad del catálogo..."
+          # Hacemos una petición al catálogo
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ env.IP }}/api/catalog/movies || true)
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ]; then
+             echo "❌ ERROR: El servicio de catálogo falló. Probable desconexión de Base de Datos externa (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Catálogo enrutado correctamente (Status: $STATUS)"
+          fi
+
+      - name: 4. Prueba del Servicio de Facturación (Billing)
+        run: |
+          echo "Verificando disponibilidad del servicio de Billing..."
+          # Comprobamos la ruta base de billing
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ env.IP }}/api/billing/health || true)
+          # Si devuelve 502/500, el microservicio está caído. Si devuelve 200 o 404, el ruteo llegó.
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ] || [ "$STATUS" = "000" ]; then
+             echo "❌ ERROR: Servicio de facturación desconectado (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Servicio de Facturación en línea (Status: $STATUS)"
+          fi
+
+      - name: 5. Prueba de Caching (Redis) y Sesiones
+        run: |
+          echo "Verificando que las rutas con Redis no estén bloqueadas..."
+          # Una petición al endpoint de perfiles o historial que depende de sesiones/redis
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET http://${{ env.IP }}/api/profiles/me || true)
+          # Debería dar 401 Unauthorized, pero NO 500 ni 502
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ] || [ "$STATUS" = "000" ]; then
+             echo "❌ ERROR: Microservicio dependiente de Redis falló (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Rutas dependientes de Redis operativas (Status: $STATUS)"
+          fi
+
+      - name: 6. Prueba de WebSockets (Watch Party)
+        run: |
+          echo "Verificando endpoint de upgrade para WebSockets..."
+          # Hacemos GET a la ruta de watchparty. Si el gateway funciona, devolverá 400 (Bad Request por faltar Upgrade) o 426 (Upgrade Required).
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET http://${{ env.IP }}/api/watchparty/ws || true)
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ] || [ "$STATUS" = "000" ]; then
+             echo "❌ ERROR: El servicio de Watch Party no está enrutando correctamente (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Ruteo de Watch Party (WebSockets) listo (Status: $STATUS)"
+          fi
+
+
+      - name: Auto-Rollback Alert (En caso de fallo)
+        if: failure()
+        run: |
+          echo "🚨 ALARMA: LAS PRUEBAS DE HUMO HAN FALLADO."
+          echo "El último despliegue rompió la conectividad. Un Rollback debería ser invocado inmediatamente."
+          exit 1

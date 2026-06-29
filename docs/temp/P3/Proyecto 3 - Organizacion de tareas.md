@@ -75,7 +75,7 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 | ----- | ----- | ----- | ----- |
 | 13\. Pruebas Backend y Cortocircuito | Validar ≥ 75% cobertura de endpoints. El pipeline CI/CD DEBE detenerse inmediatamente si falla alguna prueba, script o compilación. | Juanjo | 🔴 Pendiente |
 | 14\. Actualización Pipeline CD (Despliegue) | Configurar flujos en GitHub Actions para el **despliegue automático (CD)** hacia la VM de desarrollo (Docker Compose) y el cluster de producción Kubernetes (GKE). | Joshua | 🔴 Pendiente |
-| 15\. Smoke Tests (CI/CD) | Suite automática tras despliegue para certificar que las rutas base del API Gateway y conexiones críticas están vivas. | Chan | 🔴 Pendiente |
+| 15\. Smoke Tests (CI/CD) | Suite automática tras despliegue para certificar que las rutas base del API Gateway y conexiones críticas están vivas. | Chan | ✅Terminado |
 | 16\. Pruebas de Carga Ligera (Locust) | Scripts en Python inyectando tráfico masivo en rutas críticas. Generar **archivo HTML final** con los resultados de las pruebas. **Capturas obligatorias de resultados de Locust.** | Moisés | 🟡Pruebas |
 
 ---

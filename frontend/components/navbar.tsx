@@ -16,11 +16,12 @@ import {
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 
-const navLinks = [
+const defaultNavLinks = [
   { href: '/browse', label: 'Inicio' },
   { href: '/browse/series', label: 'Series' },
   { href: '/browse/movies', label: 'Peliculas' },
   { href: '/browse/new', label: 'Novedades' },
+  { href: '/browse/downloads', label: 'Mis Descargas', requiresPremium: true },
   { href: '/watchparty', label: 'Watch Party' },
 ]
 
@@ -34,6 +35,9 @@ export function Navbar() {
   const [profileColor, setProfileColor] = useState('from-primary to-primary/70')
   // Solo el perfil administrador (principal) ve administracion de cuenta/perfiles.
   const [isMainProfile, setIsMainProfile] = useState(false)
+  const [isPremium, setIsPremium] = useState(false)
+  
+  const navLinks = defaultNavLinks.filter(link => !link.requiresPremium || isPremium)
 
   const profileColors = [
     'from-primary to-primary/70',
@@ -88,6 +92,15 @@ export function Navbar() {
         }
       })
       .catch(console.error);
+
+    import('@/lib/api/billing').then(({ getMySubscription }) => {
+      getMySubscription()
+        .then(sub => {
+          const nombrePlan = sub?.nombre_plan ?? sub?.nombrePlan
+          setIsPremium(nombrePlan === 'Premium')
+        })
+        .catch(() => setIsPremium(false))
+    })
   }, [])
 
   return (

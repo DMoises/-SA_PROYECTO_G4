@@ -510,10 +510,12 @@ export default function ContentDetailPage({ params }: { params: Promise<{ id: st
             <div className="rounded-lg bg-card p-6">
               <h3 className="mb-4 text-lg font-semibold text-foreground">Acciones</h3>
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start gap-2" onClick={handleDownload} disabled={downloading}>
-                  <Download className="h-4 w-4" />
-                  {downloading ? 'Descargando...' : 'Descargar'}
-                </Button>
+                {isPremium && (
+                  <Button variant="outline" className="w-full justify-start gap-2" onClick={handleDownload} disabled={downloading}>
+                    <Download className="h-4 w-4" />
+                    {downloading ? 'Descargando...' : 'Descargar'}
+                  </Button>
+                )}
                 <Button variant="outline" className="w-full justify-start gap-2">
                   <Share2 className="h-4 w-4" />
                   Compartir

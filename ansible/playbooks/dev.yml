@@ -9,3 +9,4 @@
     - common
     - docker
     - dev_vm
+    - node_exporter

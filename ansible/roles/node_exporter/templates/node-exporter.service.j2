@@ -1,0 +1,22 @@
+# GENERADO por Ansible (rol node_exporter).
+[Unit]
+Description=Quetxal TV — node_exporter (métricas Prometheus en :{{ node_exporter_port }})
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+# Limpia un contenedor previo y corre node_exporter en primer plano (--rm) con
+# red y PID del host para reportar métricas reales de la VM (no del contenedor).
+ExecStartPre=-/usr/bin/docker rm -f quetxal-node-exporter
+ExecStart=/usr/bin/docker run --rm --name quetxal-node-exporter \
+  --net=host --pid=host \
+  -v /:/host:ro,rslave \
+  {{ node_exporter_image }} \
+  --path.rootfs=/host \
+  --web.listen-address=:{{ node_exporter_port }}
+ExecStop=/usr/bin/docker stop quetxal-node-exporter
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

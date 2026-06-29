@@ -13,6 +13,14 @@ app_dir: "/opt/quetxal"
 dockerhub_username: "voupi"
 
 # ---------------------------------------------------------------------------
+# Observabilidad de métricas (node_exporter en las VMs externas)
+# ---------------------------------------------------------------------------
+# Exporter de hardware/red que el Prometheus de GKE scrapea en cada VM
+# (job "gce-vm-node-exporters" -> 10.10.0.10/.2/.3:9100).
+node_exporter_image: "prom/node-exporter:v1.8.2"
+node_exporter_port: 9100
+
+# ---------------------------------------------------------------------------
 # VM de Base de Datos
 # ---------------------------------------------------------------------------
 # IP interna estática de la VM de BD (debe calzar con terraform var.db_internal_ip

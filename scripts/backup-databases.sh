@@ -25,14 +25,22 @@ mkdir -p "${BACKUP_DIR}"
 mkdir -p "${TEMP_BACKUP_DIR}"
 
 # 2. Load environment variables for DB credentials
-if [ -f "${ENV_FILE}" ]; then
+ENV_FILE=""
+for path in "/opt/quetxal/.env" "/opt/quetxal/.env.cloud" "${WORKDIR}/.env.cloud" "${WORKDIR}/.env"; do
+  if [ -f "$path" ]; then
+    ENV_FILE="$path"
+    break
+  fi
+done
+
+if [ -n "${ENV_FILE}" ]; then
   echo "Loading environment variables from ${ENV_FILE}..."
   # Source environment file (ignoring comments)
   set -a
   source "${ENV_FILE}"
   set +a
 else
-  echo " Warning: ${ENV_FILE} not found. Using default/fallback credentials."
+  echo " Warning: No environment file found. Will attempt to query running container environments."
 fi
 
 # List of database suffixes/modules
@@ -43,23 +51,29 @@ for db in "${DATABASES[@]}"; do
   # Convert db name to uppercase for env var matching (e.g. auth -> AUTH)
   DB_UPPER=$(echo "${db}" | tr '[:lower:]' '[:upper:]')
   
-  # Fetch DB variables dynamically with fallbacks
-  eval DB_NAME=\${${DB_UPPER}_DB_NAME:-${db}_db}
-  eval DB_USER=\${${DB_UPPER}_DB_USER:-${db}_user}
-  eval DB_PASS=\${${DB_UPPER}_DB_PASSWORD:-""}
-  
   CONTAINER="quetxal-${db}-db"
-  BACKUP_FILE="${TEMP_BACKUP_DIR}/${db}_${TIMESTAMP}.sql"
-  
-  echo "--------------------------------------------------"
-  echo "Backing up database: ${DB_NAME} (User: ${DB_USER})"
-  echo "Target container: ${CONTAINER}"
   
   # Check if container is running
   if ! docker ps --format '{{.Names}}' | grep -Eq "^${CONTAINER}$"; then
     echo " Error: Container ${CONTAINER} is not running!"
     exit 1
   fi
+  
+  # Fetch DB variables dynamically from the running container as fallback if not set in host env
+  CONTAINER_DB_NAME=$(docker exec "${CONTAINER}" sh -c 'echo "$POSTGRES_DB"' 2>/dev/null || echo "")
+  CONTAINER_DB_USER=$(docker exec "${CONTAINER}" sh -c 'echo "$POSTGRES_USER"' 2>/dev/null || echo "")
+  CONTAINER_DB_PASS=$(docker exec "${CONTAINER}" sh -c 'echo "$POSTGRES_PASSWORD"' 2>/dev/null || echo "")
+
+  # Fetch DB variables dynamically with fallbacks
+  eval DB_NAME=\${${DB_UPPER}_DB_NAME:-${CONTAINER_DB_NAME:-${db}_db}}
+  eval DB_USER=\${${DB_UPPER}_DB_USER:-${CONTAINER_DB_USER:-${db}_user}}
+  eval DB_PASS=\${${DB_UPPER}_DB_PASSWORD:-${CONTAINER_DB_PASS:-""}}
+  
+  BACKUP_FILE="${TEMP_BACKUP_DIR}/${db}_${TIMESTAMP}.sql"
+  
+  echo "--------------------------------------------------"
+  echo "Backing up database: ${DB_NAME} (User: ${DB_USER})"
+  echo "Target container: ${CONTAINER}"
   
   # Execute pg_dump inside container and redirect output to host
   # Using docker exec -i (no -t to avoid TTY output corruption)

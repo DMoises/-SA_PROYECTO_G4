@@ -16,12 +16,14 @@ import {
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 
-const defaultNavLinks = [
+type NavLink = { href: string; label: string; requiresPremium?: boolean }
+
+const defaultNavLinks: NavLink[] = [
   { href: '/browse', label: 'Inicio' },
   { href: '/browse/series', label: 'Series' },
   { href: '/browse/movies', label: 'Peliculas' },
   { href: '/browse/new', label: 'Novedades' },
-  { href: '/browse/downloads', label: 'Mis Descargas', requiresPremium: true },
+  { href: '/downloads', label: 'Mis Descargas', requiresPremium: true },
   { href: '/watchparty', label: 'Watch Party' },
 ]
 

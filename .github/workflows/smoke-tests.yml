@@ -63,6 +63,45 @@ jobs:
              echo "✅ Catálogo enrutado correctamente (Status: $STATUS)"
           fi
 
+      - name: 4. Prueba del Servicio de Facturación (Billing)
+        run: |
+          echo "Verificando disponibilidad del servicio de Billing..."
+          # Comprobamos la ruta base de billing
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.GATEWAY_VM_IP }}/api/billing/health || true)
+          # Si devuelve 502/500, el microservicio está caído. Si devuelve 200 o 404, el ruteo llegó.
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ] || [ "$STATUS" = "000" ]; then
+             echo "❌ ERROR: Servicio de facturación desconectado (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Servicio de Facturación en línea (Status: $STATUS)"
+          fi
+
+      - name: 5. Prueba de Caching (Redis) y Sesiones
+        run: |
+          echo "Verificando que las rutas con Redis no estén bloqueadas..."
+          # Una petición al endpoint de perfiles o historial que depende de sesiones/redis
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET http://${{ secrets.GATEWAY_VM_IP }}/api/profiles/me || true)
+          # Debería dar 401 Unauthorized, pero NO 500 ni 502
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ] || [ "$STATUS" = "000" ]; then
+             echo "❌ ERROR: Microservicio dependiente de Redis falló (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Rutas dependientes de Redis operativas (Status: $STATUS)"
+          fi
+
+      - name: 6. Prueba de WebSockets (Watch Party)
+        run: |
+          echo "Verificando endpoint de upgrade para WebSockets..."
+          # Hacemos GET a la ruta de watchparty. Si el gateway funciona, devolverá 400 (Bad Request por faltar Upgrade) o 426 (Upgrade Required).
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET http://${{ secrets.GATEWAY_VM_IP }}/api/watchparty/ws || true)
+          if [ "$STATUS" = "502" ] || [ "$STATUS" = "500" ] || [ "$STATUS" = "000" ]; then
+             echo "❌ ERROR: El servicio de Watch Party no está enrutando correctamente (Status: $STATUS)"
+             exit 1
+          else
+             echo "✅ Ruteo de Watch Party (WebSockets) listo (Status: $STATUS)"
+          fi
+
+
       - name: Auto-Rollback Alert (En caso de fallo)
         if: failure()
         run: |

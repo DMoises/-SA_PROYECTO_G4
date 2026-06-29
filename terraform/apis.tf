@@ -6,13 +6,13 @@
 
 locals {
   gcp_apis = [
-    "compute.googleapis.com",            # VPC, VMs, firewall, NAT, discos
-    "container.googleapis.com",          # GKE
-    "iam.googleapis.com",                # Service accounts
-    "iamcredentials.googleapis.com",     # Firmar Signed URLs (GCS)
+    "compute.googleapis.com",        # VPC, VMs, firewall, NAT, discos
+    "container.googleapis.com",      # GKE
+    "iam.googleapis.com",            # Service accounts
+    "iamcredentials.googleapis.com", # Firmar Signed URLs (GCS)
     "cloudresourcemanager.googleapis.com",
     "serviceusage.googleapis.com",
-    "storage.googleapis.com",            # GCS / tfstate
+    "storage.googleapis.com", # GCS / tfstate
   ]
 }
 

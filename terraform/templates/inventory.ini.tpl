@@ -25,6 +25,14 @@ dev_services
 [dev:vars]
 ansible_user=${ssh_user}
 %{ endif ~}
+%{ if enable_elk ~}
+
+[elk]
+quetxal-elk ansible_host=${elk_internal_ip} ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand="ssh -W %h:%p -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${ssh_user}@${gateway_host}"'
+
+[elk:vars]
+ansible_user=${ssh_user}
+%{ endif ~}
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3

@@ -66,16 +66,26 @@ output "dev_services_internal_ip" {
 }
 
 # ---------------------------------------------------------------------------
+# VM de ELK (observabilidad de logs)
+# ---------------------------------------------------------------------------
+output "elk_internal_ip" {
+  description = "IP interna de la VM de ELK (Logstash:5044, Kibana:5601 vía túnel SSH)"
+  value       = var.enable_elk_vm ? google_compute_instance.elk[0].network_interface[0].network_ip : "(elk deshabilitado)"
+}
+
+# ---------------------------------------------------------------------------
 # Inventario de Ansible (se escribe en ansible/inventory/hosts.gen.ini)
 # ---------------------------------------------------------------------------
 resource "local_file" "ansible_inventory" {
   filename = "${path.module}/../ansible/inventory/hosts.gen.ini"
   content = templatefile("${path.module}/templates/inventory.ini.tpl", {
-    ssh_user       = var.ssh_user
-    db_internal_ip = google_compute_instance.database.network_interface[0].network_ip
-    db_host        = try(google_compute_instance.database.network_interface[0].access_config[0].nat_ip, google_compute_instance.database.network_interface[0].network_ip)
-    enable_dev     = var.enable_dev_vms
-    gateway_host   = var.enable_dev_vms ? try(google_compute_instance.dev_gateway[0].network_interface[0].access_config[0].nat_ip, "") : ""
-    services_host  = var.enable_dev_vms ? google_compute_instance.dev_services[0].network_interface[0].network_ip : ""
+    ssh_user        = var.ssh_user
+    db_internal_ip  = google_compute_instance.database.network_interface[0].network_ip
+    db_host         = try(google_compute_instance.database.network_interface[0].access_config[0].nat_ip, google_compute_instance.database.network_interface[0].network_ip)
+    enable_dev      = var.enable_dev_vms
+    gateway_host    = var.enable_dev_vms ? try(google_compute_instance.dev_gateway[0].network_interface[0].access_config[0].nat_ip, "") : ""
+    services_host   = var.enable_dev_vms ? google_compute_instance.dev_services[0].network_interface[0].network_ip : ""
+    enable_elk      = var.enable_elk_vm
+    elk_internal_ip = var.enable_elk_vm ? google_compute_instance.elk[0].network_interface[0].network_ip : ""
   })
 }

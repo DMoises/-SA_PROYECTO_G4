@@ -111,9 +111,9 @@ variable "gke_cluster_name" {
 }
 
 variable "gke_machine_type" {
-  description = "Tipo de máquina de los nodos de GKE"
+  description = "Tipo de máquina de los nodos de GKE. e2-standard-2 (2 vCPU/8GB) da holgura para la app + monitoreo + el DaemonSet de logs (e2-medium quedaba al 98%)."
   type        = string
-  default     = "e2-medium"
+  default     = "e2-standard-2"
 }
 
 variable "gke_node_count" {
@@ -192,6 +192,33 @@ variable "dev_services_internal_ip" {
   description = "IP interna estática de la VM de servicios de desarrollo"
   type        = string
   default     = "10.10.0.3"
+}
+
+# ---------------------------------------------------------------------------
+# VM de ELK (observabilidad de LOGS: Elasticsearch + Logstash + Kibana)
+# ---------------------------------------------------------------------------
+variable "enable_elk_vm" {
+  description = "Crea la VM dedicada de ELK (recolección centralizada de logs). Privada; Ansible/Kibana entran vía el gateway."
+  type        = bool
+  default     = true
+}
+
+variable "elk_machine_type" {
+  description = "Tipo de máquina de la VM de ELK. Elasticsearch es exigente en RAM (e2-standard-2 = 2 vCPU/8GB)."
+  type        = string
+  default     = "e2-standard-2"
+}
+
+variable "elk_internal_ip" {
+  description = "IP interna estática de la VM de ELK (Logstash:5044 lo alcanzan los Beats del cluster y las VMs)"
+  type        = string
+  default     = "10.10.0.20"
+}
+
+variable "elk_data_disk_gb" {
+  description = "Disco persistente para los índices de Elasticsearch (separado del SO)"
+  type        = number
+  default     = 50
 }
 
 # ---------------------------------------------------------------------------

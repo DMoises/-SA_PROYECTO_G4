@@ -203,6 +203,15 @@ jobs:
         kubectl rollout status deployment/prometheus -n monitoring --timeout=150s || echo "⚠️ prometheus aún no listo"
         kubectl rollout status deployment/grafana -n monitoring --timeout=150s || echo "⚠️ grafana aún no listo"
 
+    # Stack de Observabilidad de LOGS: DaemonSet de Filebeat que recolecta los logs
+    # de todos los pods y los envía a Logstash en la VM de ELK (10.10.0.20:5044).
+    # Additivo (namespace 'logging'); continue-on-error para no tumbar la app.
+    - name: Deploy Log Shipper (Filebeat DaemonSet -> ELK)
+      continue-on-error: true
+      run: |
+        kubectl apply -f k8s/logging/
+        kubectl rollout status daemonset/filebeat -n logging --timeout=150s || echo "⚠️ filebeat aún no listo"
+
     - name: Clean up temporary secrets
       run: rm k8s/base/secrets-injected.yaml
 

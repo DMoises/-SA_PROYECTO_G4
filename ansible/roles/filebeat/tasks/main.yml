@@ -1,0 +1,35 @@
+---
+# Rol filebeat: corre Filebeat (contenedor vía systemd) en una VM para enviar los
+# logs de sus contenedores Docker a Logstash en la VM de ELK. Docker ya lo instala
+# el rol `docker`.
+
+- name: Asegurar el directorio de la aplicación
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Renderizar configuración de Filebeat
+  ansible.builtin.template:
+    src: filebeat.yml.j2
+    dest: "{{ app_dir }}/filebeat.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Instalar unidad systemd de Filebeat
+  ansible.builtin.template:
+    src: quetxal-filebeat.service.j2
+    dest: /etc/systemd/system/quetxal-filebeat.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Habilitar y arrancar Filebeat
+  ansible.builtin.systemd:
+    name: quetxal-filebeat.service
+    enabled: true
+    state: started
+    daemon_reload: true

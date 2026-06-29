@@ -21,6 +21,14 @@ node_exporter_image: "prom/node-exporter:v1.8.2"
 node_exporter_port: 9100
 
 # ---------------------------------------------------------------------------
+# Observabilidad de logs (ELK + Filebeat)
+# ---------------------------------------------------------------------------
+# IP interna de la VM de ELK (debe calzar con terraform var.elk_internal_ip).
+# Logstash escucha Beats en este host:5044; lo usan los Filebeat de las VMs.
+elk_internal_ip: "10.10.0.20"
+filebeat_image: "docker.elastic.co/beats/filebeat:8.15.3"
+
+# ---------------------------------------------------------------------------
 # VM de Base de Datos
 # ---------------------------------------------------------------------------
 # IP interna estática de la VM de BD (debe calzar con terraform var.db_internal_ip

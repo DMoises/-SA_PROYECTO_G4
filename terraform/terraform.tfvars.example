@@ -14,9 +14,14 @@ ssh_public_key_path = "~/.ssh/id_rsa.pub"
 
 # --- GKE ---
 gke_cluster_name = "quetxal-cluster"
-gke_machine_type = "e2-medium"
+gke_machine_type = "e2-standard-2"   # 2 vCPU/8GB: holgura para app + monitoreo + DaemonSet de logs
 gke_node_count   = 2
 gke_private_nodes = true
+
+# --- VM de ELK (observabilidad de logs: Elasticsearch + Logstash + Kibana) ---
+enable_elk_vm    = true
+elk_machine_type = "e2-standard-2"   # ES necesita RAM
+elk_data_disk_gb = 50
 
 # --- VM de Base de Datos (persistencia aislada) ---
 db_machine_type = "e2-medium"

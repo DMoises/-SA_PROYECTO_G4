@@ -1,0 +1,21 @@
+# GENERADO por Ansible (rol filebeat).
+[Unit]
+Description=Quetxal TV — Filebeat (envía logs de contenedores a Logstash:5044)
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/docker rm -f quetxal-filebeat
+ExecStart=/usr/bin/docker run --rm --name quetxal-filebeat \
+  --user root \
+  -v {{ app_dir }}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro \
+  -v /var/lib/docker/containers:/var/lib/docker/containers:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  {{ filebeat_image }} \
+  filebeat -e --strict.perms=false
+ExecStop=/usr/bin/docker stop quetxal-filebeat
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

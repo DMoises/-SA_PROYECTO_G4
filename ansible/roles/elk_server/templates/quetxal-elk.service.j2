@@ -1,0 +1,16 @@
+# GENERADO por Ansible (rol elk_server).
+[Unit]
+Description=Quetxal TV — Stack ELK (Elasticsearch + Logstash + Kibana)
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory={{ app_dir }}
+ExecStart=/usr/bin/docker compose -f docker-compose.elk.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.elk.yml down
+User={{ ansible_user }}
+
+[Install]
+WantedBy=multi-user.target

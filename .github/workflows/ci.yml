@@ -6,10 +6,13 @@ on:
       - develop
       - main
       - feature/*
+      - release
+      - 'release/**'
   pull_request:
     branches:
       - develop
       - main
+      - release
 
 jobs:
   test-go:
@@ -46,7 +49,8 @@ jobs:
           COVERAGE=$(go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+')
           echo "Cobertura total de Go: $COVERAGE%"
           # Validar que sea mayor o igual al 75%
-          if (( $(echo "$COVERAGE < 75.0" | bc -l) )); then
+          COVERAGE_INT=$(echo "$COVERAGE" | cut -d'.' -f1)
+          if [ "$COVERAGE_INT" -lt 75 ]; then
             echo "❌ ERROR: La cobertura de Go ($COVERAGE%) es menor al umbral del 75%"
             exit 1
           fi

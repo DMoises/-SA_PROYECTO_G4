@@ -1,0 +1,58 @@
+name: quetxal-elk
+
+# Stack de observabilidad de LOGS (Elasticsearch + Logstash + Kibana), corre en la
+# VM dedicada de ELK (quetxal-elk-vm). Recibe logs vía Beats (Logstash:5044) desde
+# el DaemonSet de Filebeat del cluster GKE y desde los Filebeat de las VMs.
+# Sin seguridad X-Pack (entorno académico, acceso solo interno + túnel SSH a Kibana).
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    container_name: quetxal-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.15.3
+    container_name: quetxal-logstash
+    restart: unless-stopped
+    environment:
+      - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.monitoring.enabled=false
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5044:5044" # entrada Beats (Filebeat del cluster y de las VMs)
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.3
+    container_name: quetxal-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601" # se accede por túnel SSH a través del gateway
+    depends_on:
+      - elasticsearch
+
+volumes:
+  es_data:

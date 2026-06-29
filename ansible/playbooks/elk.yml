@@ -1,0 +1,24 @@
+---
+# Observabilidad de LOGS (tarea ELK, Fase 3).
+# 1) Provisiona la VM de ELK (Elasticsearch + Logstash + Kibana) — el disco
+#    google-elk-data se monta en /var/lib/docker reusando el rol `docker`.
+# 2) Despliega Filebeat en las VMs operativas (BD + dev) para enviar los logs
+#    de sus contenedores a Logstash (10.10.0.20:5044).
+#
+# Uso:  ansible-playbook -i inventory/hosts.gen.ini playbooks/elk.yml
+- name: Provisionar VM de ELK (Elasticsearch + Logstash + Kibana)
+  hosts: elk
+  become: true
+  vars:
+    mount_data_disk: true
+    db_data_device: "/dev/disk/by-id/google-elk-data"
+  roles:
+    - common
+    - docker
+    - elk_server
+
+- name: Desplegar Filebeat en las VMs operativas (envían logs a ELK)
+  hosts: db:dev
+  become: true
+  roles:
+    - filebeat

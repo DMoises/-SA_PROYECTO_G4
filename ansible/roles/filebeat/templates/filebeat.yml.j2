@@ -1,0 +1,13 @@
+# GENERADO por Ansible (rol filebeat). Envía los logs de los contenedores Docker
+# de esta VM a Logstash en la VM de ELK.
+filebeat.inputs:
+  - type: container
+    paths:
+      - /var/lib/docker/containers/*/*.log
+
+processors:
+  - add_docker_metadata: ~
+  - add_host_metadata: ~
+
+output.logstash:
+  hosts: ["{{ elk_internal_ip }}:5044"]

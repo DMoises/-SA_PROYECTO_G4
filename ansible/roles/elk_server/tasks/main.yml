@@ -1,0 +1,63 @@
+---
+# Rol elk_server: levanta Elasticsearch + Logstash + Kibana en la VM dedicada de
+# ELK vía Docker Compose. El disco persistente (google-elk-data) lo monta el rol
+# `docker` en /var/lib/docker (mount_data_disk=true), así los índices de ES viven
+# en el disco dedicado.
+
+- name: Configurar vm.max_map_count (requisito de Elasticsearch)
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-elasticsearch.conf
+    content: "vm.max_map_count=262144\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Aplicar el sysctl en caliente
+  ansible.builtin.command: sysctl -w vm.max_map_count=262144
+  changed_when: false
+
+- name: Crear directorio de la aplicación
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Copiar docker-compose de ELK
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../docker-compose.elk.yml"
+    dest: "{{ app_dir }}/docker-compose.elk.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Copiar configuración de Logstash (pipeline)
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../elk/logstash/"
+    dest: "{{ app_dir }}/logstash/"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+    directory_mode: "0755"
+
+- name: Instalar unidad systemd de ELK
+  ansible.builtin.template:
+    src: quetxal-elk.service.j2
+    dest: /etc/systemd/system/quetxal-elk.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Habilitar y arrancar ELK
+  ansible.builtin.systemd:
+    name: quetxal-elk.service
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Esperar a que Elasticsearch responda (puerto 9200)
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 9200
+    timeout: 180

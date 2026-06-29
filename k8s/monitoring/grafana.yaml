@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasource
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus.monitoring.svc.cluster.local:9090
+        isDefault: true
+        editable: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: monitoring
+data:
+  dashboards.yml: |
+    apiVersion: 1
+    providers:
+      - name: Quetxal TV
+        orgId: 1
+        folder: Quetxal TV
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-quetxal
+  namespace: monitoring
+data:
+  quetxal-infra.json: |
+    {
+      "schemaVersion": 39,
+      "uid": "quetxal-infra",
+      "title": "Quetxal TV - Infraestructura y Red",
+      "refresh": "10s",
+      "time": { "from": "now-30m", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Targets activos",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [{ "expr": "sum(up)", "legendFormat": "targets up", "refId": "A" }],
+          "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "color": "red" }, { "color": "green", "value": 1 }] }, "mappings": [] }, "overrides": [] },
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" }
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "Uso de CPU por nodo",
+          "gridPos": { "h": 8, "w": 9, "x": 6, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [{ "expr": "1 - avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))", "legendFormat": "{{instance}}", "refId": "A" }],
+          "fieldConfig": { "defaults": { "unit": "percentunit", "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" }, "mappings": [] }, "overrides": [] }
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "Uso de memoria por nodo",
+          "gridPos": { "h": 8, "w": 9, "x": 15, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [{ "expr": "1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "legendFormat": "{{instance}}", "refId": "A" }],
+          "fieldConfig": { "defaults": { "unit": "percentunit", "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" }, "mappings": [] }, "overrides": [] }
+        },
+        {
+          "id": 4,
+          "type": "timeseries",
+          "title": "Trafico de red por nodo",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [
+            { "expr": "sum by(instance) (rate(node_network_receive_bytes_total{device!~\"lo|veth.*|docker.*|br.*\"}[5m]))", "legendFormat": "RX {{instance}}", "refId": "A" },
+            { "expr": "sum by(instance) (rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|docker.*|br.*\"}[5m]))", "legendFormat": "TX {{instance}}", "refId": "B" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" }, "mappings": [] }, "overrides": [] }
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "CPU de Pods",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [{ "expr": "sum by(namespace, pod) (rate(container_cpu_usage_seconds_total{pod!=\"\", container!=\"POD\"}[5m]))", "legendFormat": "{{namespace}}/{{pod}}", "refId": "A" }],
+          "fieldConfig": { "defaults": { "unit": "percentunit", "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" }, "mappings": [] }, "overrides": [] }
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:11.3.1
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-admin
+                  key: password
+                  optional: true
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+          ports:
+            - name: http
+              containerPort: 3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: datasource
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: dashboard-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: dashboard
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: datasource
+          configMap:
+            name: grafana-datasource
+        - name: dashboard-provider
+          configMap:
+            name: grafana-dashboard-provider
+        - name: dashboard
+          configMap:
+            name: grafana-dashboard-quetxal
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

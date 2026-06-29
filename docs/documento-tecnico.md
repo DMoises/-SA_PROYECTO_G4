@@ -68,7 +68,7 @@ Estructura "¿Qué? / ¿Por qué? / ¿Para qué?" por cada decisión:
 | Terraform | 7 / 16 | ✅ | [manuales/manual-terraform.md](manuales/manual-terraform.md) |
 | Ansible | 8 / 17 | ✅ | [manuales/manual-ansible.md](manuales/manual-ansible.md) |
 | Stack ELK (logs) | 11 / 18 | 🔲 _TODO_ | `manuales/manual-elk.md` |
-| Prometheus & Grafana (métricas) | 12 / 19 | 🔲 _TODO_ | `manuales/manual-prometheus-grafana.md` |
+| Prometheus & Grafana (métricas) | 12 / 19 | ✅ | [manuales/manual-prometheus-grafana.md](manuales/manual-prometheus-grafana.md) |
 | Locust (pruebas de carga) | 15 / 20 | 🔲 _TODO_ | `manuales/manual-locust.md` |
 
 ## 6. Algoritmo de Recomendación

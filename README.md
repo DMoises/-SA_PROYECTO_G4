@@ -52,8 +52,9 @@
    - [5.3 Aplicación de Principios SOLID (Nivel ISM)](#5.3-aplicación-de-principios-solid-(nivel-ism))
    - [5.5 Manual Prometheus & Grafana](#5.5-manual-prometheus--grafana-tarea-20)
    - [5.6 Justificación de Herramientas Utilizadas](#5.6-justificación-de-herramientas-utilizadas-tarea-22.5)
-6. [Conclusiones](#6.-conclusiones)
-7. [Archivos Crudos](#7.-archivos-crudos)
+6. [Pruebas de Carga y Estrés con Locust](#6.-pruebas-de-carga-y-estrés-con-locust)
+7. [Conclusiones](#7.-conclusiones)
+8. [Archivos Crudos](#8.-archivos-crudos)
 
 ## **1\. Introducción y Objetivos** {#1.-introducción-y-objetivos}
 
@@ -2685,6 +2686,95 @@ Los **mockups vectoriales editables** (archivos crudos `.excalidraw`) de todas l
 ```
 
 
-## 7\. Archivos Crudos
+## 6\. Pruebas de Carga y Estrés con Locust {#6.-pruebas-de-carga-y-estrés-con-locust}
+
+### 6.1 Qué es y Cómo funciona
+
+**Locust** es una herramienta de pruebas de carga distribuida de código abierto escrita en Python. A diferencia de otras herramientas que usan interfaces visuales para definir pruebas, Locust permite definir el comportamiento del usuario utilizando código Python regular. Esto facilita la creación de escenarios de pruebas complejos y realistas (flujos de usuarios reales).
+
+**Cómo funciona:**
+- Se define un "enjambre" (swarm) de usuarios que atacarán el sistema.
+- Cada usuario ejecuta un comportamiento definido en un archivo `locustfile.py`.
+- Locust simula que estos usuarios interactúan con la aplicación simultáneamente, registrando métricas como solicitudes por segundo (RPS), tiempos de respuesta, fallos, etc.
+- Permite arrancar en modo interfaz web, lo que permite visualizar las estadísticas en tiempo real y escalar el número de usuarios sobre la marcha.
+
+### 6.2 Instrucciones para Ejecutar las Pruebas
+
+Para reproducir las pruebas de carga y generar el reporte, siga estos pasos:
+
+**Paso 1 — Arrancar Locust en modo interfaz web**
+
+Abra una terminal, diríjase al directorio de pruebas y active el entorno virtual:
+```bash
+cd .\load-testing
+.\.venv\Scripts\Activate.ps1
+```
+
+Ejecute Locust apuntando al servidor deseado (sin el modo headless ni html para abrir la UI). Se agrega `VisitanteAnonimo` al final para ejecutar únicamente el flujo del usuario público (ideal para una demo limpia sin ruido):
+
+Para el entorno de **Develop**:
+```bash
+locust -f locustfile.py --host http://34.123.30.232 VisitanteAnonimo
+```
+
+Para el entorno de **Release** (Producción):
+```bash
+locust -f locustfile.py --host http://35.254.220.20 VisitanteAnonimo
+```
+
+Verá en consola el mensaje: `Starting web interface at http://localhost:8089`.
+
+**Paso 2 — Abrir la interfaz y configurar la prueba**
+
+Abra el navegador en [http://localhost:8089](http://localhost:8089). Aparecerá un formulario de inicio donde debe configurar los siguientes valores (recomendados para demo):
+- **Number of users (peak concurrency):** 200
+- **Ramp up (users started/second):** 20
+- **Host:** (Ya viene con la IP ejecutada, ej. `http://34.123.30.232` o `http://35.254.220.20`)
+- *(Advanced options) Run time:* opcional, ej. `3m`
+
+Presione **Start**.
+
+**Paso 3 — Mostrar la prueba corriendo (Monitoreo en vivo)**
+
+Mientras la prueba está en curso, navegue por las pestañas superiores para visualizar el comportamiento del sistema (déjela correr 1-2 minutos para que las gráficas se llenen):
+- **STATISTICS:** Muestra una tabla en vivo con peticiones, fallas, RPS y latencias por cada ruta (ej. `/api/catalog`, búsqueda, ficha, ratings, etc.).
+- **CHARTS:** Muestra de forma vistosa las gráficas dinámicas de *Total Requests per Second*, *Response Times* y *Number of Users* subiendo en tiempo real.
+
+**Paso 4 — Detener y descargar el reporte**
+
+1. Arriba a la derecha, presione **Stop** (botón rojo) cuando desee finalizar la prueba.
+2. Diríjase a la pestaña **DOWNLOAD DATA**.
+3. Haga clic en **Download Report**. Se descargará un archivo HTML autocontenido con todas las estadísticas y gráficas. *Este es el reporte oficial a presentar.*
+4. En esa misma pestaña también puede descargar los CSV de *requests*, *failures* y *exceptions* en caso sean requeridos. Guárdelos (ej. en una carpeta `reports/`).
+
+
+### 6.3 Resultados de las Pruebas 
+
+
+
+**Entorno Develop (`http://34.123.30.232`):**
+
+![Módulo 6](assets/f3/dev_1.png)  <br/><br/>
+
+![Módulo 6](assets/f3/dev_2.png)  <br/><br/>
+
+![Módulo 6](assets/f3/dev_3.png)  <br/><br/>
+
+![Módulo 6](assets/f3/dev_4.png)  <br/><br/>
+
+**Entorno Release (`http://35.254.220.20`):**
+
+![Módulo 6](assets/f3/dev_1.png)  <br/><br/>
+
+![Módulo 6](assets/f3/release_2.png)  <br/><br/>
+
+![Módulo 6](assets/f3/release_3.png)  <br/><br/>
+
+![Módulo 6](assets/f3/release_4.png)  <br/><br/>
+
+
+
+
+## 8\. Archivos Crudos
 
 [https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing](https://drive.google.com/file/d/1hq4hJVHeOEW313d0HHbw7xJMeJJwOVa9/view?usp=sharing)   )   

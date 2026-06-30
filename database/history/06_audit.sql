@@ -22,11 +22,15 @@ BEGIN
         v_user,
         TG_TABLE_NAME,
         CASE WHEN TG_OP = 'INSERT' THEN NULL ELSE to_jsonb(OLD) END,
-        to_jsonb(NEW)
+        CASE WHEN TG_OP = 'DELETE' THEN NULL ELSE to_jsonb(NEW) END
     );
 
+    -- En DELETE no existe NEW; se devuelve OLD para no romper el trigger AFTER.
+    IF TG_OP = 'DELETE' THEN
+        RETURN OLD;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_progreso_reproduccion AFTER INSERT OR UPDATE ON progreso_reproduccion FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE TRIGGER trg_audit_progreso_reproduccion AFTER INSERT OR UPDATE OR DELETE ON progreso_reproduccion FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

@@ -29,15 +29,22 @@ class Database:
                 cur.execute(sql, params or {})
                 return cur.fetchone()
 
-    def execute(self, sql: str, params: Optional[dict[str, Any]] = None) -> None:
+    def execute(self, sql: str, params: Optional[dict[str, Any]] = None, current_user: Optional[str] = None) -> None:
         with self._pool.connection() as conn:
             with conn.cursor() as cur:
+                # SET LOCAL (set_config con is_local=true) deja el usuario disponible
+                # para el trigger de auditoria dentro de ESTA transaccion. Sin esto,
+                # el trigger cae a session_user (el rol de BD) en vez del usuario real.
+                if current_user:
+                    cur.execute("SELECT set_config('app.current_user', %(u)s, true)", {"u": current_user})
                 cur.execute(sql, params or {})
             conn.commit()
 
-    def execute_returning(self, sql: str, params: Optional[dict[str, Any]] = None) -> Optional[dict[str, Any]]:
+    def execute_returning(self, sql: str, params: Optional[dict[str, Any]] = None, current_user: Optional[str] = None) -> Optional[dict[str, Any]]:
         with self._pool.connection() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
+                if current_user:
+                    cur.execute("SELECT set_config('app.current_user', %(u)s, true)", {"u": current_user})
                 cur.execute(sql, params or {})
                 row = cur.fetchone()
             conn.commit()

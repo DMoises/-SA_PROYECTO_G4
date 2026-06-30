@@ -22,17 +22,21 @@ BEGIN
         v_user,
         TG_TABLE_NAME,
         CASE WHEN TG_OP = 'INSERT' THEN NULL ELSE to_jsonb(OLD) END,
-        to_jsonb(NEW)
+        CASE WHEN TG_OP = 'DELETE' THEN NULL ELSE to_jsonb(NEW) END
     );
 
+    -- En DELETE no existe NEW; se devuelve OLD para no romper el trigger AFTER.
+    IF TG_OP = 'DELETE' THEN
+        RETURN OLD;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_audit_usuarios
-    AFTER INSERT OR UPDATE ON usuarios
+    AFTER INSERT OR UPDATE OR DELETE ON usuarios
     FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
 
 CREATE TRIGGER trg_audit_perfiles
-    AFTER INSERT OR UPDATE ON perfiles
+    AFTER INSERT OR UPDATE OR DELETE ON perfiles
     FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

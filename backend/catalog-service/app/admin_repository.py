@@ -52,7 +52,12 @@ class AdminRepository:
         )
 
     # ---- Crear contenido ----
-    def crear_contenido(self, datos: dict[str, Any]) -> dict[str, Any]:
+    # current_user: identificador del administrador (lo propaga el handler HTTP
+    # desde el JWT) para que el trigger de auditoria registre al usuario real y
+    # no caiga a session_user. Se pasa a cada escritura porque cada execute/
+    # execute_returning corre en su propia transaccion (SET LOCAL no persiste
+    # entre conexiones del pool).
+    def crear_contenido(self, datos: dict[str, Any], current_user: Optional[str] = None) -> dict[str, Any]:
         row = self.db.execute_returning(
             """
             INSERT INTO contenido (titulo, tipo, sinopsis, anio, clasificacion,
@@ -74,15 +79,16 @@ class AdminRepository:
                 "fecha_estreno": datos.get("fecha_estreno"),
                 "activo": datos.get("activo", True),
             },
+            current_user=current_user,
         )
         nuevo_id = row["id"]
-        self._sync_generos(nuevo_id, datos.get("generos", []))
-        self._sync_categorias(nuevo_id, datos.get("categorias", []))
+        self._sync_generos(nuevo_id, datos.get("generos", []), current_user=current_user)
+        self._sync_categorias(nuevo_id, datos.get("categorias", []), current_user=current_user)
         self._refresh_cartelera()
         return self.obtener_por_id(str(nuevo_id))
 
     # ---- Actualizar contenido ----
-    def actualizar_contenido(self, contenido_id: str, datos: dict[str, Any]) -> Optional[dict[str, Any]]:
+    def actualizar_contenido(self, contenido_id: str, datos: dict[str, Any], current_user: Optional[str] = None) -> Optional[dict[str, Any]]:
         self.db.execute(
             """
             UPDATE contenido SET
@@ -111,28 +117,31 @@ class AdminRepository:
                 "fecha_estreno": datos.get("fecha_estreno"),
                 "activo": datos.get("activo"),
             },
+            current_user=current_user,
         )
         if "generos" in datos:
-            self._sync_generos(contenido_id, datos["generos"])
+            self._sync_generos(contenido_id, datos["generos"], current_user=current_user)
         if "categorias" in datos:
-            self._sync_categorias(contenido_id, datos["categorias"])
+            self._sync_categorias(contenido_id, datos["categorias"], current_user=current_user)
         self._refresh_cartelera()
         return self.obtener_por_id(contenido_id)
 
     # ---- Eliminar (soft delete) ----
-    def eliminar_contenido(self, contenido_id: str) -> bool:
+    def eliminar_contenido(self, contenido_id: str, current_user: Optional[str] = None) -> bool:
         self.db.execute(
             "UPDATE contenido SET activo = FALSE WHERE id = %(id)s::uuid",
             {"id": contenido_id},
+            current_user=current_user,
         )
         self._refresh_cartelera()
         return True
 
     # ---- Programar estreno ----
-    def programar_estreno(self, contenido_id: str, fecha_estreno: Optional[str]) -> Optional[dict[str, Any]]:
+    def programar_estreno(self, contenido_id: str, fecha_estreno: Optional[str], current_user: Optional[str] = None) -> Optional[dict[str, Any]]:
         self.db.execute(
             "UPDATE contenido SET fecha_estreno = %(fecha)s WHERE id = %(id)s::uuid",
             {"id": contenido_id, "fecha": fecha_estreno},
+            current_user=current_user,
         )
         self._refresh_cartelera()
         return self.obtener_por_id(contenido_id)
@@ -165,10 +174,11 @@ class AdminRepository:
         return row["video_url"] if row else None
 
     # ---- Helpers internos ----
-    def _sync_generos(self, contenido_id: Any, generos: list[str]) -> None:
+    def _sync_generos(self, contenido_id: Any, generos: list[str], current_user: Optional[str] = None) -> None:
         self.db.execute(
             "DELETE FROM contenido_genero WHERE contenido_id = %(id)s::uuid",
             {"id": str(contenido_id)},
+            current_user=current_user,
         )
         for nombre in generos:
             if not nombre.strip():
@@ -185,18 +195,21 @@ class AdminRepository:
                 row = self.db.execute_returning(
                     "INSERT INTO generos (nombre) VALUES (%(n)s) RETURNING id",
                     {"n": nombre_clean},
+                    current_user=current_user,
                 )
                 genero_id = row["id"]
 
             self.db.execute(
                 "INSERT INTO contenido_genero (contenido_id, genero_id) VALUES (%(cid)s::uuid, %(gid)s) ON CONFLICT DO NOTHING",
                 {"cid": str(contenido_id), "gid": genero_id},
+                current_user=current_user,
             )
 
-    def _sync_categorias(self, contenido_id: Any, categorias: list[str]) -> None:
+    def _sync_categorias(self, contenido_id: Any, categorias: list[str], current_user: Optional[str] = None) -> None:
         self.db.execute(
             "DELETE FROM contenido_categoria WHERE contenido_id = %(id)s::uuid",
             {"id": str(contenido_id)},
+            current_user=current_user,
         )
         for nombre in categorias:
             if not nombre.strip():
@@ -213,12 +226,14 @@ class AdminRepository:
                 row = self.db.execute_returning(
                     "INSERT INTO categorias (nombre) VALUES (%(n)s) RETURNING id",
                     {"n": nombre_clean},
+                    current_user=current_user,
                 )
                 categoria_id = row["id"]
 
             self.db.execute(
                 "INSERT INTO contenido_categoria (contenido_id, categoria_id) VALUES (%(cid)s::uuid, %(catid)s) ON CONFLICT DO NOTHING",
                 {"cid": str(contenido_id), "catid": categoria_id},
+                current_user=current_user,
             )
 
     def _refresh_cartelera(self) -> None:

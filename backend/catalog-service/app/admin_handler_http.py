@@ -15,7 +15,9 @@ Rutas:
 import json
 import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Any
+from typing import Any, Optional
+
+import jwt
 
 from .admin_repository import AdminRepository
 from .gcs import MediaStorage
@@ -36,9 +38,36 @@ def _json(data: Any) -> bytes:
 class AdminHTTPHandler(BaseHTTPRequestHandler):
     repo: AdminRepository    # inyectado al crear el servidor
     media: MediaStorage      # idem: resuelve rutas GCS a Signed URLs
+    jwt_secret: str          # idem: para identificar al admin que ejecuta el cambio
 
     def log_message(self, fmt: str, *args: Any) -> None:
         print(f"[admin-http] {fmt % args}", flush=True)
+
+    def _current_user(self) -> Optional[str]:
+        """Identifica al administrador que ejecuta la operacion de escritura.
+
+        Se usa para que el trigger de auditoria (app.current_user) registre al
+        usuario real en lugar de caer a session_user (el rol de BD). Acepta dos
+        fuentes, en orden: el JWT del header Authorization (Bearer) si el gateway
+        lo reenvia, y como respaldo el header X-Usuario-Id. Si no llega ninguno,
+        devuelve None y la auditoria usara session_user como hasta ahora.
+        """
+        auth_header = self.headers.get("Authorization", "")
+        token = ""
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+        elif auth_header:
+            token = auth_header
+        if token:
+            try:
+                claims = jwt.decode(token, self.jwt_secret, algorithms=["HS256"])
+                usuario_id = claims.get("usuario_id")
+                if usuario_id:
+                    return str(usuario_id)
+            except jwt.PyJWTError:
+                pass
+        x_user = self.headers.get("X-Usuario-Id")
+        return x_user or None
 
     def _send(self, status: int, data: Any) -> None:
         body = _json(data)
@@ -102,7 +131,7 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
                 if not datos.get("titulo") or not datos.get("tipo"):
                     self._send(400, {"error": "titulo y tipo son obligatorios"})
                     return
-                nuevo = self.repo.crear_contenido(datos)
+                nuevo = self.repo.crear_contenido(datos, current_user=self._current_user())
                 self._send(201, nuevo)
             except Exception as exc:
                 print(f"[admin-http] ERROR POST: {exc}", flush=True)
@@ -117,7 +146,7 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
             try:
                 datos = self._read_json()
                 print(f"[admin-http] DATOS RECIBIDOS EN PUT: {datos}", flush=True)
-                actualizado = self.repo.actualizar_contenido(m.group(1), datos)
+                actualizado = self.repo.actualizar_contenido(m.group(1), datos, current_user=self._current_user())
                 if actualizado is None:
                     self._send(404, {"error": "no encontrado"})
                 else:
@@ -133,7 +162,7 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
         m = re.fullmatch(r"/admin/contenidos/([^/]+)", path)
         if m:
             try:
-                self.repo.eliminar_contenido(m.group(1))
+                self.repo.eliminar_contenido(m.group(1), current_user=self._current_user())
                 self._send(200, {"ok": True})
             except Exception as exc:
                 print(f"[admin-http] ERROR DELETE: {exc}", flush=True)
@@ -142,8 +171,9 @@ class AdminHTTPHandler(BaseHTTPRequestHandler):
         self._send(404, {"error": "ruta no encontrada"})
 
 
-def make_server(port: int, repo: AdminRepository, media: MediaStorage) -> HTTPServer:
-    # Inyectamos el repo y el media storage en la clase del handler (patron de http.server).
-    handler = type("_H", (AdminHTTPHandler,), {"repo": repo, "media": media})
+def make_server(port: int, repo: AdminRepository, media: MediaStorage, jwt_secret: str = "") -> HTTPServer:
+    # Inyectamos el repo, el media storage y el secret JWT en la clase del
+    # handler (patron de http.server).
+    handler = type("_H", (AdminHTTPHandler,), {"repo": repo, "media": media, "jwt_secret": jwt_secret})
     srv = HTTPServer(("0.0.0.0", port), handler)
     return srv

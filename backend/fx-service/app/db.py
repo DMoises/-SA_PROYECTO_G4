@@ -30,5 +30,35 @@ class Database:
         finally:
             self._pool.putconn(conn)
 
+    def execute(
+        self,
+        sql: str,
+        params: Optional[Sequence[Any]] = None,
+        current_user: Optional[str] = None,
+    ) -> None:
+        """Escritura transaccional sobre fx_db (tipos_cambio / monedas).
+
+        Setea app.current_user con SET LOCAL (set_config is_local=true) dentro
+        de la MISMA transaccion para que el trigger de auditoria registre al
+        usuario real en lugar de session_user (el rol de BD). Sin current_user,
+        la auditoria cae a session_user como hasta ahora.
+        """
+        conn = self._pool.getconn()
+        try:
+            conn.autocommit = False
+            with conn.cursor() as cur:
+                if current_user:
+                    cur.execute(
+                        "SELECT set_config('app.current_user', %s, true)",
+                        (current_user,),
+                    )
+                cur.execute(sql, params)
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            self._pool.putconn(conn)
+
     def close(self) -> None:
         self._pool.closeall()

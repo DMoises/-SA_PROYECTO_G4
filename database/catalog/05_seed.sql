@@ -26,7 +26,7 @@ BEGIN
         'El Ultimo Quetzal',
         'pelicula',
         2024,
-        '+13',
+        '+18',
         118,
         'https://storage.googleapis.com/quetxal-tv/portadas/el-ultimo-quetzal.jpg',
         'https://storage.googleapis.com/quetxal-tv/videos/el-ultimo-quetzal.mp4'

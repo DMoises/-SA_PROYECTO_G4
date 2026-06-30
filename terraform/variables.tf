@@ -111,9 +111,9 @@ variable "gke_cluster_name" {
 }
 
 variable "gke_machine_type" {
-  description = "Tipo de máquina de los nodos de GKE. e2-medium alcanza para la app + monitoreo + Filebeat con requests mínimos (no se redimensiona para no tocar el cluster calificado)."
+  description = "Tipo de máquina de los nodos de GKE. e2-standard-2 (2 vCPU dedicados, 8 GB RAM) da ~1930m allocatable vs ~940m de e2-medium (CPU compartida)."
   type        = string
-  default     = "e2-medium"
+  default     = "e2-standard-2"
 }
 
 variable "gke_node_count" {

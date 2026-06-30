@@ -1,4 +1,10 @@
 ---
-# Playbook maestro: provisiona toda la infraestructura de VMs.
+# Playbook maestro: provisiona TODA la plataforma de VMs + observabilidad, de modo
+# que un rebuild (infra-up apply + run_ansible) la deje completa sin pasos manuales.
+#   - db.yml  -> VM de BD (7 Postgres + Redis) + node_exporter
+#   - dev.yml -> VMs gateway/services (app docker-compose) + node_exporter
+#   - elk.yml -> VM de ELK (Elasticsearch+Logstash+Kibana) + Filebeat en db/dev
+# (monitoring.yml NO se incluye: node_exporter ya lo aplican db.yml y dev.yml.)
 - import_playbook: db.yml
 - import_playbook: dev.yml
+- import_playbook: elk.yml

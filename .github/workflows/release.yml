@@ -34,7 +34,9 @@ jobs:
       - name: Resolver versión semántica
         id: version
         run: |
-          REF="${GITHUB_REF_NAME}"
+          # En disparo por workflow_run, GITHUB_REF_NAME es la rama por defecto (develop),
+          # NO la que disparo el release; la rama real es head_branch del run de CI encadenado.
+          REF="${{ github.event.workflow_run.head_branch || github.ref_name }}"
           if [ -n "${{ github.event.inputs.version }}" ]; then
             VERSION="${{ github.event.inputs.version }}"
           elif [ "$REF" = "release" ]; then

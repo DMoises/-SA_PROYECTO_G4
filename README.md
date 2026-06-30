@@ -2204,18 +2204,19 @@ Las evidencias deben tomarse en el entorno de nube, no en local:
 
 | Evidencia | Archivo PNG | Qué debe mostrar |
 |---|---|---|
-| Pods de monitoreo | `docs/img/prometheus-grafana/k8s-monitoring-pods.png` | Salida de `kubectl -n monitoring get pods` con Prometheus, Grafana y node-exporter en `Running`. |
+| Pods de monitoreo | `docs/manuales/img/gcp2.png` | Vista de cargas de trabajo en GKE con Prometheus, Grafana y node-exporter en namespace `monitoring` con estado `OK`. |
 | Targets de Prometheus | `docs/img/prometheus-grafana/prometheus-targets.png` | Pantalla `Status > Targets` con targets `UP`. |
-| Dashboard general | `docs/img/prometheus-grafana/grafana-dashboard.png` | Dashboard `Quetxal TV - Infraestructura y Red` con CPU, memoria, red y targets. |
-| Telemetría viva | `docs/img/prometheus-grafana/grafana-telemetria-viva.png` | Paneles con variación visible mientras se genera tráfico real. |
+| Dashboard general | `docs/manuales/img/grafana1.png` | Dashboard `Quetxal TV - Infraestructura y Red` con CPU, memoria, red y targets. |
+| Telemetría viva | `docs/manuales/img/grafana2.png` | Paneles con variación visible mientras se genera tráfico real. |
+
+![Pods de monitoreo en GKE: Prometheus, Grafana y node-exporter en estado OK](docs/manuales/img/gcp2.png)
+
+<!-- Pendiente: agregar captura docs/img/prometheus-grafana/prometheus-targets.png -->
+<!-- ![Targets de Prometheus](./docs/img/prometheus-grafana/prometheus-targets.png) -->
 
 ![Dashboard de Grafana: panel "Targets activos" (15 UP) + CPU/memoria/red/pods](docs/manuales/img/grafana1.png)
 
-![Targets de Prometheus](./docs/img/prometheus-grafana/prometheus-targets.png)
-
-![Dashboard de Grafana](./docs/img/prometheus-grafana/grafana-dashboard.png)
-
-![Telemetría viva durante tráfico de carga: pico de red y CPU en el dashboard](/docs/manuales/img/grafana2.png)
+![Telemetría viva durante tráfico de carga: pico de red y CPU en el dashboard](docs/manuales/img/grafana2.png)
 
 Para generar telemetria visible durante la captura:
 

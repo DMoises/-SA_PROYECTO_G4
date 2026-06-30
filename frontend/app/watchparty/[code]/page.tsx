@@ -55,10 +55,20 @@ export default function WatchPartyPage({ params }: { params: Promise<{ code: str
         }
 
         // Obtener video de reproducción (BFF de playback)
+        const playbackHeaders: Record<string, string> = {}
+        const storedProfile = localStorage.getItem('selectedProfile')
+        if (storedProfile) {
+          try {
+            const profile = JSON.parse(storedProfile)
+            if (profile?.id) playbackHeaders['X-Profile-Id'] = profile.id
+          } catch {}
+        }
+
         const resPlayback = await fetch(`/api/playback/${contenidoId}`, {
           method: 'GET',
           credentials: 'include',
           cache: 'no-store',
+          headers: playbackHeaders,
         })
 
         if (resPlayback.status === 401) {

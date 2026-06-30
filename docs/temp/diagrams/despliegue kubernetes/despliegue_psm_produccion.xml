@@ -1,4 +1,4 @@
-<mxGraphModel dx="1664" dy="935" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+<mxGraphModel dx="1571" dy="883" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
   <root>
     <mxCell id="0" />
     <mxCell id="1" parent="0" />
@@ -244,7 +244,7 @@
         <Array as="points">
           <mxPoint x="350" y="233" />
           <mxPoint x="350" y="70" />
-          <mxPoint x="1150" y="70" />
+          <mxPoint x="1130" y="70" />
         </Array>
       </mxGeometry>
     </mxCell>
@@ -257,8 +257,29 @@
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="ighkpL5B4WpIjlxSP8bH-1" parent="1" style="text;whiteSpace=wrap;html=1;" value="&amp;nbsp;" vertex="1">
-      <mxGeometry height="40" width="40" x="340" y="350" as="geometry" />
+    <mxCell id="e_adm_grafana" edge="1" parent="1" source="admin_actor" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=9;labelBackgroundColor=#FFFFFF;dashed=0;" target="grafana" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Grafana :3000">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="70" y="900" />
+          <mxPoint x="782" y="900" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_adm_kibana" edge="1" parent="1" source="admin_actor" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=9;labelBackgroundColor=#FFFFFF;dashed=0;" target="kibana" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Kibana :5601">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="70" y="760" />
+          <mxPoint x="1350" y="760" />
+          <mxPoint x="1350" y="890" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_app_fb" edge="1" parent="1" source="app_box" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#FF6F00;strokeWidth=2;fontColor=#FF6F00;fontSize=9;labelBackgroundColor=#FFFFFF;dashed=1;" target="filebeat" value="&lt;b&gt;&amp;lt;&amp;lt;stdout&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Container Logs">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1210" y="1005" />
+        </Array>
+      </mxGeometry>
     </mxCell>
   </root>
 </mxGraphModel>

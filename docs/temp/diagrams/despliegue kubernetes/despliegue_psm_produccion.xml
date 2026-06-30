@@ -89,6 +89,9 @@
     <mxCell id="cronjob" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#4A148C;fontSize=9;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;CronJob&lt;br&gt;(depuracion)" vertex="1">
       <mxGeometry height="40" width="130" x="1150" y="580" as="geometry" />
     </mxCell>
+    <mxCell id="cronjob2" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#4A148C;fontSize=9;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;CronJob&lt;br&gt;(recomendaciones)" vertex="1">
+      <mxGeometry height="40" width="130" x="1150" y="640" as="geometry" />
+    </mxCell>
     <mxCell id="obs_box" parent="1" style="swimlane;fillColor=#FCE4EC;strokeColor=#B71C1C;fontSize=10;fontStyle=1;startSize=22;" value="Observabilidad — Métricas (namespace monitoring)" vertex="1">
       <mxGeometry height="120" width="770" x="530" y="810" as="geometry" />
     </mxCell>
@@ -113,11 +116,21 @@
     <mxCell id="db_env" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#1A237E;fontSize=10;verticalAlign=top;dashed=1;spacingTop=4;" value="&lt;b&gt;Docker Compose (quetxal-database-vm)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;executionEnvironment&amp;gt;&amp;gt;" vertex="1">
       <mxGeometry height="320" width="340" x="1420" y="260" as="geometry" />
     </mxCell>
-    <mxCell id="pg_db" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=9;boundedLbl=1;backgroundOutline=1;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Bases PostgreSQL&lt;br&gt;(auth, catalog, etc.)" vertex="1">
-      <mxGeometry height="90" width="120" x="1450" y="330" as="geometry" />
+    <!-- Persistencia políglotas — separadas por servicio -->
+    <mxCell id="pg_auth" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DCEDC8;strokeColor=#33691E;fontSize=9;boundedLbl=1;backgroundOutline=1;fontColor=#33691E;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;PostgreSQL&lt;br&gt;auth_db / fx_db" vertex="1">
+      <mxGeometry height="75" width="110" x="1435" y="285" as="geometry" />
     </mxCell>
-    <mxCell id="redis_db" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=9;boundedLbl=1;backgroundOutline=1;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Redis Cache" vertex="1">
-      <mxGeometry height="90" width="120" x="1600" y="330" as="geometry" />
+    <mxCell id="pg_catalog" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DCEDC8;strokeColor=#33691E;fontSize=9;boundedLbl=1;backgroundOutline=1;fontColor=#33691E;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;PostgreSQL&lt;br&gt;catalog_db" vertex="1">
+      <mxGeometry height="75" width="110" x="1565" y="285" as="geometry" />
+    </mxCell>
+    <mxCell id="pg_billing" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DCEDC8;strokeColor=#33691E;fontSize=9;boundedLbl=1;backgroundOutline=1;fontColor=#33691E;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;PostgreSQL&lt;br&gt;billing_db" vertex="1">
+      <mxGeometry height="75" width="110" x="1435" y="375" as="geometry" />
+    </mxCell>
+    <mxCell id="pg_histrat" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DCEDC8;strokeColor=#33691E;fontSize=9;boundedLbl=1;backgroundOutline=1;fontColor=#33691E;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;PostgreSQL&lt;br&gt;history_db / rating_db" vertex="1">
+      <mxGeometry height="75" width="110" x="1565" y="375" as="geometry" />
+    </mxCell>
+    <mxCell id="redis_db" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFE082;strokeColor=#F57F17;fontSize=9;boundedLbl=1;backgroundOutline=1;fontColor=#E65100;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Redis&lt;br&gt;(sessions / cache / pub-sub)" vertex="1">
+      <mxGeometry height="75" width="110" x="1500" y="465" as="geometry" />
     </mxCell>
     <mxCell id="elk_vm" parent="1" style="shape=cube;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontColor=#4A148C;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=5;" value="&lt;b&gt;ELK Server (Google Compute Engine)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;" vertex="1">
       <mxGeometry height="400" width="380" x="1400" y="650" as="geometry" />
@@ -278,6 +291,16 @@
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="1210" y="1005" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- Conexión CronJobs → DB Server (depuración y recomendaciones acceden a las BDs) -->
+    <mxCell id="e_cron_db" edge="1" parent="1" source="cronjob" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#E65100;strokeWidth=2;fontColor=#E65100;fontSize=9;labelBackgroundColor=#FFFFFF;dashed=1;" target="db_vm" value="&lt;b&gt;&amp;lt;&amp;lt;TCP/IP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;DB Access">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1215" y="560" />
+          <mxPoint x="1390" y="560" />
+          <mxPoint x="1390" y="380" />
         </Array>
       </mxGeometry>
     </mxCell>

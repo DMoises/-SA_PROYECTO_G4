@@ -10,6 +10,12 @@ on:
       - main
   workflow_dispatch:
 
+# A nivel workflow: la llamada reutilizable (bootstrap -> provision-infra) hereda el
+# techo de permisos del WORKFLOW, no del job. Sin esto -> startup_failure.
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   # PRE-VUELO: ¿existe la VM gateway (bastión hacia services) de develop? Si no, se
   # aprovisiona la plataforma (provision-infra) y su ansible despliega la app develop.

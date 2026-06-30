@@ -23,6 +23,12 @@ on:
         required: true
         type: string
 
+# A nivel workflow: la llamada reutilizable (bootstrap -> provision-infra) hereda el
+# techo de permisos del WORKFLOW, no del job. Sin esto -> startup_failure.
+permissions:
+  contents: read
+  id-token: write
+
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GKE_CLUSTER: quetxal-cluster    # IMPORTANTE: Cambia esto por el nombre real de tu clúster en GCP

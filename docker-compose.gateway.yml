@@ -15,6 +15,8 @@ services:
       RATING_SERVICE_ADDR: ${RATING_SERVICE_ADDR:-rating-service:50056}
       FX_SERVICE_ADDR: ${FX_SERVICE_ADDR:-fx-service:50053}
       BILLING_SERVICE_ADDR: ${BILLING_SERVICE_ADDR:-billing-service:50052}
+      WATCHPARTY_SERVICE_ADDR: ${WATCHPARTY_SERVICE_ADDR:-watchparty-service:50059}
+      WATCHPARTY_WS_ADDR: ${WATCHPARTY_WS_ADDR:-watchparty-service:8085}
       CATALOG_ADMIN_HTTP_ADDR: ${CATALOG_ADMIN_HTTP_ADDR:-http://catalog-service:8086}
       COOKIE_SECURE: "false"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}

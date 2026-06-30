@@ -1,0 +1,103 @@
+###############################################################################
+# TAREA 3 — Correos de estreno (Backend / Notificaciones)
+#
+# Problema: la plantilla `nuevo_contenido` ya existe en notification-service
+# (backend/notification-service/src/notifications/templates.ts), pero NADA la
+# dispara cuando un título llega a su fecha_estreno. Los estrenos programados a
+# futuro nunca generaban el correo de "nuevo contenido".
+#
+# Solución (STANDALONE, no invasiva): este CronJob ejecuta periódicamente el
+# Job `estreno-notify` (imagen propia, k8s/cronjobs/estreno-notify/), que:
+#   1) Detecta en catalog-db los títulos cuya fecha_estreno ya pasó, siguen
+#      activos y NO han sido notificados (columna notificado_estreno, añadida en
+#      database/catalog/01_schema.sql).
+#   2) Lee los usuarios activos de auth-db (audiencia de la difusión).
+#   3) Encola el correo `nuevo_contenido` por usuario llamando por gRPC a
+#      NotificationService.EncolarCorreo (mismo patrón Outbox que billing-service).
+#   4) Marca notificado_estreno = TRUE SOLO si el encolado fue completo
+#      => idempotencia: un estreno nunca se notifica dos veces.
+#
+# Conectividad: usa los Services internos catalog-db:5432 y auth-db:5432, que
+# vía Endpoints enrutan a la VM de BD externa (10.10.0.10) — misma persistencia
+# aislada de la tarea 9. El destino gRPC notification-service:50054 sale del
+# ConfigMap quetxal-config. Credenciales desde el Secret quetxal-secrets (sin
+# hardcodear), igual patrón que k8s/cronjobs/depuracion-cuentas.yaml.
+#
+# Cadencia: cada 10 minutos. La latencia máxima entre la fecha_estreno y el
+# encolado del correo es, por tanto, < 10 min. Para una demo inmediata:
+#   kubectl create job -n quetxal-tv-prod --from=cronjob/estreno-notify estreno-manual
+# Para un ensayo sin enviar nada, poner DRY_RUN="true".
+###############################################################################
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: estreno-notify
+  namespace: quetxal-tv-prod
+  labels:
+    app: estreno-notify
+    tier: maintenance
+spec:
+  schedule: "*/10 * * * *"        # Cada 10 minutos
+  timeZone: "America/Guatemala"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 120
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 300
+      template:
+        metadata:
+          labels:
+            app: estreno-notify
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: notificador-estrenos
+            image: tu-registro/quetxal-estreno-notify:latest
+            env:
+            - name: TZ
+              value: "America/Guatemala"
+            # Ensayo sin envío: cambiar a "true" para solo contar pendientes.
+            - name: DRY_RUN
+              value: "false"
+            # Destino gRPC de notification-service (ConfigMap).
+            - name: NOTIFICATION_SERVICE_ADDR
+              valueFrom:
+                configMapKeyRef: { name: quetxal-config, key: NOTIFICATION_SERVICE_ADDR }
+            # ---- catalog-db (lectura de estrenos + marca de idempotencia) ----
+            - name: CATALOG_PGHOST
+              value: "catalog-db"
+            - name: CATALOG_PGPORT
+              value: "5432"
+            - name: CATALOG_PGDATABASE
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: CATALOG_DB_NAME }
+            - name: CATALOG_PGUSER
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: CATALOG_DB_USER }
+            - name: CATALOG_PGPASSWORD
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: CATALOG_DB_PASSWORD }
+            # ---- auth-db (audiencia: usuarios activos) ----
+            - name: AUTH_PGHOST
+              value: "auth-db"
+            - name: AUTH_PGPORT
+              value: "5432"
+            - name: AUTH_PGDATABASE
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: AUTH_DB_NAME }
+            - name: AUTH_PGUSER
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: AUTH_DB_USER }
+            - name: AUTH_PGPASSWORD
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: AUTH_DB_PASSWORD }
+            resources:
+              requests:
+                cpu: "25m"
+                memory: "64Mi"
+              limits:
+                cpu: "100m"
+                memory: "128Mi"

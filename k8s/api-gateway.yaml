@@ -30,6 +30,11 @@ spec:
         envFrom:
         - configMapRef:
             name: quetxal-config
+        # La auditoria (/admin/audit-logs) conecta directo a las BDs desde el
+        # gateway. Sin el secret usaria el password por defecto "admin" del
+        # codigo y fallaria la autenticacion contra las 7 BDs -> 500.
+        - secretRef:
+            name: quetxal-secrets
         resources:
           requests:
             memory: "128Mi"

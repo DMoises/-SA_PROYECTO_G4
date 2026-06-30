@@ -21,13 +21,14 @@ terraform {
     }
   }
 
-  # Backend local por defecto. Para trabajo en equipo se recomienda un backend
-  # remoto en GCS (descomenta y crea el bucket de estado aparte):
-  #
-  # backend "gcs" {
-  #   bucket = "quetxal-tv-tfstate"
-  #   prefix = "fase3/infra"
-  # }
+  # Backend remoto en GCS: estado compartido y versionado (bucket con Object
+  # Versioning ON). Permite que GitHub Actions corra terraform sin depender del
+  # tfstate local de una sola máquina. El nombre del bucket no admite variables
+  # (restricción de Terraform), por eso va literal.
+  backend "gcs" {
+    bucket = "quetxal-tv-498705-tfstate"
+    prefix = "fase3/infra"
+  }
 }
 
 provider "google" {

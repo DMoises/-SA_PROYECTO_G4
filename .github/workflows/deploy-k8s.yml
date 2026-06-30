@@ -13,6 +13,15 @@ on:
       version:
         description: 'Tag de versión a desplegar (ej. v2.0.0)'
         required: true
+  # Despliegue REUTILIZABLE: lo invoca infra-up.yml tras un `terraform apply` para
+  # que un rebuild deje la app en GKE sin pasos manuales (no necesita PAT: corre en
+  # el mismo contexto del caller con `secrets: inherit`).
+  workflow_call:
+    inputs:
+      version:
+        description: 'Tag de versión a desplegar (ej. v2.0.0)'
+        required: true
+        type: string
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -22,7 +31,7 @@ env:
 jobs:
   deploy-to-gke:
     # En el encadenamiento automático, solo desplegar si el release fue exitoso.
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -41,8 +50,10 @@ jobs:
     - name: Resolver versión a desplegar
       id: version
       run: |
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          VERSION="${{ github.event.inputs.version }}"
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event_name }}" = "workflow_call" ]; then
+          # Tanto el dispatch manual como la invocación reutilizable (infra-up)
+          # pasan la versión por inputs.version.
+          VERSION="${{ inputs.version }}"
         else
           # Encadenado desde release.yml. OJO: en un workflow_run anidado
           # (CI -> release -> deploy) github.event.workflow_run.head_branch suele

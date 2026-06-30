@@ -70,9 +70,16 @@ env:
 jobs:
   infra:
     runs-on: ubuntu-latest
+    outputs:
+      # Versión publicada (tag SemVer) a desplegar en GKE tras el apply. La consume
+      # el job deploy-app para reconstruir la app sin pasos manuales.
+      version: ${{ steps.relver.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # historial completo
+          fetch-tags: true  # tags SemVer para resolver la última versión a desplegar
 
       - name: Autenticación a GCP (WIF, sin llaves JSON)
         uses: google-github-actions/auth@v2
@@ -157,6 +164,40 @@ jobs:
           # por ProxyJump a través del gateway, definido en el inventario.
           ansible-playbook -i inventory/hosts.gen.ini playbooks/site.yml
 
+      - name: Resolver última versión publicada (para el deploy a GKE)
+        id: relver
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.action == 'apply' }}
+        run: |
+          # El último tag SemVer (vX.Y.Z) ya tiene imágenes en DockerHub publicadas
+          # por release.yml. deploy-app lo desplegará a GKE. Si no hay tag, se omite
+          # el deploy automático (hay que cortar un release primero).
+          git fetch --tags --force --quiet || true
+          V="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)"
+          if [ -z "$V" ]; then
+            echo "⚠️ No hay tag SemVer; se omite el auto-deploy a GKE (cortá un release y dispará deploy-k8s)."
+          else
+            echo "🚀 Última versión a desplegar en GKE: $V"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
       - name: Limpiar secrets renderizados
         if: ${{ always() }}
         run: rm -f ansible/inventory/group_vars/all/secrets.yml
+
+  # ===========================================================================
+  # Despliegue de la app a GKE tras el apply. Llama a deploy-k8s.yml como workflow
+  # reutilizable (mismo contexto + secrets: inherit -> sin PAT). Solo corre si:
+  #   - fue un apply manual, Y
+  #   - se aprovisionaron las VMs (run_ansible: las BD deben estar arriba antes
+  #     de desplegar los microservicios, o el rollout fallaría), Y
+  #   - hay una versión publicada que desplegar.
+  # Con esto, UN solo dispatch (action=apply, run_ansible=true) reconstruye todo:
+  # infra -> VMs+BD+ELK (ansible) -> app en GKE.
+  # ===========================================================================
+  deploy-app:
+    needs: infra
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.action == 'apply' && inputs.run_ansible && needs.infra.outputs.version != '' }}
+    uses: ./.github/workflows/deploy-k8s.yml
+    with:
+      version: ${{ needs.infra.outputs.version }}
+    secrets: inherit

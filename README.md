@@ -1428,25 +1428,24 @@ Intercambio dinámico de mensajes y sincronización.
 
 #### **4.3.3 Diagrama de flujo:**  {#4.3.3-diagrama-de-flujo:}
 <div align="center">
-  <img src="assets/Diagrama_flujo_CICD_QuetxalTV_Proyecto2.png" alt="Modelo 4+1" width="900"/>
+  <img src="assets/Diagrama_flujo_CICD_QuetxalTV_Proyecto3.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 ## Justificación del diseño del pipeline CI/CD
 
-El pipeline CI/CD de Quetxal TV fue diseñado para automatizar la validación, construcción y despliegue de la plataforma, reduciendo errores manuales y asegurando que cada cambio pase por controles antes de llegar a la nube.
+El diagrama de flujo CI/CD fue diseñado para representar de forma ordenada el proceso completo de integración, validación, construcción y despliegue de Quetxal TV, tomando en cuenta las nuevas necesidades de la fase 3 del proyecto, donde ya no solo se busca compilar y desplegar servicios, sino también asegurar calidad, observabilidad, automatización de infraestructura y pruebas posteriores al despliegue.
 
-En la fase de Integración Continua se separaron los jobs por tecnología: Go, TypeScript/NestJS y Python. Esto permite probar cada microservicio con sus propias herramientas y detectar con mayor facilidad en qué stack ocurre un error. Además, cada job ejecuta pruebas unitarias y valida una cobertura mínima del 75%, deteniendo el pipeline si no se cumple el umbral requerido.
+La primera parte del diagrama inicia con el evento de desarrollo, como un push o pull request, esto permite que el pipeline se active automáticamente y ejecute las pruebas unitarias e integración de los microservicios principales, separando las pruebas por tecnología, Go, TypeScript/NestJS y Python, de esta forma se valida que cada servicio cumpla con el umbral mínimo de cobertura requerido antes de avanzar a etapas más críticas. También se incluye la lógica de cortocircuito crítico, ya que si una prueba falla, el flujo se detiene inmediatamente y evita que código inestable llegue a build o despliegue.
 
-Después de las pruebas, el pipeline construye y publica imágenes Docker para los servicios de la aplicación. Esto permite versionar cada componente y mantener trazabilidad entre el código, la imagen generada y el despliegue realizado.
+Después se integra una etapa de infraestructura y configuración, donde Terraform representa la creación declarativa de recursos como VPC, subredes, firewalls, clúster GKE, VMs y servidores externos de base de datos, mientras que Ansible se encarga de preparar las máquinas virtuales con dependencias, Docker, agentes y herramientas necesarias. Esta separación permite demostrar que la infraestructura no se configura manualmente, sino mediante automatización, lo cual hace que el entorno sea replicable y más fácil de mantener.
 
-El flujo de despliegue se divide por ramas. La rama `develop` despliega automáticamente hacia Google Compute Engine usando Docker Compose, funcionando como ambiente de integración en la nube. La rama `release` se orienta al despliegue en Google Kubernetes Engine, aplicando manifiestos de Kubernetes, estrategia RollingUpdate, health checks y rollback automático en caso de fallos.
+El diagrama también divide el flujo según la rama que dispara el pipeline, para develop o main se ejecuta un despliegue en máquinas virtuales usando Docker Compose, orientado a validación en ambiente de staging, mientras que para release se realiza un flujo de producción en Kubernetes sobre GKE, usando versionamiento semántico, despliegue de manifiestos, conexión hacia bases de datos externas en Compute Engine e Ingress como punto único de entrada hacia el API Gateway.
 
-El backup de bases de datos se maneja como un workflow separado y programado, ya que no es necesario generar respaldos en cada push. Este flujo respalda las bases PostgreSQL operacionales y excluye Redis por ser utilizado como caché.
+Además, se agregan las nuevas herramientas de testing solicitadas para la fase 3, incluyendo smoke tests después del despliegue, los cuales verifican que el Gateway, Frontend, servicios críticos, Redis y conexiones principales estén funcionando, y Locust para realizar pruebas de carga ligera sobre rutas críticas, generando un reporte HTML como evidencia de rendimiento. Esto permite validar no solo que el sistema despliegue correctamente, sino que también pueda responder ante concurrencia simulada.
 
-También se separó el flujo de Build & Push Database/Cache y el Deploy Database. La construcción de imágenes de bases de datos solo publica imágenes actualizadas, mientras que el despliegue de bases se ejecuta de forma manual/controlada para evitar afectar volúmenes o datos persistentes.
+Finalmente, el diagrama incluye la parte de observabilidad continua mediante Prometheus y Grafana para métricas, y ELK para centralización de logs, esto permite monitorear el comportamiento del sistema después del despliegue, detectar errores, revisar consumo de recursos y analizar eventos relevantes. Por esta razón, el flujo no termina únicamente cuando la aplicación se publica, sino cuando se valida que el despliegue es estable, medible y observable.
 
-Finalmente, el pipeline utiliza GitHub Secrets para proteger credenciales sensibles como tokens, llaves SSH, usuarios, contraseñas e información de conexión. Con esta estructura, el proceso queda organizado, seguro, trazable y alineado con una arquitectura de microservicios desplegada en la nube.
-
+En conclusión, el diagrama justifica una arquitectura DevOps completa para Quetxal TV, porque integra control de calidad, automatización, despliegue diferenciado por rama, validaciones post-deploy, pruebas de carga y monitoreo, cumpliendo con el requerimiento de presentar un diagrama de flujo de CI/CD con las nuevas herramientas de testing y observabilidad solicitadas en la fase 3.
 
 ### **4.4 Vista de Desarrollo (Componentes)** {#4.4-vista-de-desarrollo-(componentes)}
 

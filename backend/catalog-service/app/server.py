@@ -53,7 +53,7 @@ def serve() -> None:
 
     # Servidor HTTP admin (CRUD interno, solo accesible desde la red Docker).
     admin_repo = AdminRepository(db)
-    http_srv = make_server(cfg.admin_http_port, admin_repo, media)
+    http_srv = make_server(cfg.admin_http_port, admin_repo, media, cfg.jwt_secret)
     http_thread = threading.Thread(target=http_srv.serve_forever, daemon=True)
     http_thread.start()
     print(f"catalog-service admin HTTP en :{cfg.admin_http_port}", flush=True)

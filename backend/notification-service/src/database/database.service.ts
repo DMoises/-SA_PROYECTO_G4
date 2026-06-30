@@ -1,5 +1,5 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { Pool, QueryResult, QueryResultRow } from 'pg';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 
 // Acceso a notification_db con node-postgres (sin ORM, como exige el
 // enunciado). Expone un metodo query tipado.
@@ -22,6 +22,13 @@ export class DatabaseService implements OnModuleDestroy {
     params?: unknown[],
   ): Promise<QueryResult<T>> {
     return this.pool.query<T>(text, params);
+  }
+
+  // Conexion dedicada para transacciones (BEGIN/COMMIT). Se usa cuando hay que
+  // setear app.current_user con SET LOCAL en la misma transaccion de la
+  // escritura, igual que el DatabaseService del billing-service.
+  async getClient(): Promise<PoolClient> {
+    return this.pool.connect();
   }
 
   async onModuleDestroy(): Promise<void> {

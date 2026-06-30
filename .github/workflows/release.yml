@@ -117,6 +117,21 @@ jobs:
           done
 
       # =========================================================
+      # TAREAS PROGRAMADAS: CronJobs con imagen propia (fuera de backend/)
+      # =========================================================
+      - name: Build y Push -> CronJob estreno-notify
+        if: hashFiles('k8s/cronjobs/estreno-notify/Dockerfile') != ''
+        run: |
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO="${USER}/quetxal-estreno-notify"
+          echo "⏰ Empaquetando CronJob estreno-notify ${VERSION}"
+          docker buildx build --push -f k8s/cronjobs/estreno-notify/Dockerfile \
+            -t ${REPO}:${VERSION} \
+            -t ${REPO}:latest \
+            ./k8s/cronjobs/estreno-notify
+
+      # =========================================================
       # CAPA DE PERSISTENCIA: Bases de Datos Políglotas
       # =========================================================
       - name: Build y Push -> Bases de Datos

@@ -1,3 +1,9 @@
+-- vw_cartelera: cartelera pública. Es una VISTA MATERIALIZADA, por lo que el
+-- filtro `fecha_estreno <= NOW()` se evalua en el ULTIMO refresco (NOW() congelado).
+-- Para que un estreno programado se vuelva visible automaticamente en su fecha,
+-- el CronJob `refresh-cartelera` (k8s/cronjobs/refresh-cartelera-cronjob.yaml)
+-- ejecuta `REFRESH MATERIALIZED VIEW CONCURRENTLY vw_cartelera` cada 5 minutos.
+-- El indice UNIQUE de mas abajo (idx_vw_cartelera_id) es requisito de CONCURRENTLY.
 CREATE MATERIALIZED VIEW IF NOT EXISTS vw_cartelera AS
 SELECT
     c.id AS contenido_id,

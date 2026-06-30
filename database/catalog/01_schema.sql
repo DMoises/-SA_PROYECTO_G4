@@ -18,6 +18,13 @@ CREATE TABLE contenido (
 
     activo         BOOLEAN            NOT NULL DEFAULT TRUE,
 
+    -- TAREA 3 — Correos de estreno: bandera de idempotencia. El CronJob
+    -- estreno-notify (k8s/cronjobs/estreno-notify-cronjob.yaml) detecta los
+    -- títulos cuya fecha_estreno ya pasó y que todavía tienen este flag en
+    -- FALSE, encola el correo `nuevo_contenido` por usuario y solo entonces lo
+    -- marca en TRUE. Así un mismo estreno nunca se notifica dos veces.
+    notificado_estreno BOOLEAN        NOT NULL DEFAULT FALSE,
+
     CONSTRAINT chk_anio CHECK (anio IS NULL OR anio BETWEEN 1888 AND 2100)
 );
 
@@ -85,6 +92,12 @@ CREATE TABLE reparto (
 
 CREATE INDEX idx_contenido_titulo ON contenido (lower(titulo));
 CREATE INDEX idx_contenido_fecha_estreno ON contenido (fecha_estreno);
+-- TAREA 3 — índice parcial que sirve la consulta del CronJob de estrenos:
+-- solo títulos activos, ya estrenados y aún sin notificar (mismo patrón que
+-- idx_buzon_pendientes en database/notification/01_schema.sql).
+CREATE INDEX idx_contenido_estrenos_pendientes
+    ON contenido (fecha_estreno)
+    WHERE activo AND NOT notificado_estreno;
 CREATE INDEX idx_temp_cont ON temporadas (contenido_id);
 CREATE INDEX idx_epi_temp  ON episodios (temporada_id);
 CREATE INDEX idx_rep_actor ON reparto (actor_id);

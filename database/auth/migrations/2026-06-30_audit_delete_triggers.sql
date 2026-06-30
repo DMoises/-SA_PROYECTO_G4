@@ -1,3 +1,24 @@
+-- Migracion: habilita auditoria de DELETE en auth-db (TAREA 1).
+-- Re-crea trg_fn_auditar_transaccion (ahora maneja DELETE: estado_anterior=
+-- registro borrado, estado_nuevo=NULL) y re-define los triggers de
+-- auditoria como AFTER INSERT OR UPDATE OR DELETE.
+--
+-- Por que: el DDL de triggers de 05_audit.sql solo corre en el primer
+-- arranque (directorio de datos vacio). En una auth-db que YA existe, los
+-- triggers siguen como AFTER INSERT OR UPDATE y los DELETE no se auditan.
+--
+-- Idempotente: usa CREATE OR REPLACE FUNCTION/TRIGGER (requiere PostgreSQL 14+;
+-- las imagenes de BD usan postgres:16). Se puede correr mas de una vez.
+--
+-- Como aplicarla:
+--   Docker (VM de BD):  docker exec -i quetxal-auth-db \
+--                         psql -U "$AUTH_DB_USER" -d "$AUTH_DB_NAME" \
+--                         < database/auth/migrations/2026-06-30_audit_delete_triggers.sql
+--
+--   BD externa (Fase 3, VM 10.10.0.10): usar psql -h 10.10.0.10 -p <puerto-auth>
+--   con $AUTH_DB_USER / $AUTH_DB_NAME y -f sobre este archivo.
+-- ------------------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS auditoria_transaccional (
     id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     usuario_responsable VARCHAR(255) NOT NULL,
@@ -33,10 +54,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_usuarios
+CREATE OR REPLACE TRIGGER trg_audit_usuarios
     AFTER INSERT OR UPDATE OR DELETE ON usuarios
     FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
 
-CREATE TRIGGER trg_audit_perfiles
+CREATE OR REPLACE TRIGGER trg_audit_perfiles
     AFTER INSERT OR UPDATE OR DELETE ON perfiles
     FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

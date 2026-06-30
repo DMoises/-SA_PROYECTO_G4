@@ -1,0 +1,89 @@
+###############################################################################
+# TAREA 2 — Visibilidad automática de estrenos (Backend / Datos)
+#
+# Problema: `vw_cartelera` (database/catalog/03_views.sql) es una VISTA
+# MATERIALIZADA cuyo filtro es `c.fecha_estreno IS NULL OR c.fecha_estreno <= NOW()`.
+# Al ser materializada, ese NOW() queda CONGELADO en el último refresco; un título
+# programado a futuro NO aparece al llegar su fecha_estreno hasta que algo dispare
+# un REFRESH (hoy solo ocurría al sembrar o cuando un admin guardaba cambios).
+#
+# Solución (no invasiva, sin tocar el esquema ni el catalog-service): este CronJob
+# refresca la vista materializada periódicamente, de modo que cada estreno se
+# vuelve visible automáticamente dentro de la ventana del schedule (5 min).
+#
+# Refresco: se usa REFRESH MATERIALIZED VIEW CONCURRENTLY, que NO bloquea lecturas
+# (la cartelera sigue sirviéndose mientras se refresca). CONCURRENTLY requiere un
+# índice UNIQUE, ya presente: idx_vw_cartelera_id (database/catalog/03_views.sql).
+# Si en la BD existe el procedimiento sp_RefrescarCartelera() (otras ramas lo
+# añaden en 02_functions.sql), el efecto es idéntico; aquí se ejecuta el REFRESH
+# directo para no depender de objetos que pueden no estar presentes en esta rama.
+#
+# Conectividad: usa el Service interno `catalog-db:5432`, que vía Endpoints enruta a
+# la VM de BD externa (10.10.0.10:5434) — la misma persistencia aislada de la tarea 9.
+# Credenciales: tomadas del Secret `quetxal-secrets` (sin hardcodear), igual patrón
+# que k8s/cronjobs/depuracion-cuentas.yaml.
+#
+# Cadencia: cada 5 minutos. La latencia máxima entre la fecha_estreno y la
+# aparición del título en cartelera es, por tanto, < 5 min. Para la demo se puede
+# lanzar un Job manual inmediato:
+#   kubectl create job -n quetxal-tv-prod --from=cronjob/refresh-cartelera refresh-manual
+###############################################################################
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: refresh-cartelera
+  namespace: quetxal-tv-prod
+  labels:
+    app: refresh-cartelera
+    tier: maintenance
+spec:
+  schedule: "*/5 * * * *"         # Cada 5 minutos
+  timeZone: "America/Guatemala"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 120
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 120
+      template:
+        metadata:
+          labels:
+            app: refresh-cartelera
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: refrescador
+            image: postgres:16-alpine
+            env:
+            - name: TZ
+              value: "America/Guatemala"
+            - name: PGHOST
+              value: "catalog-db"
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: CATALOG_DB_NAME }
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: CATALOG_DB_USER }
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef: { name: quetxal-secrets, key: CATALOG_DB_PASSWORD }
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              set -e
+              echo "[refresh-cartelera] $(date) inicio — refrescando vista materializada vw_cartelera"
+              psql -v ON_ERROR_STOP=1 -X -c \
+                "REFRESH MATERIALIZED VIEW CONCURRENTLY vw_cartelera;"
+              echo "[refresh-cartelera] $(date) fin — cartelera actualizada"
+            resources:
+              requests:
+                cpu: "25m"
+                memory: "32Mi"
+              limits:
+                cpu: "100m"
+                memory: "64Mi"

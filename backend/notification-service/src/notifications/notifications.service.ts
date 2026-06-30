@@ -34,17 +34,17 @@ export class NotificationsService {
       const datos = n.payload ?? {};
       const to = datos.email;
       if (!to) {
-        await this.repo.marcarFallido(n.id);
+        await this.repo.marcarFallido(n.id, n.usuario_id);
         this.logger.warn(`Correo ${n.id} sin destinatario; marcado fallido`);
         continue;
       }
       const { subject, html } = renderPlantilla(n.tipo, datos);
       try {
         await this.mailer.enviar(to, subject, html);
-        await this.repo.marcarEnviado(n.id);
+        await this.repo.marcarEnviado(n.id, n.usuario_id);
         this.logger.log(`Correo ${n.id} enviado a ${to}`);
       } catch (err) {
-        await this.repo.marcarFallido(n.id);
+        await this.repo.marcarFallido(n.id, n.usuario_id);
         this.logger.error(`Fallo al enviar ${n.id}: ${(err as Error).message}`);
       }
     }

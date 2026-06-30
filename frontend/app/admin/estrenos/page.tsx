@@ -13,11 +13,29 @@ type ContentItem = {
 
 type ScheduleEntry = ContentItem & { nueva_fecha: string }
 
+// UTC almacenado (ISO) -> valor para <input type="datetime-local"> en hora LOCAL (YYYY-MM-DDTHH:mm).
+// Los getters sin sufijo UTC (getHours, etc.) ya devuelven la hora en la zona del navegador,
+// que es justo lo que el input espera.
 function toLocalDatetime(iso: string | null): string {
   if (!iso) return ''
   const d = new Date(iso)
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+// Valor del <input type="datetime-local"> (hora LOCAL, YYYY-MM-DDTHH:mm) -> ISO en UTC.
+// Se construye el Date a partir de sus componentes numericos porque el constructor numerico
+// SIEMPRE interpreta los argumentos como hora local. Asi se evita el parser de cadenas de Date,
+// que segun el spec de ECMAScript es ambiguo: trata las formas date-only ("YYYY-MM-DD") como UTC
+// y solo las date-time ("YYYY-MM-DDTHH:mm") como locales. Esa mezcla local<->UTC era el desfase.
+function fromLocalDatetime(value: string | undefined): string | null {
+  if (!value) return null
+  const [datePart, timePart] = value.split('T')
+  const [year, month, day] = datePart.split('-').map(Number)
+  const [hour, minute] = (timePart ?? '00:00').split(':').map(Number)
+  const d = new Date(year, month - 1, day, hour, minute, 0, 0)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toISOString()
 }
 
 export default function EstrenosPage() {
@@ -51,9 +69,7 @@ export default function EstrenosPage() {
   const handleSave = async (item: ContentItem) => {
     setSaving(item.contenido_id)
     try {
-      const fechaISO = localDates[item.contenido_id]
-        ? new Date(localDates[item.contenido_id]).toISOString()
-        : null
+      const fechaISO = fromLocalDatetime(localDates[item.contenido_id])
       const r = await fetch(`/api/admin/catalog/${item.contenido_id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

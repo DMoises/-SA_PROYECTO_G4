@@ -33,6 +33,10 @@ jobs:
       with:
         # En el deploy automático tomamos el commit exacto del release; en el manual, la rama actual.
         ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+        # Traemos historial + tags: la versión del release se resuelve por el tag
+        # SemVer que release.yml creó sobre ESTE commit (ver paso siguiente).
+        fetch-depth: 0
+        fetch-tags: true
 
     - name: Resolver versión a desplegar
       id: version
@@ -40,14 +44,28 @@ jobs:
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           VERSION="${{ github.event.inputs.version }}"
         else
-          # Misma versión que produjo el release: sale del nombre de la rama que lo disparó.
+          # Encadenado desde release.yml. OJO: en un workflow_run anidado
+          # (CI -> release -> deploy) github.event.workflow_run.head_branch suele
+          # llegar como 'develop' y NO como 'release/vX.Y.Z', así que NO podemos
+          # confiar en él (este era el bug que rompía el auto-deploy del release).
+          #
+          # Fuente de verdad robusta: el tag SemVer que release.yml creó y pusheó
+          # sobre ESTE mismo commit. Lo leemos con git tag --points-at HEAD.
           REF="${{ github.event.workflow_run.head_branch }}"
-          if [ "$REF" = "release" ]; then
-            VERSION="$(tr -d '[:space:]' < VERSION)"
-          elif [[ "$REF" =~ ^release/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-            VERSION="${BASH_REMATCH[1]}"
-          else
-            echo "❌ ERROR: el release vino de la rama '$REF', que no es válida (usa 'release' o 'release/vX.Y.Z')"; exit 1
+          git fetch --tags --force --quiet || true
+          VERSION="$(git tag --points-at HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
+
+          # Fallbacks si el tag aún no estuviera visible: rama release/vX.Y.Z directa.
+          if [ -z "$VERSION" ]; then
+            if [[ "$REF" =~ ^release/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              VERSION="${BASH_REMATCH[1]}"
+            elif [ "$REF" = "release" ]; then
+              VERSION="$(tr -d '[:space:]' < VERSION)"
+            fi
+          fi
+
+          if [ -z "$VERSION" ]; then
+            echo "❌ ERROR: no pude resolver la versión a desplegar (sin tag SemVer sobre HEAD y REF='$REF' no es una rama release). Dispará el deploy manualmente con el input 'version'."; exit 1
           fi
         fi
         if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then

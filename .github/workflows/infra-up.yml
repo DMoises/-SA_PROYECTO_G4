@@ -1,0 +1,162 @@
+name: Infra Up (Terraform + Ansible)
+
+###############################################################################
+# Eslabón de PROVISIÓN que faltaba en el pipeline (Fase 3).
+#
+# Levanta la PLATAFORMA de AMBOS ambientes desde cero tras un `terraform destroy`:
+#   1) terraform apply  -> red, GKE (vacío), VMs dev/services/db/elk, IPs, discos,
+#                          firewalls, SAs, NAT  (estado remoto en GCS).
+#   2) ansible-playbook -> Docker + disco + 7 Postgres/Redis + node_exporter en las VMs.
+#
+# Después de esto, las cadenas de app ya existentes se encargan del resto:
+#   - develop: PR a develop -> build imágenes -> deploy-gateway/services
+#   - release: rama release/vX.Y.Z -> release.yml -> deploy-k8s (cluster ya existe)
+#
+# -------------------------------------------------------------------------
+# PRERREQUISITOS (una sola vez, fuera de este workflow):
+#   * El estado vive en gs://quetxal-tv-498705-tfstate (Object Versioning ON).
+#   * La service account de WIF (secrets.WIF_SERVICE_ACCOUNT) necesita, ADEMÁS de
+#     los permisos de deploy a GKE, permisos para CREAR infra y leer/escribir el
+#     state. Roles mínimos sugeridos en el proyecto:
+#       - roles/storage.objectAdmin    (sobre el bucket de tfstate)
+#       - roles/compute.admin
+#       - roles/container.admin
+#       - roles/iam.serviceAccountAdmin + roles/iam.serviceAccountUser
+#       - roles/resourcemanager.projectIamAdmin   (Terraform crea IAM bindings)
+#       - roles/serviceusage.serviceUsageAdmin     (habilita APIs)
+#     Sin estos roles, `terraform apply` falla por permisos (no es un bug del YAML).
+#   * Secrets requeridos: WIF_PROVIDER, WIF_SERVICE_ACCOUNT, GCP_PROJECT_ID,
+#     SSH_KEY (privada ed25519 que se inyecta a las VMs), y las passwords de BD
+#     (+ REDIS_PASSWORD, DOCKERHUB_TOKEN) que Ansible renderiza en los .env.
+###############################################################################
+
+on:
+  # Bring-up / cambios de infra a demanda. apply y ansible quedan detrás de inputs
+  # explícitos para que NADIE aplique infra por accidente.
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform: plan (solo lectura) o apply (crea/modifica infra)'
+        type: choice
+        options: [plan, apply]
+        default: plan
+      run_ansible:
+        description: 'Tras un apply, aprovisionar las VMs con ansible-playbook'
+        type: boolean
+        default: false
+  # En PRs que tocan la infra: SOLO plan (no aplica nada). Sirve de revisión.
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - 'terraform/**'
+      - 'ansible/**'
+      - '.github/workflows/infra-up.yml'
+
+permissions:
+  contents: read
+  id-token: write   # Workload Identity Federation
+
+concurrency:
+  # Nunca dos corridas de infra a la vez (el state remoto se bloquea, pero evitamos
+  # encolar applies en paralelo).
+  group: infra-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TF_DIR: terraform
+  TF_VAR_ssh_user: ubuntu
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  infra:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Autenticación a GCP (WIF, sin llaves JSON)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Preparar llave SSH (Terraform la inyecta a las VMs; Ansible la usa)
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # La pública se deriva de la privada y se le pasa a Terraform por la var
+          # ssh_public_key_path (data.tf hace file(pathexpand(...))).
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
+          echo "TF_VAR_ssh_public_key_path=$HOME/.ssh/id_ed25519.pub" >> "$GITHUB_ENV"
+
+      - name: Terraform Init (backend GCS)
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Terraform Apply
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.action == 'apply' }}
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
+        run: terraform apply -input=false -auto-approve tfplan
+
+      # ----------------------------------------------------------------------
+      # Aprovisionamiento de las VMs (solo tras un apply y si se pidió).
+      # ----------------------------------------------------------------------
+      - name: Instalar Ansible
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.action == 'apply' && inputs.run_ansible }}
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
+
+      - name: Renderizar secrets de Ansible desde GitHub Secrets
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.action == 'apply' && inputs.run_ansible }}
+        run: |
+          # Fichero efímero en el runner (gitignored en el repo). GitHub enmascara
+          # los secretos en los logs. Equivale al secrets.yml que se mantiene a mano.
+          cat > ansible/inventory/group_vars/all/secrets.yml <<'YAML'
+          vault_auth_db_password: "${{ secrets.AUTH_DB_PASSWORD }}"
+          vault_subscription_db_password: "${{ secrets.SUBSCRIPTION_DB_PASSWORD }}"
+          vault_catalog_db_password: "${{ secrets.CATALOG_DB_PASSWORD }}"
+          vault_rating_db_password: "${{ secrets.RATING_DB_PASSWORD }}"
+          vault_fx_db_password: "${{ secrets.FX_DB_PASSWORD }}"
+          vault_history_db_password: "${{ secrets.HISTORY_DB_PASSWORD }}"
+          vault_notification_db_password: "${{ secrets.NOTIFICATION_DB_PASSWORD }}"
+          vault_redis_password: "${{ secrets.REDIS_PASSWORD }}"
+          vault_dockerhub_token: "${{ secrets.DOCKERHUB_TOKEN }}"
+          vault_jwt_secret: "${{ secrets.JWT_SECRET }}"
+          YAML
+
+      - name: Ansible Playbook (site.yml = db + dev)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.action == 'apply' && inputs.run_ansible }}
+        working-directory: ansible
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          # El inventario hosts.gen.ini lo acaba de generar `terraform apply`
+          # (outputs.tf -> local_file). Las VMs privadas (services/elk) se alcanzan
+          # por ProxyJump a través del gateway, definido en el inventario.
+          ansible-playbook -i inventory/hosts.gen.ini playbooks/site.yml
+
+      - name: Limpiar secrets renderizados
+        if: ${{ always() }}
+        run: rm -f ansible/inventory/group_vars/all/secrets.yml

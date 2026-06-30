@@ -81,7 +81,7 @@ spec:
               echo "[depuracion] $(date) fin"
             resources:
               requests:
-                cpu: "25m"
+                cpu: "10m"
                 memory: "32Mi"
               limits:
                 cpu: "100m"

@@ -29,9 +29,58 @@ env:
   GKE_ZONE: us-central1-a         # IMPORTANTE: Cambia esto por la zona de tu clúster
 
 jobs:
-  deploy-to-gke:
-    # En el encadenamiento automático, solo desplegar si el release fue exitoso.
+  # ---------------------------------------------------------------------------
+  # PRE-VUELO: ¿existe la plataforma (cluster de GKE)? Si no, se aprovisiona antes
+  # de desplegar. Así un `terraform destroy` no rompe el flujo: cualquier deploy
+  # se auto-reconstruye (crea-si-falta) en vez de fallar por "no existe".
+  # ---------------------------------------------------------------------------
+  precheck:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    outputs:
+      cluster_missing: ${{ steps.check.outputs.missing }}
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+      - name: ¿Existe el cluster de GKE?
+        id: check
+        run: |
+          if gcloud container clusters describe "${{ env.GKE_CLUSTER }}" \
+               --zone "${{ env.GKE_ZONE }}" --project "${{ secrets.GCP_PROJECT_ID }}" >/dev/null 2>&1; then
+            echo "✓ Cluster ${{ env.GKE_CLUSTER }} existe — se despliega directo."
+            echo "missing=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "✗ Cluster ${{ env.GKE_CLUSTER }} NO existe — se aprovisionará la plataforma primero."
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Si la plataforma no existe, la crea (terraform apply + ansible) ANTES del deploy.
+  # provision-infra es una hoja (no invoca a deploy-k8s) => sin recursión.
+  bootstrap:
+    needs: precheck
+    if: ${{ needs.precheck.outputs.cluster_missing == 'true' }}
+    uses: ./.github/workflows/provision-infra.yml
+    with:
+      run_ansible: true
+    secrets: inherit
+
+  deploy-to-gke:
+    needs: [precheck, bootstrap]
+    # Corre si: el evento es válido (release/dispatch/call), el precheck pasó, y el
+    # bootstrap tuvo éxito O se saltó (la plataforma ya existía).
+    if: >-
+      ${{ always()
+      && (github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event.workflow_run.conclusion == 'success')
+      && needs.precheck.result == 'success'
+      && (needs.bootstrap.result == 'success' || needs.bootstrap.result == 'skipped') }}
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'

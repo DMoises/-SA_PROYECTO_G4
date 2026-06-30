@@ -1,0 +1,109 @@
+name: Provision Infra (reusable)
+
+###############################################################################
+# Workflow REUTILIZABLE (hoja) que aprovisiona la PLATAFORMA de forma idempotente:
+#   terraform apply  -> red, GKE (vacío), VMs (db/dev/elk), IPs, discos, NAT, SAs
+#   ansible site.yml -> Docker + 7 Postgres/Redis + app de las VMs dev + ELK
+#
+# "Crea si no existe, converge si ya existe" — es la naturaleza de `terraform apply`.
+# NO despliega la app a GKE (eso lo hace deploy-k8s): así NO hay recursión
+# (provision-infra es una hoja; nadie de aquí llama a deploy-k8s).
+#
+# Lo invocan:
+#   - infra-up.yml      (bring-up manual / PR-plan)        [futuro: DRY]
+#   - deploy-k8s.yml    (pre-vuelo: si el cluster no existe, lo crea antes de desplegar)
+#
+# Requiere los mismos secrets/roles que infra-up (WIF con permisos de infra, SSH_KEY,
+# passwords de BD). Se hereda con `secrets: inherit` desde el caller.
+###############################################################################
+
+on:
+  workflow_call:
+    inputs:
+      run_ansible:
+        description: 'Aprovisionar las VMs con ansible tras el apply'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write   # Workload Identity Federation
+
+env:
+  TF_DIR: terraform
+  TF_VAR_ssh_user: ubuntu
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Autenticación a GCP (WIF, sin llaves JSON)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Preparar llave SSH (Terraform la inyecta a las VMs; Ansible la usa)
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
+          echo "TF_VAR_ssh_public_key_path=$HOME/.ssh/id_ed25519.pub" >> "$GITHUB_ENV"
+
+      - name: Terraform Init (backend GCS)
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Apply (idempotente — crea si falta, converge si existe)
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
+        run: terraform apply -input=false -auto-approve
+
+      - name: Instalar Ansible
+        if: ${{ inputs.run_ansible }}
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
+
+      - name: Renderizar secrets de Ansible desde GitHub Secrets
+        if: ${{ inputs.run_ansible }}
+        run: |
+          cat > ansible/inventory/group_vars/all/secrets.yml <<'YAML'
+          vault_auth_db_password: "${{ secrets.AUTH_DB_PASSWORD }}"
+          vault_subscription_db_password: "${{ secrets.SUBSCRIPTION_DB_PASSWORD }}"
+          vault_catalog_db_password: "${{ secrets.CATALOG_DB_PASSWORD }}"
+          vault_rating_db_password: "${{ secrets.RATING_DB_PASSWORD }}"
+          vault_fx_db_password: "${{ secrets.FX_DB_PASSWORD }}"
+          vault_history_db_password: "${{ secrets.HISTORY_DB_PASSWORD }}"
+          vault_notification_db_password: "${{ secrets.NOTIFICATION_DB_PASSWORD }}"
+          vault_redis_password: "${{ secrets.REDIS_PASSWORD }}"
+          vault_dockerhub_token: "${{ secrets.DOCKERHUB_TOKEN }}"
+          vault_jwt_secret: "${{ secrets.JWT_SECRET }}"
+          YAML
+
+      - name: Ansible Playbook (site.yml = db + dev + elk)
+        if: ${{ inputs.run_ansible }}
+        working-directory: ansible
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          # hosts.gen.ini lo acaba de generar `terraform apply` (outputs.tf -> local_file).
+          ansible-playbook -i inventory/hosts.gen.ini playbooks/site.yml
+
+      - name: Limpiar secrets renderizados
+        if: ${{ always() }}
+        run: rm -f ansible/inventory/group_vars/all/secrets.yml

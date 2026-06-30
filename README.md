@@ -70,8 +70,10 @@ Para establecer los límites del sistema sin involucrar decisiones tecnológicas
   ![Core de Negocio](./assets/f2/core.png)  
 * **2.1.2 Primera Descomposición (Procesos de Negocio):**   
   Para hacer el sistema manejable y preparar la segregación de los futuros microservicios, descompusimos el Core en 7 procesos de negocio lógicos:  
-  ![Primera Descomposición](./assets/f2/primeraDescomposicion.png)
 
+<div align="center">
+  <img src="./docs/img/modelo4vistas/Cdu1ra.png" alt="Modelo 4+1" width="900"/>
+</div>
 
 ### **2.2 Catálogo de Stakeholders y Responsabilidades** {#2.2-catálogo-de-stakeholders-y-responsabilidades}
 
@@ -134,6 +136,20 @@ Estos drivers definen las características operacionales exactas que el sistema 
 | **RF-23** | Almacenamiento / GCS (Python) | El sistema debe desacoplar la multimedia pesada (portadas y video) hacia Buckets de Google Cloud Storage y servirla al frontend mediante URLs firmadas. | Alta |
 | **RF-24** | Auditoría (Transversal · SQL nativo) | El sistema debe registrar automáticamente, mediante triggers en el motor de base de datos, toda operación INSERT/UPDATE/DELETE (usuario responsable, timestamp, tabla afectada, estado anterior y estado nuevo) en una tabla exclusiva de auditoría por microservicio. | Alta |
 | **RF-25** | Reportes / Administración | El sistema debe generar y exportar el reporte de auditoría del Panel de Administración en formatos `.csv` y PDF, accesible únicamente al rol Administrador. | Media |
+| **RF-26** | Catálogo / Recomendaciones (Python) | El sistema debe generar automáticamente una sección **"Recomendados para Ti"**, utilizando el historial de reproducción, las calificaciones del perfil y un algoritmo de recomendación basado en contenido. | Alta |
+| **RF-27** | Control Parental (Go) | El sistema debe permitir configurar un PIN parental de cuatro dígitos asociado a un perfil específico. | Alta |
+| **RF-28** | Control Parental (Go) | El sistema debe validar el PIN parental antes de permitir la reproducción de contenido restringido para perfiles infantiles. | Alta |
+| **RF-29** | Control Parental (Go) | El sistema debe bloquear automáticamente la reproducción cuando la clasificación del contenido exceda el nivel permitido para el perfil seleccionado. | Alta |
+| **RF-30** | Watch Party (TypeScript) | El sistema debe permitir a usuarios con plan Premium crear una sala Watch Party para sincronizar la reproducción de contenido multimedia. | Alta |
+| **RF-31** | Watch Party (TypeScript) | El sistema debe generar un código o enlace único para compartir la sala Watch Party con otros usuarios invitados. | Media |
+| **RF-32** | Watch Party (TypeScript) | El sistema debe sincronizar las acciones de reproducir, pausar, adelantar y retroceder mediante WebSockets para todos los participantes de una Watch Party. | Alta |
+| **RF-33** | Descargas (Python) | El sistema debe permitir la descarga simulada de contenido únicamente cuando el plan de suscripción lo permita. | Media |
+| **RF-34** | Descargas (Python) | El sistema debe validar el tipo de plan antes de habilitar la descarga de cualquier contenido multimedia. | Alta |
+| **RF-35** | Administración (Python) | El sistema debe permitir al Administrador gestionar la clasificación de contenido utilizada por el Control Parental. | Media |
+| **RF-36** | Observabilidad (ELK) | El sistema debe registrar automáticamente los eventos relevantes de autenticación, reproducción, suscripciones, administración y errores para su análisis mediante ELK Stack. | Alta |
+| **RF-37** | Observabilidad (Kibana) | El sistema debe permitir al Administrador consultar dashboards de monitoreo, auditoría y trazabilidad desde Kibana. | Media |
+| **RF-38** | Observabilidad (Logstash) | El sistema debe recolectar y centralizar los logs generados por todos los microservicios mediante Filebeat y Logstash antes de almacenarlos en Elasticsearch. | Alta |
+
 
 #### 2.4.2 Drivers de Atributos de Calidad (Escenarios EAC): {#2.4.2-drivers-de-atributos-de-calidad-(escenarios-eac):}
 
@@ -146,6 +162,11 @@ Los Requerimientos No Funcionales se formalizan a través de Escenarios de Atrib
 | **EAC-03** | Seguridad (Autorización) | **Fuente:** Cliente (Frontend Web/Mobile) o atacante externo. **Estímulo:** Intento de acceso a un endpoint protegido (ej. modificar perfil o cobro) en la red interna. **Entorno:** Internet público (Zona Desmilitarizada DMZ). **Artefacto:** API Gateway (Enrutador de borde). **Respuesta:** El Gateway intercepta la petición, exige la presencia de un Token JWT y valida matemáticamente su firma antes de enrutar. **Medida:** Rechazo absoluto (HTTP 401 Unauthorized) del 100% de las peticiones que carezcan de un token válido y firmado. |
 | **EAC-04** | Disponibilidad / Despliegue (Zero-Downtime) · *Fase 2* | **Fuente:** Pipeline de CD (rama `release`). **Estímulo:** Despliegue de una nueva versión de imágenes a GKE. **Entorno:** Usuarios consumiendo streaming de video en producción. **Artefacto:** Deployments de Kubernetes con estrategia RollingUpdate (`maxUnavailable=0`, `maxSurge=1`). **Respuesta:** El clúster actualiza los Pods de forma progresiva sin cortar las transmisiones activas y ejecuta rollback automático (`kubectl rollout undo`) si un Pod entra en `CrashLoopBackOff`. **Medida:** Cero Pods indisponibles durante el rollout; el servicio se mantiene disponible y la reversión ante fallo de arranque es automática. |
 | **EAC-05** | Integridad / Trazabilidad (Auditoría) · *Fase 2* | **Fuente:** Cualquier microservicio con base de datos relacional. **Estímulo:** Operación transaccional (INSERT/UPDATE/DELETE) sobre una tabla operacional. **Entorno:** Operación normal y ante intentos de fraude o fallas. **Artefacto:** Triggers de auditoría en el motor PostgreSQL. **Respuesta:** Cada cambio queda registrado de forma inmutable en la tabla exclusiva de auditoría con usuario responsable, timestamp y estados anterior/nuevo, dentro de la misma transacción del negocio. **Medida:** 100% de las operaciones transaccionales auditadas; ningún cambio queda sin rastro. |
+| **EAC-06** | Observabilidad | **Fuente:** Cualquier microservicio. **Estímulo:** Se genera un evento de negocio o un error. **Entorno:** Operación normal del sistema. **Artefacto:** ELK Stack (Filebeat, Logstash, Elasticsearch y Kibana). **Respuesta:** El evento es recolectado, procesado y almacenado para consulta centralizada. **Medida:** El 100% de los eventos críticos debe estar disponible en Kibana en menos de 10 segundos. |
+| **EAC-07** | Seguridad | **Fuente:** Usuario Suscriptor. **Estímulo:** Intenta reproducir contenido restringido. **Entorno:** Plataforma en producción. **Artefacto:** Control Parental. **Respuesta:** El sistema valida el PIN antes de permitir la reproducción. **Medida:** El 100% del contenido restringido requiere validación del PIN. |
+| **EAC-08** | Rendimiento | **Fuente:** Usuario Premium. **Estímulo:** Crea una Watch Party. **Entorno:** Operación concurrente. **Artefacto:** Servicio Watch Party mediante WebSockets. **Respuesta:** El sistema sincroniza los eventos de reproducción entre todos los participantes. **Medida:** La diferencia máxima de sincronización entre clientes no debe superar los 500 ms. |
+| **EAC-09** | Disponibilidad | **Fuente:** Usuario Suscriptor. **Estímulo:** Solicita recomendaciones personalizadas. **Entorno:** Operación normal del sistema. **Artefacto:** Motor de Recomendaciones. **Respuesta:** Si el usuario no posee historial suficiente, el sistema devuelve contenido general sin producir errores. **Medida:** Tiempo máximo de respuesta de 300 ms. |
+| **EAC-10** | Rendimiento | **Fuente:** Usuario con plan habilitado. **Estímulo:** Solicita descargar contenido. **Entorno:** Plataforma en producción. **Artefacto:** Servicio de Descargas. **Respuesta:** El sistema valida el plan antes de habilitar la descarga simulada. **Medida:** La validación debe completarse en menos de 200 ms. |
 
 #### 2.4.3 Drivers de Restricción: {#2.4.3-drivers-de-restricción:}
 
@@ -158,7 +179,11 @@ Estas son las limitantes impuestas por el entorno, el cliente o la dirección t�
 | **RES-03** | Desarrollo y Gobernanza | Queda estrictamente prohibido el uso de herramientas de autogeneración de bases de datos o de ORMs mágicos como Prisma o Supabase. | Toda inserción, actualización o migración debe programarse manualmente. |
 | **RES-04** | Persistencia y Lógica | Es mandatorio delegar lógica pesada y de auditoría a los motores de bases de datos. | Implementación obligatoria en código SQL nativo de Procedimientos Almacenados, Vistas Materializadas, Funciones y Triggers. |
 | **RES-05** | Infraestructura y Despliegue | La arquitectura física debe ser contenerizada mediante Docker y orquestada con docker-compose. El despliegue a producción debe realizarse obligatoriamente en GCP. | Uso de Máquinas Virtuales (Compute Engine) para segmentar el ecosistema, prohibiendo despliegues manuales fuera de contenedores. |
-
+| **RES-06** | Observabilidad | Todos los microservicios deberán emitir logs estructurados en formato JSON compatibles con ELK Stack. | Permite centralizar los registros de todos los servicios en Elasticsearch para su análisis mediante Kibana. |
+| **RES-07** | Seguridad | Todo contenido clasificado para mayores de edad deberá validar el Control Parental antes de iniciar la reproducción cuando el perfil tenga restricciones configuradas. | Incorpora una capa adicional de autorización antes del acceso al contenido multimedia. |
+| **RES-08** | Comunicación | La sincronización de Watch Party deberá implementarse utilizando WebSockets para garantizar eventos de reproducción en tiempo real. | Reduce la latencia y mantiene sincronizados a todos los participantes de la sesión compartida. |
+| **RES-09** | Arquitectura | El algoritmo de recomendaciones deberá ejecutarse dentro del **Catalog Service**, evitando crear un microservicio independiente para recomendaciones. | Disminuye la complejidad de la arquitectura y reutiliza el servicio de catálogo existente. |
+| **RES-10** | Alcance Funcional | Las descargas implementadas en esta fase serán simuladas y no almacenarán contenido permanente ni implementarán mecanismos DRM. | Mantiene el alcance del proyecto sin requerir infraestructura adicional de gestión de contenido offline. |
 ### 2.5 Modelado de Casos de Uso Expandidos (Nivel CIM)
 
 Esta seccion documenta graficamente la expansion de los procesos de negocio definidos en la primera descomposicion. Cada diagrama representa un Modulo del sistema y establece la base visual de donde se extrajeron matematicamente los Drivers de Requerimientos Funcionales (RF). Las imagenes a continuacion demuestran la interaccion directa de los actores externos con el sistema, eliminando cualquier ambiguedad operativa.<br/><br/>
@@ -384,7 +409,7 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 - CDU-N3-03: Consultar Ficha Técnica y Reparto
 - CDU-N3-04: Gestionar Filtros
 
-![Módulo 3](./assets/f2/catalogo.png)  <br/><br/>
+![Módulo 3](./docs/img/modelo4vistas/cdu300f3.png)  <br/><br/>
 
 
 
@@ -457,7 +482,39 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 | **Reglas de calidad** | Los resultados filtrados deben mostrarse en menos de 2 segundos. La interfaz debe mostrar visualmente los filtros activos en todo momento. El campo de búsqueda por título debe funcionar con búsqueda en tiempo real o al presionar Enter. |
 
 ---
+### Especificación CDU-N3-05 — Consultar Recomendados para Ti
 
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Consultar Recomendados para Ti |
+| **Código** | CDU-N3-05 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite al usuario visualizar una sección personalizada de contenido recomendado según su historial de reproducción y calificaciones previas. |
+| **Precondiciones** | El usuario debe tener sesión activa y un perfil seleccionado. |
+| **Post Condiciones** | El sistema muestra una lista personalizada de recomendaciones. |
+| **Flujo principal** | 1. El usuario ingresa al catálogo. 2. El sistema consulta historial y calificaciones del perfil. 3. El sistema calcula afinidad por géneros. 4. El sistema muestra la sección “Recomendados para ti”. |
+| **Flujos alternos** | **FA1 — Sin historial:** El sistema muestra contenido general del catálogo. **FA2 — Error de consulta:** Se muestra catálogo sin personalización. |
+| **Reglas de negocio** | Las recomendaciones se generan con base en historial, calificaciones y géneros del contenido. |
+| **Reglas de calidad** | El cálculo debe responder rápidamente y no bloquear la carga del catálogo. |
+
+---
+
+### Especificación CDU-N3-06 — Descargar Contenido
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Descargar Contenido |
+| **Código** | CDU-N3-06 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite solicitar la descarga simulada de un contenido, siempre que el plan del usuario lo permita. |
+| **Precondiciones** | El usuario debe tener sesión activa y un plan válido para descarga. |
+| **Post Condiciones** | El contenido queda disponible para descarga simulada o se muestra restricción por plan. |
+| **Flujo principal** | 1. El usuario selecciona un contenido. 2. Solicita descargarlo. 3. El sistema valida el plan. 4. Si el plan es permitido, habilita la descarga simulada. |
+| **Flujos alternos** | **FA1 — Plan no permitido:** El sistema bloquea la descarga. **FA2 — Contenido no disponible:** Se muestra mensaje de error. |
+| **Reglas de negocio** | La descarga solo se permite según la restricción definida para el plan correspondiente. |
+| **Reglas de calidad** | La validación del plan debe realizarse antes de habilitar cualquier descarga. |
+
+---
 
 ### Modulo 4: Sistema de Calificaciones y Recomendaciones
 
@@ -856,6 +913,155 @@ Esta seccion documenta graficamente la expansion de los procesos de negocio defi
 
 ---
 
+## Módulo 9: Control Parental
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/cdu9f3.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+### Especificación CDU-N9-01 — Bloquear Contenido por Clasificación
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Bloquear Contenido por Clasificación |
+| **Código** | CDU-N9-01 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite bloquear la reproducción de contenido no apto para perfiles restringidos o infantiles. |
+| **Precondiciones** | El perfil debe tener configuraciones de control parental. |
+| **Post Condiciones** | El contenido se bloquea o solicita validación con PIN. |
+| **Flujo principal** | 1. El usuario intenta reproducir un contenido. 2. El sistema revisa la clasificación del contenido. 3. El sistema compara la clasificación con el tipo de perfil. 4. Si existe restricción, solicita PIN parental. |
+| **Flujos alternos** | **FA1 — Contenido permitido:** El sistema deja continuar la reproducción. **FA2 — Perfil sin PIN:** El sistema solicita configurar control parental. |
+| **Reglas de negocio** | Los perfiles infantiles no pueden reproducir contenido restringido sin autorización. |
+| **Reglas de calidad** | La validación debe ejecutarse antes de iniciar la reproducción. |
+
+---
+
+### Especificación CDU-N9-02 — Validar PIN Parental
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Validar PIN Parental |
+| **Código** | CDU-N9-02 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite validar el PIN parental de 4 dígitos para autorizar la reproducción de contenido restringido. |
+| **Precondiciones** | El contenido debe estar restringido y el perfil debe tener PIN configurado. |
+| **Post Condiciones** | El acceso queda autorizado o denegado. |
+| **Flujo principal** | 1. El sistema solicita el PIN. 2. El usuario ingresa el PIN. 3. El sistema compara el PIN ingresado. 4. Si es correcto, autoriza la reproducción. |
+| **Flujos alternos** | **FA1 — PIN incorrecto:** Se bloquea la reproducción. **FA2 — PIN vacío:** Se solicita ingresarlo nuevamente. |
+| **Reglas de negocio** | El PIN debe tener 4 dígitos. |
+| **Reglas de calidad** | El PIN no debe mostrarse en texto plano. |
+
+---
+
+### Especificación CDU-N9-03 — Configurar PIN Parental
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Configurar PIN Parental |
+| **Código** | CDU-N9-03 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite configurar o actualizar un PIN parental para proteger perfiles específicos. |
+| **Precondiciones** | El usuario debe tener sesión activa y permisos sobre la cuenta. |
+| **Post Condiciones** | El perfil queda protegido con PIN parental. |
+| **Flujo principal** | 1. El usuario selecciona el perfil. 2. Activa control parental. 3. Ingresa un PIN de 4 dígitos. 4. El sistema guarda la configuración. |
+| **Flujos alternos** | **FA1 — PIN inválido:** El sistema solicita un PIN válido. **FA2 — Error de guardado:** Se muestra mensaje de error. |
+| **Reglas de negocio** | El PIN debe asociarse al perfil seleccionado. |
+| **Reglas de calidad** | La configuración debe almacenarse de forma segura. |
+
+---
+
+## Módulo 10: Watch Party
+
+<div align="center">
+  <img src="./docs/img/modelo4vistas/cdu10f3.png" alt="Modelo 4+1" width="900"/>
+</div>
+---
+
+### Especificación CDU-N10-01 — Crear Sala Watch Party
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Crear Sala Watch Party |
+| **Código** | CDU-N10-01 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite crear una sala de reproducción sincronizada en tiempo real. |
+| **Precondiciones** | El usuario debe tener sesión activa y plan Premium. |
+| **Post Condiciones** | Se crea una sala con enlace o código de invitación. |
+| **Flujo principal** | 1. El usuario selecciona contenido. 2. Solicita crear Watch Party. 3. El sistema valida el plan Premium. 4. El sistema crea la sala y genera código de invitación. |
+| **Flujos alternos** | **FA1 — Usuario no Premium:** Se deniega la creación de la sala. **FA2 — Contenido no disponible:** No se crea la sala. |
+| **Reglas de negocio** | Solo usuarios Premium pueden crear salas Watch Party. |
+| **Reglas de calidad** | La sala debe crearse sin afectar la reproducción normal del contenido. |
+
+---
+
+### Especificación CDU-N10-02 — Invitar Usuarios a Watch Party
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Invitar Usuarios a Watch Party |
+| **Código** | CDU-N10-02 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite compartir un enlace o código para que otros usuarios se unan a la sala. |
+| **Precondiciones** | Debe existir una sala Watch Party activa. |
+| **Post Condiciones** | Los invitados reciben o utilizan el código de acceso. |
+| **Flujo principal** | 1. El sistema genera código de invitación. 2. El usuario comparte el enlace. 3. Otro usuario utiliza el código para unirse. |
+| **Flujos alternos** | **FA1 — Código expirado:** Se deniega el acceso. **FA2 — Sala cerrada:** No se permite unirse. |
+| **Reglas de negocio** | Usuarios Básico o Estándar pueden unirse si fueron invitados. |
+| **Reglas de calidad** | El código debe ser único y temporal. |
+
+---
+
+### Especificación CDU-N10-03 — Unirse a Watch Party
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Unirse a Watch Party |
+| **Código** | CDU-N10-03 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite que un usuario ingrese a una sala Watch Party usando un código o enlace. |
+| **Precondiciones** | La sala debe estar activa y el código debe ser válido. |
+| **Post Condiciones** | El usuario queda conectado a la sala. |
+| **Flujo principal** | 1. El usuario ingresa el código. 2. El sistema valida la sala. 3. El usuario se conecta por WebSocket. 4. Se une a la reproducción sincronizada. |
+| **Flujos alternos** | **FA1 — Código inválido:** Se deniega el acceso. **FA2 — Sala llena o cerrada:** Se muestra mensaje de error. |
+| **Reglas de negocio** | El usuario invitado puede unirse aunque no sea Premium. |
+| **Reglas de calidad** | La conexión debe mantenerse estable durante la sesión. |
+
+---
+
+### Especificación CDU-N10-04 — Sincronizar Reproducción en Tiempo Real
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Sincronizar Reproducción en Tiempo Real |
+| **Código** | CDU-N10-04 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Permite sincronizar reproducción, pausa y avance entre los usuarios conectados a una sala Watch Party. |
+| **Precondiciones** | El usuario debe estar dentro de una sala activa. |
+| **Post Condiciones** | Todos los participantes mantienen la reproducción sincronizada. |
+| **Flujo principal** | 1. El anfitrión inicia reproducción. 2. El sistema envía evento por WebSocket. 3. Los usuarios reciben el estado actualizado. 4. La reproducción se sincroniza. |
+| **Flujos alternos** | **FA1 — Desconexión:** El usuario puede reconectarse. **FA2 — Latencia alta:** El sistema reajusta el tiempo de reproducción. |
+| **Reglas de negocio** | La sala debe mantener un estado único de reproducción. |
+| **Reglas de calidad** | La sincronización debe ser cercana al tiempo real. |
+
+---
+
+### Especificación CDU-N10-05 — Validar Plan Premium
+
+| Campo | Descripción |
+|---|---|
+| **Nombre** | Validar Plan Premium |
+| **Código** | CDU-N10-05 |
+| **Actores** | Usuario Suscriptor |
+| **Descripción** | Verifica si el usuario tiene plan Premium antes de permitir la creación de una sala Watch Party. |
+| **Precondiciones** | El usuario debe tener sesión activa. |
+| **Post Condiciones** | Se autoriza o deniega la creación de la sala. |
+| **Flujo principal** | 1. El usuario solicita crear Watch Party. 2. El sistema consulta el plan. 3. Si es Premium, permite continuar. |
+| **Flujos alternos** | **FA1 — Plan no Premium:** Se bloquea la creación de la sala. |
+| **Reglas de negocio** | Solo el plan Premium puede crear Watch Party. |
+| **Reglas de calidad** | La validación debe ser previa a la creación de la sala. |
+
+
+
 ## **3\. Gobernanza y Entrelazamiento (Matrices de Trazabilidad)** {#3.-gobernanza-y-entrelazamiento-(matrices-de-trazabilidad)}
 
 
@@ -1036,9 +1242,6 @@ Esta sección formaliza las relaciones de Fase 2 que en la primera entrega queda
 </div>
 
 ### Vista Logica
-<div align="center">
-  <img src="./docs/img/modelo4vistas/vistaLogica.png" alt="Modelo 4+1" width="900"/>
-</div>
 
 ### Administradir
 
@@ -1046,7 +1249,7 @@ Esta sección formaliza las relaciones de Fase 2 que en la primera entrega queda
   <img src="./docs/img/modelo4vistas/admin.png" alt="Modelo 4+1" width="900"/>
 </div>
 
-### Invitador
+### Invitado
 
 <div align="center">
   <img src="./docs/img/modelo4vistas/invitado.png" alt="Modelo 4+1" width="900"/>
@@ -1055,18 +1258,18 @@ Esta sección formaliza las relaciones de Fase 2 que en la primera entrega queda
 ### Registrado
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/registrado.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/secUsuarioRegistrado.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 ### Suscriptor
 <div align="center">
-  <img src="./docs/img/modelo4vistas/suscriptor.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/secUsuarioSuscriptor.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 ### Vista +1
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/v+1.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/v+1fase3.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 ### Vista de Despliegue
@@ -1179,9 +1382,14 @@ A continuación, se detalla el Modelo Entidad-Relación y los componentes implem
 
 Flujos de trabajo de los procesos de negocio.
 
-**1. Actividades de usuario:**
+**1. Actividades de usuario Registrado:**
 <div align="center">
-  <img src="./docs/img/modelo4vistas/Flujosusuario.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/actividadesUReg.png" alt="Modelo 4+1" width="900"/>
+</div>
+
+**1. Actividades de usuario Suscriptor:**
+<div align="center">
+  <img src="./docs/img/modelo4vistas/actividadesUSuscriptor.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 **2. Actividades del administrador:**
@@ -1202,16 +1410,16 @@ Intercambio dinámico de mensajes y sincronización.
 **2. Usuario Registrado:**
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/registrado.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/secUsuarioRegistrado.png" alt="Modelo 4+1" width="900"/>
 </div>
 
 **3. Usuario Suscriptor:**
 
 <div align="center">
-  <img src="./docs/img/modelo4vistas/suscriptor.png" alt="Modelo 4+1" width="900"/>
+  <img src="./docs/img/modelo4vistas/secUsuarioSuscriptor.png" alt="Modelo 4+1" width="900"/>
 </div>
 
-**4. Usuario Suscriptor:**
+**4. Administrador:**
 <div align="center">
   <img src="./docs/img/modelo4vistas/admin.png" alt="Modelo 4+1" width="900"/>
 </div>

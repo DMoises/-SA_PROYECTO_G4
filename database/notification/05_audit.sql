@@ -33,4 +33,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_buzon_salida AFTER INSERT OR UPDATE OR DELETE ON buzon_salida FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_buzon_salida AFTER INSERT OR UPDATE OR DELETE ON buzon_salida FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

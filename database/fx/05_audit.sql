@@ -33,5 +33,5 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_monedas AFTER INSERT OR UPDATE OR DELETE ON monedas FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_tipos_cambio AFTER INSERT OR UPDATE OR DELETE ON tipos_cambio FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_monedas AFTER INSERT OR UPDATE OR DELETE ON monedas FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_tipos_cambio AFTER INSERT OR UPDATE OR DELETE ON tipos_cambio FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

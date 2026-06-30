@@ -20,7 +20,9 @@ data:
   CATALOG_SERVICE_ADDR: "catalog-service:50055"
   RATING_SERVICE_ADDR: "rating-service:50056"
   HISTORY_SERVICE_ADDR: "history-service:50057"
-  
+  WATCHPARTY_SERVICE_ADDR: "watchparty-service:50059"
+  WATCHPARTY_WS_ADDR: "watchparty-service:8085"
+
   # DB Internal Hosts & Ports
   AUTH_DB_HOST: "auth-db"
   AUTH_DB_PORT_INTERNAL: "5432"

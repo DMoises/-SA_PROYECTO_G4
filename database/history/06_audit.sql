@@ -33,4 +33,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_progreso_reproduccion AFTER INSERT OR UPDATE OR DELETE ON progreso_reproduccion FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_progreso_reproduccion AFTER INSERT OR UPDATE OR DELETE ON progreso_reproduccion FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

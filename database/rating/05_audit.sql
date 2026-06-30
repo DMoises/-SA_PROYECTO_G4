@@ -33,5 +33,5 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_calificacion_usuario AFTER INSERT OR UPDATE OR DELETE ON calificacion_usuario FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_resumen_recomendacion AFTER INSERT OR UPDATE OR DELETE ON resumen_recomendacion FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_calificacion_usuario AFTER INSERT OR UPDATE OR DELETE ON calificacion_usuario FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_resumen_recomendacion AFTER INSERT OR UPDATE OR DELETE ON resumen_recomendacion FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

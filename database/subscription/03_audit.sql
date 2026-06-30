@@ -33,6 +33,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_planes AFTER INSERT OR UPDATE OR DELETE ON planes FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_suscripciones AFTER INSERT OR UPDATE OR DELETE ON suscripciones FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_pagos AFTER INSERT OR UPDATE OR DELETE ON pagos FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_planes AFTER INSERT OR UPDATE OR DELETE ON planes FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_suscripciones AFTER INSERT OR UPDATE OR DELETE ON suscripciones FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_pagos AFTER INSERT OR UPDATE OR DELETE ON pagos FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

@@ -33,12 +33,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_contenido AFTER INSERT OR UPDATE OR DELETE ON contenido FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_generos AFTER INSERT OR UPDATE OR DELETE ON generos FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_categorias AFTER INSERT OR UPDATE OR DELETE ON categorias FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_contenido_genero AFTER INSERT OR UPDATE OR DELETE ON contenido_genero FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_contenido_categoria AFTER INSERT OR UPDATE OR DELETE ON contenido_categoria FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_temporadas AFTER INSERT OR UPDATE OR DELETE ON temporadas FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_episodios AFTER INSERT OR UPDATE OR DELETE ON episodios FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_actores AFTER INSERT OR UPDATE OR DELETE ON actores FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
-CREATE TRIGGER trg_audit_reparto AFTER INSERT OR UPDATE OR DELETE ON reparto FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_contenido AFTER INSERT OR UPDATE OR DELETE ON contenido FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_generos AFTER INSERT OR UPDATE OR DELETE ON generos FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_categorias AFTER INSERT OR UPDATE OR DELETE ON categorias FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_contenido_genero AFTER INSERT OR UPDATE OR DELETE ON contenido_genero FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_contenido_categoria AFTER INSERT OR UPDATE OR DELETE ON contenido_categoria FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_temporadas AFTER INSERT OR UPDATE OR DELETE ON temporadas FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_episodios AFTER INSERT OR UPDATE OR DELETE ON episodios FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_actores AFTER INSERT OR UPDATE OR DELETE ON actores FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
+CREATE OR REPLACE TRIGGER trg_audit_reparto AFTER INSERT OR UPDATE OR DELETE ON reparto FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

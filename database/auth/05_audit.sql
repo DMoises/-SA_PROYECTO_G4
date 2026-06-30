@@ -33,10 +33,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_audit_usuarios
+CREATE OR REPLACE TRIGGER trg_audit_usuarios
     AFTER INSERT OR UPDATE OR DELETE ON usuarios
     FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();
 
-CREATE TRIGGER trg_audit_perfiles
+CREATE OR REPLACE TRIGGER trg_audit_perfiles
     AFTER INSERT OR UPDATE OR DELETE ON perfiles
     FOR EACH ROW EXECUTE FUNCTION trg_fn_auditar_transaccion();

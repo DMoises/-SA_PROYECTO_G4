@@ -11,9 +11,56 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-services:
-    runs-on: ubuntu-latest
+  # PRE-VUELO: ¿existe la VM gateway (bastión hacia services) de develop? Si no, se
+  # aprovisiona la plataforma (provision-infra) y su ansible despliega la app develop.
+  precheck:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    outputs:
+      vm_missing: ${{ steps.check.outputs.missing }}
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+      - name: ¿Existe la VM gateway de develop?
+        id: check
+        run: |
+          if gcloud compute instances describe quetxal-dev-gateway-vm \
+               --zone us-central1-a --project "${{ secrets.GCP_PROJECT_ID }}" >/dev/null 2>&1; then
+            echo "✓ quetxal-dev-gateway-vm existe — redeploy incremental por SSH."
+            echo "missing=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "✗ quetxal-dev-gateway-vm NO existe — se aprovisiona la plataforma."
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Si la VM no existe, crea la plataforma (terraform + ansible). El ansible YA
+  # despliega los microservicios develop, por eso el SSH de abajo se omite tras
+  # un bootstrap (evita usar GATEWAY_VM_IP, que quedaría obsoleto).
+  bootstrap:
+    needs: precheck
+    if: ${{ needs.precheck.outputs.vm_missing == 'true' }}
+    uses: ./.github/workflows/provision-infra.yml
+    with:
+      run_ansible: true
+    secrets: inherit
+
+  deploy-services:
+    needs: [precheck, bootstrap]
+    runs-on: ubuntu-latest
+    # Redeploy incremental por SSH SOLO si la VM ya existía (bootstrap saltado).
+    if: >-
+      ${{ always()
+      && (github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch')
+      && needs.precheck.result == 'success'
+      && needs.bootstrap.result == 'skipped' }}
 
     env:
       REMOTE_WORKDIR: "/home/${{ secrets.SSH_USER }}/quetxal"

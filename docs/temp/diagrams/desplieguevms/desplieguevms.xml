@@ -27,10 +27,10 @@
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
     <mxCell id="vm2" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontStyle=1;fontSize=10;fontColor=#1B5E20;verticalAlign=top;spacingTop=8;size=14;" value="VM 2: Red Privada de Lógica Ubuntu Server 22.04 LTS" vertex="1">
-      <mxGeometry height="560" width="380" x="810" y="180" as="geometry" />
+      <mxGeometry height="620" width="380" x="810" y="180" as="geometry" />
     </mxCell>
     <mxCell id="d2" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#E8F5E9;strokeColor=#388E3C;fontStyle=2;fontSize=9;fontColor=#2E7D32;verticalAlign=top;spacingTop=6;size=10;" value="docker-compose.cloud.yml Docker Engine" vertex="1">
-      <mxGeometry height="470" width="340" x="830" y="250" as="geometry" />
+      <mxGeometry height="530" width="340" x="830" y="250" as="geometry" />
     </mxCell>
     <mxCell id="ms_id" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;auth-service&lt;/div&gt;&lt;div&gt;Contenedor / Go&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="295" as="geometry" />
@@ -52,6 +52,9 @@
     </mxCell>
     <mxCell id="ms_notif" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;notification-service&lt;/div&gt;&lt;div&gt;Contenedor / TypeScript&lt;/div&gt;" vertex="1">
       <mxGeometry height="48" width="200" x="845" y="655" as="geometry" />
+    </mxCell>
+    <mxCell id="ms_wp" parent="1" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2E7D32;fontStyle=1;fontSize=9;" value="&lt;div&gt;watchparty-service&lt;/div&gt;&lt;div&gt;Contenedor / Go (WS :8085)&lt;/div&gt;" vertex="1">
+      <mxGeometry height="48" width="200" x="845" y="715" as="geometry" />
     </mxCell>
     <mxCell id="vm3" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#FFF9C4;strokeColor=#F9A825;fontStyle=1;fontSize=10;fontColor=#F57F17;verticalAlign=top;spacingTop=8;size=14;" value="VM 3: Red Privada de Persistencia Ubuntu Server 22.04 LTS" vertex="1">
       <mxGeometry height="720" width="290" x="1250" y="180" as="geometry" />

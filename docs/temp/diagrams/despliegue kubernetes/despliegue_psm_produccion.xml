@@ -90,8 +90,8 @@
     <mxCell id="cronjob" parent="1" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;CronJob&lt;br&gt;(depuracion)" style="shape=module;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#4A148C;fontSize=9;" vertex="1">
       <mxGeometry x="1150" y="580" width="130" height="40" as="geometry"/>
     </mxCell>
-    <mxCell id="obs_box" parent="1" value="&lt;b&gt;Observabilidad (namespace monitoring)&lt;/b&gt;" style="swimlane;fillColor=#FCE4EC;strokeColor=#B71C1C;fontSize=10;fontStyle=1;startSize=22;" vertex="1">
-      <mxGeometry x="530" y="810" width="770" height="200" as="geometry"/>
+    <mxCell id="obs_box" parent="1" value="&lt;b&gt;Observabilidad — Métricas (namespace monitoring)&lt;/b&gt;" style="swimlane;fillColor=#FCE4EC;strokeColor=#B71C1C;fontSize=10;fontStyle=1;startSize=22;" vertex="1">
+      <mxGeometry x="530" y="810" width="770" height="120" as="geometry"/>
     </mxCell>
     <mxCell id="prom" parent="1" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Prometheus" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=9;" vertex="1">
       <mxGeometry x="550" y="850" width="120" height="40" as="geometry"/>
@@ -102,8 +102,11 @@
     <mxCell id="node_exp" parent="1" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Node Exporter" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=9;" vertex="1">
       <mxGeometry x="850" y="850" width="120" height="40" as="geometry"/>
     </mxCell>
+    <mxCell id="log_box" parent="1" value="&lt;b&gt;Observabilidad — Logs (namespace logging)&lt;/b&gt;" style="swimlane;fillColor=#FFF8E1;strokeColor=#FF6F00;fontSize=10;fontStyle=1;startSize=22;" vertex="1">
+      <mxGeometry x="530" y="945" width="770" height="90" as="geometry"/>
+    </mxCell>
     <mxCell id="filebeat" parent="1" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Filebeat (Logs DaemonSet)" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=9;" vertex="1">
-      <mxGeometry x="550" y="930" width="150" height="40" as="geometry"/>
+      <mxGeometry x="550" y="985" width="170" height="40" as="geometry"/>
     </mxCell>
     <mxCell id="db_vm" parent="1" value="&lt;b&gt;DB Server (Google Compute Engine)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;" style="shape=cube;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#FFF3E0;strokeColor=#E65100;fontColor=#E65100;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=5;" vertex="1">
       <mxGeometry x="1400" y="200" width="380" height="400" as="geometry"/>
@@ -132,6 +135,12 @@
     <mxCell id="kibana" parent="1" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Kibana" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=9;" vertex="1">
       <mxGeometry x="1525" y="870" width="120" height="40" as="geometry"/>
     </mxCell>
+    <mxCell id="gcs" parent="1" value="&lt;b&gt;Cloud Storage (GCS)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;br&gt;Multimedia · Signed URLs v4" style="shape=cube;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#E0F7FA;strokeColor=#006064;fontColor=#006064;fontSize=10;fontStyle=1;verticalAlign=top;spacingTop=5;" vertex="1">
+      <mxGeometry x="1400" y="1080" width="380" height="120" as="geometry"/>
+    </mxCell>
+    <mxCell id="e_cat_gcs" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Signed URL v4 (Workload Identity)" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#006064;strokeWidth=2;fontColor=#006064;fontSize=9;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" source="ms_catalog" target="gcs">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
     <mxCell id="e_usr_ing" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Web / API" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="user_actor" target="ingress">
       <mxGeometry relative="1" as="geometry"/>
     </mxCell>
@@ -159,7 +168,7 @@
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_ing_wp" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;WS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;WebSockets:8085" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="ingress" target="ms8">
+    <mxCell id="e_ing_wp" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;WS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;WebSockets:8085" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="ingress" target="ms_watchparty">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="615" y="360"/>
@@ -203,21 +212,21 @@
     <mxCell id="e_kib_es" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;:9200" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="kibana" target="elastic">
       <mxGeometry relative="1" as="geometry"/>
     </mxCell>
-    <mxCell id="e_tf_gcp" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Cloud API" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="tf_comp" target="gcp">
+    <mxCell id="e_tf_gcp" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Cloud API" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="tf_comp" target="gcp_cloud">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="140" y="60"/>
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_ans_gcp" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;SSH&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Config" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="ans_comp" target="gcp">
+    <mxCell id="e_ans_gcp" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;SSH&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Config" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="ans_comp" target="gcp_cloud">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="285" y="60"/>
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="e_kube_gke" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Kube API" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="kube_comp" target="gke">
+    <mxCell id="e_kube_gke" parent="1" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Kube API" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" source="kube_comp" target="gke_device">
       <mxGeometry relative="1" as="geometry">
         <Array as="points">
           <mxPoint x="210" y="300"/>

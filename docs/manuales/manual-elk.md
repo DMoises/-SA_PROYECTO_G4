@@ -4,6 +4,13 @@
 > de auditoría de **todos los contenedores (cluster GKE) y servidores externos (VMs)**
 > mediante Elasticsearch, Logstash y Kibana, desplegado en la nube.
 
+
+# Objetivo
+
+Implementar una plataforma centralizada de observabilidad para Quetxal TV mediante el Stack ELK (Elasticsearch, Logstash y Kibana), permitiendo recolectar, almacenar, visualizar y analizar los logs generados por los microservicios desplegados tanto en Kubernetes como en servidores externos.
+
+La solución busca facilitar las tareas de monitoreo, auditoría, diagnóstico de incidentes y análisis del comportamiento del sistema sin necesidad de acceder individualmente a cada servidor o contenedor.
+
 ## 1. ¿Qué es y cómo funciona?
 
 **ELK** es la pila de observabilidad de logs de Elastic, compuesta por tres piezas:
@@ -25,6 +32,8 @@ En Quetxal TV el stack centraliza:
   infraestructura) vía un DaemonSet de Filebeat.
 - **Logs de los servidores externos** (VM de base de datos y VMs de desarrollo) vía Filebeat
   en cada VM, incluyendo los contenedores de PostgreSQL/Redis.
+
+
 
 ## 2. Arquitectura de recolección
 
@@ -52,6 +61,21 @@ con el patrón de "servidores externos" del proyecto.
 | Kibana | VM ELK | 5601 (solo por túnel SSH) |
 | Filebeat (cluster) | DaemonSet en cada nodo GKE | — |
 | Filebeat (VMs) | contenedor en db / gateway / services | — |
+
+
+## Arquitectura lógica del flujo de logs
+
+El flujo de observabilidad implementado sigue una arquitectura centralizada.
+
+Cada microservicio genera eventos de aplicación (autenticación, reproducción, pagos, historial, recomendaciones, administración, etc.). Estos eventos son capturados automáticamente por Filebeat, sin necesidad de modificar el código fuente de los servicios.
+
+Posteriormente, Filebeat envía los registros hacia Logstash utilizando el protocolo Beats.
+
+Logstash recibe cada evento, lo procesa, agrega información adicional (como el origen del log o el namespace de Kubernetes), interpreta los mensajes en formato JSON y finalmente los almacena dentro de Elasticsearch.
+
+Elasticsearch indexa cada evento utilizando índices diarios (`quetxal-logs-YYYY.MM.dd`), permitiendo búsquedas rápidas y eficientes.
+
+Finalmente, Kibana consulta dichos índices para mostrar la información mediante Discover, filtros KQL y dashboards de monitoreo.
 
 ## 3. Infraestructura y archivos
 
@@ -190,3 +214,27 @@ Filtro KQL: `kubernetes.namespace: "quetxal-tv-prod"`
 - **Índices diarios `quetxal-logs-YYYY.MM.dd`:** facilitan la retención y la navegación temporal.
 - **Sin seguridad X-Pack:** entorno académico con acceso solo interno; en producción se habilitaría
   autenticación y TLS.
+
+## Beneficios obtenidos
+
+La implementación del Stack ELK aporta diversos beneficios a la arquitectura de Quetxal TV.
+
+- Centralización de todos los logs del sistema.
+- Monitoreo en tiempo real de los microservicios.
+- Búsqueda rápida de eventos mediante Elasticsearch.
+- Filtrado de información utilizando consultas KQL.
+- Separación de logs por origen (GKE y máquinas virtuales).
+- Soporte para auditoría y trazabilidad de operaciones.
+- Diagnóstico más sencillo de errores y fallos.
+- Escalabilidad para incorporar nuevos microservicios sin modificar la arquitectura de observabilidad.
+
+
+# Conclusión
+
+La implementación del Stack ELK permitió incorporar una plataforma de observabilidad centralizada dentro de la arquitectura de Quetxal TV.
+
+Gracias a Filebeat fue posible recolectar automáticamente los logs generados por todos los microservicios y servicios auxiliares, mientras que Logstash permitió procesar y enriquecer dichos eventos antes de almacenarlos en Elasticsearch.
+
+Finalmente, Kibana facilitó la exploración y análisis de la información mediante filtros, búsquedas y dashboards, permitiendo identificar rápidamente eventos de autenticación, reproducción, suscripciones, administración y errores del sistema.
+
+Esta solución mejora significativamente la capacidad de monitoreo, auditoría y soporte operativo de la plataforma, además de proporcionar una base sólida para futuras estrategias de observabilidad y análisis de comportamiento del sistema.

@@ -46,6 +46,11 @@ jobs:
           # Copiamos el archivo compose desde el runner hacia la VM
           scp -i ~/.ssh/id_ed25519 docker-compose.gateway.yml ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/docker-compose.gateway.yml
 
+          # Config del reverse-proxy de borde (nginx) que enruta /ws -> gateway.
+          # El compose lo monta como ./nginx.gateway.conf, así que debe vivir en el
+          # mismo WORKDIR de la VM.
+          scp -i ~/.ssh/id_ed25519 nginx.gateway.conf ${{ secrets.SSH_USER }}@${{ secrets.GATEWAY_VM_IP }}:/home/${{ secrets.SSH_USER }}/quetxal/nginx.gateway.conf
+
       - name: Deploy on Gateway VM via SSH
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

@@ -26,6 +26,12 @@ metadata:
   namespace: quetxal-tv-prod
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # WebSocket de Watch Party: son conexiones de larga duración. Subimos los
+    # timeouts para que nginx no corte el /ws a los 60s (default) y la sala
+    # quede sincronizando. ingress-nginx reenvía el upgrade Upgrade/Connection
+    # automáticamente al detectar el handshake.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
   ingressClassName: nginx
 
@@ -40,6 +46,18 @@ spec:
   # Sitio público servido en "/" (sin host → responde para cualquier dominio/IP).
   - http:
       paths:
+      # WebSocket de Watch Party: Next.js (patrón BFF) NO puede proxiar WebSockets
+      # crudos —solo HTTP—, así que /ws va DIRECTO al api-gateway, que a su vez lo
+      # reenvía al watchparty-service:8085. Es la única ruta del gateway expuesta al
+      # navegador, y solo porque el WS no puede pasar por el BFF. Prefix /ws gana a /
+      # por especificidad, así que /ws/watchparty/<code> entra por aquí.
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 8080
       - path: /
         pathType: Prefix
         backend:

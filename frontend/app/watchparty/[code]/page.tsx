@@ -1,10 +1,10 @@
 'use client'
 
-import { use, useEffect, useRef, useState } from 'react'
+import { use, useEffect, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import YouTube from 'react-youtube'
-import { ArrowLeft, Copy, Check, Tv, Wifi, WifiOff, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Copy, Check, Tv, Wifi, WifiOff, RefreshCw, ShieldAlert } from 'lucide-react'
 import { validarSala } from '@/lib/api/watchparty'
 import { Button } from '@/components/ui/button'
 
@@ -17,7 +17,7 @@ interface PlaybackVideo {
   tipo: string
 }
 
-type EstadoAcceso = 'verificando' | 'permitido' | 'no-existe' | 'sin-sesion' | 'error'
+type EstadoAcceso = 'verificando' | 'permitido' | 'no-existe' | 'sin-sesion' | 'requiere-pin' | 'error'
 
 export default function WatchPartyPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params)
@@ -33,64 +33,106 @@ export default function WatchPartyPage({ params }: { params: Promise<{ code: str
   const [copied, setCopied] = useState(false)
   const [playerReady, setPlayerReady] = useState(false)
 
+  // Control Parental states
+  const [mostrarModalPin, setMostrarModalPin] = useState(false)
+  const [pinInput, setPinInput] = useState('')
+  const [pinError, setPinError] = useState('')
+  const [verificandoPin, setVerificandoPin] = useState(false)
+
   // 1. Validar la sala y cargar información del contenido
-  useEffect(() => {
-    async function init() {
-      try {
+  const solicitarVideo = useCallback(async (pin?: string) => {
+    try {
+      const esReintentoConPin = typeof pin === 'string' && pin.length > 0
+      if (esReintentoConPin) {
+        setVerificandoPin(true)
+        setPinError('')
+      } else {
         setEstadoAcceso('verificando')
-        // Validar si la sala existe
-        const resSala = await validarSala(code)
-        if (!resSala.existe) {
-          setEstadoAcceso('no-existe')
+      }
+
+      // Validar si la sala existe
+      const resSala = await validarSala(code)
+      if (!resSala.existe) {
+        setEstadoAcceso('no-existe')
+        return
+      }
+
+      const contenidoId = resSala.contenido_id
+
+      // Obtener detalles del contenido para el título/info
+      const resContent = await fetch(`/api/catalog/${contenidoId}`)
+      if (resContent.ok) {
+        const contentData = await resContent.json()
+        setContent(contentData)
+      }
+
+      // Obtener video de reproducción (BFF de playback)
+      const playbackHeaders: Record<string, string> = {}
+      const storedProfile = localStorage.getItem('selectedProfile')
+      if (storedProfile) {
+        try {
+          const profile = JSON.parse(storedProfile)
+          if (profile?.id) playbackHeaders['X-Profile-Id'] = profile.id
+        } catch {}
+      }
+
+      if (esReintentoConPin) {
+        playbackHeaders['X-Parental-Pin'] = pin as string
+      }
+
+      const resPlayback = await fetch(`/api/playback/${contenidoId}`, {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store',
+        headers: playbackHeaders,
+      })
+
+      const data = await resPlayback.json().catch(() => null)
+
+      if (resPlayback.status === 401) {
+        setEstadoAcceso('sin-sesion')
+        setMostrarModalPin(false)
+        return
+      }
+
+      if (resPlayback.status === 403) {
+        if (data?.code === 'PARENTAL_PIN_REQUIRED') {
+          setEstadoAcceso('requiere-pin')
+          setMostrarModalPin(true)
+          if (esReintentoConPin) {
+            setPinError(data?.error || 'PIN de Control Parental incorrecto. Inténtalo de nuevo.')
+          }
           return
         }
+        throw new Error(data?.error || 'No tienes acceso a este contenido')
+      }
 
-        const contenidoId = resSala.contenido_id
+      if (!resPlayback.ok) {
+        throw new Error(data?.error || 'No se pudo cargar el video')
+      }
 
-        // Obtener detalles del contenido para el título/info
-        const resContent = await fetch(`/api/catalog/${contenidoId}`)
-        if (resContent.ok) {
-          const contentData = await resContent.json()
-          setContent(contentData)
-        }
-
-        // Obtener video de reproducción (BFF de playback)
-        const playbackHeaders: Record<string, string> = {}
-        const storedProfile = localStorage.getItem('selectedProfile')
-        if (storedProfile) {
-          try {
-            const profile = JSON.parse(storedProfile)
-            if (profile?.id) playbackHeaders['X-Profile-Id'] = profile.id
-          } catch {}
-        }
-
-        const resPlayback = await fetch(`/api/playback/${contenidoId}`, {
-          method: 'GET',
-          credentials: 'include',
-          cache: 'no-store',
-          headers: playbackHeaders,
-        })
-
-        if (resPlayback.status === 401) {
-          setEstadoAcceso('sin-sesion')
-          return
-        }
-
-        if (!resPlayback.ok) {
-          throw new Error('No se pudo cargar el video')
-        }
-
-        const videoData = await resPlayback.json()
-        setVideo(videoData)
-        setEstadoAcceso('permitido')
-      } catch (err) {
-        console.error('Error al inicializar Watch Party:', err)
+      setVideo(data)
+      setEstadoAcceso('permitido')
+      setMostrarModalPin(false)
+      setPinInput('')
+      setPinError('')
+    } catch (err) {
+      console.error('Error al inicializar Watch Party:', err)
+      if (typeof pin === 'string' && pin.length > 0) {
+        setPinError('No se pudo verificar el PIN. Inténtalo de nuevo.')
+      } else {
         setEstadoAcceso('error')
       }
+    } finally {
+      if (typeof pin === 'string' && pin.length > 0) {
+        setVerificandoPin(false)
+      }
     }
-
-    init()
   }, [code])
+
+  useEffect(() => {
+    solicitarVideo()
+  }, [solicitarVideo])
 
   // 2. Conectar al WebSocket de Watch Party
   useEffect(() => {
@@ -238,6 +280,15 @@ export default function WatchPartyPage({ params }: { params: Promise<{ code: str
     emitSeek(currentTime)
   }
 
+  const handlePinSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!/^\d{4}$/.test(pinInput)) {
+      setPinError('Ingresa los 4 dígitos del PIN.')
+      return
+    }
+    solicitarVideo(pinInput)
+  }
+
   if (estadoAcceso === 'verificando') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
@@ -273,6 +324,29 @@ export default function WatchPartyPage({ params }: { params: Promise<{ code: str
           </p>
           <Button size="lg" className="w-full" onClick={() => router.push(`/login?redirect=/watchparty/${code}`)}>
             Iniciar sesión
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (estadoAcceso === 'requiere-pin' && !mostrarModalPin) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-6">
+        <div className="mx-auto max-w-lg rounded-lg border border-white/10 bg-white/5 p-8 text-center">
+          <ShieldAlert className="mx-auto mb-4 h-10 w-10 text-amber-400" />
+          <h2 className="text-xl font-semibold">Control Parental</h2>
+          <p className="mt-2 text-sm text-white/60 mb-6">
+            Este contenido no es apto para el perfil infantil. Introduce el PIN para reproducirlo.
+          </p>
+          <Button
+            size="lg"
+            onClick={() => {
+              setPinError('')
+              setMostrarModalPin(true)
+            }}
+          >
+            Introducir PIN
           </Button>
         </div>
       </div>
@@ -405,6 +479,80 @@ export default function WatchPartyPage({ params }: { params: Promise<{ code: str
           </div>
         </div>
       </main>
+
+      {/* Modal de Control Parental: solicita el PIN de 4 dígitos */}
+      {mostrarModalPin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-sm rounded-xl border border-white/10 bg-neutral-900 p-6 shadow-2xl">
+            <div className="mb-4 flex items-center gap-3">
+              <ShieldAlert className="h-6 w-6 text-amber-400" />
+              <h2 className="text-lg font-semibold text-white">
+                Control Parental
+              </h2>
+            </div>
+
+            <p className="mb-5 text-sm text-white/60">
+              Este contenido no es apto para el perfil
+              infantil. Introduce el PIN de 4 dígitos
+              para continuar.
+            </p>
+
+            <form
+              onSubmit={handlePinSubmit}
+              className="space-y-4"
+            >
+              <input
+                type="password"
+                inputMode="numeric"
+                autoFocus
+                value={pinInput}
+                onChange={e =>
+                  setPinInput(
+                    e.target.value
+                      .replace(/\D/g, '')
+                      .slice(0, 4)
+                  )
+                }
+                placeholder="••••"
+                maxLength={4}
+                className="w-full rounded-md border border-white/15 bg-black/40 px-4 py-3 text-center text-2xl tracking-[0.6em] text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none"
+              />
+
+              {pinError && (
+                <p className="text-sm text-red-400">
+                  {pinError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMostrarModalPin(false)
+                    setPinInput('')
+                    setPinError('')
+                  }}
+                  className="h-11 flex-1 rounded-md border border-white/15 text-sm font-medium text-white/80 transition hover:bg-white/10"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    verificandoPin ||
+                    pinInput.length !== 4
+                  }
+                  className="h-11 flex-1 rounded-md bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+                >
+                  {verificandoPin
+                    ? 'Verificando...'
+                    : 'Desbloquear'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

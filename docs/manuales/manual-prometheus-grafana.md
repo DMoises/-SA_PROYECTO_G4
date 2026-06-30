@@ -76,6 +76,7 @@ Abrir `http://localhost:9090/targets` y confirmar targets `UP`.
 
 ![Dashboard de Grafana: panel "Targets activos" (15 UP) + CPU/memoria/red/pods](img/grafana1.png)
 
+
 ### 3.4 Abrir Grafana
 
 ```bash
@@ -143,7 +144,21 @@ Capturas obligatorias sugeridas:
 3. Dashboard de Grafana con rango `Last 30 minutes`, refresh `10s` y líneas moviéndose.
 4. Panel de red durante tráfico real contra el frontend/API Gateway.
 
+| Evidencia | Archivo PNG | Qué debe mostrar |
+|---|---|---|
+| Pods de monitoreo | `docs/img/prometheus-grafana/k8s-monitoring-pods.png` | Salida de `kubectl -n monitoring get pods` con Prometheus, Grafana y node-exporter en `Running`. |
+| Targets de Prometheus | `docs/img/prometheus-grafana/prometheus-targets.png` | Pantalla `Status > Targets` con targets `UP`. |
+| Dashboard general | `docs/img/prometheus-grafana/grafana-dashboard.png` | Dashboard `Quetxal TV - Infraestructura y Red` con CPU, memoria, red y targets. |
+| Telemetría viva | `docs/img/prometheus-grafana/grafana-telemetria-viva.png` | Paneles con variación visible mientras se genera tráfico real. |
+
+![Pods de monitoreo](../img/prometheus-grafana/k8s-monitoring-pods.png)
+
+![Prometheus targets](../img/prometheus-grafana/prometheus-targets.png)
+
+![Grafana dashboard](../img/prometheus-grafana/grafana-dashboard.png)
+
 ![Telemetría viva durante tráfico de carga: pico de red y CPU en el dashboard](img/grafana2.png)
+
 
 ## 6. Generar tráfico para demostrar telemetría viva
 

@@ -51,6 +51,7 @@
    - [5.2 Justificación Tecnológica (Gobernanza)](#5.2-justificación-tecnológica-(gobernanza))
    - [5.3 Aplicación de Principios SOLID (Nivel ISM)](#5.3-aplicación-de-principios-solid-(nivel-ism))
    - [5.5 Manual Prometheus & Grafana](#5.5-manual-prometheus--grafana-tarea-20)
+   - [5.6 Justificación de Herramientas Utilizadas](#5.6-justificación-de-herramientas-utilizadas-tarea-22.5)
 6. [Conclusiones](#6.-conclusiones)
 7. [Archivos Crudos](#7.-archivos-crudos)
 
@@ -2038,7 +2039,7 @@ extiende agregando un `client` + `handler` por servicio sin tocar los existentes
 
 
 
-### **5.5 Manual Prometheus & Grafana (Tarea 20)** {#5.5-manual-prometheus--grafana-tarea-20}
+### **5.5 Manual Prometheus & Grafana** {#5.5-manual-prometheus--grafana-tarea-20}
 
 > **Objetivo:** documentar el modelo de monitoreo por *scraping*, la guia de despliegue de exporters y la evidencia requerida de dashboards de Grafana con telemetria viva.  
 > **Manual extendido:** [`docs/manuales/manual-prometheus-grafana.md`](./docs/manuales/manual-prometheus-grafana.md).  
@@ -2201,6 +2202,21 @@ Las evidencias deben tomarse en el entorno de nube, no en local:
 4. Panel de trafico de red mientras se genera actividad real contra el frontend/API Gateway.
 5. Panel de CPU o memoria mostrando variacion durante una prueba de carga o navegacion de usuarios.
 
+| Evidencia | Archivo PNG | Qué debe mostrar |
+|---|---|---|
+| Pods de monitoreo | `docs/img/prometheus-grafana/k8s-monitoring-pods.png` | Salida de `kubectl -n monitoring get pods` con Prometheus, Grafana y node-exporter en `Running`. |
+| Targets de Prometheus | `docs/img/prometheus-grafana/prometheus-targets.png` | Pantalla `Status > Targets` con targets `UP`. |
+| Dashboard general | `docs/img/prometheus-grafana/grafana-dashboard.png` | Dashboard `Quetxal TV - Infraestructura y Red` con CPU, memoria, red y targets. |
+| Telemetría viva | `docs/img/prometheus-grafana/grafana-telemetria-viva.png` | Paneles con variación visible mientras se genera tráfico real. |
+
+![Dashboard de Grafana: panel "Targets activos" (15 UP) + CPU/memoria/red/pods](docs/manuales/img/grafana1.png)
+
+![Targets de Prometheus](./docs/img/prometheus-grafana/prometheus-targets.png)
+
+![Dashboard de Grafana](./docs/img/prometheus-grafana/grafana-dashboard.png)
+
+![Telemetría viva durante tráfico de carga: pico de red y CPU en el dashboard](/docs/manuales/img/grafana2.png)
+
 Para generar telemetria visible durante la captura:
 
 ```bash
@@ -2216,6 +2232,68 @@ Tambien puede usarse Locust para elevar concurrencia y capturar cambios claros e
 - **node_exporter como DaemonSet:** garantiza telemetria por cada nodo del cluster.
 - **cAdvisor/kubelet:** permite observar Pods y contenedores sin reescribir microservicios.
 - **Port-forward para acceso:** reduce superficie publica y mantiene la observabilidad como herramienta interna de operacion.
+
+
+### **5.6 Justificación de Herramientas Utilizadas** {#5.6-justificación-de-herramientas-utilizadas-tarea-22.5}
+
+Esta sección consolida la justificación de herramientas solicitada para la actualización de diagramas y documentación de Fase 3. No reemplaza las justificaciones detalladas de las secciones 5.2 y 5.3; las resume en una matriz trazable hacia los requisitos del enunciado, las restricciones tecnológicas y los artefactos versionados del repositorio.
+
+#### 5.6.1 Criterio de selección
+
+La selección de herramientas se hizo con cuatro criterios principales:
+
+| Criterio | Aplicación en Quetxal TV |
+|---|---|
+| Cumplimiento de restricciones | Uso obligatorio de backend políglota, gRPC, Protocol Buffers, Redis, Docker, Kubernetes, GitHub Actions, GCP, GCS, Terraform y Ansible. |
+| Separación de responsabilidades | Cada herramienta cubre una capa específica: desarrollo, comunicación, persistencia, despliegue, observabilidad o pruebas. |
+| Operabilidad en nube | Las herramientas seleccionadas permiten desplegar, monitorear y evidenciar el sistema en GKE y Compute Engine, que es el entorno evaluado. |
+| Trazabilidad documental | Cada herramienta cuenta con archivos crudos o configuración versionada que respalda su uso en el proyecto. |
+
+#### 5.6.2 Matriz de justificación de herramientas
+
+| Herramienta | Categoría | Uso en el proyecto | Justificación técnica | Requisito / restricción que cubre | Evidencia en el repositorio |
+|---|---|---|---|---|---|
+| Go | Lenguaje backend | `api-gateway`, `auth-service`, `history-service`, `watchparty-service` | Su modelo de concurrencia y binarios livianos favorecen servicios perimetrales, validación de sesión, WebSockets y llamadas gRPC de baja latencia. | Backend políglota; servicios de alto rendimiento. | `backend/api-gateway/`, `backend/auth-service/`, `backend/history-service/`, `backend/watchparty-service/` |
+| Python | Lenguaje backend | `catalog-service`, `rating-service`, `fx-service` | Permite implementar lógica de catálogo, recomendación, calificaciones y consumo de servicios externos con código claro y pruebas unitarias simples. | Backend políglota; lógica de recomendación y servicios de datos. | `backend/catalog-service/`, `backend/rating-service/`, `backend/fx-service/` |
+| TypeScript | Lenguaje backend/frontend | `billing-service`, `notification-service`, `frontend` | Aporta tipado estático en dominios sensibles como suscripciones, notificaciones y UI, reduciendo errores de contrato en tiempo de desarrollo. | Backend políglota; frontend web. | `backend/billing-service/`, `backend/notification-service/`, `frontend/` |
+| Next.js | Framework frontend | Aplicación web de Quetxal TV | Facilita rutas por app router, componentes reutilizables y BFF/API routes para integrar el frontend con el API Gateway. | Aplicación web funcional en nube. | `frontend/app/`, `frontend/components/`, `frontend/app/api/` |
+| NestJS | Framework backend TS | Suscripciones y notificaciones | Su arquitectura modular con inyección de dependencias ordena controladores, servicios, repositorios y clientes gRPC. | Microservicios TypeScript mantenibles. | `backend/billing-service/src/`, `backend/notification-service/src/` |
+| gRPC | Comunicación interna | Contratos entre API Gateway y microservicios | Reduce overhead frente a REST interno y mantiene contratos estrictos mediante stubs generados. | Comunicación obligatoria por gRPC. | `backend/*/proto/*.proto`, `backend/api-gateway/internal/clients/` |
+| Protocol Buffers | Contratos | Definición de mensajes y RPC por dominio | Permite versionar contratos binarios, tipados y compactos entre servicios políglotas. | Contratos obligatorios por Protocol Buffers. | `backend/api-gateway/proto/`, `backend/*/proto/` |
+| PostgreSQL | Base de datos | Persistencia por microservicio | Soporta ACID, SQL nativo, procedimientos almacenados, funciones, vistas y triggers de auditoría sin ORM mágico. | Database per Microservice; SQL nativo; auditoría. | `database/*/01_schema.sql`, `database/*/*audit.sql` |
+| Redis | Caché | Cache de tasas de cambio del `fx-service` | Resuelve lecturas temporales con TTL y latencia baja, mitigando dependencia de APIs externas. | Caché obligatorio; EAC de rendimiento. | `cache/`, `redis.conf`, `backend/fx-service/app/cache.py` |
+| Docker | Contenedores | Empaquetado de frontend, gateway, microservicios, bases y Redis | Homologa el runtime entre local, VMs y pipelines, evitando instalaciones manuales por servicio. | Contenerización obligatoria. | `Dockerfile` por servicio, `database/*/Dockerfile` |
+| Docker Compose | Orquestación local/VM | Entornos local, cloud, bases y monitoreo alternativo | Permite levantar grupos de servicios reproducibles en VMs de desarrollo y base de datos externa. | Orquestación Docker Compose; despliegue en Compute Engine. | `docker-compose.local.yml`, `docker-compose.cloud.yml`, `docker-compose.db.yml`, `docker-compose.monitoring.yml` |
+| Kubernetes | Orquestación cloud | Deployments, Services, Ingress, CronJobs y monitoreo en GKE | Administra réplicas, salud, rollouts y servicios internos de producción de manera declarativa. | Orquestación obligatoria; despliegue en GKE. | `k8s/` |
+| Ingress | Entrada externa | Punto único de entrada web en GKE | Centraliza el tráfico público hacia frontend/API Gateway y evita exponer microservicios internos. | Punto de entrada Ingress obligatorio. | `k8s/ingress.yaml` |
+| Google Cloud Platform | Nube | Plataforma de ejecución del sistema | Provee GKE, Compute Engine, redes, IAM y almacenamiento necesarios para el despliegue evaluable en nube. | Uso obligatorio de GCP. | `terraform/`, `k8s/`, `.github/workflows/` |
+| Google Kubernetes Engine | Kubernetes administrado | Producción en rama `release` | Reduce operación manual del plano de control y permite desplegar workloads con manifiestos versionados. | Despliegue en GKE. | `terraform/gke.tf`, `k8s/` |
+| Google Compute Engine | VMs | Bases de datos externas y entorno `develop` | Cumple persistencia aislada al ubicar motores de BD fuera de Pods efímeros y permite VMs para servicios de desarrollo. | Persistencia aislada; VMs externas. | `terraform/db_vm.tf`, `terraform/dev_vms.tf`, `ansible/` |
+| Google Cloud Storage | Almacenamiento de objetos | Portadas y videos privados | Desacopla multimedia pesada del filesystem de contenedores y sirve archivos mediante URLs firmadas. | GCS obligatorio; almacenamiento de objetos. | `backend/catalog-service/app/gcs.py`, `k8s/microservices/catalog-gcs-sa.yaml` |
+| Terraform | IaC | VPC, subred, firewalls, GKE, VMs y service accounts | Hace reproducible la creación, modificación y destrucción de infraestructura, evitando aprovisionamiento manual. | Infraestructura como código obligatoria. | `terraform/`, `docs/manuales/manual-terraform.md` |
+| Ansible | Configuración automatizada | Instalación de Docker, preparación de VMs y despliegue por roles | Automatiza configuración agentless por SSH y deja entornos reproducibles sin entrar manualmente a cada servidor. | Gestión automatizada obligatoria. | `ansible/`, `docs/manuales/manual-ansible.md` |
+| GitHub Actions | CI/CD | Testing, build, push de imágenes, release y despliegues | Implementa cortocircuito ante fallos de pruebas/build y separa flujos `develop` y `release`. | CI/CD obligatorio; smoke/build/deploy automatizados. | `.github/workflows/` |
+| JWT / Cookies | Seguridad de sesión | Autenticación y propagación de identidad | Permite sesiones stateless validadas en Gateway e interceptores, con cookies HttpOnly para el navegador. | Seguridad, autorización e interceptores gRPC. | `backend/auth-service/internal/service/jwt.go`, `backend/api-gateway/internal/middleware/` |
+| Kubernetes ConfigMaps / Secrets | Configuración segura | Variables de entorno y credenciales en Pods | Separa configuración no sensible de secretos y evita hardcoding de credenciales en imágenes. | Seguridad de configuración. | `k8s/base/configmap.yaml`, `k8s/base/secrets.yaml` |
+| Prometheus | Métricas | Scraping de nodos, Pods, cAdvisor y exporters | Recolecta series temporales de hardware/red/containers para demostrar telemetría viva. | Observabilidad de métricas obligatoria. | `k8s/monitoring/`, `monitoring/prometheus/`, `docs/manuales/manual-prometheus-grafana.md` |
+| Grafana | Visualización | Dashboards de CPU, memoria, red, disco y targets | Permite presentar evidencia visual de telemetría viva para la defensa y calificación. | Dashboards de métricas obligatorios. | `monitoring/grafana/`, `k8s/monitoring/grafana.yaml` |
+| ELK Stack | Logs | Observabilidad centralizada de logs | Se selecciona por el requisito de centralizar logs de contenedores y VMs; complementa Prometheus, que no está orientado a logs. | Observabilidad de logs obligatoria. | Pendiente de manual/configuración específica (`manuales/manual-elk.md`). |
+| Locust | Pruebas de carga | Tráfico concurrente sobre rutas críticas | Simula usuarios reales en Python y genera reportes HTML para validar comportamiento bajo carga. | Pruebas de carga ligera obligatorias. | `load-testing/` |
+| Excalidraw / Draw.io | Documentación y modelado | Mockups y diagramas crudos | Permiten versionar archivos editables además de imágenes exportadas, cumpliendo la exigencia de archivos crudos. | Archivos crudos de diagramas obligatorios. | `docs/mocks/*.excalidraw`, `assets/*.drawio.png`, `assets/*.drawio` |
+
+#### 5.6.3 Relación con diagramas actualizados
+
+La justificación anterior se refleja en los diagramas de Fase 3 de la siguiente forma:
+
+| Vista / diagrama | Herramientas que deben aparecer | Razón |
+|---|---|---|
+| Arquitectura de alto nivel | Frontend, API Gateway, microservicios, PostgreSQL, Redis, GCS, Prometheus, Grafana, ELK | Muestra la topología lógica y las herramientas transversales de observabilidad. |
+| Despliegue físico | GCP, GKE, Compute Engine, VPC, Ingress, Docker, Kubernetes, bases externas | Evidencia que producción corre en nube y que las BD están aisladas fuera de Pods. |
+| Flujo CI/CD | GitHub Actions, Docker, Docker Hub, GKE, Compute Engine, pruebas, smoke tests | Demuestra automatización y cortocircuito antes de empaquetar/desplegar. |
+| Vista de desarrollo/componentes | Go, Python, TypeScript, gRPC, Protocol Buffers, PostgreSQL, Redis | Conecta cada microservicio con su stack y contrato de comunicación. |
+| Observabilidad | Prometheus, Grafana, node_exporter, cAdvisor, ELK | Separa métricas de logs y muestra cómo se obtiene telemetría viva. |
+
+Con esta matriz, cada herramienta queda ligada a una decisión técnica, a una restricción del enunciado y a un artefacto verificable dentro del repositorio.
 
 
 ## **6\. Conclusiones** {#6.-conclusiones}

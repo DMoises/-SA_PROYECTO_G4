@@ -158,6 +158,22 @@ services:
     networks:
       - quetxal-net
 
+  watchparty-service:
+    image: ${DOCKERHUB_USERNAME}/quetxal-watchparty-service:latest
+    container_name: quetxal-watchparty-service
+    restart: always
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-merequetengue}
+      NODE_ENV: production
+      PORT: 50059
+      WS_PORT: 8085
+      SUBSCRIPTION_DB_URL: postgres://${SUBSCRIPTION_DB_USER}:${SUBSCRIPTION_DB_PASSWORD}@${DB_VM_HOST:-127.0.0.1}:5433/${SUBSCRIPTION_DB_NAME}?sslmode=disable
+    ports:
+      - "50059:50059"
+      - "8085:8085"
+    networks:
+      - quetxal-net
+
 networks:
   quetxal-net:
     driver: bridge

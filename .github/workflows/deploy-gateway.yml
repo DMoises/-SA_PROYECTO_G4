@@ -145,6 +145,8 @@ jobs:
           export RATING_SERVICE_ADDR="${SERVICES_VM_IP}:50056"
           export FX_SERVICE_ADDR="${SERVICES_VM_IP}:50053"
           export BILLING_SERVICE_ADDR="${SERVICES_VM_IP}:50052"
+          export WATCHPARTY_SERVICE_ADDR="${SERVICES_VM_IP}:50059"
+          export WATCHPARTY_WS_ADDR="${SERVICES_VM_IP}:8085"
           export CATALOG_ADMIN_HTTP_ADDR="http://${SERVICES_VM_IP}:8086"
           export CORS_ORIGIN="http://${GATEWAY_VM_IP}"
           export DATABASE_VM_IP="${DATABASE_VM_IP}"

@@ -1294,7 +1294,7 @@ Esta sección formaliza las relaciones de Fase 2 que en la primera entrega queda
 #### 4.2.1 Diagrama de Bloques de Alto Nivel:
 
 <div align="center">
-  <img src="./assets/DiagramaAltoNivelF2.svg" alt="" width="900"/>
+  <img src="./assets/f3/AltoNivelF3.png" alt="" width="900"/>
 </div>
 
 #### 4.2.2 Frontera Lógica de Datos (Diagramas ER Desacoplados): {#4.2.2-frontera-lógica-de-datos-(diagramas-er-desacoplados):}

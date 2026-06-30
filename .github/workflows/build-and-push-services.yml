@@ -60,6 +60,20 @@ jobs:
             fi
           done
 
+      # =========================================================
+      # 2b. TAREAS PROGRAMADAS: CronJobs con imagen propia (fuera de backend/)
+      # =========================================================
+      - name: Build y Push -> CronJob estreno-notify
+        if: hashFiles('k8s/cronjobs/estreno-notify/Dockerfile') != ''
+        run: |
+          echo "=== ⏰ Compilando imagen del CronJob estreno-notify ==="
+          USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          REPO="${USER}/quetxal-estreno-notify"
+          docker buildx build --push -f k8s/cronjobs/estreno-notify/Dockerfile \
+            -t ${REPO}:latest \
+            -t ${REPO}:${{ github.sha }} \
+            ./k8s/cronjobs/estreno-notify
+
       - name: Dictamen Final del Auditor Técnico
         run: |
           echo "✅ ¡Pipeline de Construcción de Servicios Finalizado Exitosamente!"

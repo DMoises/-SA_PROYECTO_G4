@@ -55,6 +55,21 @@ CREATE INDEX idx_contenido_estrenos_pendientes
     WHERE activo AND NOT notificado_estreno;
 ```
 
+### Base de datos ya existente (migración)
+
+`01_schema.sql` solo corre en el **primer arranque** de la BD (directorio de
+datos vacío). Para una `catalog-db` que ya existe, aplicar la migración:
+
+```
+database/catalog/migrations/2026-06-30_add_notificado_estreno_contenido.sql
+```
+
+Crea la columna y el índice (`IF NOT EXISTS`) y, **clave**, marca como ya
+notificados los títulos cuyo estreno ya ocurrió, para que el primer ciclo del
+CronJob **no** dispare un correo masivo de todo el catálogo viejo. Solo los
+estrenos futuros generarán correo al llegar su fecha. Ver la cabecera del
+archivo para los comandos `psql` (Docker y VM externa `10.10.0.10:5434`).
+
 ## Flujo
 
 ```

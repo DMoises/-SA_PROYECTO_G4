@@ -41,11 +41,11 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 | Tarea | Descripción | Responsable | Estado |
 | ----- | ----- | ----- | ----- |
 | 1\. Interceptores gRPC y Seguridad Base | **Backend:** Implementar interceptores gRPC para validar token JWT, roles, planes (Estándar/Premium) y **políticas de Control Parental**. Es **requisito** para los otros módulos. | Juanjo | ✅Terminado |
-| 2\. Control Parental (Full Stack) | **Backend:** Restringir contenido según clasificación (Apta todo público, PG-13, R). **Frontend:** UI para configurar PIN de 4 dígitos y solicitarlo antes de reproducir contenido no apto. | Moisés | 🟡Pruebas |
-| 3\. Motor Inteligente de Recomendación (Full Stack) | **Backend:** Implementar algoritmo Netflix (Filtrado Colaborativo usuarios/ítems o Recomendación Basada en Contenido/Géneros). **Frontend:** Sección dinámica "Recomendados para ti" según historial y calificaciones previas del perfil. | Fernando |  🟡En proceso |
+| 2\. Control Parental (Full Stack) | **Backend:** Restringir contenido según clasificación (Apta todo público, PG-13, R). **Frontend:** UI para configurar PIN de 4 dígitos y solicitarlo antes de reproducir contenido no apto. | Moisés | ✅Terminado |
+| 3\. Motor Inteligente de Recomendación (Full Stack) | **Backend:** Implementar algoritmo Netflix (Filtrado Colaborativo usuarios/ítems o Recomendación Basada en Contenido/Géneros). **Frontend:** Sección dinámica "Recomendados para ti" según historial y calificaciones previas del perfil. | Fernando |  ✅Terminado |
 | 4\. Watch Party (Full Stack) | **Backend:** Salas en tiempo real vía WebSockets. Solo usuarios **Premium** pueden iniciar/crear sala; cualquier usuario puede unirse con enlace/código. **Frontend:** Interfaz sincronizada y generación de enlace de invitación. | Juanjo | ✅Terminado |
-| 5\. Descarga de Contenido (Full Stack) | **Backend:** Lógica para autorizar descargas **únicamente al Plan Premium** (bloqueada para Plan Básico Y Plan Estándar). **Frontend:** Almacenamiento local simulado/real (cifrado o Service Workers). | Chan | ✅Terminado |
-| 6\. Cronjob de Depuración (Backend) | Creación de tarea programada (**Cronjob** en K8s) que audite la BD y elimine lógicamente cuentas inactivas o sin registros de inicio de sesión durante un periodo prefijado de X tiempo. | Joshua | 🔴 Pendiente |
+| 5\. Descarga de Contenido (Full Stack) | **Backend:** Lógica para autorizar descargas **únicamente al Plan Premiun** (bloqueada para Plan Básico Y Plan Estándar). **Frontend:** Almacenamiento local simulado/real (cifrado o Service Workers). | Chan | ✅ Terminado |
+| 6\. Cronjob de Depuración (Backend) | Creación de tarea programada (**Cronjob** en K8s) que audite la BD y elimine lógicamente cuentas inactivas o sin registros de inicio de sesión durante un periodo prefijado de X tiempo. | Joshua | ✅ Terminado |
 
 ---
 
@@ -64,8 +64,8 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 
 | Tarea | Descripción | Responsable | Estado |
 | ----- | ----- | ----- | ----- |
-| 11\. Stack ELK (Logs Centralizados) | Configurar Elasticsearch, Logstash y Kibana para recolectar y centralizar logs de auditoría de contenedores y VMs externas. **Capturas obligatorias de Kibana** mostrando indexación de logs transaccionales y de auditoría. | Fernando | 🔴 Pendiente |
-| 12\. Stack Prometheus & Grafana (Métricas) | Recolección de métricas de hardware/red en tiempo real con Prometheus y visualización de telemetría en Grafana. **Capturas obligatorias de Dashboards de Grafana** con telemetría viva. | Gerson | 🔴 Pendiente |
+| 11\. Stack ELK (Logs Centralizados) | Configurar Elasticsearch, Logstash y Kibana para recolectar y centralizar logs de auditoría de contenedores y VMs externas. **Capturas obligatorias de Kibana** mostrando indexación de logs transaccionales y de auditoría. | Joshua | ✅Terminado |
+| 12\. Stack Prometheus & Grafana (Métricas) | Recolección de métricas de hardware/red en tiempo real con Prometheus y visualización de telemetría en Grafana. **Capturas obligatorias de Dashboards de Grafana** con telemetría viva. | Gerson | 🟡En proceso  |
 
 ---
 
@@ -73,8 +73,8 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 
 | Tarea | Descripción | Responsable | Estado |
 | ----- | ----- | ----- | ----- |
-| 13\. Pruebas Backend y Cortocircuito | Validar ≥ 75% cobertura de endpoints. El pipeline CI/CD DEBE detenerse inmediatamente si falla alguna prueba, script o compilación. | Juanjo | 🔴 Pendiente |
-| 14\. Actualización Pipeline CD (Despliegue) | Configurar flujos en GitHub Actions para el **despliegue automático (CD)** hacia la VM de desarrollo (Docker Compose) y el cluster de producción Kubernetes (GKE). | Joshua | 🔴 Pendiente |
+| 13\. Pruebas Backend y Cortocircuito | Validar ≥ 75% cobertura de endpoints. El pipeline CI/CD DEBE detenerse inmediatamente si falla alguna prueba, script o compilación. | Juanjo | ✅Terminado |
+| 14\. Actualización Pipeline CD (Despliegue) | Configurar flujos en GitHub Actions para el **despliegue automático (CD)** hacia la VM de desarrollo (Docker Compose) y el cluster de producción Kubernetes (GKE). | Joshua | ✅Terminado |
 | 15\. Smoke Tests (CI/CD) | Suite automática tras despliegue para certificar que las rutas base del API Gateway y conexiones críticas están vivas. | Chan | ✅Terminado |
 | 16\. Pruebas de Carga Ligera (Locust) | Scripts en Python inyectando tráfico masivo en rutas críticas. Generar **archivo HTML final** con los resultados de las pruebas. **Capturas obligatorias de resultados de Locust.** | Moisés | 🟡Pruebas |
 
@@ -86,15 +86,16 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 | ----- | ----- | ----- | ----- |
 | 17\. Manual Terraform | Teoría del aprovisionamiento declarativo \+ guía paso a paso con **capturas obligatorias** de terminal y recursos en GCE/GKE levantados por IaC. | Joshua | ✅Terminado |
 | 18\. Manual Ansible | Teoría de automatización agentless (SSH, Playbooks/Roles) \+ guía paso a paso con **capturas obligatorias** de logs de ejecución de playbooks en terminal. | Joshua | ✅Terminado |
-| 19\. Manual Stack ELK | Arquitectura de recolección de logs (ES/Logstash/Kibana) \+ flujo de inyección de agentes. **Capturas obligatorias de Kibana** mostrando logs indexados. | Fernando | 🔴 Pendiente |
-| 20\. Manual Prometheus & Grafana | Modelo de monitoreo por scraping \+ guía de despliegue de exporters. **Capturas obligatorias de Dashboards de Grafana** con telemetría viva. | Gerson | 🔴 Pendiente |
-| 21\. Manual de Locust y Algoritmo de Recomendación | Diseño matemático/lógico del algoritmo de recomendación Netflix \+ documentación de Locust con **capturas de resultados** de escenarios de estrés. | Fernando | 🔴 Pendiente |
+| 19\. Manual Stack ELK | Arquitectura de recolección de logs (ES/Logstash/Kibana) \+ flujo de inyección de agentes. **Capturas obligatorias de Kibana** mostrando logs indexados. | Fernando | ✅Terminado |
+| 20\. Manual Prometheus & Grafana | Modelo de monitoreo por scraping \+ guía de despliegue de exporters. **Capturas obligatorias de Dashboards de Grafana** con telemetría viva. | Gerson | ✅Terminado |
+| 21\. Algoritmo de Recomendación | Diseño matemático/lógico del algoritmo de recomendación Netflix | Fernando | ✅Terminado |
+| 21.1 Manual de Locust | Documentación de Locust con **capturas de resultados** de escenarios de estrés. | Moisés | 🟡 En proceso |
 | 22.1 Actualización de Diagramas | Diagrama de Arquitectura Alto Nivel (con monitoreo) | Moisés | 🔴 Pendiente |
-| 22.2 Actualización de Diagramas | Modelo 4+1 actualizado Incluye vista logica, vista escenario \+1 vista de procesos  | Fernando | 🔴 Pendiente |
+| 22.2 Actualización de Diagramas | Modelo 4+1 actualizado Incluye vista logica, vista escenario \+1 vista de procesos  | Fernando | ✅Terminado |
 | 22.3 Actualización de Diagramas | Flujo CI/CD con testing | Juanjo | 🔴 Pendiente |
-| 22.4 Actualización de Diagramas | Casos de Uso **del Administrador** (con narrativas expandidas y flujos de excepción técnicos) | Gerson | 🔴 Pendiente |
-| 22.5 Actualización de Diagramas | Documentar de justificación de herramientas. | Gerson | 🔴 Pendiente |
-| 22.6 Actualización de Diagramas | Actualización vista de desarrollo y vista de componentes | Gerson | 🔴 Pendiente |
+| 22.4 Actualización de Diagramas | Casos de Uso **del Administrador** (con narrativas expandidas y flujos de excepción técnicos) | Fernando | 🟡 En proceso |
+| 22.5 Actualización de Diagramas | Documentar de justificación de herramientas. | Gerson | ✅Terminado |
+| 22.6 Actualización de Diagramas | Actualización vista de desarrollo y vista de componentes | Gerson | 🟡 En proceso |
 | 22.7 Actualización de Diagramas | Actualización vista física y diagramas de despliegue en vms y en kubernetes | Chan | 🔴 Pendiente |
 | 23\. Archivos Finales de Configuración | Dockerfiles por servicio, Docker Compose (local y nube), Manifiestos K8s, Archivos de configuración pipeline CI/CD y scripts. **Cargar archivos crudos al repositorio.** | Joshua | ✅Terminado |
 | 24\. Presentación Final (Demo 20 mins) | Preparación de slides con: Problema Inicial, Toma de Decisiones (justificación de matriz políglota, IaC, observabilidad, sesiones, BD externas) y Solución Final (demo del ecosistema). Participación **obligatoria de todos** los integrantes. | Pendiente | 🔴 Pendiente |
@@ -110,3 +111,71 @@ Para garantizar que el proyecto avance sin bloqueos, las tareas deben abordarse 
 | 27\. Tag de versión V2.0.0 y PR History | Crear el Tag **V2.0.0** en el repositorio. Evidenciar historial limpio de ramas y Pull Requests aprobados. | — | 🔴 Pendiente |
 | 28\. Subir archivos crudos de documentación | Todos los diagramas y documentos deben cargarse en formato crudo al repositorio (no solo imágenes exportadas). Sin esto, los diagramas **no serán válidos**. | — | 🔴 Pendiente |
 | 29\. Documento Técnico en Markdown | Redactar el documento técnico en formato **.md** con: tabla de integrantes, índice, introducción, desarrollo de todos los diagramas y conclusiones. | — | 🔴 Pendiente |
+
+# **🎤 Presentación Final — Quetxal TV Fase 3**
+
+**Duración máxima estricta: 20 minutos | Participación obligatoria de todos**
+
+---
+
+## **Estructura sugerida por sección (3 pilares obligatorios)**
+
+---
+
+### **🔴 1\. El Problema Inicial (\~3 min)**
+
+Diagnóstico del negocio, cuellos de botella en plataformas monolíticas y justificación del cambio.
+
+| Quién | Qué expone |
+| ----- | ----- |
+| **Gerson** | Abre la presentación. Explica el problema de negocio, por qué una arquitectura monolítica no escala, y la necesidad de microservicios \+ IaC. Le queda natural ya que documentó la justificación de herramientas (T22.5). |
+
+---
+
+### **🟡 2\. Toma de Decisiones (\~7 min)**
+
+Justificación técnica y analítica de las decisiones arquitectónicas adoptadas (qué, por qué, para qué).
+
+| Quién | Qué expone |
+| ----- | ----- |
+| **Joshua** | Infraestructura como código: decisión de usar **Terraform y Ansible**, por qué se aislaron las BDs fuera de K8s, decisión del Ingress. Le corresponde porque implementó todo esto (T7, T8, T9, T17, T18). |
+| **Fernando** | Decisión de la **matriz políglota** (Go/TS/Python), el modelo 4+1, y la elección del algoritmo de recomendación Netflix. Le cuadra porque trabajó en el motor de recomendación y la documentación arquitectónica (T3, T19, T22.2). |
+| **Juanjo** | Decisión de la **seguridad**: interceptores gRPC, JWT, Watch Party, y el pipeline CI/CD con cortocircuito. Él implementó todo eso (T1, T4, T13, T22.3). |
+
+---
+
+### **🟢 3\. La Solución Final (\~8 min)**
+
+Demostración del ecosistema operativo unificado — infraestructura elástica \+ backend inteligente resolviendo las necesidades del negocio. **No es un tour de funcionalidades**, sino evidencia de que el sistema corre bajo estándares de disponibilidad.
+
+| Quién | Qué expone |
+| ----- | ----- |
+| **Joshua** | Muestra el **ecosistema desplegado en GCP**: clúster GKE activo, VMs con BDs externas, Ingress funcionando, y evidencia de que el pipeline CI/CD desplegó todo automáticamente. Es el más indicado por haber implementado toda la infra (T7, T8, T9, T14). |
+| **Moisés** | Expone los **resultados de Locust** (gráficas de carga, rendimiento bajo concurrencia) y el **diagrama de arquitectura alto nivel** como cierre visual de cómo todo se conecta. (T16, T22.1) |
+| **Chan** | Presenta la **vista física y de despliegue**: cómo el sistema está mapeado en VMs y Kubernetes, y explica la documentación de la vista de despliegue. (T22.7) |
+| **Gerson** | Muestra los **dashboards de Grafana** con telemetría viva y los **logs indexados en Kibana**, evidenciando observabilidad real del sistema en producción. (T12, T20, T22.6) |
+
+---
+
+## **⏱️ Distribución de tiempo sugerida**
+
+| Sección | Responsable(s) | Tiempo |
+| ----- | ----- | ----- |
+| Problema Inicial | Gerson | \~3 min |
+| Toma de Decisiones: Infra & IaC | Joshua | \~2.5 min |
+| Toma de Decisiones: Arquitectura & Algoritmo | Fernando | \~2.5 min |
+| Toma de Decisiones: Seguridad & CI/CD | Juanjo | \~2 min |
+| Solución Final: Ecosistema en GCP \+ CI/CD | Joshua | \~3 min |
+| Solución Final: Resultados Locust \+ Arquitectura | Moisés | \~2 min |
+| Solución Final: Vista física y despliegue | Chan | \~2 min |
+| Solución Final: Grafana \+ ELK en producción | Gerson | \~2 min |
+| **TOTAL** |  | **\~20 min** |
+
+---
+
+## **📝 Notas para el día de la defensa**
+
+* Grabar un **video de evidencia** antes de la calificación mostrando todo desplegado y funcionando (recomendación del enunciado, protege ante caídas de VMs).  
+* Cada integrante debe conocer **los comandos clave** de su área (penalización de \-10% si no los conoce).  
+* Tener listo el acceso a la **consola de GCP** para mostrar que las BDs están externas al clúster.  
+* El **diagrama de arquitectura alto nivel** (T22.1) debería estar en la presentación como slide de apoyo visual durante la sección de Solución Final.

@@ -1,0 +1,388 @@
+<mxGraphModel dx="2828" dy="1590" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;" value="Vista Física (Nivel PSM): Diagrama de Despliegue de Producción (K3s Kubernetes) con IaC y Observabilidad" vertex="1">
+      <mxGeometry height="40" width="1500" x="60" y="20" as="geometry" />
+    </mxCell>
+    <mxCell id="user_actor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#1A237E;strokeColor=#1A237E;fontColor=#1A237E;fontSize=10;" value="Usuario Final" vertex="1">
+      <mxGeometry height="60" width="40" x="70" y="500" as="geometry" />
+    </mxCell>
+    <mxCell id="admin_actor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#4A148C;strokeColor=#4A148C;fontColor=#4A148C;fontSize=10;" value="Administrador / SRE" vertex="1">
+      <mxGeometry height="60" width="40" x="70" y="640" as="geometry" />
+    </mxCell>
+    <mxCell id="cicd_device" parent="1" style="shape=cube;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#E3F2FD;strokeColor=#1A237E;fontColor=#1A237E;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=5;" value="&lt;b&gt;Plataforma CI/CD (GitHub Actions)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="310" width="390" x="60" y="80" as="geometry" />
+    </mxCell>
+    <mxCell id="cicd_env" parent="cicd_device" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#1A237E;fontSize=10;verticalAlign=top;dashed=1;spacingTop=4;" value="&lt;b&gt;Ubuntu Runner&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;executionEnvironment&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="234" width="348" x="18" y="58" as="geometry" />
+    </mxCell>
+    <mxCell id="artifact_tf" parent="cicd_env" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;infra.yml (Scripts IaC)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="58" width="148" x="10" y="38" as="geometry" />
+    </mxCell>
+    <mxCell id="tf" parent="cicd_env" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Terraform CLI" vertex="1">
+      <mxGeometry height="18" width="130" x="18" y="72" as="geometry" />
+    </mxCell>
+    <mxCell id="artifact_ans" parent="cicd_env" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;Playbooks Config&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="58" width="160" x="174" y="38" as="geometry" />
+    </mxCell>
+    <mxCell id="ans" parent="cicd_env" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Ansible CLI" vertex="1">
+      <mxGeometry height="18" width="144" x="182" y="72" as="geometry" />
+    </mxCell>
+    <mxCell id="artifact_cd" parent="cicd_env" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;cd-release.yml&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="58" width="180" x="80" y="120" as="geometry" />
+    </mxCell>
+    <mxCell id="kube_cli" parent="cicd_env" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;kubectl CLI" vertex="1">
+      <mxGeometry height="18" width="160" x="90" y="154" as="geometry" />
+    </mxCell>
+    <mxCell id="aws_cloud" parent="1" style="shape=cube;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#E3F2FD;strokeColor=#1A237E;fontColor=#1A237E;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=5;" value="&lt;b&gt;Amazon Web Services (VPC)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="2060" width="1130" x="490" y="79" as="geometry" />
+    </mxCell>
+    <mxCell id="master_node" parent="aws_cloud" style="shape=cube;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#E3F2FD;strokeColor=#1A237E;fontColor=#1A237E;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=5;" value="&lt;b&gt;Master Node (EC2)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="480" width="500" x="20" y="58" as="geometry" />
+    </mxCell>
+    <mxCell id="master_os" parent="master_node" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#1A237E;fontSize=10;verticalAlign=top;dashed=1;spacingTop=4;" value="&lt;b&gt;Ubuntu OS&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;executionEnvironment&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="106" width="454" x="18" y="58" as="geometry" />
+    </mxCell>
+    <mxCell id="ne_art_master" parent="master_os" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;node_exporter&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="68" width="168" x="12" y="32" as="geometry" />
+    </mxCell>
+    <mxCell id="node_exporter_master" parent="master_os" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Node Exporter" vertex="1">
+      <mxGeometry height="37" width="144" x="20" y="60" as="geometry" />
+    </mxCell>
+    <mxCell id="master_env" parent="master_node" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#1A237E;fontSize=10;verticalAlign=top;dashed=1;spacingTop=4;" value="&lt;b&gt;Control Plane K3s&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;executionEnvironment&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="274" width="454" x="18" y="182" as="geometry" />
+    </mxCell>
+    <mxCell id="artifact_traefik" parent="master_env" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;traefik.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="74" width="168" x="12" y="36" as="geometry" />
+    </mxCell>
+    <mxCell id="ingress" parent="master_env" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Ingress Controller" vertex="1">
+      <mxGeometry height="36" width="144" x="20" y="64" as="geometry" />
+    </mxCell>
+    <mxCell id="registry_layer" parent="master_env" style="swimlane;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;fontStyle=1;startSize=22;" value="&lt;b&gt;Registry Layer&lt;/b&gt;" vertex="1">
+      <mxGeometry height="140" width="422" x="12" y="114" as="geometry" />
+    </mxCell>
+    <mxCell id="zot_artifact" parent="registry_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;zot-registry.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="82" width="198" x="12" y="28" as="geometry" />
+    </mxCell>
+    <mxCell id="zot_comp" parent="registry_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Zot Registry (In-Cluster)" vertex="1">
+      <mxGeometry height="33" width="164" x="20" y="57" as="geometry" />
+    </mxCell>
+    <mxCell id="worker_node" parent="aws_cloud" style="shape=cube;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#E3F2FD;strokeColor=#1A237E;fontColor=#1A237E;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=5;" value="&lt;b&gt;Worker Node(s) (EC2)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="1970" width="540" x="560" y="58" as="geometry" />
+    </mxCell>
+    <mxCell id="worker_os" parent="worker_node" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#1A237E;fontSize=10;verticalAlign=top;dashed=1;spacingTop=4;" value="&lt;b&gt;Ubuntu OS&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;executionEnvironment&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="106" width="494" x="18" y="58" as="geometry" />
+    </mxCell>
+    <mxCell id="ne_art_worker" parent="worker_os" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;node_exporter&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="68" width="160" x="12" y="32" as="geometry" />
+    </mxCell>
+    <mxCell id="node_exporter_worker" parent="worker_os" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Node Exporter" vertex="1">
+      <mxGeometry height="40" width="144" x="20" y="60" as="geometry" />
+    </mxCell>
+    <mxCell id="worker_env" parent="worker_node" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#1A237E;fontSize=10;verticalAlign=top;dashed=1;spacingTop=4;" value="&lt;b&gt;Worker K3s (Containerd)&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;executionEnvironment&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="1774" width="494" x="18" y="170" as="geometry" />
+    </mxCell>
+    <mxCell id="edge_layer" parent="worker_env" style="swimlane;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=9;fontStyle=1;startSize=22;" value="&lt;b&gt;Edge Layer&lt;/b&gt;" vertex="1">
+      <mxGeometry height="189.8" width="460" x="12" y="40.2" as="geometry" />
+    </mxCell>
+    <mxCell id="art_front" parent="edge_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;filmstars-frontend.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="89.8" width="200" x="10" y="30.2" as="geometry" />
+    </mxCell>
+    <mxCell id="frontend" parent="edge_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Frontend UI" vertex="1">
+      <mxGeometry height="35.56" width="184" x="18" y="64.44" as="geometry" />
+    </mxCell>
+    <mxCell id="art_gateway" parent="edge_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;filmstars-api-gateway.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="89.8" width="210" x="240" y="30.2" as="geometry" />
+    </mxCell>
+    <mxCell id="api_gateway" parent="edge_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;API Gateway" vertex="1">
+      <mxGeometry height="35.56" width="194" x="248" y="64.44" as="geometry" />
+    </mxCell>
+    <mxCell id="app_layer" parent="worker_env" style="swimlane;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=9;fontStyle=1;startSize=22;" value="&lt;b&gt;App Layer&lt;/b&gt;" vertex="1">
+      <mxGeometry height="483.2690124858116" width="460" x="12" y="261.77071509648124" as="geometry" />
+    </mxCell>
+    <mxCell id="art_user" parent="app_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;filmstars-user-service.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="79.8" width="210" x="10" y="30.2" as="geometry" />
+    </mxCell>
+    <mxCell id="user_svc" parent="app_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;User Service" vertex="1">
+      <mxGeometry height="40.56" width="194" x="18" y="59.44" as="geometry" />
+    </mxCell>
+    <mxCell id="art_catalog" parent="app_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;filmstars-catalog-service.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="79.8" width="210" x="240" y="30.2" as="geometry" />
+    </mxCell>
+    <mxCell id="catalog_svc" parent="app_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Catalog Service" vertex="1">
+      <mxGeometry height="39.56" width="194" x="248" y="60.44" as="geometry" />
+    </mxCell>
+    <mxCell id="art_booking" parent="app_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;filmstars-booking-service.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="89.18" width="210" x="10" y="120.82" as="geometry" />
+    </mxCell>
+    <mxCell id="booking_svc" parent="app_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Booking Service" vertex="1">
+      <mxGeometry height="48.95" width="194" x="18" y="151.05" as="geometry" />
+    </mxCell>
+    <mxCell id="art_payment" parent="app_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;filmstars-payment-service.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="89.18" width="210" x="240" y="120.82" as="geometry" />
+    </mxCell>
+    <mxCell id="payment_svc" parent="app_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Payment Service" vertex="1">
+      <mxGeometry height="49.95" width="194" x="248" y="150.05" as="geometry" />
+    </mxCell>
+    <mxCell id="data_layer" parent="worker_env" style="swimlane;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=9;fontStyle=1;startSize=22;" value="&lt;b&gt;Data Layer&lt;/b&gt;" vertex="1">
+      <mxGeometry height="261.77071509648124" width="460" x="12" y="765.1759364358683" as="geometry" />
+    </mxCell>
+    <mxCell id="art_pg" parent="data_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;postgres.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="58.39500567536889" width="430" x="10" y="30.204313280363223" as="geometry" />
+    </mxCell>
+    <mxCell id="users_db" parent="data_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Users DB" vertex="1">
+      <mxGeometry height="30.204313280363223" width="90" x="20" y="115.78363223609534" as="geometry" />
+    </mxCell>
+    <mxCell id="catalog_db" parent="data_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Catalog DB" vertex="1">
+      <mxGeometry height="30.204313280363223" width="90" x="110" y="186.82363223609534" as="geometry" />
+    </mxCell>
+    <mxCell id="reservations_db" parent="data_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Reservations DB" vertex="1">
+      <mxGeometry height="30.204313280363223" width="100" x="320" y="186.82363223609534" as="geometry" />
+    </mxCell>
+    <mxCell id="payments_db" parent="data_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Payments DB" vertex="1">
+      <mxGeometry height="30.204313280363223" width="100" x="320" y="118.80363223609534" as="geometry" />
+    </mxCell>
+    <mxCell id="messaging_layer" parent="worker_env" style="swimlane;fillColor=#FBE9E7;strokeColor=#D84315;fontSize=9;fontStyle=1;startSize=22;" value="&lt;b&gt;Messaging Layer&lt;/b&gt;" vertex="1">
+      <mxGeometry height="161.08967082860386" width="460" x="12" y="1047.082860385925" as="geometry" />
+    </mxCell>
+    <mxCell id="art_mq" parent="messaging_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;rabbitmq.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="88.66" width="180" x="50" y="51.34" as="geometry" />
+    </mxCell>
+    <mxCell id="rabbitmq" parent="messaging_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;RabbitMQ Broker" vertex="1">
+      <mxGeometry height="38.51" width="164" x="58" y="71.49" as="geometry" />
+    </mxCell>
+    <mxCell id="obs_layer" parent="worker_env" style="swimlane;fillColor=#FCE4EC;strokeColor=#B71C1C;fontSize=9;fontStyle=1;startSize=22;" value="&lt;b&gt;Observability&lt;/b&gt;" vertex="1">
+      <mxGeometry height="513.4733257661748" width="460" x="12" y="1228.3087400681043" as="geometry" />
+    </mxCell>
+    <mxCell id="art_prom" parent="obs_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;prometheus.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="80.54483541430193" width="200" x="10" y="30.204313280363223" as="geometry" />
+    </mxCell>
+    <mxCell id="prometheus" parent="obs_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Prometheus" vertex="1">
+      <mxGeometry height="26.177071509648126" width="182" x="18" y="64.43586833144154" as="geometry" />
+    </mxCell>
+    <mxCell id="art_grafana" parent="obs_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;grafana.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="80.54483541430193" width="200" x="240" y="30.204313280363223" as="geometry" />
+    </mxCell>
+    <mxCell id="grafana" parent="obs_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Grafana Dashboard" vertex="1">
+      <mxGeometry height="36.245175936435864" width="184" x="248" y="64.43586833144154" as="geometry" />
+    </mxCell>
+    <mxCell id="art_ksm" parent="obs_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;kube-state-metrics.tar&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="90.61293984108967" width="200" x="10" y="120.8172531214529" as="geometry" />
+    </mxCell>
+    <mxCell id="ksm" parent="obs_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;Kube State Metrics" vertex="1">
+      <mxGeometry height="36.245175936435864" width="184" x="18" y="155.0488081725312" as="geometry" />
+    </mxCell>
+    <mxCell id="art_cadvisor" parent="obs_layer" style="shape=document;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#4A148C;fontSize=9;verticalAlign=top;" value="&lt;b&gt;cadvisor&lt;/b&gt;&lt;br&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;" vertex="1">
+      <mxGeometry height="90.61293984108967" width="200" x="240" y="120.8172531214529" as="geometry" />
+    </mxCell>
+    <mxCell id="cadvisor" parent="obs_layer" style="shape=module;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#4A148C;fontSize=8;" value="&amp;lt;&amp;lt;component&amp;gt;&amp;gt;&lt;br&gt;cAdvisor (Kubelet)" vertex="1">
+      <mxGeometry height="36.245175936435864" width="184" x="248" y="155.0488081725312" as="geometry" />
+    </mxCell>
+    <mxCell id="e_tf_aws" edge="1" parent="1" source="tf" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1A237E;strokeWidth=2;fontColor=#1A237E;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="aws_cloud" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 443 (API AWS)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="140" y="1109" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_ans_master" edge="1" parent="1" source="ans" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#004D40;strokeWidth=2;fontColor=#004D40;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="master_node" value="&lt;b&gt;&amp;lt;&amp;lt;SSH&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 22">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_ans_worker" edge="1" parent="1" source="ans" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#004D40;strokeWidth=2;fontColor=#004D40;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="worker_node" value="&lt;b&gt;&amp;lt;&amp;lt;SSH&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 22">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="520" y="219" />
+          <mxPoint x="520" y="1122" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_kube_master" edge="1" parent="1" source="kube_cli" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#01579B;strokeWidth=2;fontColor=#01579B;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="master_env" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 6443 (Kube API)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="248" y="320" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_cicd_zot" edge="1" parent="1" source="cicd_env" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#FF8F00;strokeWidth=2;fontColor=#FF8F00;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="zot_comp" value="&lt;b&gt;&amp;lt;&amp;lt;TCP/IP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 30500 (Image Push)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="440" y="255" />
+          <mxPoint x="440" y="505" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_worker_zot" edge="1" parent="1" source="worker_env" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#FF8F00;strokeWidth=2;fontColor=#FF8F00;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="zot_comp" value="&lt;b&gt;&amp;lt;&amp;lt;TCP/IP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 30500 (Image Pull)">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_user_ingress" edge="1" parent="1" source="user_actor" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="ingress" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 443">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_admin_ingress" edge="1" parent="1" source="admin_actor" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#4A148C;strokeWidth=2;fontColor=#4A148C;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="ingress" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 443">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_ingress_front" edge="1" parent="1" source="ingress" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="frontend" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 80">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_ingress_gw" edge="1" parent="1" source="ingress" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="api_gateway" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8000">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="620" y="410" />
+          <mxPoint x="1425" y="410" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_ingress_grafana" edge="1" parent="1" source="ingress" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="grafana" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 3000">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="620" y="420" />
+          <mxPoint x="940" y="420" />
+          <mxPoint x="940" y="1650" />
+          <mxPoint x="1420" y="1650" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_front_gw" edge="1" parent="1" source="frontend" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="api_gateway" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8000">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_gw_user" edge="1" parent="1" source="api_gateway" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="user_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8001">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_gw_catalog" edge="1" parent="1" source="api_gateway" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="catalog_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8002">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_gw_booking" edge="1" parent="1" source="api_gateway" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="booking_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8003">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1320" y="422" />
+          <mxPoint x="1320" y="734" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_gw_payment" edge="1" parent="1" source="api_gateway" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;fontColor=#1565C0;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="payment_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8004">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1550" y="421.6971623155507" />
+          <mxPoint x="1550" y="733.8808172531217" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_user_db" edge="1" parent="1" source="user_svc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#2E7D32;strokeWidth=2;fontColor=#2E7D32;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="users_db" value="&lt;b&gt;&amp;lt;&amp;lt;TCP/IP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 5432">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_catalog_db" edge="1" parent="1" source="catalog_svc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#2E7D32;strokeWidth=2;fontColor=#2E7D32;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="catalog_db" value="&lt;b&gt;&amp;lt;&amp;lt;TCP/IP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 5432">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_booking_db" edge="1" parent="1" source="booking_svc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#2E7D32;strokeWidth=2;fontColor=#2E7D32;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="reservations_db" value="&lt;b&gt;&amp;lt;&amp;lt;TCP/IP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 5432">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1310" y="743" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_payment_db" edge="1" parent="1" source="payment_svc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#2E7D32;strokeWidth=2;fontColor=#2E7D32;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="payments_db" value="&lt;b&gt;&amp;lt;&amp;lt;TCP/IP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 5432">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1470" y="870" />
+          <mxPoint x="1470" y="870" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_booking_mq" edge="1" parent="1" source="booking_svc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#D84315;strokeWidth=2;fontColor=#D84315;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="rabbitmq" value="&lt;b&gt;&amp;lt;&amp;lt;AMQP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 5672">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_payment_mq" edge="1" parent="1" source="payment_svc" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#D84315;strokeWidth=2;fontColor=#D84315;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="rabbitmq" value="&lt;b&gt;&amp;lt;&amp;lt;AMQP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 5672">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="990" y="734" />
+          <mxPoint x="990" y="1429" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_gw" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="api_gateway" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8000 (Pod Discovery)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1310" y="1617" />
+          <mxPoint x="1310" y="423" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_user" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="user_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8001 (Pod Discovery)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1189" y="1630" />
+          <mxPoint x="970" y="1630" />
+          <mxPoint x="970" y="643" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_catalog" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="catalog_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8002 (Pod Discovery)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1300" y="1617" />
+          <mxPoint x="1300" y="653" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_booking" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="booking_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8003 (Pod Discovery)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1040" y="1613" />
+          <mxPoint x="1040" y="743" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_payment" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="payment_svc" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8004 (Pod Discovery)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1240" y="1530" />
+          <mxPoint x="1550" y="1530" />
+          <mxPoint x="1550" y="743" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_ingress" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="ingress" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 9100 (/metrics Traefik)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1190" y="1600" />
+          <mxPoint x="620" y="1600" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_ne_master" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="node_exporter_master" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 9100 (/metrics)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="500" y="1613" />
+          <mxPoint x="500" y="268" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_ne_worker" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="node_exporter_worker" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 9100 (/metrics)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1120" y="1590" />
+          <mxPoint x="1020" y="1590" />
+          <mxPoint x="1020" y="271" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_ksm" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="ksm" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 8080 (/metrics)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1080" y="1613.0000000000005" />
+          <mxPoint x="1080" y="1703.0000000000005" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e_prom_cadvisor" edge="1" parent="1" source="prometheus" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#B71C1C;strokeWidth=2;fontColor=#B71C1C;fontSize=8;dashed=1;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="cadvisor" value="&lt;b&gt;&amp;lt;&amp;lt;HTTPS&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 443 (vía Kube API Proxy)">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_grafana_prom" edge="1" parent="1" source="grafana" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#E65100;strokeWidth=2;fontColor=#E65100;fontSize=8;labelBackgroundColor=#FFFFFF;labelBorderColor=none;" target="prometheus" value="&lt;b&gt;&amp;lt;&amp;lt;HTTP&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Puerto 9090 (PromQL)">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1189" y="1640" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+  </root>
+</mxGraphModel>
